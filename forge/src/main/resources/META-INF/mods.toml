@@ -1,0 +1,28 @@
+modLoader = "javafml"
+loaderVersion = "[36,)"
+#issueTrackerURL = ""
+license = "Apache 2.0"
+
+[[mods]]
+modId = "cosmetica"
+version = "${version}"
+displayName = "Cosmetica"
+authors = "Valoeghese, Eyezah"
+description = '''
+Custom Cosmetics for Free, Forever.
+'''
+#logoFile = ""
+
+[[dependencies.cosmetica]]
+modId = "forge"
+mandatory = true
+versionRange = "[36,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.cosmetica]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.16.5,)"
+ordering = "NONE"
+side = "BOTH"

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "cosmetica",
+  "version": "${version}",
+  "name": "Cosmetica",
+  "description": "Custom Cosmetics for Free, Forever!",
+  "authors": [
+    "Valoeghese",
+    "Eyezah"
+  ],
+  "contact": {
+    "sources": "https://github.com/Cosmetica-cc/cosmetica-2",
+    "issues": "https://github.com/Cosmetica-cc/cosmetica-2/issues"
+  },
+  "license": "Apache 2.0",
+  "icon": "assets/cosmetica-core/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "main": [
+      "cc.cosmetica.cosmetica.fabric.CosmeticaFabric"
+    ]
+  },
+  "mixins": [
+    "cosmetica-common.mixins.json",
+    "cosmetica-fabric.mixins.json"
+  ],
+  "depends": {
+    "fabric": "*",
+    "cosmetica-core": "*",
+    "kupe": "*",
+    "minecraft": ">=1.16.5"
+  }
+}
