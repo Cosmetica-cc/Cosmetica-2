@@ -16,6 +16,7 @@
 
 package cc.cosmetica.cosmetica.forge;
 
+import cc.cosmetica.cosmetica.Cosmetica;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -27,6 +28,6 @@ public class CosmeticaForge {
 	}
 
 	private void onClientSetup(FMLClientSetupEvent event) {
-
+		Cosmetica.init();
 	}
 }

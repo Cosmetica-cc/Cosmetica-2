@@ -16,10 +16,12 @@
 
 package cc.cosmetica.cosmetica.fabric;
 
+import cc.cosmetica.cosmetica.Cosmetica;
 import net.fabricmc.api.ClientModInitializer;
 
 public class CosmeticaFabric implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
+		Cosmetica.init();
 	}
 }

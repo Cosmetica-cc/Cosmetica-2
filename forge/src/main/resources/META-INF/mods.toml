@@ -11,7 +11,7 @@ authors = "Valoeghese, Eyezah"
 description = '''
 Custom Cosmetics for Free, Forever.
 '''
-#logoFile = ""
+logoFile = "assets/cosmetica/icon.png"
 
 [[dependencies.cosmetica]]
 modId = "forge"

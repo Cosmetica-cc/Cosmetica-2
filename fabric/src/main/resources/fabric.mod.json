@@ -13,10 +13,10 @@
     "issues": "https://github.com/Cosmetica-cc/cosmetica-2/issues"
   },
   "license": "Apache 2.0",
-  "icon": "assets/cosmetica-core/icon.png",
+  "icon": "assets/cosmetica/icon.png",
   "environment": "client",
   "entrypoints": {
-    "main": [
+    "client": [
       "cc.cosmetica.cosmetica.fabric.CosmeticaFabric"
     ]
   },
