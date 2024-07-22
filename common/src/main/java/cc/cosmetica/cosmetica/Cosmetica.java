@@ -106,10 +106,9 @@ public class Cosmetica {
 	private static void startAuthentication() throws IOException {
 		// check for cached token
 		Path sessionsInfo = CACHE_DIRECTORY.resolve(".sessions");
+		Properties properties = new Properties();
 
 		if (Files.isRegularFile(sessionsInfo)) {
-			Properties properties = new Properties();
-
 			try (BufferedInputStream b = new BufferedInputStream(Files.newInputStream(sessionsInfo))) {
 				properties.load(b);
 			}
@@ -146,7 +145,6 @@ public class Cosmetica {
 
 					// Cache Token
 					if (!token.isEmpty()) { // we are using async code, so near-redundant operation just in case.
-						Properties properties = new Properties();
 						properties.setProperty("jwt-" + user.getUuid(), token);
 
 						try (BufferedOutputStream b = new BufferedOutputStream(Files.newOutputStream(sessionsInfo))) {
