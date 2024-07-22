@@ -21,6 +21,8 @@ import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.impl.BlockModelManager;
 import cc.cosmetica.core.impl.CosmeticaSession;
 import cc.cosmetica.core.impl.Logging;
+import cc.cosmetica.cosmetica.gui.CosmeticaHomeScreen;
+import cc.cosmetica.kupe.api.Screens;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
@@ -50,7 +52,7 @@ public class Cosmetica {
 
 		// ensure it's made
 		BlockModelManager.getLocation("dummy");
-		// TODO maybe expose the cache directory field internally in core, or use an accessor
+		// TODO expose getCacheFile (internally?)
 	}
 
 	public static void init() {
@@ -63,6 +65,8 @@ public class Cosmetica {
 				Logging.getInstance().error("Failed to log into Cosmetica", e);
 			}
 		}
+
+		registerScreens();
 	}
 
 	/*
@@ -103,6 +107,10 @@ public class Cosmetica {
 		return dir.toAbsolutePath().normalize();
 	}
 
+	/**
+	 * Start authenticating the mod with Cosmetica. Preferably uses the cached token for the current user.
+	 * @throws IOException if an IOException occurs while trying to access the session info.
+	 */
 	private static void startAuthentication() throws IOException {
 		// check for cached token
 		Path sessionsInfo = CACHE_DIRECTORY.resolve(".sessions");
@@ -158,5 +166,13 @@ public class Cosmetica {
 		});
 		t.setName("Cosmetica Login Worker");
 		t.start();
+	}
+
+	/**
+	 * Register Cosmetica's screens.
+	 */
+	private static void registerScreens() {
+		// TODO make registerScreen take a constructor to prevent unwanted persistent data
+		Screens.registerScreen(CosmeticaHomeScreen.ID, new CosmeticaHomeScreen());
 	}
 }
