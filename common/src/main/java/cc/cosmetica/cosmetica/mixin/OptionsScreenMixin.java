@@ -44,7 +44,7 @@ public abstract class OptionsScreenMixin extends Screen {
 								150, 20,
 								Text.translatable("buttons.cosmetica.home").toMinecraftComponent(),
 								button -> Screens.setScreen(CosmeticaHomeScreen.ID)));
-						break;
+						return;
 					}
 				}
 			}
