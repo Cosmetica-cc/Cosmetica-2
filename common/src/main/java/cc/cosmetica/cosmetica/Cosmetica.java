@@ -124,20 +124,22 @@ public class Cosmetica {
 			User user = Minecraft.getInstance().getUser();
 			String token = properties.getProperty("jwt-" + user.getUuid());
 
-			// parse jwt to check if expired
-			try {
-				byte[] info = Base64.getDecoder().decode(token.split("\\.")[1]);
-				JsonObject object = new JsonParser().parse(new InputStreamReader(new ByteArrayInputStream(info))).getAsJsonObject();
-				// get timestamp of expiry
-				String exp = object.get("exp").getAsString();
+			if (token != null) {
+				// parse jwt to check if expired
+				try {
+					byte[] info = Base64.getDecoder().decode(token.split("\\.")[1]);
+					JsonObject object = new JsonParser().parse(new InputStreamReader(new ByteArrayInputStream(info))).getAsJsonObject();
+					// get timestamp of expiry
+					String exp = object.get("exp").getAsString();
 
-				if (Long.parseLong(exp) - Instant.now().getEpochSecond() > 0) {
-					// use cached jwt
-					CosmeticaAPI.authenticate(token);
-					return;
+					if (Long.parseLong(exp) - Instant.now().getEpochSecond() > 0) {
+						// use cached jwt
+						CosmeticaAPI.authenticate(token);
+						return;
+					}
+				} catch (JsonParseException | IndexOutOfBoundsException e) {
+					throw new RuntimeException("Malformed JWT", e);
 				}
-			} catch (JsonParseException | IndexOutOfBoundsException e) {
-				throw new RuntimeException("Malformed JWT", e);
 			}
 		} else {
 			Files.createFile(sessionsInfo);

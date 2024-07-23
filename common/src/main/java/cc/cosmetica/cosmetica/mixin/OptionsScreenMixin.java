@@ -28,10 +28,6 @@ public abstract class OptionsScreenMixin extends Screen {
 		super(component);
 	}
 
-	@Shadow
-	@Final
-	private Options options;
-
 	@Inject(at=@At("RETURN"), method="init")
 	private void onInit(CallbackInfo info) {
 		for (GuiEventListener element: this.children) {
@@ -46,7 +42,7 @@ public abstract class OptionsScreenMixin extends Screen {
 						this.addButton(new Button(
 								this.width / 2 - 155, this.height / 6 + 48 - 6,
 								150, 20,
-								Text.translatable("cosmetica.cosmetics").toMinecraftComponent(),
+								Text.translatable("buttons.cosmetica.home").toMinecraftComponent(),
 								button -> Screens.setScreen(CosmeticaHomeScreen.ID)));
 						break;
 					}
