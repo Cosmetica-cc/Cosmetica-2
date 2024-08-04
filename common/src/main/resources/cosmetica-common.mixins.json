@@ -6,8 +6,6 @@
   "client": [
     "OptionsScreenMixin"
   ],
-  "mixins": [
-  ],
   "injectors": {
     "defaultRequire": 1
   }

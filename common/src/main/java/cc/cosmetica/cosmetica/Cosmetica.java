@@ -174,7 +174,9 @@ public class Cosmetica {
 	 * Register Cosmetica's screens.
 	 */
 	private static void registerScreens() {
-		// TODO make registerScreen take a constructor to prevent unwanted persistent data
+		// Use persistent screen object to keep state data
+		// - we want to keep track of what the user was last doing
+		// - this can be changed at any time by switching to the factory registerScreen
 		Screens.registerScreen(CosmeticaHomeScreen.ID, new CosmeticaHomeScreen());
 	}
 }

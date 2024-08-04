@@ -12,7 +12,9 @@ public class CosmeticaHomeScreen extends Screen {
 
 	@Override
 	protected Component[] build(Style.MutableStyle rootStyle) {
-		return new Component[0];
+		return new Component[] {
+				
+		};
 	}
 
 	public static final ResourceLocation ID = new ResourceLocation("cosmetica", "home");
