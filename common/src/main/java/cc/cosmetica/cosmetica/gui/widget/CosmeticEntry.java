@@ -18,11 +18,17 @@ package cc.cosmetica.cosmetica.gui.widget;
 
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;
+import cc.cosmetica.kupe.api.gui.style.CommonProperties;
+import cc.cosmetica.kupe.api.gui.style.RootStylesheet;
+import cc.cosmetica.kupe.api.gui.style.Style;
+import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import cc.cosmetica.kupe.api.maths.Axis2D;
+import cc.cosmetica.kupe.api.maths.Dimensions;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.resources.ResourceLocation;
 
-import java.awt.image.BufferedImage;
 import java.util.List;
+import java.util.OptionalInt;
 
 public class CosmeticEntry extends Component {
 	public CosmeticEntry(ResourceLocation icon, String id, String name, String owner) {
@@ -46,6 +52,17 @@ public class CosmeticEntry extends Component {
 						new Label(Text.literal(this.owner))
 				),
 				new Button(Text.literal("\\/"), () -> {})
-		));
+		).withStyle(STYLE));
+	}
+
+	private static final Stylesheet STYLE = new Stylesheet()
+			.component(Button.class, Style.create().setFixed(CommonProperties.MAXIMUM_SIZE, new Dimensions(20, 20)))
+			.self(Style.create()
+					.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
+					.set(CommonProperties.BACKGROUND_COLOUR, OptionalInt.of(0xFCBA03)));
+
+	static {
+		RootStylesheet.setDefaultOverrides(CosmeticEntry.class, Style.create()
+				.setFixed(CommonProperties.MAXIMUM_SIZE, new Dimensions(Integer.MAX_VALUE, 40)));
 	}
 }

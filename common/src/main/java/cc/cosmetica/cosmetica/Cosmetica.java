@@ -56,6 +56,7 @@ public class Cosmetica {
 	}
 
 	public static void init() {
+		Screens.enableDebug();
 		// cosmetica.token is used by core as for testing. we want to keep this behaviour for our testing.
 		if (!System.getProperties().containsKey("cosmetica.token")) {
 			// log in
