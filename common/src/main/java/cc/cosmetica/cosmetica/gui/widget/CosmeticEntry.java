@@ -26,6 +26,7 @@ import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.OptionalInt;
@@ -52,12 +53,17 @@ public class CosmeticEntry extends Component {
 						new Label(Text.literal(this.owner))
 				),
 				new Button(Text.literal("\\/"), () -> {})
-		).withStyle(STYLE));
+		).tag("centry_root"));
+	}
+
+	@Override
+	public @Nullable Stylesheet getStylesheet() {
+		return STYLE;
 	}
 
 	private static final Stylesheet STYLE = new Stylesheet()
 			.component(Button.class, Style.create().setFixed(CommonProperties.MAXIMUM_SIZE, new Dimensions(20, 20)))
-			.self(Style.create()
+			.tag("centry_root", Style.create()
 					.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
 					.set(CommonProperties.BACKGROUND_COLOUR, OptionalInt.of(0xFCBA03)));
 

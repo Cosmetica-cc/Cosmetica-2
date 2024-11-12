@@ -46,7 +46,7 @@ public class CosmeticaHomeScreen extends Screen {
 
 		return new Component[] {
 				new OutfitPlayer(cosmetics)
-						.withStyle(new Stylesheet().self(Style.create().set(CommonProperties.WIDTH, (vw, vh) -> OptionalInt.of(vw/2)))),
+						.withStyle(Style.create().set(CommonProperties.WIDTH, (vw, vh) -> OptionalInt.of(vw/2))),
 				new CosmeticsBrowser(Arrays.asList(
 						new CosmeticEntry(
 								new ResourceLocation("cosmetica:icon.png"),
@@ -55,7 +55,7 @@ public class CosmeticaHomeScreen extends Screen {
 								"Valoeghese"
 						)
 				))
-						.withStyle(new Stylesheet().self(Style.create().set(CommonProperties.WIDTH, (vw, vh) -> OptionalInt.of(vw/2))))
+						.withStyle(Style.create().set(CommonProperties.WIDTH, (vw, vh) -> OptionalInt.of(vw/2)))
 		};
 	}
 
