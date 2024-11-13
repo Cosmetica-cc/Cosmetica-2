@@ -20,10 +20,13 @@ import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Button;
 import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.Div;
+import cc.cosmetica.kupe.api.gui.style.CommonProperties;
+import cc.cosmetica.kupe.api.gui.style.Style;
 import com.google.common.collect.ImmutableList;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.OptionalInt;
 
 public class CosmeticsBrowser extends Component {
 	public CosmeticsBrowser(Collection<CosmeticEntry> entries) {
@@ -35,7 +38,8 @@ public class CosmeticsBrowser extends Component {
 	@Override
 	public List<Component> build() {
 		return ImmutableList.of(new Div(
-				new Div(this.entries),
+				new Div(this.entries)
+						.withStyle(Style.create().setFixed(CommonProperties.WIDTH, OptionalInt.of(200))),
 				new Button(Text.literal("+"), () -> {})
 		));
 	}

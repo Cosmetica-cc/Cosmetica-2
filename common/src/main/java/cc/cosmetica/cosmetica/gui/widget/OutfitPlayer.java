@@ -17,10 +17,7 @@
 package cc.cosmetica.cosmetica.gui.widget;
 
 import cc.cosmetica.kupe.api.Text;
-import cc.cosmetica.kupe.api.gui.Button;
-import cc.cosmetica.kupe.api.gui.Component;
-import cc.cosmetica.kupe.api.gui.FakePlayer;
-import cc.cosmetica.kupe.api.gui.Label;
+import cc.cosmetica.kupe.api.gui.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,9 +34,11 @@ public class OutfitPlayer extends Component {
 	@Override
 	public List<Component> build() {
 		return Arrays.asList(
-				new FakePlayer(player, true),
-				new Label(Text.literal("Outfit 1")),
-				new Button(Text.translatable("button.cosmetica.changeOutfit"), () -> {})
+				new Div(
+					new FakePlayer(player, true),
+					new Label(Text.literal("Outfit 1")),
+					new Button(Text.translatable("button.cosmetica.changeOutfit"), () -> {})
+				)
 		);
 	}
 }

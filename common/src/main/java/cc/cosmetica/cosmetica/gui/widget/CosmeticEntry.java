@@ -63,6 +63,8 @@ public class CosmeticEntry extends Component {
 
 	private static final Stylesheet STYLE = new Stylesheet()
 			.component(Button.class, Style.create().setFixed(CommonProperties.MAXIMUM_SIZE, new Dimensions(20, 20)))
+			.component(Image.class, Style.create()
+					.setFixed(CommonProperties.HEIGHT, OptionalInt.of(38)))
 			.tag("centry_root", Style.create()
 					.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
 					.set(CommonProperties.BACKGROUND_COLOUR, OptionalInt.of(0xFCBA03)));
