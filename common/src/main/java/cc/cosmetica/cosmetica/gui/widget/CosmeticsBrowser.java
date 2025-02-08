@@ -28,6 +28,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.OptionalInt;
 
+import static cc.cosmetica.kupe.api.gui.style.CommonProperties.fixed;
+
 public class CosmeticsBrowser extends Component {
 	public CosmeticsBrowser(Collection<CosmeticEntry> entries) {
 		this.entries = entries.toArray(new CosmeticEntry[0]);
@@ -39,7 +41,7 @@ public class CosmeticsBrowser extends Component {
 	public List<Component> build() {
 		return ImmutableList.of(new Div(
 				new Div(this.entries)
-						.withStyle(Style.create().setFixed(CommonProperties.WIDTH, OptionalInt.of(200))),
+						.withStyle(Style.create().set(CommonProperties.WIDTH, fixed(OptionalInt.of(200)))),
 				new Button(Text.literal("+"), () -> {})
 		));
 	}

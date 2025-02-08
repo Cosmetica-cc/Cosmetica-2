@@ -31,6 +31,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.OptionalInt;
 
+import static cc.cosmetica.kupe.api.gui.style.CommonProperties.fixed;
+
 public class CosmeticEntry extends Component {
 	public CosmeticEntry(ResourceLocation icon, String id, String name, String owner) {
 		this.icon = icon;
@@ -62,15 +64,15 @@ public class CosmeticEntry extends Component {
 	}
 
 	private static final Stylesheet STYLE = new Stylesheet()
-			.component(Button.class, Style.create().setFixed(CommonProperties.MAXIMUM_SIZE, new Dimensions(20, 20)))
+			.component(Button.class, Style.create().set(CommonProperties.MAXIMUM_SIZE, fixed(new Dimensions(20, 20))))
 			.component(Image.class, Style.create()
-					.setFixed(CommonProperties.HEIGHT, OptionalInt.of(38)))
+					.set(CommonProperties.HEIGHT, fixed(OptionalInt.of(38))))
 			.tag("centry_root", Style.create()
 					.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
 					.set(CommonProperties.BACKGROUND_COLOUR, OptionalInt.of(0xFCBA03)));
 
 	static {
 		RootStylesheet.setDefaultOverrides(CosmeticEntry.class, Style.create()
-				.setFixed(CommonProperties.MAXIMUM_SIZE, new Dimensions(Integer.MAX_VALUE, 40)));
+				.set(CommonProperties.MAXIMUM_SIZE, fixed(new Dimensions(Integer.MAX_VALUE, 40))));
 	}
 }

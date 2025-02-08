@@ -20,18 +20,24 @@ import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticsBrowser;
 import cc.cosmetica.cosmetica.gui.widget.OutfitPlayer;
 import cc.cosmetica.kupe.api.Screen;
+import cc.cosmetica.kupe.api.gui.Align;
 import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.Div;
+import cc.cosmetica.kupe.api.gui.Justify;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.OptionalInt;
 import java.util.UUID;
+
+import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 public class CosmeticaHomeScreen extends Screen {
 	public CosmeticaHomeScreen() {
@@ -39,14 +45,13 @@ public class CosmeticaHomeScreen extends Screen {
 	}
 
 	@Override
-	protected Component[] build(Style.MutableStyle rootStyle) {
-		rootStyle.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X);
+	protected Component[] buildScreen() {
 
 		UUID cosmetics = Minecraft.getInstance().getUser().getGameProfile().getId();
 
 		return new Component[] {
 				new OutfitPlayer(cosmetics)
-						.withStyle(Style.create().set(CommonProperties.WIDTH, (vw, vh) -> OptionalInt.of(vw/2))),
+						.withStyle(Style.create().set(CommonProperties.WIDTH, percent(0.5f, 0))),
 				new CosmeticsBrowser(Arrays.asList(
 						new CosmeticEntry(
 								new ResourceLocation("cosmetica:icon.png"),
@@ -54,9 +59,20 @@ public class CosmeticaHomeScreen extends Screen {
 								"Cosmetica",
 								"Valoeghese"
 						)
-				))
-						.withStyle(Style.create().set(CommonProperties.WIDTH, (vw, vh) -> OptionalInt.of(vw/2)))
+				)).withStyle(Style.create().set(CommonProperties.WIDTH, percent(0.5f, 0)))
 		};
+	}
+
+	@Override
+	public @Nullable Stylesheet getStylesheet() {
+		return new Stylesheet()
+				.tag("title", TITLE_DEFAULT_STYLE)
+				.tag("body", Style.create()
+						.set(CommonProperties.WIDTH, SCREEN_WIDTH)
+						.set(CommonProperties.HEIGHT, SCREEN_HEIGHT)
+						.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
+						.set(Div.JUSTIFY_CONTENT, Justify.CENTRE)
+						.set(Div.ALIGN_ITEMS, Align.CENTRE));
 	}
 
 	public static final ResourceLocation ID = new ResourceLocation("cosmetica", "home");
