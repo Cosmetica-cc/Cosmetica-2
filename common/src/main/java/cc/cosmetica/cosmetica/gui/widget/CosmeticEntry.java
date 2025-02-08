@@ -24,14 +24,16 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Dimensions;
+import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalInt;
 
-import static cc.cosmetica.kupe.api.gui.style.CommonProperties.fixed;
+import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 public class CosmeticEntry extends Component {
 	public CosmeticEntry(ResourceLocation icon, String id, String name, String owner) {
@@ -49,12 +51,14 @@ public class CosmeticEntry extends Component {
 	@Override
 	public List<Component> build() {
 		return ImmutableList.of(new Div(
-				new Image(this.icon),
+				new Image(this.icon)
+						.withStyle(Style.create().set(PADDING, fixed(new Margins(2)))),
 				new Div(
 						new Label(Text.literal(this.name)),
 						new Label(Text.literal(this.owner))
-				),
-				new Button(Text.literal("\\/"), () -> {})
+				).tag("centry_names"),
+				new Button(Text.literal("X"), () -> {})
+						.withStyle(Style.create().set(ALIGN_SELF, Optional.of(Align.START)))
 		).tag("centry_root"));
 	}
 
@@ -69,7 +73,10 @@ public class CosmeticEntry extends Component {
 					.set(CommonProperties.HEIGHT, fixed(OptionalInt.of(38))))
 			.tag("centry_root", Style.create()
 					.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
-					.set(CommonProperties.BACKGROUND_COLOUR, OptionalInt.of(0xFCBA03)));
+					.set(Div.ALIGN_ITEMS, Align.CENTRE)
+					.set(CommonProperties.BACKGROUND_COLOUR, OptionalInt.of(0xFCBA03)))
+			.tag("centry_names", Style.create()
+					.set(FLEX, 1));
 
 	static {
 		RootStylesheet.setDefaultOverrides(CosmeticEntry.class, Style.create()
