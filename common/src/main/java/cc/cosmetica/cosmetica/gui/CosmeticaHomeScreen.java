@@ -28,6 +28,7 @@ import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
+import cc.cosmetica.kupe.api.maths.Margins;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
@@ -59,7 +60,7 @@ public class CosmeticaHomeScreen extends Screen {
 								"Cosmetica",
 								"Valoeghese"
 						)
-				)).withStyle(Style.create().set(CommonProperties.WIDTH, percent(0.5f, 0)))
+				))
 		};
 	}
 
@@ -72,7 +73,11 @@ public class CosmeticaHomeScreen extends Screen {
 						.set(CommonProperties.HEIGHT, SCREEN_HEIGHT)
 						.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
 						.set(Div.JUSTIFY_CONTENT, Justify.CENTRE)
-						.set(Div.ALIGN_ITEMS, Align.CENTRE));
+						.set(Div.ALIGN_ITEMS, Align.CENTRE))
+				.component(CosmeticsBrowser.class, Style.create()
+						.set(CommonProperties.WIDTH, percent(0.5f, 0))
+						.set(HEIGHT, percent(0, 100))
+						.set(PADDING, fixed(new Margins(10))));
 	}
 
 	public static final ResourceLocation ID = new ResourceLocation("cosmetica", "home");

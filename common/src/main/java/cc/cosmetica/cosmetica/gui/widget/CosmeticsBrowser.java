@@ -22,15 +22,18 @@ import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.Div;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
+import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.OptionalInt;
 
-import static cc.cosmetica.kupe.api.gui.style.CommonProperties.fixed;
+import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
-public class CosmeticsBrowser extends Component {
+public class CosmeticsBrowser extends Div {
 	public CosmeticsBrowser(Collection<CosmeticEntry> entries) {
 		this.entries = entries.toArray(new CosmeticEntry[0]);
 	}
@@ -39,10 +42,17 @@ public class CosmeticsBrowser extends Component {
 
 	@Override
 	public List<Component> build() {
-		return ImmutableList.of(new Div(
+		return ImmutableList.of(
 				new Div(this.entries)
-						.withStyle(Style.create().set(CommonProperties.WIDTH, fixed(OptionalInt.of(200)))),
-				new Button(Text.literal("+"), () -> {})
-		));
+						.tag("width-200"),
+				new Button(Text.literal("+"), () -> {}).tag("width-200")
+		);
+	}
+
+	@Override
+	public @Nullable Stylesheet getStylesheet() {
+		return new Stylesheet()
+				.tag("width-200", Style.create()
+						.set(CommonProperties.WIDTH, fixed(OptionalInt.of(200))));
 	}
 }

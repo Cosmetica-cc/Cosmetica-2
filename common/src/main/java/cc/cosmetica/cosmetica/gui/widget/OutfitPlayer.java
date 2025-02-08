@@ -18,11 +18,11 @@ package cc.cosmetica.cosmetica.gui.widget;
 
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;
+import cc.cosmetica.kupe.api.gui.style.Style;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+
+import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 public class OutfitPlayer extends Component {
 	public OutfitPlayer(UUID player) {
@@ -35,10 +35,13 @@ public class OutfitPlayer extends Component {
 	public List<Component> build() {
 		return Arrays.asList(
 				new Div(
-					new FakePlayer(player, true),
+					new FakePlayer(player, true)
+							.withStyle(Style.create().set(WIDTH, screen(0.15f, 0))),
 					new Label(Text.literal("Outfit 1")),
 					new Button(Text.translatable("button.cosmetica.changeOutfit"), () -> {})
-				)
+							.withStyle(Style.create().set(WIDTH, fixed(OptionalInt.of(150))))
+				).withStyle(Style.create()
+						.set(Div.ALIGN_ITEMS, Align.CENTRE))
 		);
 	}
 }
