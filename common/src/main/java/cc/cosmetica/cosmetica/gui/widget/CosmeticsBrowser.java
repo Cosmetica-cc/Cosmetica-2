@@ -44,7 +44,7 @@ public class CosmeticsBrowser extends Div {
 	public List<Component> build() {
 		return ImmutableList.of(
 				new Div(this.entries)
-						.tag("width-200"),
+						.tag("width-200", "contents-wrapper"),
 				new Button(Text.literal("+"), () -> {}).tag("width-200")
 		);
 	}
@@ -52,6 +52,13 @@ public class CosmeticsBrowser extends Div {
 	@Override
 	public @Nullable Stylesheet getStylesheet() {
 		return new Stylesheet()
+				.component(CosmeticsBrowser.class, Style.create()
+						.set(MARGINS, fixed(new Margins(20, 0))))
+				.tag("contents-wrapper", Style.create()
+						.set(BACKGROUND_COLOUR, OptionalInt.of(0x000000))
+						.set(BORDER_SIZE, 1)
+						.set(FLEX, 1)
+						.set(PADDING, fixed(new Margins(1))))
 				.tag("width-200", Style.create()
 						.set(CommonProperties.WIDTH, fixed(OptionalInt.of(200))));
 	}

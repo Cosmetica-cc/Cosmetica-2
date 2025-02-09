@@ -51,14 +51,12 @@ public class CosmeticEntry extends Component {
 	@Override
 	public List<Component> build() {
 		return ImmutableList.of(new Div(
-				new Image(this.icon)
-						.withStyle(Style.create().set(PADDING, fixed(new Margins(2)))),
+				new Image(this.icon),
 				new Div(
 						new Label(Text.literal(this.name)),
 						new Label(Text.literal(this.owner))
 				).tag("centry_names"),
 				new Button(Text.literal("X"), () -> {})
-						.withStyle(Style.create().set(ALIGN_SELF, Optional.of(Align.START)))
 		).tag("centry_root"));
 	}
 
@@ -68,9 +66,12 @@ public class CosmeticEntry extends Component {
 	}
 
 	private static final Stylesheet STYLE = new Stylesheet()
-			.component(Button.class, Style.create().set(CommonProperties.MAXIMUM_SIZE, fixed(new Dimensions(20, 20))))
 			.component(Image.class, Style.create()
+					.set(PADDING, fixed(new Margins(2)))
 					.set(CommonProperties.HEIGHT, fixed(OptionalInt.of(38))))
+			.component(Button.class, Style.create()
+					.set(ALIGN_SELF, Optional.of(Align.START))
+					.set(CommonProperties.MAXIMUM_SIZE, fixed(new Dimensions(20, 20))))
 			.tag("centry_root", Style.create()
 					.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
 					.set(Div.ALIGN_ITEMS, Align.CENTRE)
