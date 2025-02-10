@@ -36,7 +36,7 @@ public class OutfitPlayer extends Component {
 		return Arrays.asList(
 				new Div(
 					new FakePlayer(player, true)
-							.withStyle(Style.create().set(WIDTH, screen(0.15f, 0))),
+							.withStyle(Style.create().set(WIDTH, fixed(OptionalInt.of(50)))),
 					new Label(Text.literal("Outfit 1")),
 					new Button(Text.translatable("button.cosmetica.changeOutfit"), () -> {})
 							.withStyle(Style.create().set(WIDTH, fixed(OptionalInt.of(150))))
