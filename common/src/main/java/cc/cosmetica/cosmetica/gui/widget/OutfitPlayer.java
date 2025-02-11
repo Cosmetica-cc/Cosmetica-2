@@ -41,6 +41,7 @@ public class OutfitPlayer extends Component {
 					new Button(Text.translatable("button.cosmetica.changeOutfit"), () -> {})
 							.withStyle(Style.create().set(WIDTH, fixed(OptionalInt.of(150))))
 				).withStyle(Style.create()
+						.set(Div.JUSTIFY_CONTENT, Justify.CENTRE)
 						.set(Div.ALIGN_ITEMS, Align.CENTRE))
 		);
 	}

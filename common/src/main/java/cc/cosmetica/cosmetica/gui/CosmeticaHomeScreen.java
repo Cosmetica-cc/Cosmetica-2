@@ -20,14 +20,13 @@ import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticsBrowser;
 import cc.cosmetica.cosmetica.gui.widget.OutfitPlayer;
 import cc.cosmetica.kupe.api.Screen;
-import cc.cosmetica.kupe.api.gui.Align;
-import cc.cosmetica.kupe.api.gui.Component;
-import cc.cosmetica.kupe.api.gui.Div;
-import cc.cosmetica.kupe.api.gui.Justify;
+import cc.cosmetica.kupe.api.Text;
+import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
+import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
@@ -51,8 +50,15 @@ public class CosmeticaHomeScreen extends Screen {
 		UUID cosmetics = Minecraft.getInstance().getUser().getGameProfile().getId();
 
 		return new Component[] {
-				new OutfitPlayer(cosmetics)
-						.withStyle(Style.create().set(CommonProperties.WIDTH, percent(0.5f, 0))),
+				new LayeredSpace(true,
+						new OutfitPlayer(cosmetics),
+						new Div(
+								new Button(Text.literal("⛭"), () -> {})
+										.withStyle(Style.create().set(MAXIMUM_SIZE, fixed(new Dimensions(20, 20))))
+						)
+				).withStyle(Style.create()
+						.set(WIDTH, percent(50, 0))
+						.set(HEIGHT, percent(0, 100))),
 				new CosmeticsBrowser(Arrays.asList(
 						new CosmeticEntry(
 								new ResourceLocation("cosmetica:icon.png"),
@@ -75,7 +81,7 @@ public class CosmeticaHomeScreen extends Screen {
 						.set(Div.JUSTIFY_CONTENT, Justify.CENTRE)
 						.set(Div.ALIGN_ITEMS, Align.CENTRE))
 				.component(CosmeticsBrowser.class, Style.create()
-						.set(CommonProperties.WIDTH, percent(0.5f, 0))
+						.set(CommonProperties.WIDTH, percent(50, 0))
 						.set(HEIGHT, percent(0, 100))
 						.set(PADDING, fixed(new Margins(10))));
 	}

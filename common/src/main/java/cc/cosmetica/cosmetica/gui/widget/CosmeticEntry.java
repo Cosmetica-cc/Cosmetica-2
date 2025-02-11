@@ -68,19 +68,19 @@ public class CosmeticEntry extends Component {
 	private static final Stylesheet STYLE = new Stylesheet()
 			.component(Image.class, Style.create()
 					.set(PADDING, fixed(new Margins(2)))
-					.set(CommonProperties.HEIGHT, fixed(OptionalInt.of(38))))
+					.set(HEIGHT, fixed(OptionalInt.of(38))))
 			.component(Button.class, Style.create()
 					.set(ALIGN_SELF, Optional.of(Align.START))
-					.set(CommonProperties.MAXIMUM_SIZE, fixed(new Dimensions(20, 20))))
+					.set(MAXIMUM_SIZE, fixed(new Dimensions(20, 20))))
 			.tag("centry_root", Style.create()
 					.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
 					.set(Div.ALIGN_ITEMS, Align.CENTRE)
-					.set(CommonProperties.BACKGROUND_COLOUR, OptionalInt.of(0xFCBA03)))
+					.set(BACKGROUND_COLOUR, OptionalInt.of(0xFCBA03)))
 			.tag("centry_names", Style.create()
 					.set(FLEX, 1));
 
 	static {
 		RootStylesheet.setDefaultOverrides(CosmeticEntry.class, Style.create()
-				.set(CommonProperties.MAXIMUM_SIZE, fixed(new Dimensions(Integer.MAX_VALUE, 40))));
+				.set(MAXIMUM_SIZE, fixed(new Dimensions(Integer.MAX_VALUE, 40))));
 	}
 }
