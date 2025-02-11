@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.cosmetica.gui;
+package cc.cosmetica.cosmetica.fabric;
 
-import cc.cosmetica.kupe.api.Screen;
-import cc.cosmetica.kupe.api.gui.Component;
-import net.minecraft.resources.ResourceLocation;
+import cc.cosmetica.cosmetica.gui.CosmeticaSettingsScreen;
+import cc.cosmetica.kupe.api.Screens;
+import com.terraformersmc.modmenu.api.ConfigScreenFactory;
+import com.terraformersmc.modmenu.api.ModMenuApi;
+import net.minecraft.client.gui.screens.Screen;
 
-public class CosmeticaSettingsScreen extends Screen {
-    public CosmeticaSettingsScreen() {
-        super(ID);
-    }
-
-    @Override
-    protected Component[] buildScreen() {
-        return new Component[0];
-    }
-
-    public static final ResourceLocation ID = new ResourceLocation("cosmetica", "settings");
+public class ModMenuCompat implements ModMenuApi {
+    /*@Override
+    public ConfigScreenFactory<?> getModConfigScreenFactory() {
+        return parent -> Screens.setScreen(CosmeticaSettingsScreen.ID);
+    }*/
 }

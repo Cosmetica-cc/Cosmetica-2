@@ -18,6 +18,9 @@
   "entrypoints": {
     "client": [
       "cc.cosmetica.cosmetica.fabric.CosmeticaFabric"
+    ],
+    "modmenu": [
+      "cc.cosmetica.cosmetica.fabric.ModMenuCompat"
     ]
   },
   "mixins": [
@@ -28,6 +31,6 @@
     "fabric": "*",
     "cosmetica-core": "*",
     "kupe": "*",
-    "minecraft": ">=1.16.5"
+    "minecraft": "<1.17"
   }
 }

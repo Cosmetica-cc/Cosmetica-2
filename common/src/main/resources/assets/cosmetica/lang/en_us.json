@@ -1,5 +1,6 @@
 {
   "buttons.cosmetica.home": "Cosmetica...",
   "button.cosmetica.changeOutfit": "Change Outfit",
-  "screens.cosmetica.home": "Cosmetica"
+  "screens.cosmetica.home": "Cosmetica",
+  "screens.cosmetica.settings": "Cosmetica Settings"
 }

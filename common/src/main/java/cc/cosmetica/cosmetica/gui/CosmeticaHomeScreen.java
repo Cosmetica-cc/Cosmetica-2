@@ -16,10 +16,12 @@
 
 package cc.cosmetica.cosmetica.gui;
 
+import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticsBrowser;
 import cc.cosmetica.cosmetica.gui.widget.OutfitPlayer;
 import cc.cosmetica.kupe.api.Screen;
+import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
@@ -53,7 +55,7 @@ public class CosmeticaHomeScreen extends Screen {
 				new LayeredSpace(true,
 						new OutfitPlayer(cosmetics),
 						new Div(
-								new Button(Text.literal("⛭"), () -> {})
+								new Button(Text.literal("⛭"), () -> Screens.setScreen(CosmeticaSettingsScreen.ID))
 										.withStyle(Style.create().set(MAXIMUM_SIZE, fixed(new Dimensions(20, 20))))
 						)
 				).withStyle(Style.create()

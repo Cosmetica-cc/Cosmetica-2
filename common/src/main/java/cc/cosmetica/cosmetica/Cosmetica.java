@@ -22,6 +22,7 @@ import cc.cosmetica.core.impl.BlockModelManager;
 import cc.cosmetica.core.impl.CosmeticaSession;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.gui.CosmeticaHomeScreen;
+import cc.cosmetica.cosmetica.gui.CosmeticaSettingsScreen;
 import cc.cosmetica.kupe.api.Screens;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -179,5 +180,6 @@ public class Cosmetica {
 		// - we want to keep track of what the user was last doing
 		// - this can be changed at any time by switching to the factory registerScreen
 		Screens.registerScreen(CosmeticaHomeScreen.ID, new CosmeticaHomeScreen());
+		Screens.registerScreen(CosmeticaSettingsScreen.ID, new CosmeticaSettingsScreen());
 	}
 }
