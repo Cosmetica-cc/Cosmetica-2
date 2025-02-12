@@ -16,15 +16,14 @@
 
 package cc.cosmetica.cosmetica.fabric;
 
-import cc.cosmetica.cosmetica.gui.CosmeticaSettingsScreen;
+import cc.cosmetica.cosmetica.gui.CosmeticaHomeScreen;
 import cc.cosmetica.kupe.api.Screens;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
-import net.minecraft.client.gui.screens.Screen;
 
 public class ModMenuCompat implements ModMenuApi {
-    /*@Override
+    @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
-        return parent -> Screens.setScreen(CosmeticaSettingsScreen.ID);
-    }*/
+        return parent -> Screens.getMinecraftScreen(CosmeticaHomeScreen.ID, parent);
+    }
 }
