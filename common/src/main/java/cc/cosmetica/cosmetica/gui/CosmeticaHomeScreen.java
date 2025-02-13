@@ -16,6 +16,10 @@
 
 package cc.cosmetica.cosmetica.gui;
 
+import cc.cosmetica.core.api.Accessory;
+import cc.cosmetica.core.api.CachedImage;
+import cc.cosmetica.core.api.Cosmetics;
+import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticsBrowser;
 import cc.cosmetica.cosmetica.gui.widget.OutfitPlayer;
@@ -30,10 +34,13 @@ import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
+import gg.cloaks.javaclient.model.Cosmetic;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
@@ -45,11 +52,15 @@ public class CosmeticaHomeScreen extends Screen {
 
 	@Override
 	protected Component[] buildScreen() {
-		UUID cosmetics = Minecraft.getInstance().getUser().getGameProfile().getId();
+		UUID self = Minecraft.getInstance().getUser().getGameProfile().getId();
+
+		Cosmetics cosmetics = Cosmetica.OWN_COSMETICS.acquire(this);
+		List<CosmeticEntry> entryList = new ArrayList<>();
+		this.populateEntryList(entryList, cosmetics);
 
 		return new Component[] {
 				new LayeredSpace(true,
-						new OutfitPlayer(cosmetics),
+						new OutfitPlayer(self),
 						new Div(
 								new Button(Text.literal("⛭"), () -> Screens.setScreen(CosmeticaSettingsScreen.ID))
 										.withStyle(Style.create().set(MAXIMUM_SIZE, fixed(new Dimensions(20, 20))))
@@ -57,15 +68,34 @@ public class CosmeticaHomeScreen extends Screen {
 				).withStyle(Style.create()
 						.set(WIDTH, percent(50, 0))
 						.set(HEIGHT, percent(0, 100))),
-				new CosmeticsBrowser(Arrays.asList(
-						new CosmeticEntry(
-								new ResourceKey("cosmetica", "icon.png"),
-								"asdfasdf",
-								"Cosmetica",
-								"Valoeghese"
-						)
-				))
+				new CosmeticsBrowser(entryList)
 		};
+	}
+
+	private void populateEntryList(final List<CosmeticEntry> entryList, Cosmetics cosmetics) {
+		if (cosmetics == null)
+			return; // no cosmetics
+		// TODO this should only show API cosmetics no? Or at least only allow editing if controlling manager is self.
+		// some kind of notification if no internet
+		// this also means for local player, even when null, we need to handle backup cosmetics no?
+
+		if (cosmetics.getCloak() != CachedImage.NO_TEXTURE) {
+			entryList.add(new CosmeticEntry(
+					new ResourceKey("cosmetica", "icon.png"),
+					"todo get id",
+					"todo get name",
+					"todo get owner"
+			));
+		}
+
+		for (Accessory accessory : cosmetics.getAccessories()) {
+			entryList.add(new CosmeticEntry(
+					new ResourceKey("cosmetica", "icon.png"),
+					"todo get id", // todo get id
+					accessory.getName(),
+					"todo get owner" // todo get owner
+			));
+		}
 	}
 
 	@Override
