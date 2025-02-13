@@ -25,11 +25,13 @@ import java.util.*;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 public class OutfitPlayer extends Component {
-	public OutfitPlayer(UUID player) {
+	public OutfitPlayer(UUID player, String outfitName) {
 		this.player = player;
+		this.outfitName = outfitName;
 	}
 
 	private final UUID player;
+	private final String outfitName;
 
 	@Override
 	public List<Component> build() {
@@ -37,7 +39,7 @@ public class OutfitPlayer extends Component {
 				new Div(
 					new FakePlayer(player, true)
 							.withStyle(Style.create().set(WIDTH, fixed(OptionalInt.of(50)))),
-					new Label(Text.literal("Outfit 1")),
+					new Label(Text.literal(this.outfitName)),
 					new Button(Text.translatable("button.cosmetica.changeOutfit"), () -> {})
 							.withStyle(Style.create().set(WIDTH, fixed(OptionalInt.of(150))))
 				).withStyle(Style.create()

@@ -38,10 +38,7 @@ import gg.cloaks.javaclient.model.Cosmetic;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
@@ -60,7 +57,7 @@ public class CosmeticaHomeScreen extends Screen {
 
 		return new Component[] {
 				new LayeredSpace(true,
-						new OutfitPlayer(self),
+						new OutfitPlayer(self, Optional.ofNullable(cosmetics).flatMap(Cosmetics::getOutfitName).orElse("§7No Outfit")),
 						new Div(
 								new Button(Text.literal("⛭"), () -> Screens.setScreen(CosmeticaSettingsScreen.ID))
 										.withStyle(Style.create().set(MAXIMUM_SIZE, fixed(new Dimensions(20, 20))))
