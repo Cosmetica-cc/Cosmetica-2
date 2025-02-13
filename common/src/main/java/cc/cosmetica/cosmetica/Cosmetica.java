@@ -24,12 +24,14 @@ import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.gui.CosmeticaHomeScreen;
 import cc.cosmetica.cosmetica.gui.CosmeticaSettingsScreen;
 import cc.cosmetica.kupe.api.Screens;
+import cc.cosmetica.kupe.api.State;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -57,12 +59,19 @@ public class Cosmetica {
 		// TODO expose getCacheFile (internally?)
 	}
 
+	public static final State<@Nullable Cosmetics> OWN_COSMETICS = new State<>(null);
+
 	public static void init() {
 		Screens.setAllowDebug(true);
 
 		// cosmetic states
 		Cosmetics.registerCosmeticsChangeCallback((le, cosmetics) -> {
-			if (le instanceof Player) {
+			if (le == null) {
+				System.out.println("Received own cosmetics");
+				Minecraft.getInstance().tell(() -> {
+					OWN_COSMETICS.set(cosmetics);
+				});
+			} else if (le instanceof Player) {
 				Minecraft.getInstance().tell(() -> {
 					((StateHolder) le).cosmetica$setCosmeticState(cosmetics);
 				});
