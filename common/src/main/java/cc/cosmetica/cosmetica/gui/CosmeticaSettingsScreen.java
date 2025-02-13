@@ -16,9 +16,9 @@
 
 package cc.cosmetica.cosmetica.gui;
 
+import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.gui.Component;
-import net.minecraft.resources.ResourceLocation;
 
 public class CosmeticaSettingsScreen extends Screen {
     public CosmeticaSettingsScreen() {
@@ -30,5 +30,5 @@ public class CosmeticaSettingsScreen extends Screen {
         return new Component[0];
     }
 
-    public static final ResourceLocation ID = new ResourceLocation("cosmetica", "settings");
+    public static final ResourceKey ID = new ResourceKey("cosmetica", "settings");
 }

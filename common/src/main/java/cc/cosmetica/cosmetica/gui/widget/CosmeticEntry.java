@@ -16,9 +16,9 @@
 
 package cc.cosmetica.cosmetica.gui.widget;
 
+import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;
-import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.RootStylesheet;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
@@ -36,14 +36,14 @@ import java.util.OptionalInt;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 public class CosmeticEntry extends Component {
-	public CosmeticEntry(ResourceLocation icon, String id, String name, String owner) {
+	public CosmeticEntry(ResourceKey icon, String id, String name, String owner) {
 		this.icon = icon;
 		this.id = id;
 		this.name = name;
 		this.owner = owner;
 	}
 
-	private final ResourceLocation icon;
+	private final ResourceKey icon;
 	private final String id;
 	private final String name;
 	private final String owner;

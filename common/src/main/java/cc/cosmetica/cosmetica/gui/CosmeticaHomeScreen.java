@@ -16,11 +16,10 @@
 
 package cc.cosmetica.cosmetica.gui;
 
-import cc.cosmetica.cosmetica.StateHolder;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticsBrowser;
 import cc.cosmetica.cosmetica.gui.widget.OutfitPlayer;
-import cc.cosmetica.cosmetica.mixin.PlayerMixin;
+import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
@@ -32,7 +31,6 @@ import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -61,7 +59,7 @@ public class CosmeticaHomeScreen extends Screen {
 						.set(HEIGHT, percent(0, 100))),
 				new CosmeticsBrowser(Arrays.asList(
 						new CosmeticEntry(
-								new ResourceLocation("cosmetica:icon.png"),
+								new ResourceKey("cosmetica", "icon.png"),
 								"asdfasdf",
 								"Cosmetica",
 								"Valoeghese"
@@ -86,5 +84,5 @@ public class CosmeticaHomeScreen extends Screen {
 						.set(PADDING, fixed(new Margins(10))));
 	}
 
-	public static final ResourceLocation ID = new ResourceLocation("cosmetica", "home");
+	public static final ResourceKey ID = new ResourceKey("cosmetica", "home");
 }
