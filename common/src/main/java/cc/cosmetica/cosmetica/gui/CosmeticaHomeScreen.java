@@ -16,10 +16,11 @@
 
 package cc.cosmetica.cosmetica.gui;
 
-import cc.cosmetica.cosmetica.Cosmetica;
+import cc.cosmetica.cosmetica.StateHolder;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticsBrowser;
 import cc.cosmetica.cosmetica.gui.widget.OutfitPlayer;
+import cc.cosmetica.cosmetica.mixin.PlayerMixin;
 import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
@@ -35,8 +36,6 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.OptionalInt;
 import java.util.UUID;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
@@ -48,7 +47,6 @@ public class CosmeticaHomeScreen extends Screen {
 
 	@Override
 	protected Component[] buildScreen() {
-
 		UUID cosmetics = Minecraft.getInstance().getUser().getGameProfile().getId();
 
 		return new Component[] {

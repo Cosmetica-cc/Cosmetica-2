@@ -18,9 +18,11 @@ package cc.cosmetica.cosmetica;
 
 import cc.cosmetica.core.CosmeticaCoreExpectPlatform;
 import cc.cosmetica.core.api.CosmeticaAPI;
+import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.core.impl.BlockModelManager;
 import cc.cosmetica.core.impl.CosmeticaSession;
 import cc.cosmetica.core.impl.Logging;
+import cc.cosmetica.core.impl.MasterCosmeticManager;
 import cc.cosmetica.cosmetica.gui.CosmeticaHomeScreen;
 import cc.cosmetica.cosmetica.gui.CosmeticaSettingsScreen;
 import cc.cosmetica.kupe.api.Screens;
@@ -29,6 +31,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
+import net.minecraft.world.entity.player.Player;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -58,6 +61,16 @@ public class Cosmetica {
 
 	public static void init() {
 		Screens.setAllowDebug(true);
+
+		// cosmetic states
+		Cosmetics.registerCosmeticsChangeCallback((le, cosmetics) -> {
+			if (le instanceof Player) {
+				Minecraft.getInstance().tell(() -> {
+					((StateHolder) le).cosmetica$setCosmeticState(cosmetics);
+				});
+			}
+		});
+
 		// cosmetica.token is used by core as for testing. we want to keep this behaviour for our testing.
 		if (!System.getProperties().containsKey("cosmetica.token")) {
 			// log in
