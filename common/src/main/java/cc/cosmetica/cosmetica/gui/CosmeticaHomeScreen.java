@@ -19,6 +19,7 @@ package cc.cosmetica.cosmetica.gui;
 import cc.cosmetica.core.api.Accessory;
 import cc.cosmetica.core.api.CachedImage;
 import cc.cosmetica.core.api.Cosmetics;
+import cc.cosmetica.core.api.ImageCosmetic;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticsBrowser;
@@ -34,11 +35,13 @@ import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
-import gg.cloaks.javaclient.model.Cosmetic;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
@@ -69,28 +72,36 @@ public class CosmeticaHomeScreen extends Screen {
 		};
 	}
 
+	/**
+	 * Create the GUI cosmetic list entries for each cosmetic the player is wearing.
+	 * @param entryList the list to populate.
+	 * @param cosmetics the cosmetics the player is wearing.
+	 */
 	private void populateEntryList(final List<CosmeticEntry> entryList, Cosmetics cosmetics) {
 		if (cosmetics == null)
 			return; // no cosmetics
+
 		// TODO this should only show API cosmetics no? Or at least only allow editing if controlling manager is self.
 		// some kind of notification if no internet
 		// this also means for local player, even when null, we need to handle backup cosmetics no?
 
-		if (cosmetics.getCloak() != CachedImage.NO_TEXTURE) {
+		if (cosmetics.getCloak().isPresent()) {
+			ImageCosmetic cosmetic = cosmetics.getCloak().get();
+
 			entryList.add(new CosmeticEntry(
 					new ResourceKey("cosmetica", "icon.png"),
-					"todo get id",
-					"todo get name",
-					"todo get owner"
+					cosmetic.getId(),
+					cosmetic.getName(),
+					cosmetic.getCreator().isPresent() ? cosmetic.getCreator().get().getName() : "Could not load creator"
 			));
 		}
 
 		for (Accessory accessory : cosmetics.getAccessories()) {
 			entryList.add(new CosmeticEntry(
 					new ResourceKey("cosmetica", "icon.png"),
-					"todo get id", // todo get id
+					accessory.getId(), // todo get id
 					accessory.getName(),
-					"todo get owner" // todo get owner
+					accessory.getCreator().isPresent() ? accessory.getCreator().get().getName() : "Could not load creator"
 			));
 		}
 	}

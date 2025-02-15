@@ -30,6 +30,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,23 +44,8 @@ import java.util.Locale;
 import java.util.Properties;
 
 public class Cosmetica {
-	private static final Path CACHE_DIRECTORY;
-
-	static {
-		Path minecraftDir = findDefaultInstallDir("minecraft");
-
-		if (Files.isDirectory(minecraftDir)) {
-			CACHE_DIRECTORY = minecraftDir.resolve(".cosmetica");
-		} else {
-			CACHE_DIRECTORY = CosmeticaCoreExpectPlatform.getGameDirectory().resolve(".cosmetica");
-		}
-
-		// ensure it's made
-		BlockModelManager.getLocation("dummy");
-		// TODO expose getCacheFile (internally?)
-	}
-
 	public static final State<@Nullable Cosmetics> OWN_COSMETICS = new State<>(null);
+	private static final ResourceLocation SESSIONS = new ResourceLocation("cosmetica", ".sessions");
 
 	public static void init() {
 		Screens.setAllowDebug(true);
@@ -91,51 +77,13 @@ public class Cosmetica {
 		registerScreens();
 	}
 
-	/*
-	 * Adapted from code at https://github.com/FabricMC/fabric-installer
-	 * Original license has been preserved for this method.
-	 *
-	 * Copyright (c) 2016, 2017, 2018, 2019 FabricMC
-	 *
-	 * Licensed under the Apache License, Version 2.0 (the "License");
-	 * you may not use this file except in compliance with the License.
-	 * You may obtain a copy of the License at
-	 *
-	 *     http://www.apache.org/licenses/LICENSE-2.0
-	 *
-	 * Unless required by applicable law or agreed to in writing, software
-	 * distributed under the License is distributed on an "AS IS" BASIS,
-	 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-	 * See the License for the specific language governing permissions and
-	 * limitations under the License.
-	 */
-	private static Path findDefaultInstallDir(String application) {
-		String os = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
-		Path dir;
-
-		if (os.contains("win") && System.getenv("APPDATA") != null) {
-			dir = Paths.get(System.getenv("APPDATA")).resolve("." + application);
-		} else {
-			String home = System.getProperty("user.home", ".");
-			Path homeDir = Paths.get(home);
-
-			if (os.contains("mac")) {
-				dir = homeDir.resolve("Library").resolve("Application Support").resolve(application);
-			} else {
-				dir = homeDir.resolve("." + application);
-			}
-		}
-
-		return dir.toAbsolutePath().normalize();
-	}
-
 	/**
 	 * Start authenticating the mod with Cosmetica. Preferably uses the cached token for the current user.
 	 * @throws IOException if an IOException occurs while trying to access the session info.
 	 */
 	private static void startAuthentication() throws IOException {
 		// check for cached token
-		Path sessionsInfo = CACHE_DIRECTORY.resolve(".sessions");
+		Path sessionsInfo = BlockModelManager.getCacheFile(SESSIONS);
 		Properties properties = new Properties();
 
 		if (Files.isRegularFile(sessionsInfo)) {
