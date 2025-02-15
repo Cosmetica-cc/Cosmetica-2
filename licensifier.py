@@ -1,7 +1,7 @@
 from os import listdir, path
 
 APACHE = """/*
- * Copyright 2024 Cosmetica
+ * Copyright 2024, 2025 Cosmetica
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
