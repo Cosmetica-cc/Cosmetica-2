@@ -7,7 +7,7 @@ Now version 2.0
 
 ## Acknowledgements
 
-Uses https://github.com/burningtnt/SimpleWEBP for webp parsing.
+Uses Apache Commons Imaging (Apache 2.0) for webp parsing.
 
 Contributing
 =================================

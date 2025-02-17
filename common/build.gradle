@@ -18,8 +18,8 @@ dependencies {
     // Kupe
     modApi "cc.cosmetica:kupe:${rootProject.kupe_version}"
 
-    // Simple Webp
-    api "com.github.burningtnt:SimpleWebp:65c706b61f"
+    // Webp Support
+    api "org.apache.commons:commons-imaging:${rootProject.imaging_version}"
 }
 
 publishing {
