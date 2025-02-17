@@ -2,6 +2,12 @@ architectury {
     common(rootProject.enabled_platforms.split(","))
 }
 
+repositories {
+    maven {
+        url 'https://www.jitpack.io'
+    }
+}
+
 dependencies {
     // We depend on fabric loader here to use the fabric @Environment annotations and get the mixin dependencies
     // Do NOT use other classes from fabric loader
@@ -11,6 +17,9 @@ dependencies {
     modApi "cc.cosmetica:cosmetica-core:${rootProject.core_version}"
     // Kupe
     modApi "cc.cosmetica:kupe:${rootProject.kupe_version}"
+
+    // Simple Webp
+    api "com.github.burningtnt:SimpleWebp:65c706b61f"
 }
 
 publishing {

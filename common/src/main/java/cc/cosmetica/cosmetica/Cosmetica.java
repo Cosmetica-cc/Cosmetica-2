@@ -28,13 +28,22 @@ import cc.cosmetica.kupe.api.State;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
+import com.mojang.blaze3d.platform.NativeImage;
+import net.burningtnt.webp.SimpleWEBPLoader;
+import net.burningtnt.webp.utils.RGBABuffer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import org.apache.commons.io.FileUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,6 +51,8 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class Cosmetica {
 	public static final State<@Nullable Cosmetics> OWN_COSMETICS = new State<>(null);
@@ -138,6 +149,53 @@ public class Cosmetica {
 		});
 		t.setName("Cosmetica Login Worker");
 		t.start();
+	}
+
+	/**
+	 * Based on NativeImage#load (lambda method_22801)
+	 */
+	public static void downloadWebpToPng(String source, @NotNull File destination,
+										 Function<InputStream, NativeImage> load, Consumer<NativeImage> onLoad) {
+		HttpURLConnection connection = null;
+		Logging.getInstance().debug("WEBP: Downloading {} to {}", source, destination);
+
+		try {
+			connection = (HttpURLConnection)(new URL(source))
+					.openConnection(Minecraft.getInstance().getProxy());
+			connection.setDoInput(true);
+			connection.setDoOutput(false);
+			connection.connect();
+
+			if (connection.getResponseCode() / 100 == 2) {
+				// Cosmetica: Transform Webp to Png
+				RGBABuffer buffer = SimpleWEBPLoader.decode(connection.getInputStream());
+				BufferedImage image = new BufferedImage(buffer.getWidth(), buffer.getHeight(), BufferedImage.TYPE_INT_ARGB);
+				byte[] rgba = new byte[4];
+				for (int x = 0; x < buffer.getWidth(); x++) {
+					for (int y = 0; y < buffer.getHeight(); y++) {
+						buffer.getDataElements(x, y, rgba);
+						int argb = (rgba[3] << 24) | (rgba[0] << 16) | (rgba[1] << 8) | (int)rgba[0];
+						image.setRGB(x, y, argb);
+					}
+				}
+
+				ImageIO.write(image, "png", destination);
+				InputStream inputStream = new FileInputStream(destination);
+
+				Minecraft.getInstance().execute(() -> {
+					NativeImage nativeImage = load.apply(inputStream);
+
+					if (nativeImage != null) {
+						onLoad.accept(nativeImage);
+					}
+				});
+			}
+		} catch (Exception exception) {
+			Logging.getInstance().error("Couldn't download WEBP texture", exception);
+		} finally {
+			if (connection != null)
+				connection.disconnect();
+		}
 	}
 
 	/**

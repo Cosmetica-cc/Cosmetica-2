@@ -16,10 +16,7 @@
 
 package cc.cosmetica.cosmetica.gui;
 
-import cc.cosmetica.core.api.Accessory;
-import cc.cosmetica.core.api.CachedImage;
-import cc.cosmetica.core.api.Cosmetics;
-import cc.cosmetica.core.api.ImageCosmetic;
+import cc.cosmetica.core.api.*;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticsBrowser;
@@ -36,6 +33,7 @@ import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -97,12 +95,16 @@ public class CosmeticaHomeScreen extends Screen {
 		}
 
 		for (Accessory accessory : cosmetics.getAccessories()) {
-			entryList.add(new CosmeticEntry(
-					new ResourceKey("cosmetica", "icon.png"),
-					accessory.getId(), // todo get id
-					accessory.getName(),
-					accessory.getCreator().isPresent() ? accessory.getCreator().get().getName() : "Could not load creator"
-			));
+			// todo loading image
+			System.out.println("Thumbnail at " + accessory.getThumbnail());
+			ResourceLocation thumbnail = CosmeticaModel.getOrCreateImage("thumbs-a", accessory.getId(), accessory.getThumbnail(), 1, 1).location;
+//
+//			entryList.add(new CosmeticEntry(
+//					new ResourceKey(thumbnail),
+//					accessory.getId(),
+//					accessory.getName(),
+//					accessory.getCreator().isPresent() ? accessory.getCreator().get().getName() : "Could not load creator"
+//			));
 		}
 	}
 

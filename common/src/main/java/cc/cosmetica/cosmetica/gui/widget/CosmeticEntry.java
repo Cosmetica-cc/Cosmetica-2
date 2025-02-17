@@ -16,6 +16,9 @@
 
 package cc.cosmetica.cosmetica.gui.widget;
 
+import cc.cosmetica.core.api.CachedImage;
+import cc.cosmetica.core.api.CosmeticaModel;
+import cc.cosmetica.core.impl.BlockModelManager;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;

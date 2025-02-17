@@ -5,6 +5,10 @@
 The all new, _blazingly fast_ cosmetic system to allow complete customisation of your player character, visible to anyone else using the mod!
 Now version 2.0
 
+## Acknowledgements
+
+Uses https://github.com/burningtnt/SimpleWEBP for webp parsing.
+
 Contributing
 =================================
 
