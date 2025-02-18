@@ -32,13 +32,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import org.apache.commons.imaging.bytesource.ByteSource;
-import org.apache.commons.imaging.formats.webp.WebPImageParser;
-import org.apache.commons.imaging.formats.webp.WebPImagingParameters;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -47,6 +46,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.Iterator;
 import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -165,8 +165,29 @@ public class Cosmetica {
 
 			if (connection.getResponseCode() / 100 == 2) {
 				// Cosmetica: Transform Webp to Png
-				BufferedImage image = new WebPImageParser().getBufferedImage(
-						ByteSource.inputStream(connection.getInputStream(), "cosmetica-thumb"), new WebPImagingParameters());
+				// https://github.com/haraldk/TwelveMonkeys?tab=readme-ov-file#advanced-usage
+				BufferedImage image;
+
+				try (ImageInputStream input = ImageIO.createImageInputStream(connection.getInputStream())) {
+					Iterator<ImageReader> readers = ImageIO.getImageReaders(input);
+
+					if (!readers.hasNext()) {
+						throw new IllegalArgumentException("No reader for input");
+					}
+
+					ImageReader reader = readers.next();
+
+					try {
+						reader.setInput(input);
+						image = reader.read(0);
+					} finally {
+						// avoid memory leaks
+						reader.dispose();
+					}
+				}
+
+				// successful read
+				Files.createDirectories(destination.getParentFile().toPath());
 				ImageIO.write(image, "png", destination);
 
 				InputStream inputStream = new FileInputStream(destination);
@@ -180,7 +201,7 @@ public class Cosmetica {
 				});
 			}
 		} catch (Exception exception) {
-			Logging.getInstance().error("Couldn't download WEBP texture", exception);
+			Logging.getInstance().error("Couldn't download WEBP texture at " + source, exception);
 		} finally {
 			if (connection != null)
 				connection.disconnect();

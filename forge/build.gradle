@@ -34,6 +34,8 @@ dependencies {
     modImplementation "cc.cosmetica:cosmetica-core-forge:${rootProject.core_version}"
     // Kupe Core
     modImplementation "cc.cosmetica:kupe-forge:${rootProject.kupe_version}"
+    // Webp Support
+    implementation "com.twelvemonkeys.imageio:imageio-webp:${rootProject.imaging_version}"
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }

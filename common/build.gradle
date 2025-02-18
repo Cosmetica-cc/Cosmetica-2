@@ -19,7 +19,8 @@ dependencies {
     modApi "cc.cosmetica:kupe:${rootProject.kupe_version}"
 
     // Webp Support
-    api "org.apache.commons:commons-imaging:${rootProject.imaging_version}"
+    // https://mvnrepository.com/artifact/com.twelvemonkeys.imageio/imageio-webp
+    api "com.twelvemonkeys.imageio:imageio-webp:${rootProject.imaging_version}"
 }
 
 publishing {

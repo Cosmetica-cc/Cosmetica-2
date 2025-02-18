@@ -95,16 +95,14 @@ public class CosmeticaHomeScreen extends Screen {
 		}
 
 		for (Accessory accessory : cosmetics.getAccessories()) {
-			// todo loading image
-			System.out.println("Thumbnail at " + accessory.getThumbnail());
 			ResourceLocation thumbnail = CosmeticaModel.getOrCreateImage("thumbs-a", accessory.getId(), accessory.getThumbnail(), 1, 1).location;
-//
-//			entryList.add(new CosmeticEntry(
-//					new ResourceKey(thumbnail),
-//					accessory.getId(),
-//					accessory.getName(),
-//					accessory.getCreator().isPresent() ? accessory.getCreator().get().getName() : "Could not load creator"
-//			));
+
+			entryList.add(new CosmeticEntry(
+					new ResourceKey(thumbnail),
+					accessory.getId(),
+					accessory.getName(),
+					accessory.getCreator().isPresent() ? accessory.getCreator().get().getName() : "Could not load creator"
+			));
 		}
 	}
 
