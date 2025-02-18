@@ -71,6 +71,7 @@ public class CosmeticEntry extends Component {
 	private static final Stylesheet STYLE = new Stylesheet()
 			.component(Image.class, Style.create()
 					.set(PADDING, fixed(new Margins(2)))
+					.set(WIDTH, fixed(OptionalInt.of(38)))// debug: see images while loading texture is not yet added
 					.set(HEIGHT, fixed(OptionalInt.of(38))))
 			.component(Button.class, Style.create()
 					.set(ALIGN_SELF, Optional.of(Align.START))
