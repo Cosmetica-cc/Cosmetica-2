@@ -186,6 +186,11 @@ public class Cosmetica {
 					}
 				}
 
+				// crop cosmetica thumbnails!
+				if (source.contains("cloaks.gg")) {
+					image = image.getSubimage(0, 0, image.getWidth(), image.getWidth());
+				}
+
 				// successful read
 				Files.createDirectories(destination.getParentFile().toPath());
 				ImageIO.write(image, "png", destination);

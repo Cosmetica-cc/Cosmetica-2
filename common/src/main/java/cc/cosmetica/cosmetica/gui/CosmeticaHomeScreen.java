@@ -95,10 +95,11 @@ public class CosmeticaHomeScreen extends Screen {
 		}
 
 		for (Accessory accessory : cosmetics.getAccessories()) {
-			ResourceLocation thumbnail = CosmeticaModel.getOrCreateImage("thumbs-a", accessory.getId(), accessory.getThumbnail(), 1, 1).location;
+			CachedImage thumbnail = CosmeticaModel.getOrCreateImage("thumbs-a", accessory.getId(), accessory.getThumbnail(), 1, 1);
 
+			// n.b. reference to CachedImage needs to be stored on the entry so it doesn't get GC'd
 			entryList.add(new CosmeticEntry(
-					new ResourceKey(thumbnail),
+					thumbnail,
 					accessory.getId(),
 					accessory.getName(),
 					accessory.getCreator().isPresent() ? accessory.getCreator().get().getName() : "Could not load creator"

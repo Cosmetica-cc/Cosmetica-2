@@ -40,12 +40,23 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 public class CosmeticEntry extends Component {
 	public CosmeticEntry(ResourceKey icon, String id, String name, String owner) {
+		this.image = null;
 		this.icon = icon;
 		this.id = id;
 		this.name = name;
 		this.owner = owner;
 	}
 
+	public CosmeticEntry(CachedImage image, String id, String name, String owner) {
+		this.image = image;
+		this.icon = new ResourceKey(image.location);
+		this.id = id;
+		this.name = name;
+		this.owner = owner;
+	}
+
+	// need to hold onto cached image so it doesn't get GC'd
+	private final CachedImage image;
 	private final ResourceKey icon;
 	private final String id;
 	private final String name;
