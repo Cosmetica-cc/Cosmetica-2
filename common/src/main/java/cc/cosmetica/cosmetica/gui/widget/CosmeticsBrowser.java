@@ -24,6 +24,7 @@ import cc.cosmetica.kupe.api.gui.Div;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.Nullable;
@@ -53,14 +54,14 @@ public class CosmeticsBrowser extends Div {
 	@Override
 	public @Nullable Stylesheet getStylesheet() {
 		return new Stylesheet()
-				.component(CosmeticsBrowser.class, Style.create()
-						.set(MARGINS, fixed(new Margins(20, 0))))
 				.tag("contents-wrapper", Style.create()
 						.set(BACKGROUND_COLOUR, OptionalInt.of(0x000000))
 						.set(BORDER, Border.create(1, 0xFFFFFF))
+						//.set(MAXIMUM_SIZE, (vw, vh, pw, ph) -> new Dimensions(Integer.MAX_VALUE, Math.max(0, ph - 20)))
+						.set(FIXED_CONTAINER, false)
 						.set(FLEX, 1)
 						.set(PADDING, fixed(new Margins(1))))
 				.tag("width-200", Style.create()
-						.set(CommonProperties.WIDTH, fixed(OptionalInt.of(200))));
+						.set(WIDTH, fixed(OptionalInt.of(200))));
 	}
 }

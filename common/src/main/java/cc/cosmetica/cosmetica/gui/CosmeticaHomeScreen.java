@@ -112,15 +112,17 @@ public class CosmeticaHomeScreen extends Screen {
 		return new Stylesheet()
 				.tag("title", TITLE_DEFAULT_STYLE)
 				.tag("body", Style.create()
-						.set(CommonProperties.WIDTH, SCREEN_WIDTH)
-						.set(CommonProperties.HEIGHT, SCREEN_HEIGHT)
+						.set(WIDTH, SCREEN_WIDTH)
+						.set(HEIGHT, SCREEN_HEIGHT)
+						//.set(MAXIMUM_SIZE, screen(100, 100, Dimensions::new))
 						.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
 						.set(Div.JUSTIFY_CONTENT, Justify.CENTRE)
 						.set(Div.ALIGN_ITEMS, Align.CENTRE))
 				.component(CosmeticsBrowser.class, Style.create()
-						.set(CommonProperties.WIDTH, percent(50, 0))
+						.set(WIDTH, percent(50, 0))
 						.set(HEIGHT, percent(0, 100))
-						.set(PADDING, fixed(new Margins(10))));
+						//.set(MAXIMUM_SIZE, percent(50, 100, Dimensions::new))
+						.set(PADDING, fixed(new Margins(30, 10))));
 	}
 
 	public static final ResourceKey ID = new ResourceKey("cosmetica", "home");

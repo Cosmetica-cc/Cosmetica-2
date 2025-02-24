@@ -83,7 +83,8 @@ public class CosmeticEntry extends Component {
 			.component(Icon.class, Style.create()
 					.set(PADDING, fixed(new Margins(2)))
 					.set(WIDTH, fixed(OptionalInt.of(38)))// debug: see images while loading texture is not yet added
-					.set(HEIGHT, fixed(OptionalInt.of(38))))
+					.set(HEIGHT, fixed(OptionalInt.of(38)))
+					.set(MINIMUM_SIZE, fixed(Optional.of(new Dimensions(38, 38)))))
 			.component(Button.class, Style.create()
 					.set(ALIGN_SELF, Optional.of(Align.START))
 					.set(MAXIMUM_SIZE, fixed(new Dimensions(20, 20))))
