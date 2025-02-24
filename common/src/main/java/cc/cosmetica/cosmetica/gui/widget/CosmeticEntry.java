@@ -65,7 +65,7 @@ public class CosmeticEntry extends Component {
 	@Override
 	public List<Component> build() {
 		return ImmutableList.of(new Div(
-				new Icon(this.icon),
+				new Image(this.icon).setTransparent(1.0f),
 				new Div(
 						new Label(Text.literal(this.name)),
 						new Label(Text.literal(this.owner))
@@ -80,7 +80,7 @@ public class CosmeticEntry extends Component {
 	}
 
 	private static final Stylesheet STYLE = new Stylesheet()
-			.component(Icon.class, Style.create()
+			.component(Image.class, Style.create()
 					.set(PADDING, fixed(new Margins(2)))
 					.set(WIDTH, fixed(OptionalInt.of(38)))// debug: see images while loading texture is not yet added
 					.set(HEIGHT, fixed(OptionalInt.of(38)))
