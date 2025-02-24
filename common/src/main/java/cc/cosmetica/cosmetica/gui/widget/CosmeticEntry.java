@@ -90,7 +90,8 @@ public class CosmeticEntry extends Component {
 			.tag("centry_root", Style.create()
 					.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
 					.set(Div.ALIGN_ITEMS, Align.CENTRE)
-					.set(BACKGROUND_COLOUR, OptionalInt.of(0xFCBA03)))
+					.set(BACKGROUND_COLOUR, OptionalInt.of(0x858585))
+					.set(BORDER, Border.create(Border.BorderConfig.split(1, 0xA1A1A1, 0x595959))))
 			.tag("centry_names", Style.create()
 					.set(FLEX, 1));
 

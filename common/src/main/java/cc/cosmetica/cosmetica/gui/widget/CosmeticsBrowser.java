@@ -17,6 +17,7 @@
 package cc.cosmetica.cosmetica.gui.widget;
 
 import cc.cosmetica.kupe.api.Text;
+import cc.cosmetica.kupe.api.gui.Border;
 import cc.cosmetica.kupe.api.gui.Button;
 import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.Div;
@@ -56,7 +57,7 @@ public class CosmeticsBrowser extends Div {
 						.set(MARGINS, fixed(new Margins(20, 0))))
 				.tag("contents-wrapper", Style.create()
 						.set(BACKGROUND_COLOUR, OptionalInt.of(0x000000))
-						.set(BORDER_SIZE, 1)
+						.set(BORDER, Border.create(1, 0xFFFFFF))
 						.set(FLEX, 1)
 						.set(PADDING, fixed(new Margins(1))))
 				.tag("width-200", Style.create()
