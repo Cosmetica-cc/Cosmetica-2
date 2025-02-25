@@ -1,6 +1,9 @@
 {
-  "buttons.cosmetica.home": "Cosmetica...",
+  "button.cosmetica.home": "Cosmetica...",
   "button.cosmetica.changeOutfit": "Change Outfit",
+  "button.cosmetica.openWebPanel": "Open Web Panel",
+  "button.cosmetica.styleNametag": "Stylize Name Tag",
   "screens.cosmetica.home": "Cosmetica",
-  "screens.cosmetica.settings": "Cosmetica Settings"
+  "screens.cosmetica.settings": "Cosmetica Settings",
+  "screens.cosmetica.name_tag": "Stylize Name Tag"
 }

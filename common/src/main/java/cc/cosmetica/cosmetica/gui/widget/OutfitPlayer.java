@@ -16,13 +16,21 @@
 
 package cc.cosmetica.cosmetica.gui.widget;
 
+import cc.cosmetica.cosmetica.gui.StyleNametagScreen;
+import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
+import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.OptionalInt;
+import java.util.UUID;
 
-import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
+import static cc.cosmetica.kupe.api.gui.style.CommonProperties.WIDTH;
+import static cc.cosmetica.kupe.api.gui.style.CommonProperties.fixed;
 
 public class OutfitPlayer extends Component {
 	public OutfitPlayer(UUID player, String outfitName) {
@@ -40,11 +48,21 @@ public class OutfitPlayer extends Component {
 					new FakePlayer(player, true)
 							.withStyle(Style.create().set(WIDTH, fixed(OptionalInt.of(50)))),
 					new Label(Text.literal(this.outfitName)),
-					new Button(Text.translatable("button.cosmetica.changeOutfit"), () -> {})
-							.withStyle(Style.create().set(WIDTH, fixed(OptionalInt.of(150))))
+					new Button(Text.translatable("button.cosmetica.changeOutfit"), () -> {}),
+					new Button(Text.translatable("button.cosmetica.styleNametag"), () -> {
+						Screens.setScreen(StyleNametagScreen.ID);
+					})
 				).withStyle(Style.create()
 						.set(Div.JUSTIFY_CONTENT, Justify.CENTRE)
 						.set(Div.ALIGN_ITEMS, Align.CENTRE))
 		);
+	}
+
+	@Override
+	public @Nullable Stylesheet getStylesheet() {
+		return new Stylesheet()
+				.component(Button.class, Style.create()
+						.set(WIDTH, fixed(OptionalInt.of(150)))
+				);
 	}
 }

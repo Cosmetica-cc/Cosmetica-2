@@ -22,12 +22,14 @@ import cc.cosmetica.core.impl.BlockModelManager;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.gui.CosmeticaHomeScreen;
 import cc.cosmetica.cosmetica.gui.CosmeticaSettingsScreen;
+import cc.cosmetica.cosmetica.gui.StyleNametagScreen;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.State;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.mojang.blaze3d.platform.NativeImage;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
 import net.minecraft.resources.ResourceLocation;
@@ -213,6 +215,24 @@ public class Cosmetica {
 		}
 	}
 
+	public static void openWebPanel() {
+		// todo login to website
+		copyAndOpenURL("https://cosmetica.cc/home");
+	}
+
+	public static void copyAndOpenURL(String url) {
+		try {
+			Minecraft.getInstance().keyboardHandler.setClipboard(url);
+			Util.getPlatform().openUri(url);
+		} catch (Exception e) {
+			throw new RuntimeException("bruh", e);
+		}
+	}
+
+	// ============== //
+	//  Registration  //
+	// ============== //
+
 	/**
 	 * Register Cosmetica's screens.
 	 */
@@ -222,5 +242,6 @@ public class Cosmetica {
 		// - this can be changed at any time by switching to the factory registerScreen
 		Screens.registerScreen(CosmeticaHomeScreen.ID, new CosmeticaHomeScreen());
 		Screens.registerScreen(CosmeticaSettingsScreen.ID, new CosmeticaSettingsScreen());
+		Screens.registerScreen(StyleNametagScreen.ID, new StyleNametagScreen());
 	}
 }
