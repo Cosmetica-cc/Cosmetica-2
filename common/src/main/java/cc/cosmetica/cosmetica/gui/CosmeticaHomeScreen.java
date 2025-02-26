@@ -20,20 +20,17 @@ import cc.cosmetica.core.api.*;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticsBrowser;
+import cc.cosmetica.cosmetica.gui.widget.IconButton;
 import cc.cosmetica.cosmetica.gui.widget.OutfitPlayer;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.Screens;
-import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;
-import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
-import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -60,9 +57,11 @@ public class CosmeticaHomeScreen extends Screen {
 				new LayeredSpace(true,
 						new OutfitPlayer(self, Optional.ofNullable(cosmetics).flatMap(Cosmetics::getOutfitName).orElse("§7No Outfit")),
 						new Div(
-								new Button(Text.literal("⛭"), () -> Screens.setScreen(CosmeticaSettingsScreen.ID))
-										.withStyle(Style.create().set(MAXIMUM_SIZE, fixed(new Dimensions(20, 20))))
-						)
+								new IconButton(
+										new ResourceKey("cosmetica", "textures/gear.png"),
+										() -> Screens.setScreen(CosmeticaSettingsScreen.ID))
+						).withStyle(Style.create()
+								.set(Div.ALIGN_ITEMS, Align.START))
 				).withStyle(Style.create()
 						.set(WIDTH, percent(50, 0))
 						.set(HEIGHT, percent(0, 100))),

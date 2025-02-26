@@ -21,10 +21,9 @@ import cc.cosmetica.core.api.NametagConfig;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.widget.IconSelector;
 import cc.cosmetica.cosmetica.gui.widget.LoreSelector;
+import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screen;
-import cc.cosmetica.kupe.api.Screens;
-import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
@@ -55,11 +54,8 @@ public class StyleNametagScreen extends Screen {
                                 .withStyle(Style.create().set(WIDTH, fixed(OptionalInt.of(50)))),
                         new IconSelector(cosmetics == null ? NametagConfig.EMPTY : cosmetics.getNametag())
                                 .tag("flex-1")
-                ).tag("horizontal", "flex-1"),
-                new Div(
-                        new Button(Text.GUI_DONE, Screens::closeCurrentScreen),
-                        new Button(Text.translatable("button.cosmetica.openWebPanel"), Cosmetica::openWebPanel)
-                ).tag("horizontal")
+                ).tag("horizontal", "flex-1", "space-around"),
+                new MenuEndSelection().tag("horizontal", "centre")
         };
     }
 
@@ -68,7 +64,10 @@ public class StyleNametagScreen extends Screen {
         return super.getStylesheet()
                 .tag("horizontal", Style.create()
                         .set(WIDTH, percent(100, 0))
-                        .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
+                        .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X))
+                .tag("centre", Style.create()
+                        .set(Div.JUSTIFY_CONTENT, Justify.CENTRE))
+                .tag("space-around", Style.create()
                         .set(Div.JUSTIFY_CONTENT, Justify.SPACE_AROUND))
                 .tag("flex-1", Style.create()
                         .set(FLEX, 1));
