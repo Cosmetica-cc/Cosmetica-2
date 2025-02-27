@@ -94,6 +94,7 @@ public class CosmeticEntry extends Component {
 					.set(BACKGROUND_COLOUR, OptionalInt.of(0x858585))
 					.set(BORDER, Border.create(Border.BorderConfig.split(1, 0xA1A1A1, 0x595959))))
 			.tag("centry_names", Style.create()
+					.set(Div.ALIGN_ITEMS, Align.STRETCH_START)
 					.set(FLEX, 1));
 
 	static {
