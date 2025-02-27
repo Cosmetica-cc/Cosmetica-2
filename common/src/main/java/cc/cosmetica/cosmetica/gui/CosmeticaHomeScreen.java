@@ -18,10 +18,7 @@ package cc.cosmetica.cosmetica.gui;
 
 import cc.cosmetica.core.api.*;
 import cc.cosmetica.cosmetica.Cosmetica;
-import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
-import cc.cosmetica.cosmetica.gui.widget.CosmeticsBrowser;
-import cc.cosmetica.cosmetica.gui.widget.IconButton;
-import cc.cosmetica.cosmetica.gui.widget.OutfitPlayer;
+import cc.cosmetica.cosmetica.gui.widget.*;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.Screens;
@@ -54,18 +51,19 @@ public class CosmeticaHomeScreen extends Screen {
 		this.populateEntryList(entryList, cosmetics);
 
 		return new Component[] {
-				new LayeredSpace(true,
-						new OutfitPlayer(self, Optional.ofNullable(cosmetics).flatMap(Cosmetics::getOutfitName).orElse("§7No Outfit")),
-						new Div(
-								new IconButton(
-										new ResourceKey("cosmetica", "textures/gear.png"),
-										() -> Screens.setScreen(CosmeticaSettingsScreen.ID))
-						).withStyle(Style.create()
-								.set(Div.ALIGN_ITEMS, Align.START))
-				).withStyle(Style.create()
-						.set(WIDTH, percent(50, 0))
-						.set(HEIGHT, percent(0, 100))),
-				new CosmeticsBrowser(entryList)
+				new Div(
+						new LayeredSpace(true,
+								new OutfitPlayer(self, Optional.ofNullable(cosmetics).flatMap(Cosmetics::getOutfitName).orElse("§7No Outfit")),
+								new Div(
+										new IconButton(
+												new ResourceKey("cosmetica", "textures/gear.png"),
+												() -> Screens.setScreen(CosmeticaSettingsScreen.ID))
+								).withStyle(Style.create()
+										.set(Div.ALIGN_ITEMS, Align.START))
+						).tag("main-section"),
+						new CosmeticsBrowser(entryList).tag("main-section")
+				).tag("main-content"),
+				new MenuEndSelection()
 		};
 	}
 
@@ -108,20 +106,15 @@ public class CosmeticaHomeScreen extends Screen {
 
 	@Override
 	public @Nullable Stylesheet getStylesheet() {
-		return new Stylesheet()
-				.tag("title", TITLE_DEFAULT_STYLE)
-				.tag("body", Style.create()
-						.set(WIDTH, SCREEN_WIDTH)
-						.set(HEIGHT, SCREEN_HEIGHT)
-						//.set(MAXIMUM_SIZE, screen(100, 100, Dimensions::new))
+		return super.getStylesheet()
+				.tag("main-content", Style.create()
+						.set(FLEX, 1)
 						.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
 						.set(Div.JUSTIFY_CONTENT, Justify.CENTRE)
 						.set(Div.ALIGN_ITEMS, Align.CENTRE))
-				.component(CosmeticsBrowser.class, Style.create()
-						.set(WIDTH, percent(50, 0))
-						.set(HEIGHT, percent(0, 100))
-						//.set(MAXIMUM_SIZE, percent(50, 100, Dimensions::new))
-						.set(PADDING, fixed(new Margins(30, 10))));
+				.tag("main-section", Style.create()
+						.set(WIDTH, screen(50, 0))
+						.set(HEIGHT, percent(0, 100)));
 	}
 
 	public static final ResourceKey ID = new ResourceKey("cosmetica", "home");

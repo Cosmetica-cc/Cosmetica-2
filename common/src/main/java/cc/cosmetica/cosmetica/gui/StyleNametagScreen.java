@@ -56,25 +56,19 @@ public class StyleNametagScreen extends Screen {
                         new IconSelector(cosmetics == null ? NametagConfig.EMPTY : cosmetics.getNametag())
                                 .tag("flex-1")
                 ).tag("horizontal", "flex-1", "main-content"),
-                new MenuEndSelection().tag("horizontal", "centre")
+                new MenuEndSelection()
         };
     }
 
     @Override
     public @Nullable Stylesheet getStylesheet() {
         return super.getStylesheet()
-                .component(LoreSelector.class, Style.create()
-                        .set(MARGINS, fixed(new Margins(30, 10))))
-                .component(IconSelector.class, Style.create()
-                        .set(MARGINS, fixed(new Margins(30, 10))))
                 .component(FakePlayer.class, Style.create()
                         .set(WIDTH, fixed(OptionalInt.of(50)))
                         .set(ALIGN_SELF, Optional.of(Align.CENTRE)))
                 .tag("horizontal", Style.create()
                         .set(WIDTH, percent(100, 0))
                         .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X))
-                .tag("centre", Style.create()
-                        .set(Div.JUSTIFY_CONTENT, Justify.CENTRE))
                 .tag("main-content", Style.create()
                         .set(Div.JUSTIFY_CONTENT, Justify.SPACE_AROUND)
                         .set(Div.ALIGN_ITEMS, Align.STRETCH_CENTRE))

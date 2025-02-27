@@ -5,6 +5,7 @@
   "button.lore.titles": "Titles",
   "button.lore.pronouns": "Pronouns",
   "button.lore.connections": "Connections",
+  "label.icons.icon": "Icon: %s",
   "label.lore.lore": "Lore: %s",
   "screens.cosmetica.home": "Cosmetica",
   "screens.cosmetica.settings": "Cosmetica Settings",

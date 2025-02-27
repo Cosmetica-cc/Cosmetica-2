@@ -16,16 +16,20 @@
 
 package cc.cosmetica.cosmetica.gui.widget;
 
+import cc.cosmetica.core.api.CachedImage;
 import cc.cosmetica.core.api.NametagConfig;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalInt;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
@@ -39,16 +43,17 @@ public class IconSelector extends Div {
 
     @Override
     public List<Component> build() {
+        ResourceLocation location = this.config.getIcon().getImage().location;
+        boolean noIcon = location == CachedImage.NO_TEXTURE.location;
+
         return ImmutableList.of(
                 new Div(
-                        new Label(Text.translatable("label.icons.icon", this.config.getIcon().getName())).tag("flex-1"),
-                        new Image(new ResourceKey(this.config.getIcon().getImage().location)).tag("icon-image")
-                ).tag("horizontal"),
+                        new Label(Text.translatable("label.icons.icon", noIcon ? "§7No Icon": this.config.getIcon().getName())).tag("flex-1"),
+                        noIcon ? new Div().tag("icon-image", "icon-replacement") : new Image(new ResourceKey(location)).tag("icon-image")
+                ).tag("horizontal", "header"),
                 new EntryList( // todo tile grid instead
 
-                ).tag("flex-1"),
-                new Div(
-                ).tag("buffer-20-height") // Lore selector has buttons at bottom. Yes we could use margins.
+                ).tag("flex-1")
         );
     }
 
@@ -56,11 +61,15 @@ public class IconSelector extends Div {
     public @Nullable Stylesheet getStylesheet() {
         return new Stylesheet()
                 .self(Style.create()
+                        .set(MARGINS, fixed(new Margins(30, 10, 12 + 20, 10)))
                         .set(ALIGN_ITEMS, Align.STRETCH_START))
+                .tag("header", Style.create()
+                        .set(MARGINS, fixed(new Margins(0,0,2,0))))
                 .tag("icon-image", Style.create()
                         .set(WIDTH, fixed(OptionalInt.of(20)))
                         .set(HEIGHT, fixed(OptionalInt.of(20))))
-                .tag("buffer-20-height", Style.create()
-                        .set(HEIGHT, fixed(OptionalInt.of(20))));
+                .tag("icon-replacement", Style.create()
+                        .set(BACKGROUND_COLOUR, OptionalInt.of(0))
+                        .set(BORDER, Border.create(1, 0xFFFFFF)));
     }
 }

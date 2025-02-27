@@ -24,6 +24,7 @@ import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
@@ -69,6 +70,9 @@ public class MenuEndSelection extends Div {
         return new Stylesheet()
                 .self(Style.create()
                         .set(MARGINS, fixed(new Margins(0, 0, 12, 0)))
+                        .set(WIDTH, percent(100, 0))
+                        .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
+                        .set(Div.JUSTIFY_CONTENT, Justify.CENTRE)
                 );
     }
 }

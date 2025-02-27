@@ -23,6 +23,7 @@ import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Dimensions;
+import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,7 +46,7 @@ public class LoreSelector extends Div {
                 new Div(
                         new Label(Text.translatable("label.lore.lore", this.lore)).tag("flex-1"),
                         new IconButton(new ResourceKey("cosmetica", "textures/colour.png"), () -> {})
-                ).tag("horizontal"),
+                ).tag("horizontal", "header"),
                 new EntryList(
 
                 ).tag("flex-1"),
@@ -61,7 +62,10 @@ public class LoreSelector extends Div {
     public @Nullable Stylesheet getStylesheet() {
         return new Stylesheet()
                 .self(Style.create()
+                        .set(MARGINS, fixed(new Margins(30, 10, 12, 10)))
                         .set(ALIGN_ITEMS, Align.STRETCH_START))
+                .tag("header", Style.create()
+                        .set(MARGINS, fixed(new Margins(0,0,2,0))))
                 .tag("lore-type", Style.create()
                         .set(WIDTH, percent(30, 0))
                         .set(MINIMUM_SIZE, (vw, vh, pw, ph) -> Optional.of(new Dimensions(
