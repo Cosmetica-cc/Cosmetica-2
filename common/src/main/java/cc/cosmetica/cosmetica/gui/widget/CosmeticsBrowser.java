@@ -42,7 +42,7 @@ public class CosmeticsBrowser extends Div {
 	@Override
 	public List<Component> build() {
 		return ImmutableList.of(
-				new Div(this.entries)
+				new EntryList(this.entries)
 						.tag("width-200", "contents-wrapper"),
 				new Button(Text.literal("+"), () -> {}).tag("width-200")
 		);
@@ -54,12 +54,7 @@ public class CosmeticsBrowser extends Div {
 				.self(Style.create()
 						.set(Div.ALIGN_ITEMS, Align.STRETCH_START))
 				.tag("contents-wrapper", Style.create()
-						.set(BACKGROUND_COLOUR, OptionalInt.of(0x000000))
-						.set(BORDER, Border.create(1, 0xFFFFFF))
-						.set(FIXED_CONTAINER, false)
-						.set(FLEX, 1)
-						.set(PADDING, fixed(new Margins(1)))
-						.set(Div.ALIGN_ITEMS, Align.STRETCH_START))
+						.set(FLEX, 1))
 				.tag("width-200", Style.create()
 						.set(WIDTH, fixed(OptionalInt.of(200))));
 	}
