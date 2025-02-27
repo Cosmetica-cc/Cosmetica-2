@@ -30,10 +30,15 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class IconButton extends Button {
+    public IconButton(ResourceKey texture, Runnable onClicked) {
+        this(texture, onClicked, null);
+    }
+
     /**
      * Create a new minecraft button with the given icon overlayed.
      * @param texture the ResourceKey for the texture.
      * @param onClicked the function to run on click.
+     * @param onMouseMoved the function to run when the mouse moves on this screen.
      */
     public IconButton(ResourceKey texture, Runnable onClicked, @Nullable MouseMotionListener onMouseMoved) {
         super(Text.literal(""), onClicked);

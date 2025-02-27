@@ -28,9 +28,11 @@ import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
+import cc.cosmetica.kupe.api.maths.Margins;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.UUID;
 
@@ -50,11 +52,10 @@ public class StyleNametagScreen extends Screen {
                 new Div(
                         new LoreSelector(cosmetics == null ? NametagConfig.EMPTY : cosmetics.getLore().orElse(NametagConfig.EMPTY))
                                 .tag("flex-1"),
-                        new FakePlayer(self, true)
-                                .withStyle(Style.create().set(WIDTH, fixed(OptionalInt.of(50)))),
+                        new FakePlayer(self, true),
                         new IconSelector(cosmetics == null ? NametagConfig.EMPTY : cosmetics.getNametag())
                                 .tag("flex-1")
-                ).tag("horizontal", "flex-1", "space-around"),
+                ).tag("horizontal", "flex-1", "main-content"),
                 new MenuEndSelection().tag("horizontal", "centre")
         };
     }
@@ -62,13 +63,21 @@ public class StyleNametagScreen extends Screen {
     @Override
     public @Nullable Stylesheet getStylesheet() {
         return super.getStylesheet()
+                .component(LoreSelector.class, Style.create()
+                        .set(MARGINS, fixed(new Margins(30, 10))))
+                .component(IconSelector.class, Style.create()
+                        .set(MARGINS, fixed(new Margins(30, 10))))
+                .component(FakePlayer.class, Style.create()
+                        .set(WIDTH, fixed(OptionalInt.of(50)))
+                        .set(ALIGN_SELF, Optional.of(Align.CENTRE)))
                 .tag("horizontal", Style.create()
                         .set(WIDTH, percent(100, 0))
                         .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X))
                 .tag("centre", Style.create()
                         .set(Div.JUSTIFY_CONTENT, Justify.CENTRE))
-                .tag("space-around", Style.create()
-                        .set(Div.JUSTIFY_CONTENT, Justify.SPACE_AROUND))
+                .tag("main-content", Style.create()
+                        .set(Div.JUSTIFY_CONTENT, Justify.SPACE_AROUND)
+                        .set(Div.ALIGN_ITEMS, Align.STRETCH_CENTRE))
                 .tag("flex-1", Style.create()
                         .set(FLEX, 1));
     }

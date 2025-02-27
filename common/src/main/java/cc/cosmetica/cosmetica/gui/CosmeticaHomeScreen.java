@@ -59,7 +59,7 @@ public class CosmeticaHomeScreen extends Screen {
 						new Div(
 								new IconButton(
 										new ResourceKey("cosmetica", "textures/gear.png"),
-										() -> Screens.setScreen(CosmeticaSettingsScreen.ID), null)
+										() -> Screens.setScreen(CosmeticaSettingsScreen.ID))
 						).withStyle(Style.create()
 								.set(Div.ALIGN_ITEMS, Align.START))
 				).withStyle(Style.create()
