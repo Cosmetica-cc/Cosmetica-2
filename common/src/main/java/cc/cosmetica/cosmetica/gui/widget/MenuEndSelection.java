@@ -25,6 +25,7 @@ import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Margins;
+import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,12 +49,17 @@ public class MenuEndSelection extends Div {
                 new IconButton(new ResourceKey("cosmetica", "textures/internet.png"), () -> {
                     Cosmetica.openWebPanel();
                     CLICKED.set(true);
+                }, (region, x, y) -> {
+                    if (CLICKED.peek() && !region.contains((int)x, (int)y)) {
+                        CLICKED.set(false);
+                    }
                 })
                 .withStyle(Style.create()
                         .set(TOOLTIP, Optional.of(new Tooltip(
                                 clicked ? Text.translatable("tooltip.cosmetica.copiedURL")
                                         : Text.translatable("tooltip.cosmetica.openWebPanel")
                         )))
+                        .set(POINTER_EVENTS, PointerEvents.ALL)
                 )
         );
     }

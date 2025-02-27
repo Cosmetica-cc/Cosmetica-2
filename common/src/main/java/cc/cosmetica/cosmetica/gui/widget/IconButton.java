@@ -25,6 +25,7 @@ import cc.cosmetica.kupe.api.gui.SizedElement;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -34,16 +35,25 @@ public class IconButton extends Button {
      * @param texture the ResourceKey for the texture.
      * @param onClicked the function to run on click.
      */
-    public IconButton(ResourceKey texture, Runnable onClicked) {
+    public IconButton(ResourceKey texture, Runnable onClicked, @Nullable MouseMotionListener onMouseMoved) {
         super(Text.literal(""), onClicked);
         this.texture = texture;
+        this.onMouseMoved = onMouseMoved;
     }
 
     private final ResourceKey texture;
+    private final MouseMotionListener onMouseMoved;
 
     @Override
     public Dimensions intrinsicSize(List<? extends SizedElement> children, Margins padding, Context context) {
         return this.tryFixed(DEFAULT_DIMENSIONS, padding, context);
+    }
+
+    @Override
+    public void mouseMoved(Region region, double x, double y) {
+        if (this.onMouseMoved != null) {
+            this.onMouseMoved.accept(region, x, y);
+        }
     }
 
     @Override
@@ -59,4 +69,9 @@ public class IconButton extends Button {
     }
 
     private static final Dimensions DEFAULT_DIMENSIONS = new Dimensions(20, 20);
+
+    @FunctionalInterface
+    public interface MouseMotionListener {
+        void accept(Region region, double x, double y);
+    }
 }

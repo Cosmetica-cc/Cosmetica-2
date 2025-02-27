@@ -17,10 +17,7 @@
 package cc.cosmetica.cosmetica.gui.widget;
 
 import cc.cosmetica.kupe.api.Text;
-import cc.cosmetica.kupe.api.gui.Border;
-import cc.cosmetica.kupe.api.gui.Button;
-import cc.cosmetica.kupe.api.gui.Component;
-import cc.cosmetica.kupe.api.gui.Div;
+import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
@@ -54,13 +51,15 @@ public class CosmeticsBrowser extends Div {
 	@Override
 	public @Nullable Stylesheet getStylesheet() {
 		return new Stylesheet()
+				.self(Style.create()
+						.set(Div.ALIGN_ITEMS, Align.STRETCH_START))
 				.tag("contents-wrapper", Style.create()
 						.set(BACKGROUND_COLOUR, OptionalInt.of(0x000000))
 						.set(BORDER, Border.create(1, 0xFFFFFF))
-						//.set(MAXIMUM_SIZE, (vw, vh, pw, ph) -> new Dimensions(Integer.MAX_VALUE, Math.max(0, ph - 20)))
 						.set(FIXED_CONTAINER, false)
 						.set(FLEX, 1)
-						.set(PADDING, fixed(new Margins(1))))
+						.set(PADDING, fixed(new Margins(1)))
+						.set(Div.ALIGN_ITEMS, Align.STRETCH_START))
 				.tag("width-200", Style.create()
 						.set(WIDTH, fixed(OptionalInt.of(200))));
 	}
