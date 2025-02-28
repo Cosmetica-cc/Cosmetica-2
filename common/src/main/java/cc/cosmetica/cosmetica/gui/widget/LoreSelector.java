@@ -16,8 +16,12 @@
 
 package cc.cosmetica.cosmetica.gui.widget;
 
+import cc.cosmetica.core.api.CosmeticaAPI;
+import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.core.api.NametagConfig;
+import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.kupe.api.ResourceKey;
+import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
@@ -25,35 +29,75 @@ import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
+import gg.cloaks.javaclient.api.DefaultApi;
+import gg.cloaks.javaclient.model.LoreOptions;
+import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 public class LoreSelector extends Div {
     public LoreSelector(NametagConfig lore) {
         this.lore = lore.getPrefix(); // core places lore text in prefix field of NametagConfig
-        // TODO icons
+
+        // load lores
+        CosmeticaAPI.performAsync(DefaultApi::loreControllerGetLoreOptions)
+                .thenAccept(loreOptions -> Minecraft.getInstance().execute(() -> availableLores.set(loreOptions)));
     }
 
     private String lore;
+    private State<LoreOptions> availableLores = new State<>(UNLOADED);
+    private State<Integer> lorePage = new State<>(0);
 
     @Override
     public List<Component> build() {
+        LoreOptions loreOptions = this.availableLores.acquire(this);
+        int page = lorePage.acquire(this);
+
+        List<String> loreValues;
+        switch (page) {
+            case 0:
+            default:
+                loreValues = loreOptions.getTitles();
+                break;
+            case 1:
+                loreValues = loreOptions.getPronouns();
+                break;
+            case 2:
+                loreValues = ImmutableList.of();
+                break;
+        }
+
         return ImmutableList.of(
                 new Div(
                         new Label(Text.translatable("label.lore.lore", this.lore)).tag("flex-1"),
                         new IconButton(new ResourceKey("cosmetica", "textures/colour.png"), () -> {})
                 ).tag("horizontal", "header"),
-                new EntryList(
-
+                page == 2 ? new Div(
+                        new Div().tag("flex-1"),
+                        new Label(Text.translatable("label.lore.referToWebsite")),
+                        new Button(Text.translatable("button.lore.openWebPanel"), Cosmetica::openWebPanel),
+                        new Div().withStyle(Style.create().set(FLEX, 3))
+                ).tag("flex-1", "refer-to-website")
+                : new EntryList(
+                        loreValues.stream()
+                                .map(value -> new Label(Text.literal(value)))
+                                .toArray(Label[]::new)
                 ).tag("flex-1"),
                 new Div(
-                        new Button(Text.translatable("button.lore.titles"), () -> {}).tag("lore-type"),
-                        new Button(Text.translatable("button.lore.pronouns"), () -> {}).tag("lore-type"),
-                        new Button(Text.translatable("button.lore.connections"), () -> {}).tag("lore-type")
+                        new Button(Text.translatable("button.lore.titles"), () -> {
+                            this.lorePage.set(0);
+                        }).setDisabled(page == 0).tag("lore-type"),
+                        new Button(Text.translatable("button.lore.pronouns"), () -> {
+                            this.lorePage.set(1);
+                        }).setDisabled(page == 1).tag("lore-type"),
+                        new Button(Text.translatable("button.lore.connections"), () -> {
+                            this.lorePage.set(2);
+                        }).setDisabled(page == 2).tag("lore-type")
                 ).tag("horizontal", "lore-types")
         );
     }
@@ -66,6 +110,10 @@ public class LoreSelector extends Div {
                         .set(ALIGN_ITEMS, Align.STRETCH_START))
                 .tag("header", Style.create()
                         .set(MARGINS, fixed(new Margins(0,0,2,0))))
+                .tag("refer-to-website", Style.create()
+                        .set(BACKGROUND_COLOUR, OptionalInt.of(0))
+                        .set(PADDING, fixed(new Margins(2)))
+                        .set(Label.ALIGN_TEXT, Align.CENTRE))
                 .tag("lore-type", Style.create()
                         .set(WIDTH, percent(30, 0))
                         .set(MINIMUM_SIZE, (vw, vh, pw, ph) -> Optional.of(new Dimensions(
@@ -74,4 +122,6 @@ public class LoreSelector extends Div {
                 .tag("lore-types", Style.create()
                         .set(JUSTIFY_CONTENT, Justify.SPACE_BETWEEN));
     }
+
+    private static final LoreOptions UNLOADED = new LoreOptions();
 }

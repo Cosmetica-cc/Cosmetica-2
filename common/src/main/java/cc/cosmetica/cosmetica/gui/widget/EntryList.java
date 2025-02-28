@@ -41,7 +41,7 @@ public class EntryList extends Div {
         this.selected = null;
     }
 
-    public EntryList(Component[] entries, State<@Nullable Component> selected) {
+    public EntryList(Component[] entries, @Nullable State<@Nullable Component> selected) {
         super(entries);
         this.selected = selected;
     }
@@ -72,7 +72,6 @@ public class EntryList extends Div {
         return new Stylesheet()
                 .self(Style.create()
                         .set(BACKGROUND_COLOUR, OptionalInt.of(0x000000))
-                        //.set(BORDER, Border.create(1, 0xFFFFFF))
                         .set(PADDING, fixed(new Margins(1)))
                         .set(FIXED_CONTAINER, false)
                         .set(Div.ALIGN_ITEMS, Align.STRETCH_START))
