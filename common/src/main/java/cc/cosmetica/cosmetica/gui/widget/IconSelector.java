@@ -16,7 +16,9 @@
 
 package cc.cosmetica.cosmetica.gui.widget;
 
-import cc.cosmetica.core.api.*;
+import cc.cosmetica.core.api.CachedImage;
+import cc.cosmetica.core.api.ImageCosmetic;
+import cc.cosmetica.core.api.NametagConfig;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
@@ -25,43 +27,25 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
-import gg.cloaks.javaclient.api.DefaultApi;
-import gg.cloaks.javaclient.model.Icon;
-import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.OptionalInt;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
+/**
+ * The widget for selecting a new icon.
+ */
 public class IconSelector extends Div {
-    public IconSelector(NametagConfig config) {
+    public IconSelector(NametagConfig config, State<List<ImageCosmetic>> availableIcons) {
         this.config = config;
-
-        // load icons
-        CosmeticaAPI.performAsync(DefaultApi::iconsControllerGet)
-                .thenAccept(icons -> Minecraft.getInstance().execute(() -> {
-                    // todo make function in core for this?
-                    List<ImageCosmetic> availableIcons = new ArrayList<>();
-                    for (Icon icon : icons) {
-                        availableIcons.add(new ImageCosmetic(
-                                CosmeticaModel.getOrCreateImage("icon", icon.getId(), icon.getTexture(),
-                                        icon.getFrames().intValue(), icon.getTicksPerFrame().intValue()),
-                                icon.getName(),
-                                icon.getId(),
-                                Cosmetic.gameProfileOf(icon.getCreator()),
-                                icon.getThumbnail()));
-                    }
-                    this.availableIcons.set(availableIcons);
-                }));
+        this.availableIcons = availableIcons;
     }
 
     private final NametagConfig config;
-    private State<List<ImageCosmetic>> availableIcons = new State<>(ImmutableList.of());
+    private final State<List<ImageCosmetic>> availableIcons;
 
     @Override
     public List<Component> build() {

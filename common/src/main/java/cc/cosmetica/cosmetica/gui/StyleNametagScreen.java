@@ -16,31 +16,53 @@
 
 package cc.cosmetica.cosmetica.gui;
 
-import cc.cosmetica.core.api.Cosmetics;
-import cc.cosmetica.core.api.NametagConfig;
+import cc.cosmetica.core.api.*;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.widget.IconSelector;
 import cc.cosmetica.cosmetica.gui.widget.LoreSelector;
 import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screen;
+import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
+import com.google.common.collect.ImmutableList;
+import gg.cloaks.javaclient.api.DefaultApi;
+import gg.cloaks.javaclient.model.Icon;
+import gg.cloaks.javaclient.model.LoreOptions;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
-import java.util.OptionalInt;
-import java.util.UUID;
+import java.util.*;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 public class StyleNametagScreen extends Screen {
     public StyleNametagScreen() {
         super(ID);
+
+        // refresh available lores
+        CosmeticaAPI.performAsync(DefaultApi::loreControllerGetLoreOptions)
+                .thenAccept(loreOptions -> Minecraft.getInstance().execute(() -> availableLores.set(loreOptions)));
+        // refresh available icons
+        CosmeticaAPI.performAsync(DefaultApi::iconsControllerGet)
+                .thenAccept(icons -> Minecraft.getInstance().execute(() -> {
+                    // todo make function in core for this?
+                    List<ImageCosmetic> newAvailableIcons = new ArrayList<>();
+                    for (Icon icon : icons) {
+                        newAvailableIcons.add(new ImageCosmetic(
+                                CosmeticaModel.getOrCreateImage("icon", icon.getId(), icon.getTexture(),
+                                        icon.getFrames().intValue(), icon.getTicksPerFrame().intValue()),
+                                icon.getName(),
+                                icon.getId(),
+                                Cosmetic.gameProfileOf(icon.getCreator()),
+                                icon.getThumbnail()));
+                    }
+                    availableIcons.set(newAvailableIcons);
+                }));
     }
 
     @Override
@@ -48,12 +70,15 @@ public class StyleNametagScreen extends Screen {
         UUID self = Minecraft.getInstance().getUser().getGameProfile().getId();
         Cosmetics cosmetics = Cosmetica.OWN_COSMETICS.acquire(this);
 
+        NametagConfig lore = cosmetics == null ? NametagConfig.EMPTY : cosmetics.getLore().orElse(NametagConfig.EMPTY);
+        NametagConfig nametag = cosmetics == null ? NametagConfig.EMPTY : cosmetics.getNametag();
+
         return new Component[] {
                 new Div(
-                        new LoreSelector(cosmetics == null ? NametagConfig.EMPTY : cosmetics.getLore().orElse(NametagConfig.EMPTY))
+                        new LoreSelector(lore, availableLores)
                                 .tag("flex-1"),
                         new FakePlayer(self, true),
-                        new IconSelector(cosmetics == null ? NametagConfig.EMPTY : cosmetics.getNametag())
+                        new IconSelector(nametag, availableIcons)
                                 .tag("flex-1")
                 ).tag("horizontal", "flex-1", "main-content"),
                 new MenuEndSelection()
@@ -77,4 +102,10 @@ public class StyleNametagScreen extends Screen {
     }
 
     public static final ResourceKey ID = new ResourceKey("cosmetica", "name_tag");
+
+
+    private static final LoreOptions UNLOADED = new LoreOptions();
+    // preserve available lores/icons list. don't load it every time the page is opened (but do refresh it)
+    private static State<LoreOptions> availableLores = new State<>(UNLOADED);
+    private static State<List<ImageCosmetic>> availableIcons = new State<>(ImmutableList.of());
 }

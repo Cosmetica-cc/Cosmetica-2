@@ -40,16 +40,13 @@ import java.util.OptionalInt;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 public class LoreSelector extends Div {
-    public LoreSelector(NametagConfig lore) {
+    public LoreSelector(NametagConfig lore, State<LoreOptions> availableLores) {
         this.lore = lore.getPrefix(); // core places lore text in prefix field of NametagConfig
-
-        // load lores
-        CosmeticaAPI.performAsync(DefaultApi::loreControllerGetLoreOptions)
-                .thenAccept(loreOptions -> Minecraft.getInstance().execute(() -> availableLores.set(loreOptions)));
+        this.availableLores = availableLores;
     }
 
     private String lore;
-    private State<LoreOptions> availableLores = new State<>(UNLOADED);
+    private final State<LoreOptions> availableLores;
     private State<Integer> lorePage = new State<>(0);
 
     @Override
@@ -121,6 +118,4 @@ public class LoreSelector extends Div {
                 .tag("lore-types", Style.create()
                         .set(JUSTIFY_CONTENT, Justify.SPACE_BETWEEN));
     }
-
-    private static final LoreOptions UNLOADED = new LoreOptions();
 }
