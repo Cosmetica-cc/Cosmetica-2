@@ -17,7 +17,6 @@
 package cc.cosmetica.cosmetica.gui.widget;
 
 import cc.cosmetica.core.api.CosmeticaAPI;
-import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.core.api.NametagConfig;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.kupe.api.ResourceKey;
