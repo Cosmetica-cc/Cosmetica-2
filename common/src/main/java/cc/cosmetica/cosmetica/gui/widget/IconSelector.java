@@ -59,7 +59,7 @@ public class IconSelector extends Div {
                         new Label(Text.translatable("label.icons.icon", noIcon ? "§7No Icon": this.config.getIcon().getName())).tag("flex-1"),
                         noIcon ? new Div().tag("icon-image", "icon-replacement") : new Image(new ResourceKey(location)).tag("icon-image")
                 ).tag("horizontal", "header"),
-                new EntryList( // todo tile grid instead
+                new EntryList.Grid(
 
                 ).tag("flex-1")
         );

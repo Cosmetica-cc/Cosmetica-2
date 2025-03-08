@@ -20,7 +20,6 @@ import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.gui.Align;
 import cc.cosmetica.kupe.api.gui.Border;
 import cc.cosmetica.kupe.api.gui.Component;
-import cc.cosmetica.kupe.api.gui.Div;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Margins;
@@ -29,34 +28,20 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.OptionalInt;
 
+import static cc.cosmetica.kupe.api.gui.Div.FIXED_CONTAINER;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 /**
- * A gui widget with many entries which can be selected.
- * Warning: This component will override tags on the entries to manage selection.
+ * GUI widgets with many entries which can be selected.
+ * Warning: These components will override tags on the entries to manage selection.
  */
-public class EntryList extends Div {
-    public EntryList(Component... entries) {
-        super(entries);
-        this.selected = null;
-    }
-
-    public EntryList(Component[] entries, @Nullable State<@Nullable Component> selected) {
-        super(entries);
-        this.selected = selected;
-    }
-
-    private final @Nullable State<@Nullable Component> selected;
-
-    @Override
-    public List<Component> build() {
-        List<Component> components = super.build();
-
-        if (this.selected != null) {
-            @Nullable Component selected = this.selected.acquire(this);
+public final class EntryList {
+    private static List<Component> retag(final Component self, List<Component> components, @Nullable State<@Nullable Component> selected) {
+        if (selected != null) {
+            @Nullable Component theSelected = selected.acquire(self);
 
             for (Component component : components) {
-                if (component == selected) {
+                if (component == theSelected) {
                     component.tag();
                 } else {
                     component.tag("entrylist-selected");
@@ -67,8 +52,7 @@ public class EntryList extends Div {
         return components;
     }
 
-    @Override
-    public @Nullable Stylesheet getStylesheet() {
+    private static Stylesheet makeStylesheet() {
         return new Stylesheet()
                 .self(Style.create()
                         .set(BACKGROUND_COLOUR, OptionalInt.of(0x000000))
@@ -77,5 +61,61 @@ public class EntryList extends Div {
                         .set(Div.ALIGN_ITEMS, Align.STRETCH_START))
                 .tag("entrylist-selected", Style.create()
                         .set(BORDER, Border.create(1, 0xFFFFFF)));
+    }
+
+    /**
+     * A div which can have its entries selected.
+     * Warning: This component will override tags on the entries to manage selection.
+     */
+    public static class Div extends cc.cosmetica.kupe.api.gui.Div {
+        public Div(Component... entries) {
+            super(entries);
+            this.selected = null;
+        }
+
+        public Div(Component[] entries, @Nullable State<@Nullable Component> selected) {
+            super(entries);
+            this.selected = selected;
+        }
+
+        private final @Nullable State<@Nullable Component> selected;
+
+        @Override
+        public List<Component> build() {
+            return retag(this, super.build(), this.selected);
+        }
+
+        @Override
+        public @Nullable Stylesheet getStylesheet() {
+            return makeStylesheet();
+        }
+    }
+
+    /**
+     * A grid which can have its entries selected.
+     * Warning: This component will override tags on the entries to manage selection.
+     */
+    public static class Grid extends cc.cosmetica.kupe.api.gui.Grid {
+        public Grid(Component... entries) {
+            super(entries);
+            this.selected = null;
+        }
+
+        public Grid(Component[] entries, @Nullable State<@Nullable Component> selected) {
+            super(entries);
+            this.selected = selected;
+        }
+
+        private final @Nullable State<@Nullable Component> selected;
+
+        @Override
+        public List<Component> build() {
+            return retag(this, super.build(), this.selected);
+        }
+
+        @Override
+        public @Nullable Stylesheet getStylesheet() {
+            return makeStylesheet();
+        }
     }
 }

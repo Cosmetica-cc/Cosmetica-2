@@ -16,7 +16,6 @@
 
 package cc.cosmetica.cosmetica.gui.widget;
 
-import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.NametagConfig;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.kupe.api.ResourceKey;
@@ -28,9 +27,7 @@ import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
-import gg.cloaks.javaclient.api.DefaultApi;
 import gg.cloaks.javaclient.model.LoreOptions;
-import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -79,7 +76,7 @@ public class LoreSelector extends Div {
                         new Button(Text.translatable("button.lore.openWebPanel"), Cosmetica::openWebPanel),
                         new Div().withStyle(Style.create().set(FLEX, 3))
                 ).tag("flex-1", "refer-to-website")
-                : new EntryList(
+                : new EntryList.Div(
                         loreValues.stream()
                                 .map(value -> new Label(Text.literal(value)))
                                 .toArray(Label[]::new)

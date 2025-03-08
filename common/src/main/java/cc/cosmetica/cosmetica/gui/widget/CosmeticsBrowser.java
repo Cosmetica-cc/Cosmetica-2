@@ -17,11 +17,12 @@
 package cc.cosmetica.cosmetica.gui.widget;
 
 import cc.cosmetica.kupe.api.Text;
-import cc.cosmetica.kupe.api.gui.*;
-import cc.cosmetica.kupe.api.gui.style.CommonProperties;
+import cc.cosmetica.kupe.api.gui.Align;
+import cc.cosmetica.kupe.api.gui.Button;
+import cc.cosmetica.kupe.api.gui.Component;
+import cc.cosmetica.kupe.api.gui.Div;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
-import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.Nullable;
@@ -42,7 +43,7 @@ public class CosmeticsBrowser extends Div {
 	@Override
 	public List<Component> build() {
 		return ImmutableList.of(
-				new EntryList(this.entries)
+				new EntryList.Div(this.entries)
 						.tag("width-200", "contents-wrapper"),
 				new Button(Text.literal("+"), () -> {}).tag("width-200")
 		);
