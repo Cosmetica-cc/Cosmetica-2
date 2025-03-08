@@ -42,9 +42,9 @@ public final class EntryList {
 
             for (Component component : components) {
                 if (component == theSelected) {
-                    component.tag();
-                } else {
                     component.tag("entrylist-selected");
+                } else {
+                    component.tag();
                 }
             }
         }

@@ -17,6 +17,7 @@
 package cc.cosmetica.cosmetica.gui;
 
 import cc.cosmetica.core.api.*;
+import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.widget.IconSelector;
 import cc.cosmetica.cosmetica.gui.widget.LoreSelector;
@@ -50,7 +51,7 @@ public class StyleNametagScreen extends Screen {
         // refresh available icons
         CosmeticaAPI.performAsync(DefaultApi::iconsControllerGet)
                 .thenAccept(icons -> Minecraft.getInstance().execute(() -> {
-                    // todo make function in core for this?
+                    // todo make function in core for Icon -> ImageCosmetic?
                     List<ImageCosmetic> newAvailableIcons = new ArrayList<>();
                     for (Icon icon : icons) {
                         newAvailableIcons.add(new ImageCosmetic(
@@ -61,6 +62,7 @@ public class StyleNametagScreen extends Screen {
                                 Cosmetic.gameProfileOf(icon.getCreator()),
                                 icon.getThumbnail()));
                     }
+                    Logging.getInstance().debug("loaded {} available icons", newAvailableIcons.size());
                     availableIcons.set(newAvailableIcons);
                 }));
     }

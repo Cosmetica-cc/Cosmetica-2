@@ -19,6 +19,8 @@ package cc.cosmetica.cosmetica.gui.widget;
 import cc.cosmetica.core.api.CachedImage;
 import cc.cosmetica.core.api.ImageCosmetic;
 import cc.cosmetica.core.api.NametagConfig;
+import cc.cosmetica.core.impl.Logging;
+import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
@@ -26,9 +28,11 @@ import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Margins;
+import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 import java.util.OptionalInt;
@@ -46,6 +50,7 @@ public class IconSelector extends Div {
 
     private final NametagConfig config;
     private final State<List<ImageCosmetic>> availableIcons;
+    private final State<@Nullable Component> selected = new State<>(null);
 
     @Override
     public List<Component> build() {
@@ -60,8 +65,11 @@ public class IconSelector extends Div {
                         noIcon ? new Div().tag("icon-image", "icon-replacement") : new Image(new ResourceKey(location)).tag("icon-image")
                 ).tag("horizontal", "header"),
                 new EntryList.Grid(
-
-                ).tag("flex-1")
+                        iconOptions.stream()
+                                .map(SelectableIcon::new)
+                                .toArray(Component[]::new),
+                        this.selected
+                ).tag("flex-1", "icon-selector")
         );
     }
 
@@ -78,6 +86,42 @@ public class IconSelector extends Div {
                         .set(HEIGHT, fixed(OptionalInt.of(20))))
                 .tag("icon-replacement", Style.create()
                         .set(BACKGROUND_COLOUR, OptionalInt.of(0))
-                        .set(BORDER, Border.create(1, 0xFFFFFF)));
+                        .set(BORDER, Border.create(1, 0xFFFFFF)))
+                .tag("icon-selector", Style.create()
+                        .set(Grid.ROW_GAP, 2)
+                        .set(Grid.COLUMN_GAP, 2))
+                .component(SelectableIcon.class, Style.create()
+                        .set(PADDING, fixed(new Margins(1)))
+                        .set(WIDTH, fixed(OptionalInt.of(30)))
+                        .set(HEIGHT, fixed(OptionalInt.of(30))));
+    }
+
+    private class SelectableIcon extends Image {
+        public SelectableIcon(ImageCosmetic cosmetic) {
+            super(new ResourceKey(cosmetic.getImage().location));
+            this.cosmetic = cosmetic;
+            this.setTransparent(1);
+        }
+
+        private final ImageCosmetic cosmetic;
+
+        @Override
+        public void mouseClicked(double x, double y, int button) {
+            if (button == GLFW.GLFW_MOUSE_BUTTON_1) {
+                if (this != IconSelector.this.selected.peek()) {
+                    Logging.getInstance().debug("Setting icon " + cosmetic);
+                    IconSelector.this.selected.set(this);
+                }
+            }
+        }
+
+        @Override
+        public void render(Canvas canvas, Region region, Margins padding, int mouseX, int mouseY) {
+            // hover effect
+            if (region.contains(mouseX, mouseY) && !this.getStyle().get(BORDER).isPresent()) {
+                canvas.drawRect(region, 0x707070);
+            }
+            super.render(canvas, region, padding, mouseX, mouseY);
+        }
     }
 }
