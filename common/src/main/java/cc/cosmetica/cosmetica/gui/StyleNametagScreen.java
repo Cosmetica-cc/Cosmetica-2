@@ -24,6 +24,7 @@ import cc.cosmetica.cosmetica.gui.widget.LoreSelector;
 import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screen;
+import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
@@ -44,6 +45,7 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 public class StyleNametagScreen extends Screen {
     public StyleNametagScreen() {
         super(ID);
+        Screens.closeCurrentScreen();
 
         // refresh available lores
         CosmeticaAPI.performAsync(DefaultApi::loreControllerGetLoreOptions)
