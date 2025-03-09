@@ -50,11 +50,23 @@ public class IconSelector extends Div {
 
     private final NametagConfig config;
     private final State<List<ImageCosmetic>> availableIcons;
-    private final State<@Nullable Component> selected = new State<>(null);
+    private State<@Nullable Component> selected; // lazy load
 
     @Override
     public List<Component> build() {
         List<ImageCosmetic> iconOptions = this.availableIcons.acquire(this);
+        SelectableIcon[] icons = iconOptions.stream()
+                .map(SelectableIcon::new)
+                .toArray(SelectableIcon[]::new);
+
+        // load selected state
+        Component initialSelect = null;
+        for (SelectableIcon icon : icons)
+            if (icon.cosmetic.getId().equals(this.config.getIcon().getId())) {
+                initialSelect = icon;
+                break;
+            }
+        this.selected = new State<>(initialSelect);
 
         ResourceLocation location = this.config.getIcon().getImage().location;
         boolean noIcon = location == CachedImage.NO_TEXTURE.location;
@@ -65,10 +77,7 @@ public class IconSelector extends Div {
                         noIcon ? new Div().tag("icon-image", "icon-replacement") : new Image(new ResourceKey(location)).tag("icon-image")
                 ).tag("horizontal", "header"),
                 new EntryList.Grid(
-                        iconOptions.stream()
-                                .map(SelectableIcon::new)
-                                .toArray(Component[]::new),
-                        this.selected
+                        icons, this.selected
                 ).tag("flex-1", "icon-selector")
         );
     }

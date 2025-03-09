@@ -17,7 +17,9 @@
 package cc.cosmetica.cosmetica.gui.widget;
 
 import cc.cosmetica.core.api.NametagConfig;
+import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
+import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
@@ -26,9 +28,11 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
+import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.model.LoreOptions;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 import java.util.Optional;
@@ -45,25 +49,39 @@ public class LoreSelector extends Div {
     private String lore;
     private final State<LoreOptions> availableLores;
     private State<Integer> lorePage = new State<>(0);
+    private State<@Nullable Component> selected; // lazy load
 
     @Override
     public List<Component> build() {
         LoreOptions loreOptions = this.availableLores.acquire(this);
         int page = lorePage.acquire(this);
 
-        List<String> loreValues;
+        SelectableLore[] loreValues;
         switch (page) {
             case 0:
-            default:
-                loreValues = loreOptions.getTitles();
+                loreValues = loreOptions.getTitles().stream()
+                        .map(SelectableLore::new)
+                        .toArray(SelectableLore[]::new);
                 break;
             case 1:
-                loreValues = loreOptions.getPronouns();
+                loreValues = loreOptions.getPronouns().stream()
+                        .map(SelectableLore::new)
+                        .toArray(SelectableLore[]::new);
                 break;
             case 2:
-                loreValues = ImmutableList.of();
+            default:
+                loreValues = new SelectableLore[0];
                 break;
         }
+
+        // load selected state
+        Component initialSelect = null;
+        for (SelectableLore lore : loreValues)
+            if (lore.lore.equals(this.lore)) {
+                initialSelect = lore;
+                break;
+            }
+        this.selected = new State<>(initialSelect);
 
         return ImmutableList.of(
                 new Div(
@@ -76,11 +94,7 @@ public class LoreSelector extends Div {
                         new Button(Text.translatable("button.lore.openWebPanel"), Cosmetica::openWebPanel),
                         new Div().withStyle(Style.create().set(FLEX, 3))
                 ).tag("flex-1", "refer-to-website")
-                : new EntryList.Div(
-                        loreValues.stream()
-                                .map(value -> new Label(Text.literal(value)))
-                                .toArray(Label[]::new)
-                ).tag("flex-1"),
+                : new EntryList.Div(loreValues, this.selected).tag("flex-1"),
                 new Div(
                         new Button(Text.translatable("button.lore.titles"), () -> {
                             this.lorePage.set(0);
@@ -113,6 +127,35 @@ public class LoreSelector extends Div {
                                 (int)Math.min(pw/3f, 62), 0
                         ))))
                 .tag("lore-types", Style.create()
-                        .set(JUSTIFY_CONTENT, Justify.SPACE_BETWEEN));
+                        .set(JUSTIFY_CONTENT, Justify.SPACE_BETWEEN))
+                .component(SelectableLore.class, Style.create()
+                        .set(PADDING, fixed(new Margins(1))));
+    }
+
+    private class SelectableLore extends Label {
+        public SelectableLore(String lore) {
+            super(Text.literal(lore));
+            this.lore = lore;
+        }
+
+        private final String lore;
+
+        @Override
+        public void mouseClicked(double x, double y, int button) {
+            if (button == GLFW.GLFW_MOUSE_BUTTON_1) {
+                if (this != LoreSelector.this.selected.peek()) {
+                    LoreSelector.this.selected.set(this);
+                }
+            }
+        }
+
+        @Override
+        public void render(Canvas canvas, Region region, Margins padding, int mouseX, int mouseY) {
+            // hover effect
+            if (region.contains(mouseX, mouseY) && !this.getStyle().get(BORDER).isPresent()) {
+                canvas.drawRect(region.addMargins(padding), 0x707070);
+            }
+            super.render(canvas, region, padding, mouseX, mouseY);
+        }
     }
 }
