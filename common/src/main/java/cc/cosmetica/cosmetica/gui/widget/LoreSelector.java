@@ -17,7 +17,6 @@
 package cc.cosmetica.cosmetica.gui.widget;
 
 import cc.cosmetica.core.api.NametagConfig;
-import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.ResourceKey;
@@ -94,7 +93,12 @@ public class LoreSelector extends Div {
                         new Button(Text.translatable("button.lore.openWebPanel"), Cosmetica::openWebPanel),
                         new Div().withStyle(Style.create().set(FLEX, 3))
                 ).tag("flex-1", "refer-to-website")
-                : new EntryList.Div(loreValues, this.selected).tag("flex-1"),
+                : new EntryList.Div(loreValues, this.selected)
+                        .selected(
+                                Style.create()
+                                        .set(BACKGROUND_COLOUR, OptionalInt.of(0xFFFFFF))
+                                        .set(Label.TEXT_COLOUR, 0x333333)
+                        ).tag("flex-1"),
                 new Div(
                         new Button(Text.translatable("button.lore.titles"), () -> {
                             this.lorePage.set(0);
@@ -152,7 +156,7 @@ public class LoreSelector extends Div {
         @Override
         public void render(Canvas canvas, Region region, Margins padding, int mouseX, int mouseY) {
             // hover effect
-            if (region.contains(mouseX, mouseY) && !this.getStyle().get(BORDER).isPresent()) {
+            if (region.shrinkMargins(new Margins(0,6,0,0)).contains(mouseX, mouseY) && !this.getStyle().get(BORDER).isPresent()) {
                 canvas.drawRect(region.addMargins(padding), 0x707070);
             }
             super.render(canvas, region, padding, mouseX, mouseY);

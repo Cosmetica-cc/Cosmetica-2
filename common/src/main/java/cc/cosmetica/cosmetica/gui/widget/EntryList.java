@@ -52,14 +52,14 @@ public final class EntryList {
         return components;
     }
 
-    private static Stylesheet makeStylesheet() {
+    private static Stylesheet makeStylesheet(@Nullable Style style) {
         return new Stylesheet()
                 .self(Style.create()
                         .set(BACKGROUND_COLOUR, OptionalInt.of(0x000000))
                         .set(PADDING, fixed(new Margins(1)))
                         .set(FIXED_CONTAINER, false)
                         .set(Div.ALIGN_ITEMS, Align.STRETCH_START))
-                .tag("entrylist-selected", Style.create()
+                .tag("entrylist-selected", style != null ? style : Style.create()
                         .set(BORDER, Border.create(1, 0xFFFFFF)));
     }
 
@@ -78,7 +78,13 @@ public final class EntryList {
             this.selected = selected;
         }
 
+        public Div selected(Style style) {
+            this.selectedStyle = style;
+            return this;
+        }
+
         private final @Nullable State<@Nullable Component> selected;
+        private Style selectedStyle;
 
         @Override
         public List<Component> build() {
@@ -87,7 +93,7 @@ public final class EntryList {
 
         @Override
         public @Nullable Stylesheet getStylesheet() {
-            return makeStylesheet();
+            return makeStylesheet(this.selectedStyle);
         }
     }
 
@@ -115,7 +121,7 @@ public final class EntryList {
 
         @Override
         public @Nullable Stylesheet getStylesheet() {
-            return makeStylesheet();
+            return makeStylesheet(null);
         }
     }
 }
