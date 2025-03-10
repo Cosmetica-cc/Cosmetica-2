@@ -22,13 +22,16 @@ import cc.cosmetica.core.impl.BlockModelManager;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.gui.CosmeticaHomeScreen;
 import cc.cosmetica.cosmetica.gui.CosmeticaSettingsScreen;
+import cc.cosmetica.cosmetica.gui.OutfitWheelScreen;
 import cc.cosmetica.cosmetica.gui.StyleNametagScreen;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.State;
+import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.mojang.blaze3d.platform.NativeImage;
+import gg.cloaks.javaclient.api.DefaultApi;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
@@ -49,12 +52,15 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class Cosmetica {
 	public static final State<@Nullable Cosmetics> OWN_COSMETICS = new State<>(null);
+	public static final State<List<OutfitWheelScreen.OutfitOption>> OWN_OUTFITS = new State<>(ImmutableList.of());
 	private static final ResourceLocation SESSIONS = new ResourceLocation("cosmetica", ".sessions");
 
 	public static void init() {
@@ -64,6 +70,12 @@ public class Cosmetica {
 		Cosmetics.registerCosmeticsChangeCallback((le, cosmetics) -> {
 			if (le == null) {
 				System.out.println("Received own cosmetics");
+				CosmeticaAPI.performAsync(DefaultApi::outfitsControllerGetOwn)
+								.thenAccept(list -> Minecraft.getInstance().tell(() -> {
+									OWN_OUTFITS.set(list.stream()
+											.map(OutfitWheelScreen.OutfitOption::new)
+											.collect(Collectors.toList()));
+								}));
 				Minecraft.getInstance().tell(() -> {
 					OWN_COSMETICS.set(cosmetics);
 				});
