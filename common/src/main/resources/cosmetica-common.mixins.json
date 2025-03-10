@@ -6,6 +6,7 @@
   "client": [
     "HttpTextureMixin",
     "KeyMappingMixin",
+    "OptionsMixin",
     "OptionsScreenMixin"
   ],
   "injectors": {

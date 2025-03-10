@@ -16,15 +16,16 @@
 
 package cc.cosmetica.cosmetica.mixin;
 
+import cc.cosmetica.cosmetica.Behaviour;
 import cc.cosmetica.cosmetica.Keybinds;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Map;
@@ -33,37 +34,44 @@ import java.util.Map;
  * Ensure cosmetica keybinds don't conflict with other keybinds.
  */
 @Mixin(KeyMapping.class)
-public class KeyMappingMixin {
+public class KeyMappingMixin implements Behaviour {
     @Shadow
     @Final
     private static Map<String, Integer> CATEGORY_SORT_ORDER;
+    @Shadow
+    private int clickCount;
 
     @Inject(at = @At("RETURN"), method = "click")
     private static void onClick(InputConstants.Key key, CallbackInfo ci) {
-        Keybinds.COSMETICA_MAP.(key);
+        @Nullable KeyMapping k = Keybinds.SPECIAL_MAP.get(key);
+        if (k != null) {
+            ((Behaviour)k).cosmetica$invoke();
+        }
+    }
+
+    @Override
+    public void cosmetica$invoke() {
+        this.clickCount++;
     }
 
     @Inject(at = @At("RETURN"), method = "set")
     private static void onSet(InputConstants.Key key, boolean bl, CallbackInfo ci) {
-        Keybinds.set(key, bl);
+        @Nullable KeyMapping k = Keybinds.SPECIAL_MAP.get(key);
+        if (k != null) {
+            k.setDown(bl);
+        }
     }
 
     @Inject(at = @At("HEAD"), method = "resetMapping")
     private static void beforeReset(CallbackInfo ci) {
-        Keybinds.clearMappings();
+        Keybinds.SPECIAL_MAP.clear();
     }
 
-    @Redirect(at = @At(value = "INVOKE", target = "Ljava/util/Map;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"), method = "resetMapping")
-    private static Object set(Map map, Object key, Object keyMapping) {
-        return (key instanceof InputConstants.Key && keyMapping instanceof SpecialKeyMapping) ? SpecialKeyMapping.putMapping((InputConstants.Key) key, (SpecialKeyMapping) keyMapping) : map.put(key, keyMapping);
-    }
+    // !! Additional, platform-specific mixin on resetMapping.
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     @Inject(at = @At("RETURN"), method = "<clinit>")
     private static void onClInit(CallbackInfo ci) {
-        // To put cosmetica above misc
-        //CATEGORY_SORT_ORDER.put(CosmeticaKeybinds.COSMETICA_CATEGORY, CATEGORY_SORT_ORDER.size());
-        //CATEGORY_SORT_ORDER.replace(CATEGORY_MISC, CATEGORY_SORT_ORDER.size());
-
         // To put cosmetica below misc
         CATEGORY_SORT_ORDER.put(Keybinds.COSMETICA_CATEGORY, CATEGORY_SORT_ORDER.size() + 1);
     }

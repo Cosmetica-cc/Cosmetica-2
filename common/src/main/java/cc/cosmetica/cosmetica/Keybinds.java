@@ -25,30 +25,45 @@ import java.util.Map;
 
 public class Keybinds {
     public static final String COSMETICA_CATEGORY = "key.categories.cosmetica";
-    public static final Map<InputConstants.Key, KeyMapping> COSMETICA_MAP = new HashMap<>();
+    public static final Map<InputConstants.Key, KeyMapping> SPECIAL_MAP = new HashMap<>();
 
     public static KeyMapping CUSTOMISE = new KeyMapping(
-            "key.cosmetica.customise",
-            InputConstants.Type.KEYSYM,
-            InputConstants.UNKNOWN.getValue(),
-            COSMETICA_CATEGORY);
+                    "key.cosmetica.customise",
+                    InputConstants.Type.KEYSYM,
+                    GLFW.GLFW_KEY_RIGHT_SHIFT,
+                    COSMETICA_CATEGORY
+    );
 
-    public static KeyMapping SNIPE = new KeyMapping(
-            "key.cosmetica.snipe",
-            InputConstants.Type.KEYSYM,
-            InputConstants.UNKNOWN.getValue(),
-            COSMETICA_CATEGORY);
+    public static KeyMapping SNIPE = registerSpecial(
+            InputConstants.Type.MOUSE.getOrCreate(GLFW.GLFW_MOUSE_BUTTON_MIDDLE),
+            "snipe"
+    );
 
     public static KeyMapping SELECT_OUTFIT = new KeyMapping(
             "key.cosmetica.select_outfit",
             InputConstants.Type.KEYSYM,
-            InputConstants.UNKNOWN.getValue(),
-            COSMETICA_CATEGORY);
+            GLFW.GLFW_KEY_GRAVE_ACCENT,
+            COSMETICA_CATEGORY
+    );
 
-    static {
-        // default bindings
-        COSMETICA_MAP.put(InputConstants.Type.KEYSYM.getOrCreate(GLFW.GLFW_KEY_RIGHT_SHIFT), CUSTOMISE);
-        COSMETICA_MAP.put(InputConstants.Type.MOUSE.getOrCreate(GLFW.GLFW_MOUSE_BUTTON_MIDDLE), SNIPE);
-        COSMETICA_MAP.put(InputConstants.Type.KEYSYM.getOrCreate(GLFW.GLFW_KEY_GRAVE_ACCENT), SELECT_OUTFIT);
+    /**
+     * Register a special key mapping that is placed on a different keybind map. This prevents it
+     * from conflicting with other keybinds on that key.
+     * @param defaultKey the key.
+     * @param id the key's id.
+     * @return the key mapping.
+     */
+    private static KeyMapping registerSpecial(InputConstants.Key defaultKey, String id) {
+        KeyMapping mapping = new KeyMapping(
+                "key.cosmetica." + id,
+                // register it to unknown on the original map
+                InputConstants.Type.KEYSYM,
+                InputConstants.UNKNOWN.getValue(),
+                COSMETICA_CATEGORY
+        );
+
+        SPECIAL_MAP.put(defaultKey, mapping);
+        mapping.setKey(defaultKey);
+        return mapping;
     }
 }
