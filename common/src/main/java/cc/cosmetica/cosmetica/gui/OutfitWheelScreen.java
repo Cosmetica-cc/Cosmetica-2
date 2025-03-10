@@ -25,9 +25,8 @@ import cc.cosmetica.cosmetica.Keybinds;
 import cc.cosmetica.cosmetica.mixin.KeyMappingAccessor;
 import cc.cosmetica.cosmetica.util.Division;
 import cc.cosmetica.cosmetica.util.TriangleBuilder;
-import cc.cosmetica.kupe.api.Canvas;
-import cc.cosmetica.kupe.api.QuadBuilder;
-import cc.cosmetica.kupe.api.Text;
+import cc.cosmetica.kupe.api.*;
+import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.impl.PoseCanvas;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -37,10 +36,12 @@ import gg.cloaks.javaclient.model.Outfit;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.sounds.SoundEvents;
 import org.lwjgl.glfw.GLFW;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -53,6 +54,7 @@ public class OutfitWheelScreen extends Screen {
         super(Text.translatable("screens.cosmetica.wheel").toMinecraftComponent());
         // todo maybe implement this as kupe screen so we can update outfitId automatically on outfit change
         this.outfitId = Optional.ofNullable(Cosmetica.OWN_COSMETICS.peek()).flatMap(Cosmetics::getOutfitId);
+        this.options = Cosmetica.OWN_OUTFITS.peek();
     }
 
     // Important!
@@ -67,8 +69,6 @@ public class OutfitWheelScreen extends Screen {
 
     @Override
     public void render(PoseStack stack, int mouseX, int mouseY, float partialTick) {
-        super.render(stack, mouseX, mouseY, partialTick);
-
         Canvas canvas = new PoseCanvas(stack, this.minecraft, null, partialTick);
         Supplier<TriangleBuilder> triangles = () -> new TriangleBuilder(
                 Tesselator.getInstance().getBuilder(),
@@ -76,7 +76,13 @@ public class OutfitWheelScreen extends Screen {
                 stack.last().pose()
         );
 
+        // Draw text
+
+
+        // Draw circles
         RenderSystem.enableBlend();
+        RenderSystem.disableDepthTest();
+        RenderSystem.disableTexture();
         RenderSystem.defaultBlendFunc();
 
         double centreX = this.width / 2.0;
@@ -91,7 +97,7 @@ public class OutfitWheelScreen extends Screen {
         RenderSystem.disableBlend();
 
         // Draw Icons
-        this.drawThumbs(canvas, stack, centreX, centreY, 0.5 * (outerEdgeSize + innerEdgeSize));
+        this.drawThumbs(canvas, centreX, centreY, 0.5 * (outerEdgeSize + innerEdgeSize));
 
         // scale up
         if (this.scaleFactor < 1) {
@@ -113,13 +119,12 @@ public class OutfitWheelScreen extends Screen {
     /**
      * Draw the thumbnails for selectable outfits.
      * @param canvas the canvas for rendering.
-     * @param guiStack the {@link PoseStack} for GUI rendering.
      * @param centreX the x position of the centre of the outfit ring.
      * @param centreY the y position of the centre of the outfit ring.
      * @param distance the distance from the outfit ring at which to render the icons.
      */
-    private void drawThumbs(Canvas canvas, PoseStack guiStack, double centreX, double centreY, double distance) {
-        float scale = (float) (this.scaleFactor) * (this.height <= 480 ? 1.0f : 2.0f);
+    private void drawThumbs(Canvas canvas, double centreX, double centreY, double distance) {
+        float scale = this.height <= 380 ? 1.0f : 2.0f;
 
         final int nSectors = 8;
         final double theta = 2.0 * Math.PI / nSectors;
@@ -135,17 +140,17 @@ public class OutfitWheelScreen extends Screen {
 
                 final float x = (float) (centreX + distance * Math.cos(angle));
                 final float y = (float) (centreY + distance * Math.sin(angle));
-                final float size = 16 * (float)this.scaleFactor;
+                final float size = 32 * scale * (float)this.scaleFactor;
 
                 final float x0 = x - size/2;
                 final float y0 = y - size/2;
                 final float x1 = x + size/2;
                 final float y1 = y + size/2;
 
-                OutfitOption outfitPair = this.options.get(index);
-                Minecraft.getInstance().getTextureManager().bind(outfitPair.thumbnail.location);
+                OutfitOption outfit = this.options.get(index);
+                Minecraft.getInstance().getTextureManager().bind(outfit.thumbnail.location);
 
-                canvas.setTransparency(currentOutfitIndex == index ? 0.5f : 0);
+                canvas.setTransparency(currentOutfitIndex == index || !outfit.usable ? 0.5f : 0.8f);
 
                 QuadBuilder builder = canvas.drawQuads(QuadBuilder.Mode.POSITION_TEXTURE);
                 builder.vertex(x0, y1).uv(0, 1).endVertex();
@@ -452,8 +457,52 @@ public class OutfitWheelScreen extends Screen {
                     outfit.getThumbnail(),
                     1,
                     1);
+            this.usable = outfit.isUsable();
         }
         private final String id;
         private final CachedImage thumbnail;
+        private final boolean usable;
+    }
+
+    private class OutfitWheelContext implements Context {
+        @Override
+        public int getWidth(Text text) {
+            return OutfitWheelScreen.this.font.width(text.getDisplayString());
+        }
+
+        @Override
+        public int getLineHeight() {
+            return OutfitWheelScreen.this.font.lineHeight;
+        }
+
+        @Override
+        public int getTextHeight(Text text, int maxWidth) {
+            return this.getLineHeight();
+        }
+
+        @Override
+        public AbstractTexture getTexture(ResourceKey location) {
+            return null;
+        }
+
+        @Override
+        public Optional<Dimensions> getImageDimensions(ResourceKey location) throws IOException {
+            return Optional.empty();
+        }
+
+        @Override
+        public List<Renderable> split(Text text, int maxWidth) {
+            return List.of();
+        }
+
+        @Override
+        public int getViewWidth() {
+            return 0;
+        }
+
+        @Override
+        public int getViewHeight() {
+            return 0;
+        }
     }
 }

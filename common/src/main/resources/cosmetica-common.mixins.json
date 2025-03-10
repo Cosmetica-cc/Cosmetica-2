@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_8",
   "minVersion": "0.8",
   "client": [
+    "ClientWorldTickMixin",
     "HttpTextureMixin",
     "KeyMappingAccessor",
     "KeyMappingMixin",
@@ -14,7 +15,6 @@
     "defaultRequire": 1
   },
   "mixins": [
-    "PlayerMixin",
-    "kupe.TriangleBuilderMixin"
+    "PlayerMixin"
   ]
 }
