@@ -25,8 +25,9 @@ import cc.cosmetica.cosmetica.Keybinds;
 import cc.cosmetica.cosmetica.mixin.KeyMappingAccessor;
 import cc.cosmetica.cosmetica.util.Division;
 import cc.cosmetica.cosmetica.util.TriangleBuilder;
-import cc.cosmetica.kupe.api.*;
-import cc.cosmetica.kupe.api.maths.Dimensions;
+import cc.cosmetica.kupe.api.Canvas;
+import cc.cosmetica.kupe.api.QuadBuilder;
+import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.impl.PoseCanvas;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -36,12 +37,11 @@ import gg.cloaks.javaclient.model.Outfit;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import org.lwjgl.glfw.GLFW;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -60,7 +60,7 @@ public class OutfitWheelScreen extends Screen {
     // Important!
     // double for scroll wheel reasons. use getPage() to get the actual page.
     private double page = 0;
-    private final Optional<String> outfitId;
+    private Optional<String> outfitId;
 
     // scaling
     private double scaleFactor = 0.05;
@@ -76,20 +76,36 @@ public class OutfitWheelScreen extends Screen {
                 stack.last().pose()
         );
 
-        // Draw text
+        // Measurements
+        final double centreX = this.width / 2.0;
+        final double centreY = this.height / 2.0;
+        final double outerEdgeSize = this.scaleFactor * this.height / 2.5;
+        final double innerButtonSize = outerEdgeSize * 0.2;
+        final double innerEdgeSize = outerEdgeSize * 0.25;
 
+        // Draw text
+        final int titleHeight = this.height / 2 - (int)(this.height / 2.5) - 12;
+        Component title = Text.translatable("label.wheel.page", String.valueOf(this.getPage() + 1), String.valueOf(this.getLastPage() + 1)).toMinecraftComponent();
+        drawCenteredString(stack, this.font, title, this.width / 2, titleHeight, 0xffffff);
+        int titleWidth = this.font.width(title);
+        int pcWidth = this.font.width(Text.literal("<").toMinecraftComponent());
+        int leftPageChange = this.width/2 - titleWidth/2 - 12;
+        int rightPageChange = this.width/2 + titleWidth/2 + 12;
+        boolean previousPage = this.getPage() > 0;
+        boolean nextPage = this.getPage() < this.getLastPage();
+
+        boolean hoveredY = mouseY >= titleHeight && mouseY <= titleHeight + this.font.lineHeight + 1;
+        boolean hoveredPrevPage = hoveredY && mouseX >= leftPageChange-pcWidth/2 && mouseX <= leftPageChange+pcWidth/2+1;
+        boolean hoveredNextPage = hoveredY && mouseX >= rightPageChange-pcWidth/2 && mouseX <= rightPageChange+pcWidth/2+1;
+
+        drawCenteredString(stack, this.font, Text.literal("<").toMinecraftComponent(), leftPageChange, titleHeight, previousPage ? (hoveredPrevPage ? 0x888888 : 0xffffff) : 0x888888);
+        drawCenteredString(stack, this.font, Text.literal(">").toMinecraftComponent(), rightPageChange, titleHeight, nextPage ? (hoveredNextPage ? 0x888888 : 0xffffff) : 0x888888);
 
         // Draw circles
         RenderSystem.enableBlend();
         RenderSystem.disableDepthTest();
         RenderSystem.disableTexture();
         RenderSystem.defaultBlendFunc();
-
-        double centreX = this.width / 2.0;
-        double centreY = this.height / 2.0;
-        double outerEdgeSize = this.scaleFactor * this.height / 2.5;
-        double innerButtonSize = outerEdgeSize * 0.2;
-        double innerEdgeSize = outerEdgeSize * 0.25;
 
         int selectedButton = getSelectedButton(mouseX, mouseY, innerButtonSize, innerEdgeSize, outerEdgeSize);
         this.drawCircles(triangles, centreX, centreY, outerEdgeSize, innerButtonSize, innerEdgeSize, selectedButton);
@@ -313,8 +329,8 @@ public class OutfitWheelScreen extends Screen {
 
                         // switch outfit
                         CosmeticaAPI.performAsync(api -> api.outfitsControllerEquip(outfit.id));
-                        // close the GUI
-                        this.onClose();
+                        // visually switch
+                        this.outfitId = Optional.of(outfit.id);
                     }
                 }
             }
@@ -462,47 +478,5 @@ public class OutfitWheelScreen extends Screen {
         private final String id;
         private final CachedImage thumbnail;
         private final boolean usable;
-    }
-
-    private class OutfitWheelContext implements Context {
-        @Override
-        public int getWidth(Text text) {
-            return OutfitWheelScreen.this.font.width(text.getDisplayString());
-        }
-
-        @Override
-        public int getLineHeight() {
-            return OutfitWheelScreen.this.font.lineHeight;
-        }
-
-        @Override
-        public int getTextHeight(Text text, int maxWidth) {
-            return this.getLineHeight();
-        }
-
-        @Override
-        public AbstractTexture getTexture(ResourceKey location) {
-            return null;
-        }
-
-        @Override
-        public Optional<Dimensions> getImageDimensions(ResourceKey location) throws IOException {
-            return Optional.empty();
-        }
-
-        @Override
-        public List<Renderable> split(Text text, int maxWidth) {
-            return List.of();
-        }
-
-        @Override
-        public int getViewWidth() {
-            return 0;
-        }
-
-        @Override
-        public int getViewHeight() {
-            return 0;
-        }
     }
 }
