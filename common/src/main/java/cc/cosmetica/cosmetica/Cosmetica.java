@@ -78,7 +78,6 @@ public class Cosmetica {
 				OWN_COSMETICS.set(cosmetics);
 			});
 		});
-
 		// log in
 		Authentication.authenticate();
 
