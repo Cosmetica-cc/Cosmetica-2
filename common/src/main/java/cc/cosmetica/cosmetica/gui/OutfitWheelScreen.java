@@ -79,28 +79,34 @@ public class OutfitWheelScreen extends Screen {
         // Measurements
         final double centreX = this.width / 2.0;
         final double centreY = this.height / 2.0;
-        final double outerEdgeSize = this.scaleFactor * this.height / 2.5;
+        final double outerEdgeSize = this.getOuterEdgeRadius();
         final double innerButtonSize = outerEdgeSize * 0.2;
         final double innerEdgeSize = outerEdgeSize * 0.25;
 
         // Draw text
-        final int titleHeight = this.height / 2 - (int)(this.height / 2.5) - 12;
-        Component title = Text.translatable("label.wheel.page", String.valueOf(this.getPage() + 1), String.valueOf(this.getLastPage() + 1)).toMinecraftComponent();
+        final int titleHeight = this.getTitleHeight();
+        Component title = this.getPageLabel();
         drawCenteredString(stack, this.font, title, this.width / 2, titleHeight, 0xffffff);
-        int titleWidth = this.font.width(title);
-        int pcWidth = this.font.width(Text.literal("<").toMinecraftComponent());
-        int leftPageChange = this.width/2 - titleWidth/2 - 12;
-        int rightPageChange = this.width/2 + titleWidth/2 + 12;
-        boolean previousPage = this.getPage() > 0;
-        boolean nextPage = this.getPage() < this.getLastPage();
 
-        boolean hoveredY = mouseY >= titleHeight && mouseY <= titleHeight + this.font.lineHeight + 1;
-        boolean hoveredPrevPage = hoveredY && mouseX >= leftPageChange-pcWidth/2 && mouseX <= leftPageChange+pcWidth/2+1;
-        boolean hoveredNextPage = hoveredY && mouseX >= rightPageChange-pcWidth/2 && mouseX <= rightPageChange+pcWidth/2+1;
+        {
+            int[] pageChangeButton = new int[3];
+            this.getPageButtonDimensions(pageChangeButton, titleHeight, title);
 
-        drawCenteredString(stack, this.font, Text.literal("<").toMinecraftComponent(), leftPageChange, titleHeight, previousPage ? (hoveredPrevPage ? 0x888888 : 0xffffff) : 0x888888);
-        drawCenteredString(stack, this.font, Text.literal(">").toMinecraftComponent(), rightPageChange, titleHeight, nextPage ? (hoveredNextPage ? 0x888888 : 0xffffff) : 0x888888);
+            int left = pageChangeButton[0];
+            int right = pageChangeButton[1];
+            int pcWidth = pageChangeButton[2];
 
+            boolean previousPage = this.getPage() > 0;
+            boolean nextPage = this.getPage() < this.getLastPage();
+
+            boolean hoveredY = mouseY >= titleHeight && mouseY <= titleHeight + this.font.lineHeight + 1;
+            boolean hoveredPrevPage = hoveredY && mouseX >= left-pcWidth/2 && mouseX <= left+pcWidth/2+1;
+            boolean hoveredNextPage = hoveredY && mouseX >= right-pcWidth/2 && mouseX <= right+pcWidth/2+1;
+
+            drawCenteredString(stack, this.font, Text.literal("<").toMinecraftComponent(), left, titleHeight, previousPage ? (hoveredPrevPage ? 0x888888 : 0xffffff) : 0x888888);
+            drawCenteredString(stack, this.font, Text.literal(">").toMinecraftComponent(), right, titleHeight, nextPage ? (hoveredNextPage ? 0x888888 : 0xffffff) : 0x888888);
+
+        }
         // Draw circles
         RenderSystem.enableBlend();
         RenderSystem.disableDepthTest();
@@ -306,14 +312,57 @@ public class OutfitWheelScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        System.out.println("mouse Clicked");
+        if (button != 0) { // left click
+            return false;
+        }
+        assert this.minecraft != null; // shut up compiler
+
         double outerEdgeSize = this.getOuterEdgeRadius();
         double innerButtonSize = outerEdgeSize * 0.2;
         double innerEdgeSize = outerEdgeSize * 0.25;
 
+        // First check for page buttons
+        int titleHeight = this.getTitleHeight();
+        boolean hoveredY = mouseY >= titleHeight && mouseY <= titleHeight + this.font.lineHeight + 1;
+
+        if (hoveredY) {
+            int[] measurements = new int[3];
+            this.getPageButtonDimensions(measurements, titleHeight, this.getPageLabel());
+
+            int left = measurements[0];
+            int right = measurements[1];
+            int pcWidth = measurements[2];
+
+            boolean hoveredPrevPage = mouseX >= left-pcWidth/2 && mouseX <= left+pcWidth/2+1;
+            boolean hoveredNextPage = mouseX >= right-pcWidth/2 && mouseX <= right+pcWidth/2+1;
+
+            if (hoveredNextPage) {
+                this.page = (int)this.page + 1;
+                if (this.page > this.getLastPage()) {
+                    this.page = 0;
+                }
+
+                this.minecraft.getSoundManager().play(
+                        SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F)
+                );
+                return true;
+            } else if (hoveredPrevPage) {
+                this.page = (int)this.page - 1;
+                if (this.page < 0) this.page = this.getLastPage();
+
+                this.minecraft.getSoundManager().play(
+                        SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F)
+                );
+                return true;
+            }
+        }
+
+        // Then check for selection buttons
         int selectedButton = this.getSelectedButton((float) mouseX, (float) mouseY,
                 innerButtonSize, innerEdgeSize, outerEdgeSize);
 
-        if (button == 0 && selectedButton > -1) {
+        if (selectedButton > -1) {
             if (selectedButton < 8) {
                 int index = selectedButton + this.getPage() * 8;
 
@@ -321,8 +370,6 @@ public class OutfitWheelScreen extends Screen {
                     OutfitOption outfit = this.options.get(index);
 
                     if (!outfit.id.equals(this.outfitId.orElse(""))) {
-                        assert this.minecraft != null;
-
                         this.minecraft.getSoundManager().play(
                                 SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F)
                         );
@@ -372,6 +419,25 @@ public class OutfitWheelScreen extends Screen {
      */
     private double getOuterEdgeRadius() {
         return this.scaleFactor * this.height / 2.5;
+    }
+
+    private int getTitleHeight() {
+        return this.height / 2 - (int)(this.height / 2.5) - 12;
+    }
+
+    private Component getPageLabel() {
+        return Text.translatable("label.wheel.page", String.valueOf(this.getPage() + 1), String.valueOf(this.getLastPage() + 1)).toMinecraftComponent();
+    }
+
+    private void getPageButtonDimensions(int[] result, int titleHeight, Component title) {
+        int titleWidth = this.font.width(title);
+        int pcWidth = this.font.width(Text.literal("<").toMinecraftComponent());
+        int leftPageChange = this.width/2 - titleWidth/2 - 12;
+        int rightPageChange = this.width/2 + titleWidth/2 + 12;
+        // results
+        result[0] = leftPageChange;
+        result[1] = rightPageChange;
+        result[2] = pcWidth;
     }
 
     /**
