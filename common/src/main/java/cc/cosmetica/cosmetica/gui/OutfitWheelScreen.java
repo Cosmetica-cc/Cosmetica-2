@@ -312,7 +312,6 @@ public class OutfitWheelScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        System.out.println("mouse Clicked");
         if (button != 0) { // left click
             return false;
         }
@@ -375,8 +374,15 @@ public class OutfitWheelScreen extends Screen {
                         );
 
                         // switch outfit
-                        CosmeticaAPI.performAsync(api -> api.outfitsControllerEquip(outfit.id));
-                        // visually switch
+                        CosmeticaAPI.performAsync(api -> api.outfitsControllerEquip(outfit.id))
+                                .thenAccept(user -> System.out.println("Success!"))
+                                .exceptionally(except -> {
+                                    new RuntimeException("Outfits Controller Equip", except).printStackTrace();
+                                    return null;
+                                });
+
+                        // visually switch immediately
+                        // -> we should always show currently equipped outfit in wheel and not whats rendering! (as that is delayed by load)
                         this.outfitId = Optional.of(outfit.id);
                     }
                 }
@@ -388,8 +394,6 @@ public class OutfitWheelScreen extends Screen {
         return false;
     }
 
-    // TODO a way to scroll without needing a scroll wheel. A/D? < > Buttons?
-    // Likely a <  Page 1/1   > design
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         if (delta > 0) {
