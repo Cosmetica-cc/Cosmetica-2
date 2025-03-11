@@ -29,7 +29,7 @@ dependencies {
     }
 
     // Cosmetica Core
-    modImplementation "cc.cosmetica:cosmetica-core-fabric:${rootProject.core_version}"
+    modImplementation "cc.cosmetica:cosmetica-core-fabric:${rootProject.core_version}-${rootProject.minecraft_version}"
     // Kupe
     modImplementation "cc.cosmetica:kupe-fabric:${rootProject.kupe_version}"
     // Webp Support

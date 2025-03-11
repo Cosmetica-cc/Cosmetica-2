@@ -18,7 +18,6 @@ package cc.cosmetica.cosmetica;
 
 import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.Cosmetics;
-import cc.cosmetica.core.impl.BlockModelManager;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.gui.CosmeticaHomeScreen;
 import cc.cosmetica.cosmetica.gui.CosmeticaSettingsScreen;
@@ -27,15 +26,10 @@ import cc.cosmetica.cosmetica.gui.StyleNametagScreen;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.State;
 import com.google.common.collect.ImmutableList;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
 import com.mojang.blaze3d.platform.NativeImage;
 import gg.cloaks.javaclient.api.DefaultApi;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.User;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -48,12 +42,8 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.time.Instant;
-import java.util.Base64;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -61,105 +51,38 @@ import java.util.stream.Collectors;
 public class Cosmetica {
 	public static final State<@Nullable Cosmetics> OWN_COSMETICS = new State<>(null);
 	public static final State<List<OutfitWheelScreen.OutfitOption>> OWN_OUTFITS = new State<>(ImmutableList.of());
-	private static final ResourceLocation SESSIONS = new ResourceLocation("cosmetica", ".sessions");
 
 	public static void init() {
 		Screens.setAllowDebug(true);
 
 		// cosmetic states
 		Cosmetics.registerCosmeticsChangeCallback((le, cosmetics) -> {
-			if (le == null) {
-				System.out.println("Received own cosmetics");
-				CosmeticaAPI.performAsync(DefaultApi::outfitsControllerGetOwn)
-								.thenAccept(list -> Minecraft.getInstance().tell(() -> {
-									OWN_OUTFITS.set(list.stream()
-											.map(OutfitWheelScreen.OutfitOption::new)
-											.collect(Collectors.toList()));
-								}));
-				Minecraft.getInstance().tell(() -> {
-					OWN_COSMETICS.set(cosmetics);
-				});
-			} else if (le instanceof Player) {
+			if (le instanceof Player) {
 				Minecraft.getInstance().tell(() -> {
 					((StateHolder) le).cosmetica$setCosmeticState(cosmetics);
 				});
 			}
 		});
+		// updates to cosmetic stuff
+		Cosmetics.registerUserDataFetchCallback((data, cosmetics) -> {
+			Logging.getInstance().debug("Received own cosmetics");
 
-		// cosmetica.token is used by core as for testing. we want to keep this behaviour for our testing.
-		if (!System.getProperties().containsKey("cosmetica.token")) {
-			// log in
-			try {
-				startAuthentication();
-			} catch (IOException e) {
-				Logging.getInstance().error("Failed to log into Cosmetica", e);
-			}
-		}
+			CosmeticaAPI.performAsync(DefaultApi::outfitsControllerGetOwn)
+					.thenAccept(list -> Minecraft.getInstance().tell(() -> {
+						OWN_OUTFITS.set(list.stream()
+								.map(OutfitWheelScreen.OutfitOption::new)
+								.collect(Collectors.toList()));
+					}));
+
+			Minecraft.getInstance().tell(() -> {
+				OWN_COSMETICS.set(cosmetics);
+			});
+		});
+
+		// log in
+		Authentication.authenticate();
 
 		registerScreens();
-	}
-
-	/**
-	 * Start authenticating the mod with Cosmetica. Preferably uses the cached token for the current user.
-	 * @throws IOException if an IOException occurs while trying to access the session info.
-	 */
-	private static void startAuthentication() throws IOException {
-		// check for cached token
-		Path sessionsInfo = BlockModelManager.getCacheFile(SESSIONS);
-		Properties properties = new Properties();
-
-		if (Files.isRegularFile(sessionsInfo)) {
-			try (BufferedInputStream b = new BufferedInputStream(Files.newInputStream(sessionsInfo))) {
-				properties.load(b);
-			}
-
-			User user = Minecraft.getInstance().getUser();
-			String token = properties.getProperty("jwt-" + user.getUuid());
-
-			if (token != null) {
-				// parse jwt to check if expired
-				try {
-					byte[] info = Base64.getDecoder().decode(token.split("\\.")[1]);
-					JsonObject object = new JsonParser().parse(new InputStreamReader(new ByteArrayInputStream(info))).getAsJsonObject();
-					// get timestamp of expiry
-					String exp = object.get("exp").getAsString();
-
-					if (Long.parseLong(exp) - Instant.now().getEpochSecond() > 0) {
-						// use cached jwt
-						CosmeticaAPI.authenticate(token);
-						return;
-					}
-				} catch (JsonParseException | IndexOutOfBoundsException e) {
-					throw new RuntimeException("Malformed JWT", e);
-				}
-			}
-		} else {
-			Files.createFile(sessionsInfo);
-		}
-
-		// Log in
-		// TODO switch to an executor?
-		Thread t = new Thread(() -> {
-			try {
-				if (CosmeticaAPI.login()) {
-					String token = CosmeticaAPI.getSessionToken();
-					User user = Minecraft.getInstance().getUser();
-
-					// Cache Token
-					if (!token.isEmpty()) { // we are using async code, so near-redundant operation just in case.
-						properties.setProperty("jwt-" + user.getUuid(), token);
-
-						try (BufferedOutputStream b = new BufferedOutputStream(Files.newOutputStream(sessionsInfo))) {
-							properties.store(b, "Cosmetica Session Info");
-						}
-					}
-				}
-			} catch (IOException e) {
-				Logging.getInstance().error("Failed to log in", e);
-			}
-		});
-		t.setName("Cosmetica Login Worker");
-		t.start();
 	}
 
 	/**

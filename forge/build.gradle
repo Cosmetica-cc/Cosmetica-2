@@ -31,7 +31,7 @@ dependencies {
     forge "net.minecraftforge:forge:${rootProject.forge_version}"
 
     // Cosmetica Core
-    modImplementation "cc.cosmetica:cosmetica-core-forge:${rootProject.core_version}"
+    modImplementation "cc.cosmetica:cosmetica-core-forge:${rootProject.core_version}-${rootProject.minecraft_version}"
     // Kupe Core
     modImplementation "cc.cosmetica:kupe-forge:${rootProject.kupe_version}"
     // Webp Support
