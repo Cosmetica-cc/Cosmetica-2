@@ -40,6 +40,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
@@ -52,15 +53,13 @@ import java.util.function.Supplier;
 public class OutfitWheelScreen extends Screen {
     public OutfitWheelScreen() {
         super(Text.translatable("screens.cosmetica.wheel").toMinecraftComponent());
-        // todo maybe implement this as kupe screen so we can update outfitId automatically on outfit change
-        this.outfitId = Optional.ofNullable(Cosmetica.OWN_COSMETICS.peek()).flatMap(Cosmetics::getOutfitId);
+        // todo maybe implement this as kupe screen so we can update outfit list automatically on outfit change
         this.options = Cosmetica.OWN_OUTFITS.peek();
     }
 
     // Important!
     // double for scroll wheel reasons. use getPage() to get the actual page.
     private double page = 0;
-    private Optional<String> outfitId;
 
     // scaling
     private double scaleFactor = 0.05;
@@ -150,7 +149,7 @@ public class OutfitWheelScreen extends Screen {
 
         final int nSectors = 8;
         final double theta = 2.0 * Math.PI / nSectors;
-        final int currentOutfitIndex = this.outfitId.map(this::indexOf).orElse(-1);
+        final int currentOutfitIndex = Cosmetica.SELECTED_OUTFIT_ID.peek().map(this::indexOf).orElse(-1);
 
         RenderSystem.enableTexture();
 
@@ -214,7 +213,7 @@ public class OutfitWheelScreen extends Screen {
             this.drawRenderSector(builder, theta, angle, centreX, centreY, innerButtonSize, shade);
         }
 
-        int currentOutfitSector = this.indexOf(this.outfitId.orElse("")) - this.getPage() * nOutfitSectors;
+        int currentOutfitSector = this.indexOf(Cosmetica.SELECTED_OUTFIT_ID.peek().orElse("")) - this.getPage() * nOutfitSectors;
 
         // Outer Circle
         for (int i = 0; i < nRenderSectors; i++) {
@@ -368,7 +367,7 @@ public class OutfitWheelScreen extends Screen {
                 if (index < this.options.size()) {
                     OutfitOption outfit = this.options.get(index);
 
-                    if (!outfit.id.equals(this.outfitId.orElse(""))) {
+                    if (!outfit.id.equals(Cosmetica.SELECTED_OUTFIT_ID.peek().orElse(""))) {
                         this.minecraft.getSoundManager().play(
                                 SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F)
                         );
@@ -383,7 +382,7 @@ public class OutfitWheelScreen extends Screen {
 
                         // visually switch immediately
                         // -> we should always show currently equipped outfit in wheel and not whats rendering! (as that is delayed by load)
-                        this.outfitId = Optional.of(outfit.id);
+                        Cosmetica.SELECTED_OUTFIT_ID.set(Optional.of(outfit.id));
                     }
                 }
             }
@@ -548,5 +547,13 @@ public class OutfitWheelScreen extends Screen {
         private final String id;
         private final CachedImage thumbnail;
         private final boolean usable;
+
+        public static OutfitOption ofNullable(@Nullable Outfit outfit) {
+            if (outfit == null) {
+                return null;
+            }
+
+            return new OutfitOption(outfit);
+        }
     }
 }
