@@ -51,7 +51,7 @@ public class Setting<T> {
         this.modified = false;
     }
 
-    public static final Setting<Boolean> TOGGLE_OUTFIT_SCREEN = new Setting<>("setting.cosmetica.wheel", false);
+    public static final Setting<Boolean> TOGGLE_OUTFIT_WHEEL = new Setting<>("setting.cosmetica.wheel", false);
 
-    public static final List<Setting<?>> SETTINGS = ImmutableList.of(TOGGLE_OUTFIT_SCREEN);
+    public static final List<Setting<?>> SETTINGS = ImmutableList.of(TOGGLE_OUTFIT_WHEEL);
 }

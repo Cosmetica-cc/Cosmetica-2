@@ -31,18 +31,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ClientWorldTickMixin {
     @Inject(at = @At("RETURN"), method = "renderLevel")
     private void onRenderLevel(CallbackInfo info) {
-        Screen screen = Minecraft.getInstance().screen;
-
-        boolean set = false;
-        while (Keybinds.SELECT_OUTFIT.consumeClick())
-            set = true;
-
-        if (!set) return;
-
-        if (screen == null) {
-            Minecraft.getInstance().setScreen(new OutfitWheelScreen());
-        } else if (Setting.TOGGLE_OUTFIT_SCREEN.get() && screen instanceof OutfitWheelScreen) {
-            Minecraft.getInstance().setScreen(null);
-        }
+        Keybinds.processKeybinds();
     }
 }

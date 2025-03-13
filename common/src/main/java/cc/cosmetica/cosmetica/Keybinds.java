@@ -16,8 +16,13 @@
 
 package cc.cosmetica.cosmetica;
 
+import cc.cosmetica.cosmetica.gui.CosmeticaHomeScreen;
+import cc.cosmetica.cosmetica.gui.OutfitWheelScreen;
+import cc.cosmetica.kupe.api.Screens;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
@@ -65,5 +70,45 @@ public class Keybinds {
         SPECIAL_MAP.put(defaultKey, mapping);
         mapping.setKey(defaultKey);
         return mapping;
+    }
+
+    // marks whether the current menu was opened by customise key (default right shift)
+    // persistent state by processKeybinds
+    private static boolean rightShiftMenu = false;
+    /**
+     * Process the Cosmetica Keybinds on client (world) tick.
+     */
+    public static void processKeybinds() {
+        Screen screen = Minecraft.getInstance().screen;
+
+        // Outfit Wheel
+        boolean set = false;
+        while (Keybinds.SELECT_OUTFIT.consumeClick())
+            set = true;
+
+        if (set) {
+            if (screen == null) {
+                Minecraft.getInstance().setScreen(new OutfitWheelScreen());
+            } else if (Setting.TOGGLE_OUTFIT_WHEEL.get() && screen instanceof OutfitWheelScreen) {
+                Minecraft.getInstance().setScreen(null);
+            }
+        }
+
+        // Right Shift
+        set = false;
+        while (Keybinds.CUSTOMISE.consumeClick())
+            set = true;
+        // closing the in-game cosmetica menu brings you back to gameplay
+        if (screen == null) rightShiftMenu = false;
+
+        if (set) {
+            if (screen == null) {
+                rightShiftMenu = true;
+                Screens.setScreen(CosmeticaHomeScreen.ID);
+            } else if (rightShiftMenu) {
+                // to-do: make cosmetica menu screens allow right shift, but not other keys
+                Minecraft.getInstance().setScreen(null);
+            }
+        }
     }
 }

@@ -305,7 +305,7 @@ public class OutfitWheelScreen extends Screen {
 
     @Override
     public void tick() {
-        if (!Setting.TOGGLE_OUTFIT_SCREEN.get()) {
+        if (!Setting.TOGGLE_OUTFIT_WHEEL.get()) {
             if (!isDown(Keybinds.SELECT_OUTFIT)) {
                 this.onClose();
             }
@@ -479,7 +479,7 @@ public class OutfitWheelScreen extends Screen {
 
     @Override
     public boolean shouldCloseOnEsc() {
-        return Setting.TOGGLE_OUTFIT_SCREEN.get();
+        return Setting.TOGGLE_OUTFIT_WHEEL.get();
     }
 
     /**
