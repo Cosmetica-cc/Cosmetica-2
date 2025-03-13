@@ -205,7 +205,7 @@ public class OutfitWheelScreen extends Screen {
         final int nRenderSectors = 64;
         final double theta = 2.0 * Math.PI / nRenderSectors;
 
-        float shade = highlightedSector == 8 ? 1.0f : 0.2f;
+        float shade = highlightedSector == 8 ? 1.0f : 0.4f;
 
         // Inner Circle
         for (int i = 0; i < nRenderSectors; i++) {
@@ -223,7 +223,7 @@ public class OutfitWheelScreen extends Screen {
 
             shade = (sector == currentOutfitSector) ? 0.0f : (
                     sector == highlightedSector ? 1 : (
-                            (sector & 1) == 0 ? 0.2f : 0.4f
+                            (sector & 1) == 0 ? 0.3f : 0.4f
                     )
             );
 
