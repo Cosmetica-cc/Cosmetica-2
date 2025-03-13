@@ -17,6 +17,9 @@
 package cc.cosmetica.cosmetica;
 
 import cc.cosmetica.kupe.api.Text;
+import com.google.common.collect.ImmutableList;
+
+import java.util.List;
 
 /**
  * Represents a setting.
@@ -48,5 +51,7 @@ public class Setting<T> {
         this.modified = false;
     }
 
-    public static Setting<Boolean> TOGGLE_OUTFIT_SCREEN = new Setting<>("setting.cosmetica.wheel", false);
+    public static final Setting<Boolean> TOGGLE_OUTFIT_SCREEN = new Setting<>("setting.cosmetica.wheel", false);
+
+    public static final List<Setting<?>> SETTINGS = ImmutableList.of(TOGGLE_OUTFIT_SCREEN);
 }

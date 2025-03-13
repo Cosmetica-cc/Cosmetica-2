@@ -174,16 +174,12 @@ public class Cosmetica {
 	// ============== //
 
 	/**
-	 * Register Cosmetica's screens.
+	 * Register (some) Cosmetica screens.
 	 */
 	private static void registerScreens() {
 		// Use persistent screen object to keep state data
 		// - we want to keep track of what the user was last doing
-		// - this can be changed at any time by switching to the factory registerScreen
 		Screens.registerScreen(CosmeticaHomeScreen.ID, new CosmeticaHomeScreen());
-		Screens.registerScreen(CosmeticaSettingsScreen.ID, new CosmeticaSettingsScreen(ImmutableList.of(
-				Setting.TOGGLE_OUTFIT_SCREEN
-		)));
 		Screens.registerScreen(StyleNametagScreen.ID, StyleNametagScreen::new);
 	}
 }

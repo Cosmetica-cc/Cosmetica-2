@@ -17,7 +17,6 @@
 package cc.cosmetica.cosmetica.gui;
 
 import cc.cosmetica.cosmetica.Setting;
-import cc.cosmetica.cosmetica.gui.widget.CycleButton;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.State;
@@ -27,17 +26,19 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Dimensions;
+import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 public class CosmeticaSettingsScreen extends Screen {
-    public CosmeticaSettingsScreen(List<Setting<?>> settings) {
-        super(ID);
+    public CosmeticaSettingsScreen(ResourceKey titleKey, List<Setting<?>> settings) {
+        super(titleKey);
         this.settings = settings;
     }
 
@@ -48,36 +49,89 @@ public class CosmeticaSettingsScreen extends Screen {
         List<Component> settingComponents = new ArrayList<>();
 
         // add settings for outfit wheel
-        this.settings.forEach(setting -> settingComponents.add(Setting(setting)));
+        this.settings.forEach(setting -> settingComponents.add(new SettingBlock(setting)));
 
         return settingComponents.toArray(new Component[0]);
     }
 
     @Override
-    public @Nullable Stylesheet getStylesheet() {
+    public Stylesheet getStylesheet() {
         return super.getStylesheet()
-                .tag("setting", Style.create()
+                .component(SettingBlock.class, Style.create()
                         .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
                         .set(Div.JUSTIFY_CONTENT, Justify.SPACE_BETWEEN)
                         .set(MINIMUM_SIZE, fixed(Optional.of(new Dimensions(200, 0))))
                         .set(WIDTH, screen(50, 0)));
     }
 
-    public static final ResourceKey ID = new ResourceKey("cosmetica", "settings");
+    public static final ResourceKey SETTINGS_SCREEN = new ResourceKey("cosmetica", "settings");
 
-    private static Component Setting(Setting<?> setting) {
-        Component controller;
-        @SuppressWarnings("rawtypes") Class clazz = setting.get().getClass();
-
-        if (clazz == Boolean.class) {
-            controller = new CycleButton(new State<>(setting), CycleButton::cycleBoolean);
-        } else if (Enum.class.isAssignableFrom(clazz)) {
-            controller = new CycleButton(new State<>(setting), CycleButton::cycleEnum);
-        } else {
-            throw new UnsupportedOperationException("Unsupported setting type: " + clazz);
+    private static class SettingBlock extends Div {
+        private SettingBlock(Setting<?> setting) {
+            this.setting = new State<>(setting);
         }
 
-        // create component
-        return new Div(new Label(setting.name), controller).tag("setting");
+        private final State<Setting<?>> setting;
+
+        @Override
+        public List<Component> build() {
+            Setting<?> value = this.setting.acquire(this);
+
+            // create text
+            Text text = value.name;
+            if (value.isModified()) {
+                text = Text.literal("§l" + text.getDisplayString() + "*");
+            }
+
+            // create controller
+            Component controller;
+            @SuppressWarnings("rawtypes") Class clazz = value.get().getClass();
+
+            if (clazz == Boolean.class) {
+                controller = CycleButton(value, this::cycleBoolean);
+            } else if (Enum.class.isAssignableFrom(clazz)) {
+                controller = CycleButton(value, this::cycleEnum);
+            } else {
+                throw new UnsupportedOperationException("Unsupported setting type: " + clazz);
+            }
+
+            // return components
+            return ImmutableList.of(new Label(text), controller);
+        }
+
+        public static Component CycleButton(Setting<?> value, Runnable cycle) {
+            return new Button(
+                    Text.translatable(value.name.getString() + "." + value.get()),
+                    cycle
+            ).withStyle(
+                    Style.create().set(WIDTH, fixed(OptionalInt.of(100)))
+            );
+        }
+
+        @SuppressWarnings({"rawtypes", "unchecked"})
+        private void cycleEnum() {
+            final Setting<?> setting = this.setting.peek();
+
+            // next enum
+            Enum<? extends Enum> value = (Enum) setting.get();
+            Enum[] values = value.getDeclaringClass().getEnumConstants();
+            value = values[(value.ordinal() + 1) % values.length];
+            ((Setting)setting).set(value);
+
+            // refresh
+            this.setting.set(this.setting.peek());
+        }
+
+        @SuppressWarnings("unchecked")
+        private void cycleBoolean() {
+            final Setting<?> setting = this.setting.peek();
+
+            // flip boolean
+            Boolean b = (Boolean) setting.get();
+            ((Setting<Boolean>)setting).set(!b);
+
+            // refresh
+            this.setting.set(this.setting.peek());
+        }
     }
 }

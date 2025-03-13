@@ -18,6 +18,7 @@ package cc.cosmetica.cosmetica.gui;
 
 import cc.cosmetica.core.api.*;
 import cc.cosmetica.cosmetica.Cosmetica;
+import cc.cosmetica.cosmetica.Setting;
 import cc.cosmetica.cosmetica.gui.widget.*;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screen;
@@ -57,7 +58,7 @@ public class CosmeticaHomeScreen extends Screen {
 								new Div(
 										new IconButton(
 												new ResourceKey("cosmetica", "textures/gear.png"),
-												() -> Screens.setScreen(CosmeticaSettingsScreen.ID))
+												() -> Screens.setScreen(new CosmeticaSettingsScreen(CosmeticaSettingsScreen.SETTINGS_SCREEN, Setting.SETTINGS), CosmeticaSettingsScreen.SETTINGS_SCREEN))
 								).withStyle(Style.create()
 										.set(Div.ALIGN_ITEMS, Align.START))
 						).tag("main-section"),
