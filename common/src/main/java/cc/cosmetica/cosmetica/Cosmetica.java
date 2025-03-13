@@ -181,7 +181,9 @@ public class Cosmetica {
 		// - we want to keep track of what the user was last doing
 		// - this can be changed at any time by switching to the factory registerScreen
 		Screens.registerScreen(CosmeticaHomeScreen.ID, new CosmeticaHomeScreen());
-		Screens.registerScreen(CosmeticaSettingsScreen.ID, new CosmeticaSettingsScreen());
+		Screens.registerScreen(CosmeticaSettingsScreen.ID, new CosmeticaSettingsScreen(ImmutableList.of(
+				Setting.OUTFIT_SCREEN
+		)));
 		Screens.registerScreen(StyleNametagScreen.ID, StyleNametagScreen::new);
 	}
 }

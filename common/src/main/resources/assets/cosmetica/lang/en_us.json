@@ -14,6 +14,9 @@
   "screens.cosmetica.settings": "Cosmetica Settings",
   "screens.cosmetica.name_tag": "Stylize Name Tag",
   "screens.cosmetica.wheel": "Outfit Wheel",
+  "setting.cosmetica.wheel": "Outfit Wheel",
+  "setting.cosmetica.wheel.true": "Toggle",
+  "setting.cosmetica.wheel.false": "Hold",
   "tooltip.cosmetica.openWebPanel": "Open Web Panel",
   "tooltip.cosmetica.copiedURL": "Copied URL!"
 }
