@@ -55,7 +55,7 @@ public class OutfitWheelScreen extends Screen {
         super(Text.translatable("screens.cosmetica.wheel").toMinecraftComponent());
         // todo maybe implement this as kupe screen so we can update outfit list automatically on outfit change
         this.options = Cosmetica.OWN_OUTFITS.peek();
-        this.passEvents = Setting.TOGGLE_OUTFIT_SCREEN.get();
+        this.passEvents = true;
     }
 
     // Important!
@@ -479,7 +479,7 @@ public class OutfitWheelScreen extends Screen {
 
     @Override
     public boolean shouldCloseOnEsc() {
-        return false;
+        return Setting.TOGGLE_OUTFIT_SCREEN.get();
     }
 
     /**
