@@ -19,9 +19,9 @@ package cc.cosmetica.cosmetica.gui;
 import cc.cosmetica.core.api.CachedImage;
 import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.CosmeticaModel;
-import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.Keybinds;
+import cc.cosmetica.cosmetica.Setting;
 import cc.cosmetica.cosmetica.mixin.KeyMappingAccessor;
 import cc.cosmetica.cosmetica.util.Division;
 import cc.cosmetica.cosmetica.util.TriangleBuilder;
@@ -55,6 +55,7 @@ public class OutfitWheelScreen extends Screen {
         super(Text.translatable("screens.cosmetica.wheel").toMinecraftComponent());
         // todo maybe implement this as kupe screen so we can update outfit list automatically on outfit change
         this.options = Cosmetica.OWN_OUTFITS.peek();
+        this.passEvents = Setting.TOGGLE_OUTFIT_SCREEN.get();
     }
 
     // Important!
@@ -304,8 +305,10 @@ public class OutfitWheelScreen extends Screen {
 
     @Override
     public void tick() {
-        if (!isDown(Keybinds.SELECT_OUTFIT)) {
-            this.onClose();
+        if (!Setting.TOGGLE_OUTFIT_SCREEN.get()) {
+            if (!isDown(Keybinds.SELECT_OUTFIT)) {
+                this.onClose();
+            }
         }
     }
 

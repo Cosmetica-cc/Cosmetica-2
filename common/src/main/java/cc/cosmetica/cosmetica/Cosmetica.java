@@ -182,7 +182,7 @@ public class Cosmetica {
 		// - this can be changed at any time by switching to the factory registerScreen
 		Screens.registerScreen(CosmeticaHomeScreen.ID, new CosmeticaHomeScreen());
 		Screens.registerScreen(CosmeticaSettingsScreen.ID, new CosmeticaSettingsScreen(ImmutableList.of(
-				Setting.OUTFIT_SCREEN
+				Setting.TOGGLE_OUTFIT_SCREEN
 		)));
 		Screens.registerScreen(StyleNametagScreen.ID, StyleNametagScreen::new);
 	}

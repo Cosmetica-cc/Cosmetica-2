@@ -48,5 +48,5 @@ public class Setting<T> {
         this.modified = false;
     }
 
-    public static Setting<Boolean> OUTFIT_SCREEN = new Setting<>("setting.cosmetica.wheel", false);
+    public static Setting<Boolean> TOGGLE_OUTFIT_SCREEN = new Setting<>("setting.cosmetica.wheel", false);
 }
