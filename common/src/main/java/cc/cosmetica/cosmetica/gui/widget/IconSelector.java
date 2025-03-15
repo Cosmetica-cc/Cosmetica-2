@@ -77,7 +77,7 @@ public class IconSelector extends Div {
                         noIcon ? new Div().tag("icon-image", "icon-replacement") : new Image(new ResourceKey(location)).tag("icon-image")
                 ).tag("horizontal", "header"),
                 new EntryList.Grid(
-                        icons, this.selected
+                        icons, this.selected::acquire
                 ).tag("flex-1", "icon-selector")
         );
     }

@@ -19,10 +19,7 @@ package cc.cosmetica.cosmetica;
 import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.core.impl.Logging;
-import cc.cosmetica.cosmetica.gui.CosmeticaHomeScreen;
-import cc.cosmetica.cosmetica.gui.CosmeticaSettingsScreen;
-import cc.cosmetica.cosmetica.gui.OutfitWheelScreen;
-import cc.cosmetica.cosmetica.gui.StyleNametagScreen;
+import cc.cosmetica.cosmetica.gui.*;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.State;
 import com.google.common.collect.ImmutableList;
@@ -181,5 +178,6 @@ public class Cosmetica {
 		// - we want to keep track of what the user was last doing
 		Screens.registerScreen(CosmeticaHomeScreen.ID, new CosmeticaHomeScreen());
 		Screens.registerScreen(StyleNametagScreen.ID, StyleNametagScreen::new);
+		Screens.registerScreen(OutfitSelectScreen.ID, new OutfitSelectScreen());
 	}
 }

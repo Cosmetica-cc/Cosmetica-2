@@ -547,9 +547,9 @@ public class OutfitWheelScreen extends Screen {
                     1);
             this.usable = outfit.isUsable();
         }
-        private final String id;
-        private final CachedImage thumbnail;
-        private final boolean usable;
+        final String id;
+        final CachedImage thumbnail;
+        final boolean usable;
 
         public static OutfitOption ofNullable(@Nullable Outfit outfit) {
             if (outfit == null) {

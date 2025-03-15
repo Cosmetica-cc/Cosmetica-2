@@ -16,6 +16,7 @@
 
 package cc.cosmetica.cosmetica.gui.widget;
 
+import cc.cosmetica.cosmetica.gui.OutfitSelectScreen;
 import cc.cosmetica.cosmetica.gui.StyleNametagScreen;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
@@ -48,7 +49,7 @@ public class OutfitPlayer extends Component {
 					new FakePlayer(player, true)
 							.withStyle(Style.create().set(WIDTH, fixed(OptionalInt.of(50)))),
 					new Label(Text.literal(this.outfitName)),
-					new Button(Text.translatable("button.cosmetica.changeOutfit"), () -> {}),
+					new Button(Text.translatable("button.cosmetica.changeOutfit"), () -> Screens.setScreen(OutfitSelectScreen.ID)),
 					new Button(Text.translatable("button.cosmetica.styleNametag"), () -> {
 						Screens.setScreen(StyleNametagScreen.ID);
 					})

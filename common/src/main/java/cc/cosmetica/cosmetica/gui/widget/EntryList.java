@@ -27,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.OptionalInt;
+import java.util.function.Function;
 
 import static cc.cosmetica.kupe.api.gui.Div.FIXED_CONTAINER;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
@@ -36,9 +37,9 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
  * Warning: These components will override tags on the entries to manage selection.
  */
 public final class EntryList {
-    private static List<Component> retag(final Component self, List<Component> components, @Nullable State<@Nullable Component> selected) {
-        if (selected != null) {
-            @Nullable Component theSelected = selected.acquire(self);
+    private static List<Component> retag(final Component self, List<Component> components, @Nullable Function<Component, @Nullable Component> acquireSelected) {
+        if (acquireSelected != null) {
+            @Nullable Component theSelected = acquireSelected.apply(self);
 
             for (Component component : components) {
                 if (component == theSelected) {
@@ -73,9 +74,9 @@ public final class EntryList {
             this.selected = null;
         }
 
-        public Div(Component[] entries, @Nullable State<@Nullable Component> selected) {
+        public Div(Component[] entries, State<@Nullable Component> selected) {
             super(entries);
-            this.selected = selected;
+            this.selected = selected::acquire;
         }
 
         public Div selected(Style style) {
@@ -83,7 +84,7 @@ public final class EntryList {
             return this;
         }
 
-        private final @Nullable State<@Nullable Component> selected;
+        private final @Nullable Function<Component, @Nullable Component> selected;
         private Style selectedStyle;
 
         @Override
@@ -107,12 +108,12 @@ public final class EntryList {
             this.selected = null;
         }
 
-        public Grid(Component[] entries, @Nullable State<@Nullable Component> selected) {
+        public Grid(Component[] entries, Function<Component, @Nullable Component> selected) {
             super(entries);
             this.selected = selected;
         }
 
-        private final @Nullable State<@Nullable Component> selected;
+        private final @Nullable Function<Component, @Nullable Component> selected;
 
         @Override
         public List<Component> build() {
