@@ -19,18 +19,17 @@ package cc.cosmetica.cosmetica.gui;
 import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
+import cc.cosmetica.cosmetica.Keybinds;
 import cc.cosmetica.cosmetica.gui.widget.IconSelector;
 import cc.cosmetica.cosmetica.gui.widget.LoreSelector;
 import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
-import cc.cosmetica.kupe.api.ResourceKey;
-import cc.cosmetica.kupe.api.Screen;
-import cc.cosmetica.kupe.api.Screens;
-import cc.cosmetica.kupe.api.State;
+import cc.cosmetica.kupe.api.*;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
+import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.api.DefaultApi;
 import gg.cloaks.javaclient.model.Icon;
@@ -103,6 +102,11 @@ public class StyleNametagScreen extends Screen {
                         .set(Div.ALIGN_ITEMS, Align.STRETCH_CENTRE))
                 .tag("flex-1", Style.create()
                         .set(FLEX, 1));
+    }
+
+    @Override
+    protected void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
+        Keybinds.processKeybinds();
     }
 
     public static final ResourceKey ID = new ResourceKey("cosmetica", "name_tag");

@@ -76,7 +76,7 @@ public class Keybinds {
     // persistent state by processKeybinds
     private static boolean rightShiftMenu = false;
     /**
-     * Process the Cosmetica Keybinds on client (world) tick.
+     * Process the Cosmetica Keybinds on client (world) render.
      */
     public static void processKeybinds() {
         Screen screen = Minecraft.getInstance().screen;

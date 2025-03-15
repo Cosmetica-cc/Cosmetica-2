@@ -16,16 +16,15 @@
 
 package cc.cosmetica.cosmetica.gui;
 
+import cc.cosmetica.cosmetica.Keybinds;
 import cc.cosmetica.cosmetica.Setting;
-import cc.cosmetica.kupe.api.ResourceKey;
-import cc.cosmetica.kupe.api.Screen;
-import cc.cosmetica.kupe.api.State;
-import cc.cosmetica.kupe.api.Text;
+import cc.cosmetica.kupe.api.*;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Dimensions;
+import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.Nullable;
 
@@ -62,6 +61,11 @@ public class CosmeticaSettingsScreen extends Screen {
                         .set(Div.JUSTIFY_CONTENT, Justify.SPACE_BETWEEN)
                         .set(MINIMUM_SIZE, fixed(Optional.of(new Dimensions(200, 0))))
                         .set(WIDTH, screen(50, 0)));
+    }
+
+    @Override
+    protected void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
+        Keybinds.processKeybinds();
     }
 
     public static final ResourceKey SETTINGS_SCREEN = new ResourceKey("cosmetica", "settings");

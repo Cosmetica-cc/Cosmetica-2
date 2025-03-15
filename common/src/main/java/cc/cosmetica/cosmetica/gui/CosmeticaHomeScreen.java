@@ -18,8 +18,10 @@ package cc.cosmetica.cosmetica.gui;
 
 import cc.cosmetica.core.api.*;
 import cc.cosmetica.cosmetica.Cosmetica;
+import cc.cosmetica.cosmetica.Keybinds;
 import cc.cosmetica.cosmetica.Setting;
 import cc.cosmetica.cosmetica.gui.widget.*;
+import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.Screens;
@@ -27,7 +29,7 @@ import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
-import cc.cosmetica.kupe.api.maths.Margins;
+import cc.cosmetica.kupe.api.maths.Region;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.Nullable;
 
@@ -116,6 +118,11 @@ public class CosmeticaHomeScreen extends Screen {
 				.tag("main-section", Style.create()
 						.set(WIDTH, screen(50, 0))
 						.set(HEIGHT, percent(0, 100)));
+	}
+
+	@Override
+	protected void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
+		Keybinds.processKeybinds();
 	}
 
 	public static final ResourceKey ID = new ResourceKey("cosmetica", "home");
