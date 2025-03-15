@@ -63,11 +63,6 @@ public class CosmeticaSettingsScreen extends Screen {
                         .set(WIDTH, screen(50, 0)));
     }
 
-    @Override
-    protected void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
-        Keybinds.processKeybinds();
-    }
-
     public static final ResourceKey SETTINGS_SCREEN = new ResourceKey("cosmetica", "settings");
 
     private static class SettingBlock extends Div {

@@ -35,10 +35,5 @@ public class OutfitSelectScreen extends Screen {
         };
     }
 
-    @Override
-    protected void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
-        Keybinds.processKeybinds();
-    }
-
     public static final ResourceKey ID = new ResourceKey("cosmetica", "outfit_select");
 }

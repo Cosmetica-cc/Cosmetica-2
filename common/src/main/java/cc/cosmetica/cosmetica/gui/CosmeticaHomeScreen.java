@@ -120,10 +120,5 @@ public class CosmeticaHomeScreen extends Screen {
 						.set(HEIGHT, percent(0, 100)));
 	}
 
-	@Override
-	protected void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
-		Keybinds.processKeybinds();
-	}
-
 	public static final ResourceKey ID = new ResourceKey("cosmetica", "home");
 }

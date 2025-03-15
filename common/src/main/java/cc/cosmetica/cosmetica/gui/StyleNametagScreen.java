@@ -104,11 +104,6 @@ public class StyleNametagScreen extends Screen {
                         .set(FLEX, 1));
     }
 
-    @Override
-    protected void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
-        Keybinds.processKeybinds();
-    }
-
     public static final ResourceKey ID = new ResourceKey("cosmetica", "name_tag");
 
 
