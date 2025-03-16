@@ -344,17 +344,13 @@ public class OutfitWheelScreen extends Screen {
                     this.page = 0;
                 }
 
-                this.minecraft.getSoundManager().play(
-                        SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F)
-                );
+                GuiUtils.playClick();
                 return true;
             } else if (hoveredPrevPage) {
                 this.page = (int)this.page - 1;
                 if (this.page < 0) this.page = this.getLastPage();
 
-                this.minecraft.getSoundManager().play(
-                        SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F)
-                );
+                GuiUtils.playClick();
                 return true;
             }
         }
@@ -371,21 +367,10 @@ public class OutfitWheelScreen extends Screen {
                     OutfitOption outfit = this.options.get(index);
 
                     if (!outfit.id.equals(Cosmetica.SELECTED_OUTFIT_ID.peek().orElse(""))) {
-                        this.minecraft.getSoundManager().play(
-                                SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F)
-                        );
+                        GuiUtils.playClick();
 
                         // switch outfit
-                        CosmeticaAPI.performAsync(api -> api.outfitsControllerEquip(outfit.id))
-                                .thenAccept(user -> System.out.println("Success!"))
-                                .exceptionally(except -> {
-                                    new RuntimeException("Outfits Controller Equip", except).printStackTrace();
-                                    return null;
-                                });
-
-                        // visually switch immediately
-                        // -> we should always show currently equipped outfit in wheel and not whats rendering! (as that is delayed by load)
-                        Cosmetica.SELECTED_OUTFIT_ID.set(Optional.of(outfit.id));
+                        outfit.equipAsync();
                     }
                 }
             }
@@ -550,6 +535,19 @@ public class OutfitWheelScreen extends Screen {
         final String id;
         final CachedImage thumbnail;
         final boolean usable;
+
+        void equipAsync() {
+            // visually switch immediately
+            // -> we should always show currently equipped outfit in wheel and not whats rendering! (as that is delayed by load)
+            Cosmetica.SELECTED_OUTFIT_ID.set(Optional.of(this.id));
+
+            CosmeticaAPI.performAsync(api -> api.outfitsControllerEquip(this.id))
+                    .thenAccept(user -> System.out.println("Success!"))
+                    .exceptionally(except -> {
+                        new RuntimeException("Outfits Controller Equip", except).printStackTrace();
+                        return null;
+                    });
+        }
 
         public static OutfitOption ofNullable(@Nullable Outfit outfit) {
             if (outfit == null) {
