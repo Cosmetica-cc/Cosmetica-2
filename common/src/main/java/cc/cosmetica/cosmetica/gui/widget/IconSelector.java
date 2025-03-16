@@ -71,9 +71,12 @@ public class IconSelector extends Div {
         ResourceLocation location = this.config.getIcon().getImage().location;
         boolean noIcon = location == CachedImage.NO_TEXTURE.location;
 
+        Text displayIcon = noIcon ? Text.translatable("label.icons.no_icon") :
+                Text.translatable("label.icons.icon", this.config.getIcon().getName());
+
         return ImmutableList.of(
                 new Div(
-                        new Label(Text.translatable("label.icons.icon", noIcon ? "§7No Icon": this.config.getIcon().getName())).tag("flex-1"),
+                        new Label(displayIcon).tag("flex-1"),
                         noIcon ? new Div().tag("icon-image", "icon-replacement") : new Image(new ResourceKey(location)).tag("icon-image")
                 ).tag("horizontal", "header"),
                 new EntryList.Grid(

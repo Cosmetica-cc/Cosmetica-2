@@ -81,11 +81,13 @@ public class LoreSelector extends Div {
                 break;
             }
         this.selected = new State<>(initialSelect);
+        Text displayLore = this.lore.isEmpty() ? Text.translatable("label.lore.no_lore") : Text.translatable("label.lore.lore", this.lore);
 
         return ImmutableList.of(
                 new Div(
-                        new Label(Text.translatable("label.lore.lore", this.lore)).tag("flex-1"),
-                        new IconButton(new ResourceKey("cosmetica", "textures/colour.png"), () -> {})
+                        new Label(displayLore).tag("flex-1"),
+//                        new IconButton(new ResourceKey("cosmetica", "textures/colour.png"), () -> {}),
+                        new IconButton(new ResourceKey("cosmetica", "textures/remove.png"), () -> {})
                 ).tag("horizontal", "header"),
                 page == 2 ? new Div(
                         new Div().tag("flex-1"),
@@ -126,10 +128,7 @@ public class LoreSelector extends Div {
                         .set(PADDING, fixed(new Margins(2)))
                         .set(Label.ALIGN_TEXT, Align.CENTRE))
                 .tag("lore-type", Style.create()
-                        .set(WIDTH, percent(30, 0))
-                        .set(MINIMUM_SIZE, (vw, vh, pw, ph) -> Optional.of(new Dimensions(
-                                (int)Math.min(pw/3f, 62), 0
-                        ))))
+                        .set(WIDTH, percent(33, 0)))
                 .tag("lore-types", Style.create()
                         .set(JUSTIFY_CONTENT, Justify.SPACE_BETWEEN))
                 .component(SelectableLore.class, Style.create()
