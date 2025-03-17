@@ -30,12 +30,14 @@ import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.model.LoreOptions;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.function.Function;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
@@ -48,7 +50,7 @@ public class LoreSelector extends Div {
     private String lore;
     private final State<LoreOptions> availableLores;
     private State<Integer> lorePage = new State<>(0);
-    private State<@Nullable Component> selected; // lazy load
+    private State<@Nullable SelectableLore> selected; // lazy load
 
     @Override
     public List<Component> build() {
@@ -74,21 +76,16 @@ public class LoreSelector extends Div {
         }
 
         // load selected state
-        Component initialSelect = null;
+        SelectableLore initialSelect = null;
         for (SelectableLore lore : loreValues)
             if (lore.lore.equals(this.lore)) {
                 initialSelect = lore;
                 break;
             }
         this.selected = new State<>(initialSelect);
-        Text displayLore = this.lore.isEmpty() ? Text.translatable("label.lore.no_lore") : Text.translatable("label.lore.lore", this.lore);
 
         return ImmutableList.of(
-                new Div(
-                        new Label(displayLore).tag("flex-1"),
-//                        new IconButton(new ResourceKey("cosmetica", "textures/colour.png"), () -> {}),
-                        new IconButton(new ResourceKey("cosmetica", "textures/remove.png"), () -> {})
-                ).tag("horizontal", "header"),
+                new LoreHeader(this.selected::acquire).tag("horizontal", "header"),
                 page == 2 ? new Div(
                         new Div().tag("flex-1"),
                         new Label(Text.translatable("label.lore.referToWebsite")),
@@ -133,6 +130,27 @@ public class LoreSelector extends Div {
                         .set(JUSTIFY_CONTENT, Justify.SPACE_BETWEEN))
                 .component(SelectableLore.class, Style.create()
                         .set(PADDING, fixed(new Margins(1))));
+    }
+
+    private static class LoreHeader extends Div {
+        public LoreHeader(Function<Component, @Nullable SelectableLore> icon) {
+            this.icon = icon;
+        }
+
+        private final Function<Component, @Nullable SelectableLore> icon;
+
+        @Override
+        public List<Component> build() {
+            @Nullable SelectableLore lore = this.icon.apply(this);
+
+            Text displayLore = lore == null ? Text.translatable("label.lore.no_lore") : Text.translatable("label.lore.lore", lore.lore);
+
+            return ImmutableList.of(
+                    new Label(displayLore).tag("flex-1"),
+//                        new IconButton(new ResourceKey("cosmetica", "textures/colour.png"), () -> {}),
+                    new IconButton(new ResourceKey("cosmetica", "textures/remove.png"), () -> {})
+            );
+        }
     }
 
     private class SelectableLore extends Label {

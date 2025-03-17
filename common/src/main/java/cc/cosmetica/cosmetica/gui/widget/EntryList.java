@@ -74,7 +74,7 @@ public final class EntryList {
             this.selected = null;
         }
 
-        public Div(Component[] entries, State<@Nullable Component> selected) {
+        public Div(Component[] entries, State<? extends @Nullable Component> selected) {
             super(entries);
             this.selected = selected::acquire;
         }
