@@ -36,6 +36,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 import java.util.OptionalInt;
+import java.util.function.Function;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
@@ -50,7 +51,7 @@ public class IconSelector extends Div {
 
     private final NametagConfig config;
     private final State<List<ImageCosmetic>> availableIcons;
-    private State<@Nullable Component> selected; // lazy load
+    private State<@Nullable SelectableIcon> selected; // lazy load
 
     @Override
     public List<Component> build() {
@@ -60,7 +61,7 @@ public class IconSelector extends Div {
                 .toArray(SelectableIcon[]::new);
 
         // load selected state
-        Component initialSelect = null;
+        SelectableIcon initialSelect = null;
         for (SelectableIcon icon : icons)
             if (icon.cosmetic.getId().equals(this.config.getIcon().getId())) {
                 initialSelect = icon;
@@ -68,20 +69,9 @@ public class IconSelector extends Div {
             }
         this.selected = new State<>(initialSelect);
 
-        ResourceLocation location = this.config.getIcon().getImage().location;
-        boolean noIcon = location == CachedImage.NO_TEXTURE.location;
-
-        Text displayIcon = noIcon ? Text.translatable("label.icons.no_icon") :
-                Text.translatable("label.icons.icon", this.config.getIcon().getName());
-
         return ImmutableList.of(
-                new Div(
-                        new Label(displayIcon).tag("flex-1"),
-                        noIcon ? new Div().tag("icon-image", "icon-replacement") : new Image(new ResourceKey(location)).tag("icon-image")
-                ).tag("horizontal", "header"),
-                new EntryList.Grid(
-                        icons, this.selected::acquire
-                ).tag("flex-1", "icon-selector")
+                new IconHeader(this.selected::acquire).tag("horizontal", "header"),
+                new EntryList.Grid(icons, this.selected::acquire).tag("flex-1", "icon-selector")
         );
     }
 
@@ -89,7 +79,7 @@ public class IconSelector extends Div {
     public @Nullable Stylesheet getStylesheet() {
         return new Stylesheet()
                 .self(Style.create()
-                        .set(MARGINS, fixed(new Margins(30, 10, 12 + 20, 10)))
+                        .set(MARGINS, fixed(new Margins(30, 10, 12, 10)))
                         .set(ALIGN_ITEMS, Align.STRETCH_START))
                 .tag("header", Style.create()
                         .set(MARGINS, fixed(new Margins(0,0,2,0))))
@@ -106,6 +96,30 @@ public class IconSelector extends Div {
                         .set(PADDING, fixed(new Margins(1)))
                         .set(WIDTH, fixed(OptionalInt.of(30)))
                         .set(HEIGHT, fixed(OptionalInt.of(30))));
+    }
+
+    private static class IconHeader extends Div {
+        public IconHeader(Function<Component, @Nullable SelectableIcon> icon) {
+            this.icon = icon;
+        }
+
+        private final Function<Component, @Nullable SelectableIcon> icon;
+
+        @Override
+        public List<Component> build() {
+            @Nullable SelectableIcon icon = this.icon.apply(this);
+
+            boolean noIcon = icon == null;
+            ResourceLocation location = noIcon ? null : icon.cosmetic.getImage().location;
+
+            Text displayIcon = noIcon ? Text.translatable("label.icons.no_icon") :
+                    Text.translatable("label.icons.icon", icon.cosmetic.getName());
+
+            return ImmutableList.of(
+                    new Label(displayIcon).tag("flex-1"),
+                    noIcon ? new Div().tag("icon-image", "icon-replacement") : new Image(new ResourceKey(location)).tag("icon-image")
+            );
+        }
     }
 
     private class SelectableIcon extends Image {
