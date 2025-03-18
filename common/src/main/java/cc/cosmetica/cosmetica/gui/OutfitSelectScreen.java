@@ -60,6 +60,7 @@ public class OutfitSelectScreen extends Screen {
                         components,
                         grid -> Cosmetica.SELECTED_OUTFIT_ID.extract(grid, id -> find(components, id.orElse("")))
                 ).withStyle(Style.create()
+                        .set(WIDTH, screen(75, 0))
                         .set(MINIMUM_SIZE, screen(75, 75, (w, h) -> Optional.of(new Dimensions(w, h))))
                         .set(EntryList.Grid.COLUMN_GAP, 2)
                         .set(EntryList.Grid.ROW_GAP, 2)

@@ -50,6 +50,7 @@ public class CosmeticaHomeScreen extends Screen {
 		UUID self = Minecraft.getInstance().getUser().getGameProfile().getId();
 
 		Cosmetics cosmetics = Cosmetica.OWN_COSMETICS.acquire(this);
+		System.out.println("auto update");
 		List<CosmeticEntry> entryList = new ArrayList<>();
 		this.populateEntryList(entryList, cosmetics);
 
