@@ -24,6 +24,7 @@ import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Button;
 import cc.cosmetica.kupe.api.gui.Component;
+import cc.cosmetica.kupe.api.gui.Element;
 import cc.cosmetica.kupe.api.gui.Image;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
@@ -89,7 +90,7 @@ public class OutfitSelectScreen extends Screen {
         private final OutfitWheelScreen.OutfitOption option;
 
         @Override
-        public void mouseClicked(double x, double y, int button) {
+        public void mouseClicked(Element target, double x, double y, int button) {
             if (!this.option.usable) return;
             if (this.option.id.equals(Cosmetica.SELECTED_OUTFIT_ID.peek().orElse(""))) return;
             // play click sound

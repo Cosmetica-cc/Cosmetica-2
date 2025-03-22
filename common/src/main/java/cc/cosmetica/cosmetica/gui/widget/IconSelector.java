@@ -132,7 +132,7 @@ public class IconSelector extends Div {
         private final ImageCosmetic cosmetic;
 
         @Override
-        public void mouseClicked(double x, double y, int button) {
+        public void mouseClicked(Element target, double x, double y, int button) {
             if (button == GLFW.GLFW_MOUSE_BUTTON_1) {
                 if (this != IconSelector.this.selected.peek()) {
                     Logging.getInstance().debug("Setting icon " + cosmetic);

@@ -162,7 +162,7 @@ public class LoreSelector extends Div {
         private final String lore;
 
         @Override
-        public void mouseClicked(double x, double y, int button) {
+        public void mouseClicked(Element target, double x, double y, int button) {
             if (button == GLFW.GLFW_MOUSE_BUTTON_1) {
                 if (this != LoreSelector.this.selected.peek()) {
                     LoreSelector.this.selected.set(this);
