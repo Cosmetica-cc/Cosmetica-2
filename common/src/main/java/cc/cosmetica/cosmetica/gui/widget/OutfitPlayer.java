@@ -60,7 +60,7 @@ public class OutfitPlayer extends Component {
 	}
 
 	@Override
-	public @Nullable Stylesheet getStylesheet() {
+	public Stylesheet getStylesheet() {
 		return new Stylesheet()
 				.component(Button.class, Style.create()
 						.set(WIDTH, fixed(OptionalInt.of(150)))

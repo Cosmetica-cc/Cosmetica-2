@@ -66,7 +66,7 @@ public class MenuEndSelection extends Div {
     }
 
     @Override
-    public @Nullable Stylesheet getStylesheet() {
+    public Stylesheet getStylesheet() {
         return new Stylesheet()
                 .self(Style.create()
                         .set(MARGINS, fixed(new Margins(0, 0, 12, 0)))

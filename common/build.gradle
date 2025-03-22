@@ -16,7 +16,7 @@ dependencies {
     // Cosmetica Core
     modApi "cc.cosmetica:cosmetica-core:${rootProject.core_version}-${rootProject.minecraft_version}"
     // Kupe
-    modApi "cc.cosmetica:kupe:${rootProject.kupe_version}"
+    modApi "cc.cosmetica:kupe:${rootProject.kupe_version}-${rootProject.minecraft_version}"
 
     // Webp Support
     // https://mvnrepository.com/artifact/com.twelvemonkeys.imageio/imageio-webp

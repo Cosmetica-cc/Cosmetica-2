@@ -31,7 +31,7 @@ dependencies {
     // Cosmetica Core
     modImplementation "cc.cosmetica:cosmetica-core-fabric:${rootProject.core_version}-${rootProject.minecraft_version}"
     // Kupe
-    modImplementation "cc.cosmetica:kupe-fabric:${rootProject.kupe_version}"
+    modImplementation "cc.cosmetica:kupe-fabric:${rootProject.kupe_version}-${rootProject.minecraft_version}"
     // Webp Support
     implementation "com.twelvemonkeys.imageio:imageio-webp:${rootProject.imaging_version}"
 

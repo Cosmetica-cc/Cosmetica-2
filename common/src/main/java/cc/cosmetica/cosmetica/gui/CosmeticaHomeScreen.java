@@ -31,6 +31,7 @@ import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Region;
 import net.minecraft.client.Minecraft;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -50,7 +51,6 @@ public class CosmeticaHomeScreen extends Screen {
 		UUID self = Minecraft.getInstance().getUser().getGameProfile().getId();
 
 		Cosmetics cosmetics = Cosmetica.OWN_COSMETICS.acquire(this);
-		System.out.println("auto update");
 		List<CosmeticEntry> entryList = new ArrayList<>();
 		this.populateEntryList(entryList, cosmetics);
 
@@ -109,7 +109,7 @@ public class CosmeticaHomeScreen extends Screen {
 	}
 
 	@Override
-	public @Nullable Stylesheet getStylesheet() {
+	public @NotNull Stylesheet getStylesheet() {
 		return super.getStylesheet()
 				.tag("main-content", Style.create()
 						.set(FLEX, 1)

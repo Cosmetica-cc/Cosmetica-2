@@ -113,7 +113,7 @@ public class LoreSelector extends Div {
     }
 
     @Override
-    public @Nullable Stylesheet getStylesheet() {
+    public Stylesheet getStylesheet() {
         return new Stylesheet()
                 .self(Style.create()
                         .set(MARGINS, fixed(new Margins(30, 10, 12, 10)))

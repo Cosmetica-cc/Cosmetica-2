@@ -26,6 +26,7 @@ import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -54,12 +55,12 @@ public class CosmeticaSettingsScreen extends Screen {
     }
 
     @Override
-    public Stylesheet getStylesheet() {
+    public @NotNull Stylesheet getStylesheet() {
         return super.getStylesheet()
                 .component(SettingBlock.class, Style.create()
                         .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
                         .set(Div.JUSTIFY_CONTENT, Justify.SPACE_BETWEEN)
-                        .set(MINIMUM_SIZE, fixed(Optional.of(new Dimensions(200, 0))))
+                        .set(MIN_WIDTH, fixedSize(200))
                         .set(WIDTH, screen(50, 0)));
     }
 

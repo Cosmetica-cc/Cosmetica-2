@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.OptionalInt;
 import java.util.function.Function;
 
-import static cc.cosmetica.kupe.api.gui.Div.FIXED_CONTAINER;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 /**
@@ -58,7 +57,7 @@ public final class EntryList {
                 .self(Style.create()
                         .set(BACKGROUND_COLOUR, OptionalInt.of(0x000000))
                         .set(PADDING, fixed(new Margins(1)))
-                        .set(FIXED_CONTAINER, false)
+                        .set(MIN_HEIGHT, fixedSize(0))
                         .set(Div.ALIGN_ITEMS, Align.STRETCH_START))
                 .tag("entrylist-selected", style != null ? style : Style.create()
                         .set(BORDER, Border.create(1, 0xFFFFFF)));
@@ -93,7 +92,7 @@ public final class EntryList {
         }
 
         @Override
-        public @Nullable Stylesheet getStylesheet() {
+        public Stylesheet getStylesheet() {
             return makeStylesheet(this.selectedStyle);
         }
     }
@@ -121,7 +120,7 @@ public final class EntryList {
         }
 
         @Override
-        public @Nullable Stylesheet getStylesheet() {
+        public Stylesheet getStylesheet() {
             return makeStylesheet(null);
         }
     }

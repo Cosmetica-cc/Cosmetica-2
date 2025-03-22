@@ -25,7 +25,9 @@ import org.lwjgl.opengl.GL11;
 
 /**
  * Draw triangles.
+ * @deprecated Kupe buildTriangles() coming in next release.
  */
+@Deprecated
 public class TriangleBuilder implements QuadBuilder {
     public TriangleBuilder(BufferBuilder builder, Mode mode, @Nullable Matrix4f matrix4f) {
         this.builder = builder;

@@ -76,7 +76,7 @@ public class IconSelector extends Div {
     }
 
     @Override
-    public @Nullable Stylesheet getStylesheet() {
+    public Stylesheet getStylesheet() {
         return new Stylesheet()
                 .self(Style.create()
                         .set(MARGINS, fixed(new Margins(30, 10, 12, 10)))
@@ -84,8 +84,8 @@ public class IconSelector extends Div {
                 .tag("header", Style.create()
                         .set(MARGINS, fixed(new Margins(0,0,2,0))))
                 .tag("icon-image", Style.create()
-                        .set(WIDTH, fixed(OptionalInt.of(20)))
-                        .set(HEIGHT, fixed(OptionalInt.of(20))))
+                        .set(WIDTH, fixedSize(20))
+                        .set(HEIGHT, fixedSize(20)))
                 .tag("icon-replacement", Style.create()
                         .set(BACKGROUND_COLOUR, OptionalInt.of(0))
                         .set(BORDER, Border.create(1, 0xFFFFFF)))
@@ -94,8 +94,8 @@ public class IconSelector extends Div {
                         .set(Grid.COLUMN_GAP, 2))
                 .component(SelectableIcon.class, Style.create()
                         .set(PADDING, fixed(new Margins(1)))
-                        .set(WIDTH, fixed(OptionalInt.of(30)))
-                        .set(HEIGHT, fixed(OptionalInt.of(30))));
+                        .set(WIDTH, fixedSize(30))
+                        .set(HEIGHT, fixedSize(30)));
     }
 
     private static class IconHeader extends Div {

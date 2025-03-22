@@ -35,6 +35,7 @@ import gg.cloaks.javaclient.api.DefaultApi;
 import gg.cloaks.javaclient.model.Icon;
 import gg.cloaks.javaclient.model.LoreOptions;
 import net.minecraft.client.Minecraft;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -89,7 +90,7 @@ public class StyleNametagScreen extends Screen {
     }
 
     @Override
-    public @Nullable Stylesheet getStylesheet() {
+    public @NotNull Stylesheet getStylesheet() {
         return super.getStylesheet()
                 .component(FakePlayer.class, Style.create()
                         .set(WIDTH, fixed(OptionalInt.of(50)))

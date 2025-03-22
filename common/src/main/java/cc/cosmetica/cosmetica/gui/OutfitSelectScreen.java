@@ -31,6 +31,7 @@ import cc.cosmetica.kupe.api.maths.Dimensions;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.sounds.SoundEvents;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -61,7 +62,8 @@ public class OutfitSelectScreen extends Screen {
                         grid -> Cosmetica.SELECTED_OUTFIT_ID.extract(grid, id -> find(components, id.orElse("")))
                 ).withStyle(Style.create()
                         .set(WIDTH, screen(75, 0))
-                        .set(MINIMUM_SIZE, screen(75, 75, (w, h) -> Optional.of(new Dimensions(w, h))))
+                        .set(MIN_WIDTH, screen(75, 0))
+                        .set(MIN_HEIGHT, screen(0, 75))
                         .set(EntryList.Grid.COLUMN_GAP, 2)
                         .set(EntryList.Grid.ROW_GAP, 2)
                         .set(BACKGROUND_COLOUR, OptionalInt.empty())),
@@ -70,7 +72,7 @@ public class OutfitSelectScreen extends Screen {
     }
 
     @Override
-    public @Nullable Stylesheet getStylesheet() {
+    public @NotNull Stylesheet getStylesheet() {
         return super.getStylesheet()
                 .component(SelectableOutfit.class, Style.create()
                         .set(WIDTH, fixed(OptionalInt.of(50)))

@@ -75,16 +75,17 @@ public class CosmeticEntry extends Component {
 	}
 
 	@Override
-	public @Nullable Stylesheet getStylesheet() {
+	public Stylesheet getStylesheet() {
 		return STYLE;
 	}
 
 	private static final Stylesheet STYLE = new Stylesheet()
 			.component(Image.class, Style.create()
 					.set(PADDING, fixed(new Margins(2)))
-					.set(WIDTH, fixed(OptionalInt.of(38)))// debug: see images while loading texture is not yet added
-					.set(HEIGHT, fixed(OptionalInt.of(38)))
-					.set(MINIMUM_SIZE, fixed(Optional.of(new Dimensions(38, 38)))))
+					.set(WIDTH, fixedSize(38))// debug: see images while loading texture is not yet added
+					.set(HEIGHT, fixedSize(38))
+					.set(MIN_WIDTH, fixedSize(38))
+					.set(MIN_HEIGHT, fixedSize(38)))
 			.component(Button.class, Style.create()
 					.set(ALIGN_SELF, Optional.of(Align.START))
 					.set(MAXIMUM_SIZE, fixed(new Dimensions(20, 20))))
