@@ -24,28 +24,23 @@ import cc.cosmetica.cosmetica.Keybinds;
 import cc.cosmetica.cosmetica.Setting;
 import cc.cosmetica.cosmetica.mixin.KeyMappingAccessor;
 import cc.cosmetica.cosmetica.util.Division;
-import cc.cosmetica.cosmetica.util.TriangleBuilder;
 import cc.cosmetica.kupe.api.Canvas;
-import cc.cosmetica.kupe.api.QuadBuilder;
+import cc.cosmetica.kupe.api.PolyBuilder;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.impl.PoseCanvas;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
 import gg.cloaks.javaclient.model.Outfit;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
-import net.minecraft.sounds.SoundEvents;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 /**
  * The wheel for switching outfits.
@@ -70,11 +65,6 @@ public class OutfitWheelScreen extends Screen {
     @Override
     public void render(PoseStack stack, int mouseX, int mouseY, float partialTick) {
         Canvas canvas = new PoseCanvas(stack, this.minecraft, null, partialTick);
-        Supplier<TriangleBuilder> triangles = () -> new TriangleBuilder(
-                Tesselator.getInstance().getBuilder(),
-                QuadBuilder.Mode.POSITION_COLOUR,
-                stack.last().pose()
-        );
 
         // Measurements
         final double centreX = this.width / 2.0;
@@ -114,7 +104,7 @@ public class OutfitWheelScreen extends Screen {
         RenderSystem.defaultBlendFunc();
 
         int selectedButton = getSelectedButton(mouseX, mouseY, innerButtonSize, innerEdgeSize, outerEdgeSize);
-        this.drawCircles(triangles, centreX, centreY, outerEdgeSize, innerButtonSize, innerEdgeSize, selectedButton);
+        this.drawCircles(canvas, centreX, centreY, outerEdgeSize, innerButtonSize, innerEdgeSize, selectedButton);
 
         RenderSystem.disableBlend();
 
@@ -174,7 +164,7 @@ public class OutfitWheelScreen extends Screen {
 
                 canvas.setTransparency(currentOutfitIndex == index || !outfit.usable ? 0.5f : 0.8f);
 
-                QuadBuilder builder = canvas.drawQuads(QuadBuilder.Mode.POSITION_TEXTURE);
+                PolyBuilder builder = canvas.drawQuads(PolyBuilder.Mode.POSITION_TEXTURE);
                 builder.vertex(x0, y1).uv(0, 1).endVertex();
                 builder.vertex(x1, y1).uv(1, 1).endVertex();
                 builder.vertex(x1, y0).uv(1, 0).endVertex();
@@ -188,6 +178,7 @@ public class OutfitWheelScreen extends Screen {
 
     /**
      * Draw the circles (inner button and outer ring) in the GUI.
+     * @param canvas the canvas on which to draw.
      * @param centreX the centre X of the circles.
      * @param centreY the centre Y of the circles.
      * @param outerEdgeSize the radius of the outer edge of the outer ring of outfit buttons.
@@ -196,11 +187,11 @@ public class OutfitWheelScreen extends Screen {
      * @param highlightedSector the sector of the outer ring to highlight. Use 0-7 to highlight one of the outer-ring sectors,
      *                          8 for the inner button, anything else highlights nothing.
      */
-    private void drawCircles(Supplier<TriangleBuilder> builderSupplier,
+    private void drawCircles(Canvas canvas,
                              double centreX, double centreY,
                              double outerEdgeSize, double innerButtonSize,
                              double innerEdgeSize, int highlightedSector) {
-        final TriangleBuilder builder = builderSupplier.get();
+        final PolyBuilder builder = canvas.drawTriangles(PolyBuilder.Mode.POSITION_COLOUR);
         final int nOutfitSectors = 8;
         final int nRenderSectors = 64;
         final double theta = 2.0 * Math.PI / nRenderSectors;
@@ -236,7 +227,7 @@ public class OutfitWheelScreen extends Screen {
     /**
      * Draw a render sector triangle.
      */
-    private void drawRenderSector(TriangleBuilder builder, double theta, double angle,
+    private void drawRenderSector(PolyBuilder builder, double theta, double angle,
                                   double centreX, double centreY, double radius, float shade) {
         builder.vertex(centreX, centreY)
                 .colour(shade, shade, shade, 0.5f)
@@ -251,7 +242,7 @@ public class OutfitWheelScreen extends Screen {
                 .endVertex();
     }
 
-    private void drawRenderArc(TriangleBuilder builder, double theta, double angle,
+    private void drawRenderArc(PolyBuilder builder, double theta, double angle,
                                double centreX, double centreY, double innerRadius, double outerRadius,
                                float shade) {
         final double cos = Math.cos(angle);
