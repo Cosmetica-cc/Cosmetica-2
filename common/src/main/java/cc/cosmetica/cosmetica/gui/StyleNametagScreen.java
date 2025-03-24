@@ -105,6 +105,11 @@ public class StyleNametagScreen extends Screen {
                         .set(FLEX, 1));
     }
 
+    @Override
+    public void unmount() {
+        // TODO set stuff
+    }
+
     public static final ResourceKey ID = new ResourceKey("cosmetica", "name_tag");
 
 
