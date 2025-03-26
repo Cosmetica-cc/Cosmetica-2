@@ -37,6 +37,7 @@ import org.lwjgl.glfw.GLFW;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
@@ -44,18 +45,19 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
  * The widget for selecting a new icon.
  */
 public class IconSelector extends Div {
-    public IconSelector(NametagConfig config, State<List<ImageCosmetic>> availableIcons) {
-        this.config = config;
+    public IconSelector(ImageCosmetic icon, State<List<ImageCosmetic>> availableIcons) {
+        this.icon = icon;
         this.availableIcons = availableIcons;
     }
 
-    private final NametagConfig config;
+    private final ImageCosmetic icon;
     private final State<List<ImageCosmetic>> availableIcons;
     private State<@Nullable SelectableIcon> selected; // lazy load
 
     @Override
     public List<Component> build() {
         List<ImageCosmetic> iconOptions = this.availableIcons.acquire(this);
+
         SelectableIcon[] icons = iconOptions.stream()
                 .map(SelectableIcon::new)
                 .toArray(SelectableIcon[]::new);
@@ -63,7 +65,7 @@ public class IconSelector extends Div {
         // load selected state
         SelectableIcon initialSelect = null;
         for (SelectableIcon icon : icons)
-            if (icon.cosmetic.getId().equals(this.config.getIcon().getId())) {
+            if (icon.cosmetic.getId().equals(this.icon.getId())) {
                 initialSelect = icon;
                 break;
             }

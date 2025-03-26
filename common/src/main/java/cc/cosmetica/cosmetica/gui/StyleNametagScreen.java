@@ -19,24 +19,23 @@ package cc.cosmetica.cosmetica.gui;
 import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
-import cc.cosmetica.cosmetica.Keybinds;
 import cc.cosmetica.cosmetica.gui.widget.IconSelector;
 import cc.cosmetica.cosmetica.gui.widget.LoreSelector;
 import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
-import cc.cosmetica.kupe.api.*;
+import cc.cosmetica.kupe.api.ResourceKey;
+import cc.cosmetica.kupe.api.Screen;
+import cc.cosmetica.kupe.api.Screens;
+import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
-import cc.cosmetica.kupe.api.maths.Margins;
-import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.api.DefaultApi;
 import gg.cloaks.javaclient.model.Icon;
 import gg.cloaks.javaclient.model.LoreOptions;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -72,17 +71,21 @@ public class StyleNametagScreen extends Screen {
     @Override
     protected Component[] buildScreen() {
         UUID self = Minecraft.getInstance().getUser().getGameProfile().getId();
+
+        // subscribe to the *cosmetics change*
         Cosmetics cosmetics = Cosmetica.OWN_COSMETICS.acquire(this);
 
         NametagConfig lore = cosmetics == null ? NametagConfig.EMPTY : cosmetics.getLore().orElse(NametagConfig.EMPTY);
-        NametagConfig nametag = cosmetics == null ? NametagConfig.EMPTY : cosmetics.getNametag();
+        // but only peek at current selected icon. we only want to refresh when
+        // todo simplify this system so it's done at icon selector level with like 1 state lmao
+        ImageCosmetic icon = Cosmetica.SELECTED_ICON.peek();
 
         return new Component[] {
                 new Div(
                         new LoreSelector(lore, availableLores)
                                 .tag("flex-1"),
                         new FakePlayer(self, true),
-                        new IconSelector(nametag, availableIcons)
+                        new IconSelector(icon, availableIcons)
                                 .tag("flex-1")
                 ).tag("horizontal", "flex-1", "main-content"),
                 new MenuEndSelection()
@@ -107,7 +110,13 @@ public class StyleNametagScreen extends Screen {
 
     @Override
     public void unmount() {
-        // TODO set stuff
+        // TODO set lore
+        Cosmetics cosmetics = Cosmetica.OWN_COSMETICS.peek();
+
+        // icon is set (todo: dirty mark to prevent double-setting by doing this again)
+        if (cosmetics != null && !Objects.equals(cosmetics.getNametag().getIcon().getId(), Cosmetica.SELECTED_ICON.peek().getId())) {
+            // TODO set icon on server
+        }
     }
 
     public static final ResourceKey ID = new ResourceKey("cosmetica", "name_tag");

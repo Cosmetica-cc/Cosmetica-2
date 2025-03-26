@@ -18,6 +18,8 @@ package cc.cosmetica.cosmetica;
 
 import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.Cosmetics;
+import cc.cosmetica.core.api.ImageCosmetic;
+import cc.cosmetica.core.api.NametagConfig;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.gui.*;
 import cc.cosmetica.kupe.api.Screens;
@@ -49,9 +51,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Cosmetica {
+	// States showing the actual latest cosmetica server data
 	public static final State<@Nullable Cosmetics> OWN_COSMETICS = new State<>(null);
 	public static final State<List<OutfitWheelScreen.OutfitOption>> OWN_OUTFITS = new State<>(ImmutableList.of());
+	// Separate states that 'follow' the main state are maintained for cosmetic selections
+	// to show visual updates faster than the C->S->C ping time.
+	// These are prefixed with SELECTED_ to highlight this.
 	public static final State<Optional<String>> SELECTED_OUTFIT_ID = new State<>(Optional.empty());
+	public static final State<ImageCosmetic> SELECTED_ICON = new State<>(NametagConfig.NO_ICON);
 
 	public static void init() {
 		Screens.setAllowDebug(true);
@@ -79,6 +86,7 @@ public class Cosmetica {
 				OWN_COSMETICS.set(cosmetics);
 				// can be updated by screens too.
 				SELECTED_OUTFIT_ID.set(cosmetics.getOutfitId());
+				SELECTED_ICON.set(cosmetics.getNametag().getIcon());
 			});
 		});
 		// log in
