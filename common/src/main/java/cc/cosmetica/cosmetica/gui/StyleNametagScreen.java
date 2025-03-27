@@ -38,6 +38,7 @@ import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
@@ -68,6 +69,9 @@ public class StyleNametagScreen extends Screen {
                 }));
     }
 
+    private final AtomicBoolean iconDirty = new AtomicBoolean(false);
+    private final AtomicBoolean loreDirty = new AtomicBoolean(false);
+
     @Override
     protected Component[] buildScreen() {
         UUID self = Minecraft.getInstance().getUser().getGameProfile().getId();
@@ -85,7 +89,7 @@ public class StyleNametagScreen extends Screen {
                         new LoreSelector(lore, availableLores)
                                 .tag("flex-1"),
                         new FakePlayer(self, true),
-                        new IconSelector(icon, availableIcons)
+                        new IconSelector(icon, this.iconDirty, availableIcons)
                                 .tag("flex-1")
                 ).tag("horizontal", "flex-1", "main-content"),
                 new MenuEndSelection()
@@ -111,11 +115,11 @@ public class StyleNametagScreen extends Screen {
     @Override
     public void unmount() {
         // TODO set lore
-        Cosmetics cosmetics = Cosmetica.OWN_COSMETICS.peek();
 
-        // icon is set (todo: dirty mark to prevent double-setting by doing this again)
-        if (cosmetics != null && !Objects.equals(cosmetics.getNametag().getIcon().getId(), Cosmetica.SELECTED_ICON.peek().getId())) {
-            // TODO set icon on server
+        // icon is set
+        if (this.iconDirty.compareAndSet(true, false)) {
+            ImageCosmetic selectedIcon = Cosmetica.SELECTED_ICON.peek();
+            CosmeticaAPI.performAsync(api -> api.iconsControllerEquip(selectedIcon.getId()));
         }
     }
 

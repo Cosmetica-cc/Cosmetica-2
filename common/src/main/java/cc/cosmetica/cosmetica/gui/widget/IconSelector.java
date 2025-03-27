@@ -20,6 +20,7 @@ import cc.cosmetica.core.api.CachedImage;
 import cc.cosmetica.core.api.ImageCosmetic;
 import cc.cosmetica.core.api.NametagConfig;
 import cc.cosmetica.core.impl.Logging;
+import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.State;
@@ -36,6 +37,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 import java.util.OptionalInt;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -45,12 +47,14 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
  * The widget for selecting a new icon.
  */
 public class IconSelector extends Div {
-    public IconSelector(ImageCosmetic icon, State<List<ImageCosmetic>> availableIcons) {
+    public IconSelector(ImageCosmetic icon, AtomicBoolean iconDirty, State<List<ImageCosmetic>> availableIcons) {
         this.icon = icon;
+        this.iconDirty = iconDirty;
         this.availableIcons = availableIcons;
     }
 
     private final ImageCosmetic icon;
+    private final AtomicBoolean iconDirty;
     private final State<List<ImageCosmetic>> availableIcons;
     private State<@Nullable SelectableIcon> selected; // lazy load
 
@@ -138,7 +142,10 @@ public class IconSelector extends Div {
             if (button == GLFW.GLFW_MOUSE_BUTTON_1) {
                 if (this != IconSelector.this.selected.peek()) {
                     Logging.getInstance().debug("Setting icon " + cosmetic);
+
                     IconSelector.this.selected.set(this);
+                    IconSelector.this.iconDirty.set(true);
+                    Cosmetica.SELECTED_ICON.set(this.cosmetic);
                 }
             }
         }
