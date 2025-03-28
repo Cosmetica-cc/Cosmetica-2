@@ -116,7 +116,9 @@ public class StyleNametagScreen extends Screen {
         // icon is set
         if (this.iconDirty.compareAndSet(true, false)) {
             ImageCosmetic selectedIcon = Cosmetica.SELECTED_ICON.peek();
-            CosmeticaAPI.performAsync(api -> api.iconsControllerEquip(selectedIcon.getId()));
+            Logging.getInstance().debug("Updating Icon to {}", selectedIcon.getName());
+            CosmeticaAPI.performAsync(api -> api.iconsControllerEquip(selectedIcon.getId()))
+                    .exceptionally(e -> { Logging.getInstance().error("Could not set icon", e); return null; });
         }
     }
 
