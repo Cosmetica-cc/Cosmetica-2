@@ -47,16 +47,13 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
  * The widget for selecting a new icon.
  */
 public class IconSelector extends Div {
-    public IconSelector(ImageCosmetic icon, AtomicBoolean iconDirty, State<List<ImageCosmetic>> availableIcons) {
-        this.icon = icon;
+    public IconSelector(AtomicBoolean iconDirty, State<List<ImageCosmetic>> availableIcons) {
         this.iconDirty = iconDirty;
         this.availableIcons = availableIcons;
     }
 
-    private final ImageCosmetic icon;
     private final AtomicBoolean iconDirty;
     private final State<List<ImageCosmetic>> availableIcons;
-    private State<@Nullable SelectableIcon> selected; // lazy load
 
     @Override
     public List<Component> build() {
@@ -67,17 +64,20 @@ public class IconSelector extends Div {
                 .toArray(SelectableIcon[]::new);
 
         // load selected state
-        SelectableIcon initialSelect = null;
-        for (SelectableIcon icon : icons)
-            if (icon.cosmetic.getId().equals(this.icon.getId())) {
-                initialSelect = icon;
-                break;
-            }
-        this.selected = new State<>(initialSelect);
+
+        Function<Component, SelectableIcon> selectedState = t -> Cosmetica.SELECTED_ICON.extract(t, cosmetic -> {
+            SelectableIcon selected = null;
+            for (SelectableIcon icon : icons)
+                if (icon.cosmetic.getId().equals(cosmetic.getId())) {
+                    selected = icon;
+                    break;
+                }
+            return selected;
+        });
 
         return ImmutableList.of(
-                new IconHeader(this.selected::acquire).tag("horizontal", "header"),
-                new EntryList.Grid(icons, this.selected::acquire).tag("flex-1", "icon-selector")
+                new IconHeader(selectedState).tag("horizontal", "header"),
+                new EntryList.Grid(icons, selectedState).tag("flex-1", "icon-selector")
         );
     }
 
@@ -140,10 +140,9 @@ public class IconSelector extends Div {
         @Override
         public void mouseClicked(Element target, double x, double y, int button) {
             if (button == GLFW.GLFW_MOUSE_BUTTON_1) {
-                if (this != IconSelector.this.selected.peek()) {
+                if (this.cosmetic != Cosmetica.SELECTED_ICON.peek()) {
                     Logging.getInstance().debug("Setting icon " + cosmetic);
 
-                    IconSelector.this.selected.set(this);
                     IconSelector.this.iconDirty.set(true);
                     Cosmetica.SELECTED_ICON.set(this.cosmetic);
                 }

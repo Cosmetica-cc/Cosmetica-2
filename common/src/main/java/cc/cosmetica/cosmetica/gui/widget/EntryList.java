@@ -36,7 +36,7 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
  * Warning: These components will override tags on the entries to manage selection.
  */
 public final class EntryList {
-    private static List<Component> retag(final Component self, List<Component> components, @Nullable Function<Component, @Nullable Component> acquireSelected) {
+    private static List<Component> retag(final Component self, List<Component> components, @Nullable Function<Component, ? extends @Nullable Component> acquireSelected) {
         if (acquireSelected != null) {
             @Nullable Component theSelected = acquireSelected.apply(self);
 
@@ -107,12 +107,12 @@ public final class EntryList {
             this.selected = null;
         }
 
-        public Grid(Component[] entries, Function<Component, @Nullable Component> selected) {
+        public Grid(Component[] entries, Function<Component, ? extends @Nullable Component> selected) {
             super(entries);
             this.selected = selected;
         }
 
-        private final @Nullable Function<Component, @Nullable Component> selected;
+        private final @Nullable Function<Component, ? extends @Nullable Component> selected;
 
         @Override
         public List<Component> build() {

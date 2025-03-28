@@ -80,16 +80,13 @@ public class StyleNametagScreen extends Screen {
         Cosmetics cosmetics = Cosmetica.OWN_COSMETICS.acquire(this);
 
         NametagConfig lore = cosmetics == null ? NametagConfig.EMPTY : cosmetics.getLore().orElse(NametagConfig.EMPTY);
-        // but only peek at current selected icon. we only want to refresh when
-        // todo simplify this system so it's done at icon selector level with like 1 state lmao
-        ImageCosmetic icon = Cosmetica.SELECTED_ICON.peek();
 
         return new Component[] {
                 new Div(
                         new LoreSelector(lore, availableLores)
                                 .tag("flex-1"),
                         new FakePlayer(self, true),
-                        new IconSelector(icon, this.iconDirty, availableIcons)
+                        new IconSelector(this.iconDirty, availableIcons)
                                 .tag("flex-1")
                 ).tag("horizontal", "flex-1", "main-content"),
                 new MenuEndSelection()
