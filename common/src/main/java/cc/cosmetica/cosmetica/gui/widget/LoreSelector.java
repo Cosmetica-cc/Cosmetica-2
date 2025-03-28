@@ -16,7 +16,6 @@
 
 package cc.cosmetica.cosmetica.gui.widget;
 
-import cc.cosmetica.core.api.NametagConfig;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.ResourceKey;
@@ -25,32 +24,32 @@ import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
-import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.model.LoreOptions;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.OptionalInt;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 public class LoreSelector extends Div {
-    public LoreSelector(NametagConfig lore, State<LoreOptions> availableLores) {
-        this.lore = lore.getPrefix(); // core places lore text in prefix field of NametagConfig
+    public LoreSelector(AtomicBoolean loreModified, State<LoreOptions> availableLores) {
+        this.loreModified = loreModified;
         this.availableLores = availableLores;
     }
 
-    private String lore;
+    // n.b. cosmetica-core places lore text in prefix field of NametagConfig
+
+    private final AtomicBoolean loreModified;
     private final State<LoreOptions> availableLores;
     private State<Integer> lorePage = new State<>(0);
-    private State<@Nullable SelectableLore> selected; // lazy load
 
     @Override
     public List<Component> build() {
@@ -76,23 +75,25 @@ public class LoreSelector extends Div {
         }
 
         // load selected state
-        SelectableLore initialSelect = null;
-        for (SelectableLore lore : loreValues)
-            if (lore.lore.equals(this.lore)) {
-                initialSelect = lore;
-                break;
-            }
-        this.selected = new State<>(initialSelect);
+        Function<Component, SelectableLore> selectedState = t -> Cosmetica.SELECTED_LORE.extract(t, cosmetic -> {
+            SelectableLore selected = null;
+            for (SelectableLore lore : loreValues)
+                if (lore.lore.equals(cosmetic)) {
+                    selected = lore;
+                    break;
+                }
+            return selected;
+        });
 
         return ImmutableList.of(
-                new LoreHeader(this.selected::acquire).tag("horizontal", "header"),
+                new LoreHeader(selectedState).tag("horizontal", "header"),
                 page == 2 ? new Div(
                         new Div().tag("flex-1"),
                         new Label(Text.translatable("label.lore.referToWebsite")),
                         new Button(Text.translatable("button.lore.openWebPanel"), Cosmetica::openWebPanel),
                         new Div().withStyle(Style.create().set(FLEX, 3))
                 ).tag("flex-1", "refer-to-website")
-                : new EntryList.Div(loreValues, this.selected)
+                : new EntryList.Div(loreValues, selectedState)
                         .selected(
                                 Style.create()
                                         .set(BACKGROUND_COLOUR, OptionalInt.of(0xFFFFFF))
@@ -164,8 +165,9 @@ public class LoreSelector extends Div {
         @Override
         public void mouseClicked(Element target, double x, double y, int button) {
             if (button == GLFW.GLFW_MOUSE_BUTTON_1) {
-                if (this != LoreSelector.this.selected.peek()) {
-                    LoreSelector.this.selected.set(this);
+                if (!Objects.equals(this.lore, Cosmetica.SELECTED_LORE.peek())) {
+                    LoreSelector.this.loreModified.set(true);
+                    Cosmetica.SELECTED_LORE.set(this.lore);
                 }
             }
         }

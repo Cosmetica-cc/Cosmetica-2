@@ -59,6 +59,7 @@ public class Cosmetica {
 	// These are prefixed with SELECTED_ to highlight this.
 	public static final State<Optional<String>> SELECTED_OUTFIT_ID = new State<>(Optional.empty());
 	public static final State<ImageCosmetic> SELECTED_ICON = new State<>(NametagConfig.NO_ICON);
+	public static final State<String> SELECTED_LORE = new State<>("");
 
 	public static void init() {
 		Screens.setAllowDebug(true);
@@ -87,6 +88,7 @@ public class Cosmetica {
 				// can be updated by screens too.
 				SELECTED_OUTFIT_ID.set(cosmetics.getOutfitId());
 				SELECTED_ICON.set(cosmetics.getNametag().getIcon());
+				SELECTED_LORE.set(cosmetics.getLore().orElse(NametagConfig.EMPTY).getPrefix());
 			});
 		});
 		// log in

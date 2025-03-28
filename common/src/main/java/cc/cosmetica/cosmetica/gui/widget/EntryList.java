@@ -73,9 +73,9 @@ public final class EntryList {
             this.selected = null;
         }
 
-        public Div(Component[] entries, State<? extends @Nullable Component> selected) {
+        public Div(Component[] entries, Function<Component, ? extends @Nullable Component> selected) {
             super(entries);
-            this.selected = selected::acquire;
+            this.selected = selected;
         }
 
         public Div selected(Style style) {
@@ -83,7 +83,7 @@ public final class EntryList {
             return this;
         }
 
-        private final @Nullable Function<Component, @Nullable Component> selected;
+        private final @Nullable Function<Component, ? extends @Nullable Component> selected;
         private Style selectedStyle;
 
         @Override

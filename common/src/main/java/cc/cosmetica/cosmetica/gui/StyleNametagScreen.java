@@ -34,6 +34,7 @@ import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.api.DefaultApi;
 import gg.cloaks.javaclient.model.Icon;
 import gg.cloaks.javaclient.model.LoreOptions;
+import gg.cloaks.javaclient.model.UpdateLoreDto;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
 
@@ -79,11 +80,9 @@ public class StyleNametagScreen extends Screen {
         // subscribe to the *cosmetics change*
         Cosmetics cosmetics = Cosmetica.OWN_COSMETICS.acquire(this);
 
-        NametagConfig lore = cosmetics == null ? NametagConfig.EMPTY : cosmetics.getLore().orElse(NametagConfig.EMPTY);
-
         return new Component[] {
                 new Div(
-                        new LoreSelector(lore, availableLores)
+                        new LoreSelector(this.loreDirty, availableLores)
                                 .tag("flex-1"),
                         new FakePlayer(self, true),
                         new IconSelector(this.iconDirty, availableIcons)
@@ -111,14 +110,33 @@ public class StyleNametagScreen extends Screen {
 
     @Override
     public void unmount() {
-        // TODO set lore
+        // lore is set
+        if (this.loreDirty.compareAndSet(true, false)) {
+            String selectedLore = Cosmetica.SELECTED_LORE.peek();
+            Logging.getInstance().debug("Updating Lore to {}", selectedLore);
+            UpdateLoreDto update = new UpdateLoreDto();
+            update.content(selectedLore);
+
+            CosmeticaAPI.performAsync(api -> api.loreControllerUpdateLore(update))
+                    .exceptionally(e -> {
+                        // TODO see below
+                        assert Cosmetica.OWN_COSMETICS.peek() != null;
+                        Cosmetica.SELECTED_LORE.set(Cosmetica.OWN_COSMETICS.peek().getNametag().getPrefix());
+                        Logging.getInstance().error("Could not set lore", e); return null;
+                    });
+        }
 
         // icon is set
         if (this.iconDirty.compareAndSet(true, false)) {
             ImageCosmetic selectedIcon = Cosmetica.SELECTED_ICON.peek();
             Logging.getInstance().debug("Updating Icon to {}", selectedIcon.getName());
             CosmeticaAPI.performAsync(api -> api.iconsControllerEquip(selectedIcon.getId()))
-                    .exceptionally(e -> { Logging.getInstance().error("Could not set icon", e); return null; });
+                    .exceptionally(e -> {
+                        // TODO is there a race condition
+                        assert Cosmetica.OWN_COSMETICS.peek() != null; // trust me bro
+                        Cosmetica.SELECTED_ICON.set(Cosmetica.OWN_COSMETICS.peek().getNametag().getIcon());
+                        Logging.getInstance().error("Could not set icon", e); return null;
+                    });
         }
     }
 
