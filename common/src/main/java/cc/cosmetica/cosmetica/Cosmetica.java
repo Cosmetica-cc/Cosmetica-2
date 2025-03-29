@@ -99,7 +99,8 @@ public class Cosmetica {
 						UpdateLoreDto.ColorEnum.fromValue(lore.getColor().getValue()),
 						lore.getIconUrl() == null ? null :
 								CosmeticaModel.getOrCreateImage("lore", lore.getService(), lore.getIconUrl(), 1, 0),
-						lore.getType() == gg.cloaks.javaclient.model.Lore.TypeEnum.PRONOUNS ? Lore.PRONOUN_SERVICE : lore.getService()
+						lore.getType() == gg.cloaks.javaclient.model.Lore.TypeEnum.CONNECTION ? lore.getService()
+						: (lore.getType() == gg.cloaks.javaclient.model.Lore.TypeEnum.PRONOUNS ? Lore.PRONOUN_SERVICE : "")
 				);
 			} else {
 				connections = ImmutableList.of();
