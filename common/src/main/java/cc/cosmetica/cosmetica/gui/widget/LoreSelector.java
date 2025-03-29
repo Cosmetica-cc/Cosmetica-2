@@ -36,6 +36,7 @@ import gg.cloaks.javaclient.model.UserConnection;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.OptionalInt;
@@ -95,7 +96,7 @@ public class LoreSelector extends Div {
         });
 
         return ImmutableList.of(
-                new LoreHeader(selectedState).tag("horizontal", "header"),
+                new LoreHeader(Cosmetica.SELECTED_LORE::acquire, loreOptions.getColors()).tag("horizontal", "header"),
 //                page == 2 ? new Div(
 //                        new Div().tag("flex-1"),
 //                        new Label(Text.translatable("label.lore.referToWebsite")),
@@ -137,29 +138,34 @@ public class LoreSelector extends Div {
                 .tag("lore-type", Style.create()
                         .set(WIDTH, percent(33, 0)))
                 .tag("lore-types", Style.create()
-                        .set(JUSTIFY_CONTENT, Justify.SPACE_BETWEEN))
-                .component(SelectableLore.class, Style.create()
-                        .set(PADDING, fixed(new Margins(1))));
+                        .set(JUSTIFY_CONTENT, Justify.SPACE_BETWEEN));
     }
 
     private static class LoreHeader extends Div {
-        public LoreHeader(Function<Component, @Nullable SelectableLore> icon) {
+        public LoreHeader(Function<Component, Lore> icon, List<String> unlockedColours) {
             this.icon = icon;
+            this.unlockedColours = unlockedColours;
         }
 
-        private final Function<Component, @Nullable SelectableLore> icon;
+        private final Function<Component, Lore> icon;
+        private final List<String> unlockedColours;
 
         @Override
         public List<Component> build() {
-            @Nullable SelectableLore lore = this.icon.apply(this);
+            Lore lore = this.icon.apply(this);
+            Text displayLore = lore == Lore.NO_LORE ? Text.translatable("label.lore.no_lore") : Text.translatable("label.lore.lore", lore.formatted());
 
-            Text displayLore = lore == null ? Text.translatable("label.lore.no_lore") : Text.translatable("label.lore.lore", lore.lore);
+            List<Component> result = new ArrayList<>();
 
-            return ImmutableList.of(
-                    new Label(displayLore).tag("flex-1"),
-//                        new IconButton(new ResourceKey("cosmetica", "textures/colour.png"), () -> {}),
-                    new IconButton(new ResourceKey("cosmetica", "textures/remove.png"), () -> {})
-            );
+            result.add(new Label(displayLore).tag("flex-1"));
+
+            // only show colouring button if you have multiple unlocked lore colours
+            if (this.unlockedColours.size() > 1) {
+                result.add(new IconButton(new ResourceKey("cosmetica", "textures/colour.png"), () -> {}));
+            }
+            result.add(new IconButton(new ResourceKey("cosmetica", "textures/remove.png"), () -> {}));
+
+            return result;
         }
     }
 
@@ -203,10 +209,16 @@ public class LoreSelector extends Div {
         @Override
         public void render(Canvas canvas, Region region, Margins padding, int mouseX, int mouseY) {
             // hover effect
-            if (region.shrinkMargins(new Margins(0,6,0,0)).contains(mouseX, mouseY) && !this.getStyle().get(BORDER).isPresent()) {
+            if (region.addMargins(padding).shrinkMargins(new Margins(0,6,0,0)).contains(mouseX, mouseY) && !this.getStyle().get(BORDER).isPresent()) {
                 canvas.drawRect(region.addMargins(padding), 0x707070);
             }
             super.render(canvas, region, padding, mouseX, mouseY);
+        }
+
+        @Override
+        public Stylesheet getStylesheet() {
+            return new Stylesheet().self(Style.create()
+                    .set(PADDING, fixed(new Margins(1))));
         }
     }
 
@@ -216,6 +228,27 @@ public class LoreSelector extends Div {
     private class SelectablePronoun extends SelectableLore {
         public SelectablePronoun(String lore) {
             super(lore);
+        }
+
+        @Override
+        public void mouseClicked(Element target, double x, double y, int button) {
+        }
+
+        @Override
+        public List<Component> build() {
+            Lore current = Cosmetica.SELECTED_LORE.acquire(this);
+
+            // count slashes
+            int slashes = 0;
+            for (char c : current.text.toCharArray()) {
+                if (c == '/') slashes++;
+            }
+
+            return ImmutableList.of(new Div(
+                    new Label(Text.literal(this.lore)).tag("flex-1"),
+                    new Button(Text.literal("+"), () -> super.mouseClicked(null, 0, 0, 0))
+                            .setDisabled(slashes == 3) // max 4 pronouns
+            ).tag("innerdiv"));
         }
 
         @Override
@@ -231,6 +264,7 @@ public class LoreSelector extends Div {
                     char c = current.text.charAt(i);
                     if (c == '/') slashes++;
                     // immediately on the fourth, cut off. replace the final pronoun.
+                    // this is a backup case. this shouldn't be able to happen
                     if (slashes == 4) {
                         break;
                     }
@@ -244,6 +278,17 @@ public class LoreSelector extends Div {
 
             lore.old = old;
             return lore;
+        }
+
+        @Override
+        public Stylesheet getStylesheet() {
+            return super.getStylesheet()
+                    .component(Button.class, Style.create()
+                            .set(WIDTH, fixedSize(20)))
+                    .tag("innerdiv", Style.create()
+                            .set(FLOW_DIRECTION, Axis2D.POSITIVE_X)
+                            .set(Label.ALIGN_TEXT, Align.START)
+                            .set(WIDTH, percent(67, 0)));
         }
     }
 

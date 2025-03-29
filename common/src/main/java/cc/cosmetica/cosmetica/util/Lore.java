@@ -36,6 +36,31 @@ public class Lore {
     public final CachedImage icon;
     public final String service;
 
+    public String formatted() {
+        String c;
+        switch (this.colour) {
+            case BLACK: c = "0"; break;
+            case DARK_BLUE: c = "1"; break;
+            case DARK_GREEN: c = "2"; break;
+            case DARK_AQUA: c = "3"; break;
+            case DARK_RED: c = "4"; break;
+            case DARK_PURPLE: c = "5"; break;
+            case GOLD: c = "6"; break;
+            case GRAY: c = "7"; break;
+            case DARK_GRAY: c = "8"; break;
+            case BLUE: c = "9"; break;
+            case GREEN: c = "a"; break;
+            case AQUA: c = "b"; break;
+            case RED: c = "c"; break;
+            case LIGHT_PURPLE: c = "d"; break;
+            case YELLOW: c = "e"; break;
+            case WHITE:
+            default:
+                c = "f"; break;
+        }
+        return "§" + c + this.text;
+    }
+
     public UpdateLoreDto.TypeEnum getType() {
         if (service.isEmpty()) return UpdateLoreDto.TypeEnum.TITLE;
         return PRONOUN_SERVICE.equals(service) ? UpdateLoreDto.TypeEnum.PRONOUNS : UpdateLoreDto.TypeEnum.CONNECTION;

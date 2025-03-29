@@ -115,7 +115,7 @@ public class StyleNametagScreen extends Screen {
         // lore is set
         if (this.loreDirty.compareAndSet(true, false)) {
             Lore selectedLore = Cosmetica.SELECTED_LORE.peek();
-            Logging.getInstance().debug("Updating Lore to {}", selectedLore);
+            Logging.getInstance().debug("Updating Lore to {}", selectedLore.text);
             UpdateLoreDto update = new UpdateLoreDto();
             update.content(selectedLore.text);
             update.color(selectedLore.colour);
