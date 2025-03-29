@@ -16,17 +16,20 @@
 
 package cc.cosmetica.cosmetica;
 
-import cc.cosmetica.core.api.CosmeticaAPI;
-import cc.cosmetica.core.api.Cosmetics;
-import cc.cosmetica.core.api.ImageCosmetic;
-import cc.cosmetica.core.api.NametagConfig;
+import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.impl.Logging;
-import cc.cosmetica.cosmetica.gui.*;
+import cc.cosmetica.cosmetica.gui.CosmeticaHomeScreen;
+import cc.cosmetica.cosmetica.gui.OutfitSelectScreen;
+import cc.cosmetica.cosmetica.gui.OutfitWheelScreen;
+import cc.cosmetica.cosmetica.gui.StyleNametagScreen;
+import cc.cosmetica.cosmetica.util.Lore;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.State;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.platform.NativeImage;
 import gg.cloaks.javaclient.api.DefaultApi;
+import gg.cloaks.javaclient.model.UpdateLoreDto;
+import gg.cloaks.javaclient.model.UserConnection;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
@@ -54,12 +57,13 @@ public class Cosmetica {
 	// States showing the actual latest cosmetica server data
 	public static final State<@Nullable Cosmetics> OWN_COSMETICS = new State<>(null);
 	public static final State<List<OutfitWheelScreen.OutfitOption>> OWN_OUTFITS = new State<>(ImmutableList.of());
+	public static final State<List<UserConnection>> OWN_CONNECTIONS = new State<>(ImmutableList.of());
 	// Separate states that 'follow' the main state are maintained for cosmetic selections
 	// to show visual updates faster than the C->S->C ping time.
 	// These are prefixed with SELECTED_ to highlight this.
 	public static final State<Optional<String>> SELECTED_OUTFIT_ID = new State<>(Optional.empty());
 	public static final State<ImageCosmetic> SELECTED_ICON = new State<>(NametagConfig.NO_ICON);
-	public static final State<String> SELECTED_LORE = new State<>("");
+	public static final State<Lore> SELECTED_LORE = new State<>(Lore.NO_LORE);
 
 	public static void init() {
 		Screens.setAllowDebug(true);
@@ -83,12 +87,32 @@ public class Cosmetica {
 								.collect(Collectors.toList()));
 					}));
 
+			// pretty sure we should definitely be a user. is it possible for this code to run on cracked?
+			List<UserConnection> connections;
+			Lore userLore;
+
+			if (data.isIsUser()) {
+				connections = data.getUser().getConnections();
+				gg.cloaks.javaclient.model.Lore lore = data.getUser().getLore();
+				userLore = lore == null ? Lore.NO_LORE : new Lore(
+						lore.getContent(),
+						UpdateLoreDto.ColorEnum.fromValue(lore.getColor().getValue()),
+						lore.getIconUrl() == null ? null :
+								CosmeticaModel.getOrCreateImage("lore", lore.getService(), lore.getIconUrl(), 1, 0),
+						lore.getType() == gg.cloaks.javaclient.model.Lore.TypeEnum.PRONOUNS ? Lore.PRONOUN_SERVICE : lore.getService()
+				);
+			} else {
+				connections = ImmutableList.of();
+				userLore = Lore.NO_LORE;
+			}
+
 			Minecraft.getInstance().tell(() -> {
 				OWN_COSMETICS.set(cosmetics);
+				OWN_CONNECTIONS.set(connections);
 				// can be updated by screens too.
 				SELECTED_OUTFIT_ID.set(cosmetics.getOutfitId());
 				SELECTED_ICON.set(cosmetics.getNametag().getIcon());
-				SELECTED_LORE.set(cosmetics.getLore().orElse(NametagConfig.EMPTY).getPrefix());
+				SELECTED_LORE.set(userLore);
 			});
 		});
 		// log in

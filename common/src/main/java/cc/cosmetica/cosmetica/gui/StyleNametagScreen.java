@@ -22,6 +22,7 @@ import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.widget.IconSelector;
 import cc.cosmetica.cosmetica.gui.widget.LoreSelector;
 import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
+import cc.cosmetica.cosmetica.util.Lore;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.Screens;
@@ -37,6 +38,7 @@ import gg.cloaks.javaclient.model.LoreOptions;
 import gg.cloaks.javaclient.model.UpdateLoreDto;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -78,7 +80,7 @@ public class StyleNametagScreen extends Screen {
         UUID self = Minecraft.getInstance().getUser().getGameProfile().getId();
 
         // subscribe to the *cosmetics change*
-        Cosmetics cosmetics = Cosmetica.OWN_COSMETICS.acquire(this);
+        //Cosmetics cosmetics = Cosmetica.OWN_COSMETICS.acquire(this);
 
         return new Component[] {
                 new Div(
@@ -112,16 +114,24 @@ public class StyleNametagScreen extends Screen {
     public void unmount() {
         // lore is set
         if (this.loreDirty.compareAndSet(true, false)) {
-            String selectedLore = Cosmetica.SELECTED_LORE.peek();
+            Lore selectedLore = Cosmetica.SELECTED_LORE.peek();
             Logging.getInstance().debug("Updating Lore to {}", selectedLore);
             UpdateLoreDto update = new UpdateLoreDto();
-            update.content(selectedLore);
+            update.content(selectedLore.text);
+            update.color(selectedLore.colour);
+            update.type(selectedLore.getType());
 
             CosmeticaAPI.performAsync(api -> api.loreControllerUpdateLore(update))
                     .exceptionally(e -> {
-                        // TODO see below
-                        assert Cosmetica.OWN_COSMETICS.peek() != null;
-                        Cosmetica.SELECTED_LORE.set(Cosmetica.OWN_COSMETICS.peek().getNametag().getPrefix());
+                        // Prevent race condition by resetting on the minecraft thread
+                        Minecraft.getInstance().tell(() -> {
+                            @Nullable Lore old = Cosmetica.SELECTED_LORE.peek().old;
+
+                            if (old != null) {
+                                Cosmetica.SELECTED_LORE.set(old);
+                            }
+                        });
+
                         Logging.getInstance().error("Could not set lore", e); return null;
                     });
         }
