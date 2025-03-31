@@ -5,7 +5,7 @@
   "minVersion": "0.8",
   "client": [
     "button.OptionsScreenMixin",
-    "keybinds.ClientWorldTickMixin",
+    "keybinds.LevelRendererTickMixin",
     "keybinds.KeyMappingAccessor",
     "keybinds.KeyMappingMixin",
     "keybinds.OptionsMixin",

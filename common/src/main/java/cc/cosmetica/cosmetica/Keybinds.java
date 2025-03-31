@@ -16,13 +16,19 @@
 
 package cc.cosmetica.cosmetica;
 
+import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.cosmetica.gui.CosmeticaHomeScreen;
 import cc.cosmetica.cosmetica.gui.OutfitWheelScreen;
+import cc.cosmetica.cosmetica.gui.SnipeScreen;
+import cc.cosmetica.cosmetica.util.Sniper;
 import cc.cosmetica.kupe.api.Screens;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.player.Player;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
@@ -76,7 +82,7 @@ public class Keybinds {
     // persistent state by processKeybinds
     private static boolean rightShiftMenu = false;
     /**
-     * Process the Cosmetica Keybinds on client (world) render.
+     * Process the Cosmetica Keybinds on client (world) tick.
      */
     public static void processKeybinds() {
         Screen screen = Minecraft.getInstance().screen;
@@ -108,6 +114,19 @@ public class Keybinds {
             } else if (rightShiftMenu) {
                 // to-do: make cosmetica menu screens allow right shift, but not other keys
                 Minecraft.getInstance().setScreen(null);
+            }
+        }
+
+        // Snipe
+        set = false;
+        while (Keybinds.SNIPE.consumeClick())
+            set = true;
+
+        if (set && screen == null) {
+            LivingEntity entity = Sniper.getTarget();
+
+            if (entity != null && (entity instanceof Player || Cosmetics.getCosmetics(entity).isPresent())) {
+                Screens.setScreen(new SnipeScreen(entity), SnipeScreen.ID);
             }
         }
     }
