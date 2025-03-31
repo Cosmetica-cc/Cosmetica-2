@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.cosmetica.mixin;
+package cc.cosmetica.cosmetica.mixin.textures;
 
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;

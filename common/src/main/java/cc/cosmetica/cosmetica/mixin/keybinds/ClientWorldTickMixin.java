@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.cosmetica.mixin;
+package cc.cosmetica.cosmetica.mixin.keybinds;
 
-import com.mojang.blaze3d.platform.InputConstants;
-import net.minecraft.client.KeyMapping;
+import cc.cosmetica.cosmetica.Keybinds;
+import net.minecraft.client.renderer.LevelRenderer;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.gen.Accessor;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/**
- * Get key.
- */
-@Mixin(KeyMapping.class)
-public interface KeyMappingAccessor {
-    /**
-     * Get the key of this mapping.
-     * @return the key.
-     */
-    @Accessor("key")
-    InputConstants.Key cosmetica$getKey();
+@Mixin(LevelRenderer.class)
+public class ClientWorldTickMixin {
+    @Inject(at = @At("RETURN"), method = "renderLevel")
+    private void onRenderLevel(CallbackInfo info) {
+        Keybinds.processKeybinds();
+    }
 }

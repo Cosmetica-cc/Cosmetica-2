@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.cosmetica.mixin;
+package cc.cosmetica.cosmetica.mixin.keybinds;
 
 import cc.cosmetica.cosmetica.Keybinds;
 import net.minecraft.client.KeyMapping;

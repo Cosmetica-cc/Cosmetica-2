@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.cosmetica.mixin;
+package cc.cosmetica.cosmetica.mixin.attach;
 
 import cc.cosmetica.core.api.Cosmetics;
-import cc.cosmetica.core.impl.CosmeticEquipper;
 import cc.cosmetica.cosmetica.StateHolder;
 import cc.cosmetica.kupe.api.State;
 import net.minecraft.world.entity.player.Player;

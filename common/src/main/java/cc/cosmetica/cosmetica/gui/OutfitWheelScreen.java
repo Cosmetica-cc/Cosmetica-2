@@ -22,7 +22,7 @@ import cc.cosmetica.core.api.CosmeticaModel;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.Keybinds;
 import cc.cosmetica.cosmetica.Setting;
-import cc.cosmetica.cosmetica.mixin.KeyMappingAccessor;
+import cc.cosmetica.cosmetica.mixin.keybinds.KeyMappingAccessor;
 import cc.cosmetica.cosmetica.util.Division;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.PolyBuilder;
