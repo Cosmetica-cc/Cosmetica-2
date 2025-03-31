@@ -4,12 +4,13 @@
   "compatibilityLevel": "JAVA_8",
   "minVersion": "0.8",
   "client": [
+    "button.OptionsScreenMixin",
     "keybinds.ClientWorldTickMixin",
-    "textures.HttpTextureMixin",
     "keybinds.KeyMappingAccessor",
     "keybinds.KeyMappingMixin",
     "keybinds.OptionsMixin",
-    "button.OptionsScreenMixin"
+    "snipe.GameRendererMixin",
+    "textures.HttpTextureMixin"
   ],
   "injectors": {
     "defaultRequire": 1
