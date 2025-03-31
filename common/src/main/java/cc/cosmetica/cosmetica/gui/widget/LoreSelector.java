@@ -153,7 +153,7 @@ public class LoreSelector extends Div {
         @Override
         public List<Component> build() {
             Lore lore = this.icon.apply(this);
-            Text displayLore = lore == Lore.NO_LORE ? Text.translatable("label.lore.no_lore") : Text.translatable("label.lore.lore", lore.formatted());
+            Text displayLore = lore.isNoLore() ? Text.translatable("label.lore.no_lore") : Text.translatable("label.lore.lore", lore.formatted());
 
             List<Component> result = new ArrayList<>();
 
@@ -163,9 +163,16 @@ public class LoreSelector extends Div {
             if (this.unlockedColours.size() > 1) {
                 result.add(new IconButton(new ResourceKey("cosmetica", "textures/colour.png"), () -> {}));
             }
-            result.add(new IconButton(new ResourceKey("cosmetica", "textures/remove.png"), () -> {}));
+            result.add(new IconButton(new ResourceKey("cosmetica", "textures/remove.png"), LoreHeader::clearLore));
 
             return result;
+        }
+
+        private static void clearLore() {
+            Lore current = Cosmetica.SELECTED_LORE.peek();
+            Lore next = Lore.none(current.colour);
+            next.old = current.old == null ? current : current.old;
+            Cosmetica.SELECTED_LORE.set(next);
         }
     }
 

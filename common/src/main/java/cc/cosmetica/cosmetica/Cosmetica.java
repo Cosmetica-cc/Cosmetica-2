@@ -63,7 +63,7 @@ public class Cosmetica {
 	// These are prefixed with SELECTED_ to highlight this.
 	public static final State<Optional<String>> SELECTED_OUTFIT_ID = new State<>(Optional.empty());
 	public static final State<ImageCosmetic> SELECTED_ICON = new State<>(NametagConfig.NO_ICON);
-	public static final State<Lore> SELECTED_LORE = new State<>(Lore.NO_LORE);
+	public static final State<Lore> SELECTED_LORE = new State<>(Lore.none(UpdateLoreDto.ColorEnum.WHITE));
 
 	public static void init() {
 		Screens.setAllowDebug(true);
@@ -94,7 +94,7 @@ public class Cosmetica {
 			if (data.isIsUser()) {
 				connections = data.getUser().getConnections();
 				gg.cloaks.javaclient.model.Lore lore = data.getUser().getLore();
-				userLore = lore == null ? Lore.NO_LORE : new Lore(
+				userLore = lore == null ? Lore.none(UpdateLoreDto.ColorEnum.WHITE) : new Lore(
 						lore.getContent(),
 						UpdateLoreDto.ColorEnum.fromValue(lore.getColor().getValue()),
 						lore.getIconUrl() == null ? null :
@@ -104,7 +104,7 @@ public class Cosmetica {
 				);
 			} else {
 				connections = ImmutableList.of();
-				userLore = Lore.NO_LORE;
+				userLore = Lore.none(UpdateLoreDto.ColorEnum.WHITE);
 			}
 
 			Minecraft.getInstance().tell(() -> {

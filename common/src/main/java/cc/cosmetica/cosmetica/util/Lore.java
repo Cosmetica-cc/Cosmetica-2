@@ -36,6 +36,10 @@ public class Lore {
     public final CachedImage icon;
     public final String service;
 
+    public boolean isNoLore() {
+        return this.text.isEmpty();
+    }
+
     public String formatted() {
         String c;
         switch (this.colour) {
@@ -67,5 +71,12 @@ public class Lore {
     }
 
     public static final String PRONOUN_SERVICE = "pronoun";
-    public static final Lore NO_LORE = new Lore("", UpdateLoreDto.ColorEnum.WHITE, CachedImage.NO_TEXTURE, "");
+
+    /**
+     * Create a new 'no lore' lore.
+     * @return a new instance of an empty lore.
+     */
+    public static Lore none(UpdateLoreDto.ColorEnum colour) {
+        return new Lore("", UpdateLoreDto.ColorEnum.WHITE, CachedImage.NO_TEXTURE, "");
+    }
 }
