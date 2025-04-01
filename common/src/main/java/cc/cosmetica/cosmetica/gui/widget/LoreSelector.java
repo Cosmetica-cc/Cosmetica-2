@@ -97,12 +97,12 @@ public class LoreSelector extends Div {
 
         return ImmutableList.of(
                 new LoreHeader(Cosmetica.SELECTED_LORE::acquire, loreOptions.getColors()).tag("horizontal", "header"),
-//                page == 2 ? new Div(
-//                        new Div().tag("flex-1"),
-//                        new Label(Text.translatable("label.lore.referToWebsite")),
-//                        new Button(Text.translatable("button.lore.openWebPanel"), Cosmetica::openWebPanel),
-//                        new Div().withStyle(Style.create().set(FLEX, 3))
-//                ).tag("flex-1", "refer-to-website") :
+                (page == 2 && loreValues.length == 0) ? new Div(
+                        new Div().tag("flex-1"),
+                        new Label(Text.translatable("label.lore.referToWebsite")),
+                        new Button(Text.translatable("button.lore.openWebPanel"), Cosmetica::openWebPanel),
+                        new Div().withStyle(Style.create().set(FLEX, 3))
+                ).tag("flex-1", "refer-to-website") :
                 new EntryList.Div(loreValues, selectedState)
                         .selected(
                                 Style.create()

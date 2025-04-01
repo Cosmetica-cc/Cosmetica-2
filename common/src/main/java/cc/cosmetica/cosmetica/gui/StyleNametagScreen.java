@@ -16,7 +16,10 @@
 
 package cc.cosmetica.cosmetica.gui;
 
-import cc.cosmetica.core.api.*;
+import cc.cosmetica.core.api.Cosmetic;
+import cc.cosmetica.core.api.CosmeticaAPI;
+import cc.cosmetica.core.api.CosmeticaModel;
+import cc.cosmetica.core.api.ImageCosmetic;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.widget.IconSelector;
@@ -42,6 +45,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
@@ -115,13 +119,8 @@ public class StyleNametagScreen extends Screen {
         // lore is set
         if (this.loreDirty.compareAndSet(true, false)) {
             Lore selectedLore = Cosmetica.SELECTED_LORE.peek();
-            Logging.getInstance().debug("Updating Lore to {}", selectedLore.text);
-            UpdateLoreDto update = new UpdateLoreDto();
-            update.content(selectedLore.text);
-            update.color(selectedLore.colour);
-            update.type(selectedLore.getType());
 
-            CosmeticaAPI.performAsync(api -> api.loreControllerUpdateLore(update))
+            CosmeticaAPI.performAsync(this.updateLoreFunction(selectedLore))
                     .exceptionally(e -> {
                         // Prevent race condition by resetting on the minecraft thread
                         Minecraft.getInstance().tell(() -> {
@@ -147,6 +146,20 @@ public class StyleNametagScreen extends Screen {
                         Cosmetica.SELECTED_ICON.set(Cosmetica.OWN_COSMETICS.peek().getNametag().getIcon());
                         Logging.getInstance().error("Could not set icon", e); return null;
                     });
+        }
+    }
+
+    private Function<DefaultApi, ?> updateLoreFunction(Lore newLore) {
+        if (newLore.isNoLore()) {
+            Logging.getInstance().debug("Removing lore");
+            return DefaultApi::loreControllerRemoveLore;
+        } else {
+            Logging.getInstance().debug("Updating Lore to {}", newLore.text);
+            UpdateLoreDto update = new UpdateLoreDto();
+            update.content(newLore.text);
+            update.color(newLore.colour);
+            update.type(newLore.getType());
+            return api -> api.loreControllerUpdateLore(update);
         }
     }
 
