@@ -52,7 +52,7 @@ public class CosmeticaHomeScreen extends Screen {
 
 		Cosmetics cosmetics = Cosmetica.OWN_COSMETICS.acquire(this);
 		List<CosmeticEntry> entryList = new ArrayList<>();
-		this.populateEntryList(entryList, cosmetics);
+		populateEntryList(entryList, cosmetics);
 
 		return new Component[] {
 				new Div(
@@ -76,7 +76,7 @@ public class CosmeticaHomeScreen extends Screen {
 	 * @param entryList the list to populate.
 	 * @param cosmetics the cosmetics the player is wearing.
 	 */
-	private void populateEntryList(final List<CosmeticEntry> entryList, Cosmetics cosmetics) {
+	static void populateEntryList(final List<CosmeticEntry> entryList, Cosmetics cosmetics) {
 		if (cosmetics == null)
 			return; // no cosmetics
 

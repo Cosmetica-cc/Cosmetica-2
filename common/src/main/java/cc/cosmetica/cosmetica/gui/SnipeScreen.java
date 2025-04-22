@@ -17,14 +17,27 @@
 package cc.cosmetica.cosmetica.gui;
 
 import cc.cosmetica.core.api.Cosmetics;
+import cc.cosmetica.cosmetica.Cosmetica;
+import cc.cosmetica.cosmetica.Setting;
 import cc.cosmetica.cosmetica.StateHolder;
-import cc.cosmetica.kupe.api.ResourceKey;
-import cc.cosmetica.kupe.api.Screen;
-import cc.cosmetica.kupe.api.State;
-import cc.cosmetica.kupe.api.Text;
-import cc.cosmetica.kupe.api.gui.Component;
+import cc.cosmetica.cosmetica.gui.widget.*;
+import cc.cosmetica.kupe.api.*;
+import cc.cosmetica.kupe.api.gui.*;
+import cc.cosmetica.kupe.api.gui.style.Style;
+import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import cc.cosmetica.kupe.api.maths.Axis2D;
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 /**
  * Shows the cosmetics of an inspected cosmetics holder.
@@ -39,16 +52,46 @@ public class SnipeScreen extends Screen {
                 Text.literal(Cosmetics.getCosmetics(entity).flatMap(Cosmetics::getOutfitName).orElse("Outfit"))
         );
 
-        // TODO armour stands dont have a cosmetic state currently. we subscribe to automatic outfit updates, so this should be done?
+        // TODO armour stands dont have an autoupdated cosmetic state currently. we subscribe to automatic outfit updates, so this should be done?
         this.cosmetics = ((StateHolder)entity).cosmetica$getCosmeticState();
+        this.playerUUID = entity instanceof Player ? entity.getUUID() : null;
     }
 
     private final State<Cosmetics> cosmetics;
+    private final @Nullable UUID playerUUID;
 
     @Override
     protected Component[] buildScreen() {
         Cosmetics outfit = this.cosmetics.acquire(this);
+        UUID player = playerUUID == null ? Minecraft.getInstance().getUser().getGameProfile().getId() : playerUUID;
 
-        return new Component[0];
+        // we can do something similar to home screen.
+        // TODO this may be similar enough to be worth making an abstract class.
+        List<CosmeticEntry> entryList = new ArrayList<>();
+        CosmeticaHomeScreen.populateEntryList(entryList, outfit);
+
+        return new Component[] {
+                new Div(
+                        new OutfitPlayer(player, Optional.ofNullable(outfit).flatMap(Cosmetics::getOutfitName).orElse("§7No Outfit"))
+                                .tag("main-section"),
+                        new CosmeticsBrowser(entryList)
+                                .tag("main-section")
+                ).tag("main-content"),
+                new Button(Text.translatable("button.cosmetica.stealHisLook"), Screens::closeCurrentScreen),
+                new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
+        };
+    }
+
+    @Override
+    public @NotNull Stylesheet getStylesheet() {
+        return super.getStylesheet()
+                .tag("main-content", Style.create()
+                        .set(FLEX, 1)
+                        .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
+                        .set(Div.JUSTIFY_CONTENT, Justify.CENTRE)
+                        .set(Div.ALIGN_ITEMS, Align.CENTRE))
+                .tag("main-section", Style.create()
+                        .set(WIDTH, screen(50, 0))
+                        .set(HEIGHT, percent(0, 100)));
     }
 }

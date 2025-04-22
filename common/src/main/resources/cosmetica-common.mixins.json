@@ -5,9 +5,9 @@
   "minVersion": "0.8",
   "client": [
     "button.OptionsScreenMixin",
-    "keybinds.LevelRendererTickMixin",
     "keybinds.KeyMappingAccessor",
     "keybinds.KeyMappingMixin",
+    "keybinds.LevelRendererTickMixin",
     "keybinds.OptionsMixin",
     "snipe.GameRendererMixin",
     "textures.HttpTextureMixin"
@@ -16,6 +16,7 @@
     "defaultRequire": 1
   },
   "mixins": [
+    "attach.ArmourStandMixin",
     "attach.PlayerMixin"
   ]
 }
