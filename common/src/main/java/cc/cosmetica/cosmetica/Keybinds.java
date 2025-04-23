@@ -125,7 +125,8 @@ public class Keybinds {
         if (set && screen == null) {
             LivingEntity entity = Sniper.getTarget();
 
-            if (entity != null && (entity instanceof Player || Cosmetics.getCosmetics(entity).isPresent())) {
+            // Could implement StateHolder base case on LE and replace with entity!=null
+            if (entity instanceof StateHolder && (entity instanceof Player || Cosmetics.getCosmetics(entity).isPresent())) {
                 Screens.setScreen(new SnipeScreen(entity), SnipeScreen.ID);
             }
         }
