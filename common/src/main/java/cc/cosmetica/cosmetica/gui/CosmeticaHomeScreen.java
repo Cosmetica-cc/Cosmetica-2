@@ -65,7 +65,7 @@ public class CosmeticaHomeScreen extends Screen {
 								).withStyle(Style.create()
 										.set(Div.ALIGN_ITEMS, Align.START))
 						).tag("main-section"),
-						new CosmeticsBrowser(entryList).tag("main-section")
+						new CosmeticsBrowser(entryList, true).tag("main-section")
 				).tag("main-content"),
 				new MenuEndSelection()
 		};

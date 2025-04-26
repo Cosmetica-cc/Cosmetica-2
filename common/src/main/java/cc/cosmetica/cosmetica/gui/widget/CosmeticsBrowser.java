@@ -34,18 +34,23 @@ import java.util.OptionalInt;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 public class CosmeticsBrowser extends Div {
-	public CosmeticsBrowser(Collection<CosmeticEntry> entries) {
+	public CosmeticsBrowser(Collection<CosmeticEntry> entries, boolean editable) {
 		this.entries = entries.toArray(new CosmeticEntry[0]);
+		this.editable = editable;
 	}
 
 	private final CosmeticEntry[] entries;
+	private final boolean editable;
 
 	@Override
 	public List<Component> build() {
-		return ImmutableList.of(
+		return this.editable ? ImmutableList.of(
 				new EntryList.Div(this.entries)
 						.tag("width-200", "contents-wrapper"),
 				new Button(Text.literal("+"), () -> {}).tag("width-200")
+		) : ImmutableList.of(
+				new EntryList.Div(this.entries)
+						.tag("width-200", "contents-wrapper")
 		);
 	}
 
