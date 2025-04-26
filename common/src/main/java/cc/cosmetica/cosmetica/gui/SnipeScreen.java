@@ -79,7 +79,7 @@ public class SnipeScreen extends Screen {
                         new CosmeticsBrowser(entryList, false)
                                 .tag("main-section")
                 ).tag("main-content"),
-                new Button(Text.translatable("button.cosmetica.stealHisLook"), () -> Screens.setScreen(new StealTheirLookScreen(this.cosmetics), StealTheirLookScreen.STEAL_THEIR_LOOK)),
+                new StealTheirLookButton(outfit, Text.translatable("button.cosmetica.stealHisLook"), () -> Screens.setScreen(new StealTheirLookScreen(this.cosmetics), StealTheirLookScreen.STEAL_THEIR_LOOK)),
                 new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
         };
     }
@@ -97,5 +97,25 @@ public class SnipeScreen extends Screen {
                         .set(HEIGHT, (vw,vh,pw,ph) -> OptionalInt.of(ph*50/100 + 100)))
                 .tag("body", Style.create()
                         .set(PADDING, fixed(new Margins(0, 0, 10, 0))));
+    }
+
+    /**
+     * Reloads when your own cosmetics change (prevent having to reload whole screen). This might be overkill optimisation.
+     */
+    private static class StealTheirLookButton extends Button {
+        public StealTheirLookButton(Cosmetics outfit, Text text, Runnable onClicked) {
+            super(text, onClicked);
+            this.outfit = outfit;
+        }
+        private final Cosmetics outfit;
+
+        @Override
+        public List<Component> build() {
+            @Nullable Cosmetics cosmetics1 = Cosmetica.OWN_COSMETICS.acquire(this);
+            boolean disabled = cosmetics1 != null && cosmetics1.getOutfitId().equals(outfit.getOutfitId());
+            this.setDisabled(disabled);
+            this.withStyle(Style.create().set(TOOLTIP, disabled ? Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.outfitAlreadySelected"))) : Optional.empty()));
+            return super.build();
+        }
     }
 }

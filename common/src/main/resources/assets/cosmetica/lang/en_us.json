@@ -25,5 +25,6 @@
   "setting.cosmetica.wheel.true": "Toggle",
   "setting.cosmetica.wheel.false": "Hold",
   "tooltip.cosmetica.openWebPanel": "Open Web Panel",
+  "tooltip.cosmetica.outfitAlreadySelected": "Already wearing this outfit!",
   "tooltip.cosmetica.copiedURL": "Copied URL!"
 }

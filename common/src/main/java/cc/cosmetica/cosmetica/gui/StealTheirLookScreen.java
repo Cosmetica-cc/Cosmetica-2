@@ -16,6 +16,7 @@
 
 package cc.cosmetica.cosmetica.gui;
 
+import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.kupe.api.*;
 import cc.cosmetica.kupe.api.gui.*;
@@ -56,7 +57,7 @@ public class StealTheirLookScreen extends Screen {
                                 .set(Div.JUSTIFY_CONTENT, Justify.CENTRE)),
                         new Div(
                                 new Button(Text.translatable("button.cosmetica.confirm"), () -> {
-                                    // TODO set outfit
+//                                    CosmeticaAPI.getInstance().outfitsControllerEquip()
                                     //todo ability to set previous screen for kupe
                                     Screens.closeCurrentScreen();
                                     Screens.closeCurrentScreen();
