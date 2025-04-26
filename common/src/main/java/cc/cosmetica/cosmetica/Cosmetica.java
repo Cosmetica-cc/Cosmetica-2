@@ -18,10 +18,7 @@ package cc.cosmetica.cosmetica;
 
 import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.impl.Logging;
-import cc.cosmetica.cosmetica.gui.CosmeticaHomeScreen;
-import cc.cosmetica.cosmetica.gui.OutfitSelectScreen;
-import cc.cosmetica.cosmetica.gui.OutfitWheelScreen;
-import cc.cosmetica.cosmetica.gui.StyleNametagScreen;
+import cc.cosmetica.cosmetica.gui.*;
 import cc.cosmetica.cosmetica.util.Lore;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.State;

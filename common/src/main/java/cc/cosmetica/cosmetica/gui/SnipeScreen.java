@@ -79,7 +79,7 @@ public class SnipeScreen extends Screen {
                         new CosmeticsBrowser(entryList)
                                 .tag("main-section")
                 ).tag("main-content"),
-                new Button(Text.translatable("button.cosmetica.stealHisLook"), Screens::closeCurrentScreen),
+                new Button(Text.translatable("button.cosmetica.stealHisLook"), () -> Screens.setScreen(new StealTheirLookScreen(this.cosmetics), StealTheirLookScreen.STEAL_THEIR_LOOK)),
                 new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
         };
     }
@@ -94,7 +94,7 @@ public class SnipeScreen extends Screen {
                         .set(Div.ALIGN_ITEMS, Align.CENTRE))
                 .tag("main-section", Style.create()
                         .set(WIDTH, screen(50, 0))
-                        .set(HEIGHT, percent(0, 100)))
+                        .set(HEIGHT, percent(0, 75)))
                 .tag("body", Style.create()
                         .set(PADDING, fixed(new Margins(0, 0, 10, 0))));
     }

@@ -16,26 +16,27 @@
 
 package cc.cosmetica.cosmetica.gui;
 
-import cc.cosmetica.cosmetica.Keybinds;
 import cc.cosmetica.cosmetica.Setting;
-import cc.cosmetica.kupe.api.*;
+import cc.cosmetica.kupe.api.ResourceKey;
+import cc.cosmetica.kupe.api.Screen;
+import cc.cosmetica.kupe.api.State;
+import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
-import cc.cosmetica.kupe.api.maths.Dimensions;
-import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.OptionalInt;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
+/**
+ * An unregistered screen for showing a list of settings.
+ */
 public class CosmeticaSettingsScreen extends Screen {
     public CosmeticaSettingsScreen(ResourceKey titleKey, List<Setting<?>> settings) {
         super(titleKey);

@@ -1,5 +1,6 @@
 {
   "button.cosmetica.home": "Cosmetica...",
+  "button.cosmetica.confirm": "Confirm",
   "button.cosmetica.changeOutfit": "Change Outfit",
   "button.cosmetica.styleNametag": "Stylize Name Tag",
   "button.cosmetica.stealHisLook": "Steal Their Look",
@@ -17,6 +18,7 @@
   "screens.cosmetica.outfit_select": "Select Outfit",
   "screens.cosmetica.name_tag": "Stylize Name Tag",
   "screens.cosmetica.settings": "Cosmetica Settings",
+  "screens.cosmetica.steal_their_look": "Steal Their Look",
   "screens.cosmetica.snipe": "View Player Outfit",
   "screens.cosmetica.wheel": "Outfit Wheel",
   "setting.cosmetica.wheel": "Outfit Wheel",
