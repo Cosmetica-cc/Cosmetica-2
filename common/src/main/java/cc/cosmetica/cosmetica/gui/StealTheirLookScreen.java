@@ -75,7 +75,7 @@ public class StealTheirLookScreen extends Screen {
                 .component(Button.class, Style.create()
                         .set(WIDTH, fixedSize(150)))
                 .tag("bottom-bar", Style.create()
-                        .set(MARGINS, (vw, vh, pw, ph) -> new Margins(ph - 40, 0, 0, 0))
+                        .set(MARGINS, (vw, vh, pw, ph) -> new Margins(ph - 80, 0, 0, 0))
                         .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X));
     }
 
