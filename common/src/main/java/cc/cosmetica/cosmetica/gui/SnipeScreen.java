@@ -26,16 +26,14 @@ import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
+import cc.cosmetica.kupe.api.maths.Margins;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
@@ -66,14 +64,18 @@ public class SnipeScreen extends Screen {
         UUID player = playerUUID == null ? Minecraft.getInstance().getUser().getGameProfile().getId() : playerUUID;
 
         // we can do something similar to home screen.
-        // TODO this may be similar enough to be worth making an abstract class.
         List<CosmeticEntry> entryList = new ArrayList<>();
         CosmeticaHomeScreen.populateEntryList(entryList, outfit);
 
         return new Component[] {
                 new Div(
-                        new OutfitPlayer(player, Optional.ofNullable(outfit).flatMap(Cosmetics::getOutfitName).orElse("§7No Outfit"))
-                                .tag("main-section"),
+                        new Div(
+                                new Div().withStyle(Style.create().set(HEIGHT, fixedSize(10))),
+                                new FakePlayer(player, true)
+                                    .withStyle(Style.create().set(WIDTH, screen(12, 0)))
+                        ).tag("main-section")
+                                .withStyle(Style.create()
+                                        .set(Div.JUSTIFY_CONTENT, Justify.CENTRE)),
                         new CosmeticsBrowser(entryList)
                                 .tag("main-section")
                 ).tag("main-content"),
@@ -92,6 +94,8 @@ public class SnipeScreen extends Screen {
                         .set(Div.ALIGN_ITEMS, Align.CENTRE))
                 .tag("main-section", Style.create()
                         .set(WIDTH, screen(50, 0))
-                        .set(HEIGHT, percent(0, 100)));
+                        .set(HEIGHT, percent(0, 100)))
+                .tag("body", Style.create()
+                        .set(PADDING, fixed(new Margins(0, 0, 10, 0))));
     }
 }
