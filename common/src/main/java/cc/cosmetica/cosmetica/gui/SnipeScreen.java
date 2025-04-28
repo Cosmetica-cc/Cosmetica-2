@@ -16,7 +16,9 @@
 
 package cc.cosmetica.cosmetica.gui;
 
+import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.Cosmetics;
+import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.Setting;
 import cc.cosmetica.cosmetica.StateHolder;
@@ -27,6 +29,7 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
+import gg.cloaks.javaclient.api.DefaultApi;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -53,9 +56,11 @@ public class SnipeScreen extends Screen {
         // TODO armour stands dont have an autoupdated cosmetic state currently. we subscribe to automatic outfit updates, so this should be done?
         this.cosmetics = ((StateHolder)entity).cosmetica$getCosmeticState();
         this.playerUUID = entity instanceof Player ? entity.getUUID() : null;
+        this.isSetting = new State<>(false);
     }
 
     private final State<Cosmetics> cosmetics;
+    private final State<Boolean> isSetting;
     private final @Nullable UUID playerUUID;
 
     @Override
@@ -79,7 +84,43 @@ public class SnipeScreen extends Screen {
                         new CosmeticsBrowser(entryList, false)
                                 .tag("main-section")
                 ).tag("main-content"),
-                new StealTheirLookButton(outfit, Text.translatable("button.cosmetica.stealHisLook"), () -> Screens.setScreen(new StealTheirLookScreen(this.cosmetics), StealTheirLookScreen.STEAL_THEIR_LOOK)),
+                new StealTheirLookButton(
+                        outfit, this.isSetting,
+                        Text.translatable("button.cosmetica.stealHisLook"),
+                        () -> {
+                            this.isSetting.set(true);
+                            String outfitId = outfit.getOutfitId().orElse("");
+                            if (outfitId.isEmpty()) {
+                                CosmeticaAPI.performAsync(DefaultApi::outfitsControllerUnequip)
+                                        .thenAccept(__ -> {
+                                            Logging.getInstance().debug("Cleared Cosmetics by Steal-their-look.");
+                                            Minecraft.getInstance().tell(Screens::closeCurrentScreen);
+                                        })
+                                        .exceptionally(err -> {
+                                            Logging.getInstance().error("Failed to unequip cosmetics!", err);
+                                            Minecraft.getInstance().tell(()->this.isSetting.set(false));
+                                            return null;
+                                        });
+                                return;
+                            }
+
+                            // if not empty : either own cosmetics (e.g. armour stand) or not own cosmetics (need to select a slot)
+                            if (Cosmetica.OWN_OUTFITS.peek().stream().anyMatch(option -> option.id.equals(outfitId))) {
+                                // can set cosmetics immediately
+                                CosmeticaAPI.performAsync(api->api.outfitsControllerEquip(outfitId))
+                                        .thenAccept(__ -> {
+                                            Logging.getInstance().debug("Set Cosmetics by Steal-their-look.");
+                                            Minecraft.getInstance().tell(Screens::closeCurrentScreen);
+                                        })
+                                        .exceptionally(err -> {
+                                            Logging.getInstance().error("Failed to set cosmetics!", err);
+                                            Minecraft.getInstance().tell(()->this.isSetting.set(false));
+                                            return null;
+                                        });
+                            } else {
+                                Screens.setScreen(new StealTheirLookScreen(outfit), StealTheirLookScreen.STEAL_THEIR_LOOK);
+                            }
+                        }),
                 new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
         };
     }
@@ -103,16 +144,20 @@ public class SnipeScreen extends Screen {
      * Reloads when your own cosmetics change (prevent having to reload whole screen). This might be overkill optimisation.
      */
     private static class StealTheirLookButton extends Button {
-        public StealTheirLookButton(Cosmetics outfit, Text text, Runnable onClicked) {
+        public StealTheirLookButton(Cosmetics outfit, State<Boolean> disabled, Text text, Runnable onClicked) {
             super(text, onClicked);
             this.outfit = outfit;
+            this.disabledState = disabled;
         }
         private final Cosmetics outfit;
+        private final State<Boolean> disabledState;
 
         @Override
         public List<Component> build() {
             @Nullable Cosmetics cosmetics1 = Cosmetica.OWN_COSMETICS.acquire(this);
-            boolean disabled = cosmetics1 != null && cosmetics1.getOutfitId().equals(outfit.getOutfitId());
+            boolean overrideDisabled = this.disabledState.acquire(this);
+
+            boolean disabled = overrideDisabled || (cosmetics1 != null && cosmetics1.getOutfitId().equals(outfit.getOutfitId()));
             this.setDisabled(disabled);
             this.withStyle(Style.create().set(TOOLTIP, disabled ? Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.outfitAlreadySelected"))) : Optional.empty()));
             return super.build();

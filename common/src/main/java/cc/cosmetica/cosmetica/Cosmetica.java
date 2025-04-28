@@ -212,4 +212,8 @@ public class Cosmetica {
 		Screens.registerScreen(StyleNametagScreen.ID, StyleNametagScreen::new);
 		Screens.registerScreen(OutfitSelectScreen.ID, new OutfitSelectScreen());
 	}
+
+	public static <T> Consumer<T> renderCall(Consumer<T> tConsumer) {
+		return t -> Minecraft.getInstance().tell(()->tConsumer.accept(t));
+	}
 }

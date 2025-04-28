@@ -18,6 +18,8 @@ package cc.cosmetica.cosmetica.gui;
 
 import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.Cosmetics;
+import cc.cosmetica.core.api.OutfitCosmetics;
+import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.kupe.api.*;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
@@ -29,18 +31,33 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
+import static cc.cosmetica.cosmetica.Cosmetica.renderCall;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 /**
- * A confirmation screen for stealing someone's look.
+ * A confirmation screen for stealing someone's look when you need to add a new outfit.
  * Unregistered. Pass ID as a second parameter when setting Kupe screen.
  */
 public class StealTheirLookScreen extends Screen {
-    protected StealTheirLookScreen(State<Cosmetics> cosmeticsState) {
+    protected StealTheirLookScreen(Cosmetics initialCosmetics) {
         super(STEAL_THEIR_LOOK);
-        this.cosmetics = cosmeticsState;
+        if (!initialCosmetics.getOutfitId().isPresent())
+            throw new IllegalArgumentException("No outfit id for steal-their-look cosmetics?!");
+
+        this.newOutfit = UUID.fromString(initialCosmetics.getOutfitId().get());
+        this.cosmetics = new State<>(initialCosmetics);
+        CosmeticaAPI.subscribe(CosmeticaAPI.SubscriptionEvent.OUTFIT, this.newOutfit, STEAL_THEIR_LOOK.toResourceLocation(), () -> {
+            CosmeticaAPI.performAsync(api -> api.outfitsControllerGet(this.newOutfit.toString()))
+                    .thenApply(OutfitCosmetics::new)
+                    .thenAccept(renderCall(this.cosmetics::set))
+                    .exceptionally(err->{
+                        Logging.getInstance().error("Error updating outfit cosmetics", err);
+                        return null;
+                    });
+        });
     }
 
+    private final UUID newOutfit;
     private final State<Cosmetics> cosmetics;
 
     @Override
@@ -68,6 +85,11 @@ public class StealTheirLookScreen extends Screen {
                 ).withStyle(Style.create().set(FLEX, 1)),
 
         };
+    }
+
+    @Override
+    public void unmount() {
+        CosmeticaAPI.unsubscribe(CosmeticaAPI.SubscriptionEvent.OUTFIT, this.newOutfit, STEAL_THEIR_LOOK.toResourceLocation());
     }
 
     @Override
