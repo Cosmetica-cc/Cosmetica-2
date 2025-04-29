@@ -8,6 +8,8 @@
   "button.lore.openWebPanel": "Open Web Panel",
   "button.lore.pronouns": "Pronouns",
   "button.lore.titles": "Titles",
+  "label.cosmetica.loading": "Loading...",
+  "label.cosmetica.outfitCount": "Outfit Slots Used: %s/%s",
   "label.icons.icon": "Icon: %s",
   "label.icons.no_icon": "Icon: §7No Icon",
   "label.lore.lore": "Lore: %s",

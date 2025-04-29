@@ -31,11 +31,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-import static cc.cosmetica.cosmetica.Cosmetica.renderCall;
+import static cc.cosmetica.cosmetica.Cosmetica.mainThreadCall;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 /**
- * A confirmation screen for stealing someone's look when you need to add a new outfit.
+ * A confirmation screen for stealing someone's look when you don't already add an outfit.
+ * Prompts the user which outfit slot to use, or whether to add a new item. Shows how many outfit slots
+ * are used.
  * Unregistered. Pass ID as a second parameter when setting Kupe screen.
  */
 public class StealTheirLookScreen extends Screen {
@@ -49,7 +51,7 @@ public class StealTheirLookScreen extends Screen {
         CosmeticaAPI.subscribe(CosmeticaAPI.SubscriptionEvent.OUTFIT, this.newOutfit, STEAL_THEIR_LOOK.toResourceLocation(), () -> {
             CosmeticaAPI.performAsync(api -> api.outfitsControllerGet(this.newOutfit.toString()))
                     .thenApply(OutfitCosmetics::new)
-                    .thenAccept(renderCall(this.cosmetics::set))
+                    .thenAccept(mainThreadCall(this.cosmetics::set))
                     .exceptionally(err->{
                         Logging.getInstance().error("Error updating outfit cosmetics", err);
                         return null;
@@ -71,7 +73,9 @@ public class StealTheirLookScreen extends Screen {
                                 new FakePlayer(player, true)
                                         .withStyle(Style.create().set(WIDTH, screen(12, 0)))
                         ).withStyle(Style.create()
-                                .set(Div.JUSTIFY_CONTENT, Justify.CENTRE)),
+                                .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
+                                .set(Div.JUSTIFY_CONTENT, Justify.CENTRE)
+                                .set(Div.ALIGN_ITEMS, Align.STRETCH_CENTRE)),
                         new Div(
                                 new Button(Text.translatable("button.cosmetica.confirm"), () -> {
 //                                    CosmeticaAPI.getInstance().outfitsControllerEquip()

@@ -28,18 +28,13 @@ import cc.cosmetica.kupe.api.gui.Element;
 import cc.cosmetica.kupe.api.gui.Image;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
-import cc.cosmetica.kupe.api.maths.Dimensions;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.sounds.SoundEvents;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.OptionalInt;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
+import static cc.cosmetica.kupe.api.gui.style.CommonProperties.fixed;
 
 /**
  * The menu outfit select screen. For the wheel, see {@link OutfitWheelScreen}.
@@ -80,7 +75,25 @@ public class OutfitSelectScreen extends Screen {
                         .set(HEIGHT, fixed(OptionalInt.of(50))));
     }
 
-    private static class SelectableOutfit extends Image {
+    public static final ResourceKey ID = new ResourceKey("cosmetica", "outfit_select");
+
+    private static SelectableOutfit find(SelectableOutfit[] components, String id) {
+        if (id.isEmpty()) return null;
+
+        for (SelectableOutfit outfit : components) {
+            if (outfit.option.id.equals(id)) {
+                return outfit;
+            }
+        }
+
+        // none matched
+        return null;
+    }
+
+    /**
+     * A selectable outfit item in the menu.
+     */
+    static class SelectableOutfit extends Image {
         SelectableOutfit(OutfitWheelScreen.OutfitOption option) {
             super(new ResourceKey(option.thumbnail.location));
             this.option = option;
@@ -99,19 +112,4 @@ public class OutfitSelectScreen extends Screen {
             this.option.equipAsync();
         }
     }
-
-    private static SelectableOutfit find(SelectableOutfit[] components, String id) {
-        if (id.isEmpty()) return null;
-
-        for (SelectableOutfit outfit : components) {
-            if (outfit.option.id.equals(id)) {
-                return outfit;
-            }
-        }
-
-        // none matched
-        return null;
-    }
-
-    public static final ResourceKey ID = new ResourceKey("cosmetica", "outfit_select");
 }

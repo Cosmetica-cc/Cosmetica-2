@@ -18,7 +18,10 @@ package cc.cosmetica.cosmetica;
 
 import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.impl.Logging;
-import cc.cosmetica.cosmetica.gui.*;
+import cc.cosmetica.cosmetica.gui.CosmeticaHomeScreen;
+import cc.cosmetica.cosmetica.gui.OutfitSelectScreen;
+import cc.cosmetica.cosmetica.gui.OutfitWheelScreen;
+import cc.cosmetica.cosmetica.gui.StyleNametagScreen;
 import cc.cosmetica.cosmetica.util.Lore;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.State;
@@ -213,7 +216,7 @@ public class Cosmetica {
 		Screens.registerScreen(OutfitSelectScreen.ID, new OutfitSelectScreen());
 	}
 
-	public static <T> Consumer<T> renderCall(Consumer<T> tConsumer) {
-		return t -> Minecraft.getInstance().tell(()->tConsumer.accept(t));
+	public static <T> Consumer<T> mainThreadCall(Consumer<T> tConsumer) {
+		return t -> Minecraft.getInstance().execute(()->tConsumer.accept(t));
 	}
 }
