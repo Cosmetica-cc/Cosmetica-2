@@ -20,7 +20,6 @@ import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
-import cc.cosmetica.cosmetica.Setting;
 import cc.cosmetica.cosmetica.StateHolder;
 import cc.cosmetica.cosmetica.gui.widget.*;
 import cc.cosmetica.kupe.api.*;
@@ -104,8 +103,9 @@ public class SnipeScreen extends Screen {
                                 return;
                             }
 
+                            // test stealtheirlookscreen: never take the quick option
                             // if not empty : either own cosmetics (e.g. armour stand) or not own cosmetics (need to select a slot)
-                            if (Cosmetica.OWN_OUTFITS.peek().stream().anyMatch(option -> option.id.equals(outfitId))) {
+                            if (false &&Cosmetica.OWN_OUTFITS.peek().stream().anyMatch(option -> option.id.equals(outfitId))) {
                                 // can set cosmetics immediately
                                 CosmeticaAPI.performAsync(api->api.outfitsControllerEquip(outfitId))
                                         .thenAccept(__ -> {
@@ -118,7 +118,7 @@ public class SnipeScreen extends Screen {
                                             return null;
                                         });
                             } else {
-                                Screens.setScreen(new StealTheirLookScreen(outfit), StealTheirLookScreen.STEAL_THEIR_LOOK);
+                                Screens.setScreen(new ReplaceOutfitSlotScreen(outfit), ReplaceOutfitSlotScreen.STEAL_THEIR_LOOK);
                             }
                         }),
                 new Button(Text.GUI_DONE, Screens::closeCurrentScreen)

@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.OptionalInt;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
-import static cc.cosmetica.kupe.api.gui.style.CommonProperties.fixed;
 
 /**
  * The menu outfit select screen. For the wheel, see {@link OutfitWheelScreen}.
@@ -76,6 +75,7 @@ public class OutfitSelectScreen extends Screen {
     }
 
     public static final ResourceKey ID = new ResourceKey("cosmetica", "outfit_select");
+    public static final ResourceKey NEW_OUTFIT_ICON = new ResourceKey("cosmetica", "textures/new_outfit.png");
 
     private static SelectableOutfit find(SelectableOutfit[] components, String id) {
         if (id.isEmpty()) return null;
