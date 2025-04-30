@@ -37,15 +37,10 @@ import static cc.cosmetica.cosmetica.Cosmetica.mainThreadCall;
  */
 public class OutfitCount extends Div {
     /**
-     * Sets the passed state once the data is loaded. Initialise to a negative number for
-     * "Loading..."
+     * Set a negative number for "Loading..."
      */
     public OutfitCount(State<Integer> outfitLimit) {
         this.outfitLimit = outfitLimit;
-        CosmeticaAPI.performAsync(DefaultApi::premiumControllerGetRestrictions)
-                .thenApply(PlanRestrictions::getMaxOutfits)
-                .thenApply(BigDecimal::intValue)
-                .thenAccept(mainThreadCall(this.outfitLimit::set));
     }
 
     private final State<Integer> outfitLimit;

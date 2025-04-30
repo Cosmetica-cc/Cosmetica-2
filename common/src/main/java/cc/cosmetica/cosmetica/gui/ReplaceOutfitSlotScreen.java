@@ -32,13 +32,16 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
+import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.api.DefaultApi;
 import gg.cloaks.javaclient.model.CopyOutfitDto;
 import gg.cloaks.javaclient.model.Outfit;
+import gg.cloaks.javaclient.model.PlanRestrictions;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -59,6 +62,13 @@ public class ReplaceOutfitSlotScreen extends Component {
         this.title = STEAL_THEIR_LOOK.translationKey("screens");
         this.newOutfit = UUID.fromString(initialCosmetics.getOutfitId().get());
         this.newOutfitCosmetics = new State<>(initialCosmetics);
+        this.outfitLimit = new State<>(-1);
+
+        CosmeticaAPI.performAsync(DefaultApi::premiumControllerGetRestrictions)
+                .thenApply(PlanRestrictions::getMaxOutfits)
+                .thenApply(BigDecimal::intValue)
+                .thenAccept(mainThreadCall(this.outfitLimit::set));
+
         CosmeticaAPI.subscribe(CosmeticaAPI.SubscriptionEvent.OUTFIT, this.newOutfit, STEAL_THEIR_LOOK.toResourceLocation(), () -> {
             CosmeticaAPI.performAsync(api -> api.outfitsControllerGet(this.newOutfit.toString()))
                     .thenApply(OutfitCosmetics::new)
@@ -73,19 +83,21 @@ public class ReplaceOutfitSlotScreen extends Component {
     private final Text title;
     private final UUID newOutfit;
     private final State<Cosmetics> newOutfitCosmetics;
-    private final State<Integer> outfitLimit = new State<>(-1);
-    private final State<OutfitWheelScreen.OutfitOption> replacing = new State<>(null);
+    private final State<Integer> outfitLimit;
+    private final State<@Nullable Optional<OutfitWheelScreen.OutfitOption>> replacing = new State<>(null);
 
     @Override
     public List<Component> build() {
         Cosmetics outfit = this.newOutfitCosmetics.acquire(this);
+        @Nullable Optional<OutfitWheelScreen.OutfitOption> replacing = this.replacing.acquire(this);
 
         List<OutfitWheelScreen.OutfitOption> options = Cosmetica.OWN_OUTFITS.acquire(this);
 
         List<Component> components = options.stream()
                 .map(ReplaceableOutfit::new)
+                .map(o -> o.tag("outfit"))
                 .collect(Collectors.toCollection(ArrayList::new));
-        components.add(0, new );
+        components.add(0, );
 
         final UUID player = Minecraft.getInstance().getUser().getGameProfile().getId();
 
@@ -97,7 +109,7 @@ public class ReplaceOutfitSlotScreen extends Component {
                 new Div(
                         new Div(new FakePlayer(player, true)
                                 .withStyle(Style.create().set(WIDTH, screen(12, 0)))),
-                        new OutfitSlotGrid(this.outfitLimit, components)
+                        new EntryList.Grid(components, selected)
                 ).tag("body"),
                 new Div(
                         new Button(Text.translatable("button.cosmetica.confirm"), () -> {}),
@@ -151,35 +163,36 @@ public class ReplaceOutfitSlotScreen extends Component {
         return null;
     }
 
-    private static class OutfitSlotGrid extends Div {
-        public OutfitSlotGrid(State<Integer> outfitLimit, ReplaceableOutfit[] components) {
-            this.outfitLimit = outfitLimit;
-            this.components = components;
-        }
-
-        private final State<Integer> outfitLimit;
-        private final ReplaceableOutfit[] components;
-
-        @Override
-        public List<Component> build() {
-            int limit = this.outfitLimit.acquire(this);
-
-            return Collections.singletonList(
-                    new EntryList.Grid(this.components/*, state*/)
-            );
-        }
-    }
     /**
      * A selectable outfit item in the menu.
      */
     private static class ReplaceableOutfit extends Image {
         ReplaceableOutfit(OutfitWheelScreen.OutfitOption option) {
-            super(option == null ? OutfitSelectScreen.NEW_OUTFIT_ICON : new ResourceKey(option.thumbnail.location));
+            super(new ResourceKey(option.thumbnail.location));
             this.option = option;
+            this.outfitLimit = null;
             this.setTransparent(option.usable ? 1.0f : 0.5f);
         }
+        // "New Outfit" option
+        ReplaceableOutfit(State<Integer> outfitLimit) {
+            super(OutfitSelectScreen.NEW_OUTFIT_ICON);
+            this.option = null;
+            this.outfitLimit = outfitLimit;
+        }
 
+        private final State<Integer> outfitLimit;
         private final OutfitWheelScreen.OutfitOption option;
+
+        @Override
+        public List<Component> build() {
+            if (this.outfitLimit != null) {
+                int limit = this.outfitLimit.acquire(this);
+                int count = Cosmetica.OWN_OUTFITS.extract(this, List::size);
+                this.setTransparent(count < limit ? 1.0f : 0.5f);
+            }
+
+            return ImmutableList.of();
+        }
 
         @Override
         public void mouseClicked(Element target, double x, double y, int button) {
