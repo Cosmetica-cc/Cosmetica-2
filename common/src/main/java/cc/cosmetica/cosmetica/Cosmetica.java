@@ -216,7 +216,17 @@ public class Cosmetica {
 		Screens.registerScreen(OutfitSelectScreen.ID, new OutfitSelectScreen());
 	}
 
+	/**
+	 * @deprecated use {@link CompletableFuture#thenApplyAsync}
+	 */
+	@Deprecated
 	public static <T> Consumer<T> mainThreadCall(Consumer<T> tConsumer) {
 		return t -> Minecraft.getInstance().execute(()->tConsumer.accept(t));
+	}
+	public static <T> Function<T, Void> mainThreadExcept(Consumer<T> tConsumer) {
+		return t -> {
+			Minecraft.getInstance().execute(()->tConsumer.accept(t));
+			return null;
+		};
 	}
 }

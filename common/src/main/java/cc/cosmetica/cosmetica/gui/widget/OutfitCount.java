@@ -16,21 +16,16 @@
 
 package cc.cosmetica.cosmetica.gui.widget;
 
-import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.Div;
 import cc.cosmetica.kupe.api.gui.Label;
-import gg.cloaks.javaclient.api.DefaultApi;
-import gg.cloaks.javaclient.model.PlanRestrictions;
 
-import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
-import static cc.cosmetica.cosmetica.Cosmetica.mainThreadCall;
 
 /**
  * Counter for used/remaining outfit count.

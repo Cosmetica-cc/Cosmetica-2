@@ -35,7 +35,6 @@ import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.api.DefaultApi;
 import gg.cloaks.javaclient.model.CopyOutfitDto;
-import gg.cloaks.javaclient.model.Outfit;
 import gg.cloaks.javaclient.model.PlanRestrictions;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
@@ -46,6 +45,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static cc.cosmetica.cosmetica.Cosmetica.mainThreadCall;
+import static cc.cosmetica.cosmetica.Cosmetica.mainThreadExcept;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 /**
@@ -84,12 +84,14 @@ public class ReplaceOutfitSlotScreen extends Component {
     private final UUID newOutfit;
     private final State<Cosmetics> newOutfitCosmetics;
     private final State<Integer> outfitLimit;
-    private final State<@Nullable Optional<OutfitWheelScreen.OutfitOption>> replacing = new State<>(null);
+    private final State<Boolean> setting = new State<>(false);
+    private final State<@Nullable ReplaceableOutfit> replacing = new State<>(null);
 
     @Override
     public List<Component> build() {
         Cosmetics outfit = this.newOutfitCosmetics.acquire(this);
-        @Nullable Optional<OutfitWheelScreen.OutfitOption> replacing = this.replacing.acquire(this);
+        boolean setting = this.setting.acquire(this);
+        @Nullable ReplaceableOutfit replacing = this.replacing.acquire(this);
 
         List<OutfitWheelScreen.OutfitOption> options = Cosmetica.OWN_OUTFITS.acquire(this);
 
@@ -97,7 +99,8 @@ public class ReplaceOutfitSlotScreen extends Component {
                 .map(ReplaceableOutfit::new)
                 .map(o -> o.tag("outfit"))
                 .collect(Collectors.toCollection(ArrayList::new));
-        components.add(0, );
+        // prepend 'new outfit'
+        components.add(0, new ReplaceableOutfit(this.outfitLimit));
 
         final UUID player = Minecraft.getInstance().getUser().getGameProfile().getId();
 
@@ -109,10 +112,46 @@ public class ReplaceOutfitSlotScreen extends Component {
                 new Div(
                         new Div(new FakePlayer(player, true)
                                 .withStyle(Style.create().set(WIDTH, screen(12, 0)))),
-                        new EntryList.Grid(components, selected)
+                        new EntryList.Grid(components.toArray(new Component[0]), k->{
+                            for (Component o : components) {
+                                OutfitWheelScreen.OutfitOption op = ((ReplaceableOutfit)o).option;
+                                if (replacing == null && op == null) {
+                                    return o;
+                                } else if (replacing != null && op != null && op.id.equals(replacing.option.id)) {
+                                    return o;
+                                }
+                            }
+
+                            return null;
+                        })
                 ).tag("body"),
                 new Div(
-                        new Button(Text.translatable("button.cosmetica.confirm"), () -> {}),
+                        new Button(Text.translatable("button.cosmetica.confirm"), () -> {
+                            final ReplaceableOutfit oldOutfit = replacing;
+                            if (oldOutfit != null && oldOutfit.usable) // sanity check
+                            {
+                                this.setting.set(true);
+                                CopyOutfitDto dto = new CopyOutfitDto();
+                                dto.equip(true);
+
+                                if (oldOutfit.option == null) {
+                                    CosmeticaAPI.performAsync(api -> api.outfitsControllerCopy(this.newOutfit.toString(), dto))
+                                            .thenAcceptAsync(outfit1 -> Minecraft.getInstance().setScreen(null), Minecraft.getInstance())
+                                            .exceptionally(mainThreadExcept(err -> {
+                                                Logging.getInstance().error("Error stealing look (new)", err);
+                                                this.setting.set(false);
+                                            }));
+                                } else {
+                                    CosmeticaAPI.performAsync(api -> {api.outfitsControllerDelete(oldOutfit.option.id); return api;})
+                                            .thenApply(api -> api.outfitsControllerCopy(this.newOutfit.toString(), dto))
+                                            .thenAcceptAsync(outfit1 -> Minecraft.getInstance().setScreen(null), Minecraft.getInstance())
+                                            .exceptionally(mainThreadExcept(err -> {
+                                                Logging.getInstance().error("Error stealing look (replace)", err);
+                                                this.setting.set(false);
+                                            }));
+                                }
+                            }
+                        }).setDisabled(replacing==null || setting),
                         new Button(Text.GUI_CANCEL, Screens::closeCurrentScreen)
                 ).tag("bottom-bar")
         );
@@ -148,29 +187,15 @@ public class ReplaceOutfitSlotScreen extends Component {
                     .set(Label.ALIGN_TEXT, Align.CENTRE)
                     .set(MARGINS, fixed(new Margins(15, 0, 0, 0)));
 
-    private static Component find(Component[] components, String id) {
-        for (Component outfit : components) {
-            if (outfit instanceof ReplaceableOutfit) {
-                if (((ReplaceableOutfit)outfit).option.id.equals(id)) {
-                    return outfit;
-                }
-            } else if (id.isEmpty()) {
-                return outfit; // remaining item: the new option
-            }
-        }
-
-        // none matched
-        return null;
-    }
-
     /**
      * A selectable outfit item in the menu.
      */
     private static class ReplaceableOutfit extends Image {
         ReplaceableOutfit(OutfitWheelScreen.OutfitOption option) {
             super(new ResourceKey(option.thumbnail.location));
-            this.option = option;
+            this.usable = option.usable;
             this.outfitLimit = null;
+            this.option = option;
             this.setTransparent(option.usable ? 1.0f : 0.5f);
         }
         // "New Outfit" option
@@ -181,14 +206,17 @@ public class ReplaceOutfitSlotScreen extends Component {
         }
 
         private final State<Integer> outfitLimit;
-        private final OutfitWheelScreen.OutfitOption option;
+        private boolean usable;
+
+        final OutfitWheelScreen.OutfitOption option;
 
         @Override
         public List<Component> build() {
             if (this.outfitLimit != null) {
                 int limit = this.outfitLimit.acquire(this);
                 int count = Cosmetica.OWN_OUTFITS.extract(this, List::size);
-                this.setTransparent(count < limit ? 1.0f : 0.5f);
+                this.usable = count < limit;
+                this.setTransparent(this.usable ? 1.0f : 0.5f);
             }
 
             return ImmutableList.of();
@@ -196,7 +224,7 @@ public class ReplaceOutfitSlotScreen extends Component {
 
         @Override
         public void mouseClicked(Element target, double x, double y, int button) {
-            if (!this.option.usable) return;
+            if (!this.usable) return;
             // play click sound
             GuiUtils.playClick();
         }

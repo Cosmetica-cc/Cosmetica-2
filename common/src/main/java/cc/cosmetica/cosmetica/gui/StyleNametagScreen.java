@@ -143,8 +143,11 @@ public class StyleNametagScreen extends Screen {
                     .exceptionally(e -> {
                         // TODO is there a race condition
                         assert Cosmetica.OWN_COSMETICS.peek() != null; // trust me bro
-                        Cosmetica.SELECTED_ICON.set(Cosmetica.OWN_COSMETICS.peek().getNametag().getIcon());
-                        Logging.getInstance().error("Could not set icon", e); return null;
+                        Logging.getInstance().error("Could not set icon", e);
+                        Minecraft.getInstance().execute(() ->
+                            Cosmetica.SELECTED_ICON.set(Cosmetica.OWN_COSMETICS.peek().getNametag().getIcon())
+                        );
+                        return null;
                     });
         }
     }
