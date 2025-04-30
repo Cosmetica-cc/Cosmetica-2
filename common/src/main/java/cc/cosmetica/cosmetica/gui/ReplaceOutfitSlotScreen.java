@@ -44,7 +44,6 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static cc.cosmetica.cosmetica.Cosmetica.mainThreadCall;
 import static cc.cosmetica.cosmetica.Cosmetica.mainThreadExcept;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
@@ -67,12 +66,12 @@ public class ReplaceOutfitSlotScreen extends Component {
         CosmeticaAPI.performAsync(DefaultApi::premiumControllerGetRestrictions)
                 .thenApply(PlanRestrictions::getMaxOutfits)
                 .thenApply(BigDecimal::intValue)
-                .thenAccept(mainThreadCall(this.outfitLimit::set));
+                .thenAcceptAsync(this.outfitLimit::set, Minecraft.getInstance());
 
         CosmeticaAPI.subscribe(CosmeticaAPI.SubscriptionEvent.OUTFIT, this.newOutfit, STEAL_THEIR_LOOK.toResourceLocation(), () -> {
             CosmeticaAPI.performAsync(api -> api.outfitsControllerGet(this.newOutfit.toString()))
                     .thenApply(OutfitCosmetics::new)
-                    .thenAccept(mainThreadCall(this.newOutfitCosmetics::set))
+                    .thenAcceptAsync(this.newOutfitCosmetics::set, Minecraft.getInstance())
                     .exceptionally(err->{
                         Logging.getInstance().error("Error updating outfit cosmetics", err);
                         return null;
