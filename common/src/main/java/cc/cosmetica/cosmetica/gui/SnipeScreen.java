@@ -105,6 +105,7 @@ public class SnipeScreen extends Screen {
 
                             // test stealtheirlookscreen: never take the quick option
                             // if not empty : either own cosmetics (e.g. armour stand) or not own cosmetics (need to select a slot)
+                            //TODO do match by value instead of id and swap the id for own for better user experience
                             if (Cosmetica.OWN_OUTFITS.peek().stream().anyMatch(option -> option.id.equals(outfitId))) {
                                 this.isSetting.set(true);
                                 // can set cosmetics immediately
