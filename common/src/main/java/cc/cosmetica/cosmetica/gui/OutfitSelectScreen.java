@@ -41,7 +41,7 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 public class OutfitSelectScreen extends Screen {
     public OutfitSelectScreen() {
         super(ID);
-        Cosmetica.fetchOutfits();
+//        Cosmetica.fetchOutfits();
     }
 
     @Override

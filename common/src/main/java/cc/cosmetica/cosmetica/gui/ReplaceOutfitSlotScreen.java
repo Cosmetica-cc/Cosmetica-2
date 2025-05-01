@@ -90,7 +90,7 @@ public class ReplaceOutfitSlotScreen extends Component {
 
     @Override
     public List<Component> build() {
-        Cosmetics outfit = this.newOutfitCosmetics.acquire(this);
+        Cosmetics newOutfit = this.newOutfitCosmetics.acquire(this);
         boolean setting = this.setting.acquire(this);
         @Nullable ReplaceableOutfit replacing = this.replacing.acquire(this);
 
@@ -101,7 +101,10 @@ public class ReplaceOutfitSlotScreen extends Component {
                 .map(o -> o.tag("outfit"))
                 .collect(Collectors.toCollection(ArrayList::new));
         // prepend 'new outfit'
-        components.add(0, new ReplaceableOutfit(this.outfitLimit));
+        int outfitLimit = this.outfitLimit.acquire(this);
+        int currentCount = Cosmetica.OWN_OUTFITS.extract(this, List::size);
+        if (currentCount < outfitLimit)
+            components.add(0, new ReplaceableOutfit());
 
         final UUID player = Minecraft.getInstance().getUser().getGameProfile().getId();
 
@@ -112,7 +115,12 @@ public class ReplaceOutfitSlotScreen extends Component {
                 ).tag("title"),
                 new Div(
                         new Div(new FakePlayer(player, true)
-                                .withStyle(Style.create().set(WIDTH, screen(12, 0)))),
+                                .withStyle(Style.create()
+                                        .set(MIN_WIDTH, screen(12, 0))
+                                ),
+                                new Label(Text.literal(newOutfit.getOutfitName().orElse("(No name)")))
+                        ).tag("width-50%")
+                                .withStyle(Style.create().set(PADDING, screen(6, 0, (w,h)->new Margins(0,w,0,0)))),
                         new EntryList.Grid(components.toArray(new Component[0]), k->{
                             for (Component o : components) {
                                 OutfitWheelScreen.OutfitOption op = ((ReplaceableOutfit)o).option;
@@ -124,7 +132,7 @@ public class ReplaceOutfitSlotScreen extends Component {
                             }
 
                             return null;
-                        })
+                        }).tag("width-50%").withStyle(Style.create().set(HEIGHT, screen(0, 75)))
                 ).tag("body"),
                 new Div(
                         new Button(Text.translatable("button.cosmetica.confirm"), () -> {
@@ -169,8 +177,13 @@ public class ReplaceOutfitSlotScreen extends Component {
                 .tag("body", BODY_DEFAULT_STYLE)
                 .tag("title", TITLE_DEFAULT_STYLE)
                 .tag("bottom-bar", Style.create()
-                        .set(MARGINS, (vw, vh, pw, ph) -> new Margins(ph - 80, 0, 0, 0))
-                );
+                        .set(MARGINS, (vw, vh, pw, ph) -> new Margins(vh - 50, 0, 0, 0))
+                )
+                .tag("width-50%", Style.create()
+                        .set(WIDTH, screen(50, 0)))
+                .component(ReplaceableOutfit.class, Style.create()
+                        .set(WIDTH, fixedSize(50))
+                        .set(HEIGHT, fixedSize(50)));
     }
 
     public static final ResourceKey STEAL_THEIR_LOOK = new ResourceKey("cosmetica", "steal_their_look");
@@ -191,43 +204,30 @@ public class ReplaceOutfitSlotScreen extends Component {
     /**
      * A selectable outfit item in the menu.
      */
-    private static class ReplaceableOutfit extends Image {
+    private class ReplaceableOutfit extends Image {
         ReplaceableOutfit(OutfitWheelScreen.OutfitOption option) {
             super(new ResourceKey(option.thumbnail.location));
             this.usable = option.usable;
-            this.outfitLimit = null;
             this.option = option;
             this.setTransparent(option.usable ? 1.0f : 0.5f);
         }
         // "New Outfit" option
-        ReplaceableOutfit(State<Integer> outfitLimit) {
+        ReplaceableOutfit() {
             super(OutfitSelectScreen.NEW_OUTFIT_ICON);
             this.option = null;
-            this.outfitLimit = outfitLimit;
+            this.usable = true;
         }
 
-        private final State<Integer> outfitLimit;
-        private boolean usable;
+        private final boolean usable;
 
         final OutfitWheelScreen.OutfitOption option;
-
-        @Override
-        public List<Component> build() {
-            if (this.outfitLimit != null) {
-                int limit = this.outfitLimit.acquire(this);
-                int count = Cosmetica.OWN_OUTFITS.extract(this, List::size);
-                this.usable = count < limit;
-                this.setTransparent(this.usable ? 1.0f : 0.5f);
-            }
-
-            return ImmutableList.of();
-        }
 
         @Override
         public void mouseClicked(Element target, double x, double y, int button) {
             if (!this.usable) return;
             // play click sound
             GuiUtils.playClick();
+            ReplaceOutfitSlotScreen.this.replacing.set(this);
         }
     }
 }

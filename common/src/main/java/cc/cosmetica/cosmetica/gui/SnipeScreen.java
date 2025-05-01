@@ -87,9 +87,9 @@ public class SnipeScreen extends Screen {
                         outfit, this.isSetting,
                         Text.translatable("button.cosmetica.stealHisLook"),
                         () -> {
-                            this.isSetting.set(true);
                             String outfitId = outfit.getOutfitId().orElse("");
                             if (outfitId.isEmpty()) {
+                                this.isSetting.set(true);
                                 CosmeticaAPI.performAsync(DefaultApi::outfitsControllerUnequip)
                                         .thenAccept(__ -> {
                                             Logging.getInstance().debug("Cleared Cosmetics by Steal-their-look.");
@@ -105,7 +105,8 @@ public class SnipeScreen extends Screen {
 
                             // test stealtheirlookscreen: never take the quick option
                             // if not empty : either own cosmetics (e.g. armour stand) or not own cosmetics (need to select a slot)
-                            if (false &&Cosmetica.OWN_OUTFITS.peek().stream().anyMatch(option -> option.id.equals(outfitId))) {
+                            if (Cosmetica.OWN_OUTFITS.peek().stream().anyMatch(option -> option.id.equals(outfitId))) {
+                                this.isSetting.set(true);
                                 // can set cosmetics immediately
                                 CosmeticaAPI.performAsync(api->api.outfitsControllerEquip(outfitId))
                                         .thenAccept(__ -> {
@@ -118,6 +119,7 @@ public class SnipeScreen extends Screen {
                                             return null;
                                         });
                             } else {
+                                // don't disable this button when entering replace outfit screen!
                                 Screens.setScreen(new ReplaceOutfitSlotScreen(outfit), ReplaceOutfitSlotScreen.STEAL_THEIR_LOOK);
                             }
                         }),
