@@ -80,12 +80,7 @@ public class Cosmetica {
 		Cosmetics.registerUserDataFetchCallback((data, cosmetics) -> {
 			Logging.getInstance().debug("Received own cosmetics");
 
-			CosmeticaAPI.performAsync(DefaultApi::outfitsControllerGetOwn)
-					.thenAccept(list -> Minecraft.getInstance().tell(() -> {
-						OWN_OUTFITS.set(list.stream()
-								.map(OutfitWheelScreen.OutfitOption::new)
-								.collect(Collectors.toList()));
-					}));
+			fetchOutfits();
 
 			// pretty sure we should definitely be a user. is it possible for this code to run on cracked?
 			List<UserConnection> connections;
@@ -120,6 +115,16 @@ public class Cosmetica {
 		Authentication.authenticate();
 
 		registerScreens();
+	}
+
+	// TODO better way to refresh outfits
+	public static void fetchOutfits() {
+		CosmeticaAPI.performAsync(DefaultApi::outfitsControllerGetOwn)
+				.thenAccept(list -> Minecraft.getInstance().tell(() -> {
+					OWN_OUTFITS.set(list.stream()
+							.map(OutfitWheelScreen.OutfitOption::new)
+							.collect(Collectors.toList()));
+				}));
 	}
 
 	/**

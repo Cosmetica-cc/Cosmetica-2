@@ -68,6 +68,8 @@ public class ReplaceOutfitSlotScreen extends Component {
                 .thenApply(BigDecimal::intValue)
                 .thenAcceptAsync(this.outfitLimit::set, Minecraft.getInstance());
 
+        Cosmetica.fetchOutfits();
+
         CosmeticaAPI.subscribe(CosmeticaAPI.SubscriptionEvent.OUTFIT, this.newOutfit, STEAL_THEIR_LOOK.toResourceLocation(), () -> {
             CosmeticaAPI.performAsync(api -> api.outfitsControllerGet(this.newOutfit.toString()))
                     .thenApply(OutfitCosmetics::new)
