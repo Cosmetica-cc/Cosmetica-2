@@ -32,6 +32,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import gg.cloaks.javaclient.model.Outfit;
+import gg.cloaks.javaclient.model.OutfitAccessory;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -522,10 +523,16 @@ public class OutfitWheelScreen extends Screen {
                     1,
                     1);
             this.usable = outfit.isUsable();
+            this.accessories = outfit.getAccessories();
+            this.capeId = outfit.getCloak() == null ? "" : outfit.getCloak().getId();
+            this.elytraId = outfit.getElytra() == null ? "" : outfit.getElytra().getId();
         }
         final String id;
         final CachedImage thumbnail;
         final boolean usable;
+        final List<OutfitAccessory> accessories;
+        final String capeId;
+        final String elytraId;
 
         void equipAsync() {
             // visually switch immediately

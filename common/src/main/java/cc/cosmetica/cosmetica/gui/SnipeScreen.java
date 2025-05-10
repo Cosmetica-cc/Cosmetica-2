@@ -16,8 +16,10 @@
 
 package cc.cosmetica.cosmetica.gui;
 
+import cc.cosmetica.core.api.Accessory;
 import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.Cosmetics;
+import cc.cosmetica.core.api.ImageCosmetic;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.StateHolder;
@@ -29,9 +31,11 @@ import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
 import gg.cloaks.javaclient.api.DefaultApi;
+import gg.cloaks.javaclient.model.OutfitAccessory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -105,11 +109,12 @@ public class SnipeScreen extends Screen {
 
                             // test stealtheirlookscreen: never take the quick option
                             // if not empty : either own cosmetics (e.g. armour stand) or not own cosmetics (need to select a slot)
-                            //TODO do match by value instead of id and swap the id for own for better user experience
-                            if (Cosmetica.OWN_OUTFITS.peek().stream().anyMatch(option -> option.id.equals(outfitId))) {
+                            // do match by value and swap the id for own for better user experience
+                            String ownedOutfit = ownedOutfitIdentical(outfit);
+                            if (ownedOutfit != null) {
                                 this.isSetting.set(true);
                                 // can set cosmetics immediately
-                                CosmeticaAPI.performAsync(api->api.outfitsControllerEquip(outfitId))
+                                CosmeticaAPI.performAsync(api->api.outfitsControllerEquip(ownedOutfit))
                                         .thenAccept(__ -> {
                                             Logging.getInstance().debug("Set Cosmetics by Steal-their-look.");
                                             Minecraft.getInstance().tell(Screens::closeCurrentScreen);
@@ -126,6 +131,65 @@ public class SnipeScreen extends Screen {
                         }),
                 new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
         };
+    }
+
+    private @Nullable String ownedOutfitIdentical(Cosmetics toWear) {
+        // exact id check
+        if (Cosmetica.OWN_OUTFITS.peek().stream().anyMatch(option -> option.id.equals(toWear.getOutfitId().orElse("")))) {
+            return toWear.getOutfitId().orElse("");
+        }
+
+        List<OutfitWheelScreen.OutfitOption> options = Cosmetica.OWN_OUTFITS.peek();
+        for (OutfitWheelScreen.OutfitOption owned : options) {
+            if (compare(owned, toWear)) {
+                return owned.id;
+            }
+        }
+
+        return null; // no match
+    }
+
+    private boolean compare(OutfitWheelScreen.OutfitOption owned, Cosmetics toWear) {
+        // check cape and elytra are equivalent
+        String toWearCloak = toWear.getCloak().map(ImageCosmetic::getId).orElse("");
+        String toWearElytra = toWear.getElytra().map(ImageCosmetic::getId).orElse("");
+
+        if (!owned.capeId.equals(toWearCloak) || !owned.elytraId.equals(toWearElytra)) {
+            return false;
+        }
+
+        // check accessories are equivalent, regardless of order.
+        // eliminate a to-wear accessory one at a time through outfit accessories
+        List<Accessory> accessories = new LinkedList<>(toWear.getAccessories());//good remove operation but iterable
+
+        // there is such a small number of accessories and this is run once. O(n * m) is fine.
+        findOwnedAccessories : for (OutfitAccessory accessory : owned.accessories) {
+            // if an accessory is not present in accessories, return false. Else delete it: it is found.
+            // we can't use id as a primary search then check offset because you can equip the same outfit multiple times
+            Vec3 offset = new Vec3(
+                    accessory.getOffset().get(0).doubleValue(),
+                    accessory.getOffset().get(1).doubleValue(),
+                    accessory.getOffset().get(2).doubleValue()
+            );
+
+            Iterator<Accessory> accessoriesIterator = accessories.iterator();
+            while (accessoriesIterator.hasNext()) {
+                Accessory accessory1 = accessoriesIterator.next();
+
+                if (accessory1.getId().equals(accessory.getAccessory().getId())) {
+                    // compare offsets
+                    Vec3 offset1 = accessory1.getOffset();
+                    if (offset.equals(offset1)) {
+                        accessoriesIterator.remove();
+                        continue findOwnedAccessories;// found
+                    }
+                }
+            }
+
+            return false;// no match found. (EARLY CONTINUE for found)
+        }
+
+        return accessories.isEmpty(); // all accessories were identical (no non-matched accessories remain)
     }
 
     @Override
