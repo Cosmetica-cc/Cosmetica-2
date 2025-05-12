@@ -110,7 +110,7 @@ public class SnipeScreen extends Screen {
                             // test stealtheirlookscreen: never take the quick option
                             // if not empty : either own cosmetics (e.g. armour stand) or not own cosmetics (need to select a slot)
                             // do match by value and swap the id for own for better user experience
-                            String ownedOutfit = ownedOutfitIdentical(outfit);
+                            String ownedOutfit = findIdenticalOwnedOutfit(outfit);
                             if (ownedOutfit != null) {
                                 this.isSetting.set(true);
                                 // can set cosmetics immediately
@@ -133,7 +133,7 @@ public class SnipeScreen extends Screen {
         };
     }
 
-    private @Nullable String ownedOutfitIdentical(Cosmetics toWear) {
+    private @Nullable String findIdenticalOwnedOutfit(Cosmetics toWear) {
         // exact id check
         if (Cosmetica.OWN_OUTFITS.peek().stream().anyMatch(option -> option.id.equals(toWear.getOutfitId().orElse("")))) {
             return toWear.getOutfitId().orElse("");
@@ -163,10 +163,12 @@ public class SnipeScreen extends Screen {
         List<Accessory> accessories = new LinkedList<>(toWear.getAccessories());//good remove operation but iterable
 
         // there is such a small number of accessories and this is run once. O(n * m) is fine.
-        findOwnedAccessories : for (OutfitAccessory accessory : owned.accessories) {
+        findOwnedAccessories:
+        for (OutfitAccessory accessory : owned.accessories) {
             // if an accessory is not present in accessories, return false. Else delete it: it is found.
             // we can't use id as a primary search then check offset because you can equip the same outfit multiple times
-            Vec3 offset = new Vec3(
+            Vec3 offset = attachmentTransform(
+                    accessory.getAccessory().getAttachment(),
                     accessory.getOffset().get(0).doubleValue(),
                     accessory.getOffset().get(1).doubleValue(),
                     accessory.getOffset().get(2).doubleValue()
@@ -177,6 +179,7 @@ public class SnipeScreen extends Screen {
                 Accessory accessory1 = accessoriesIterator.next();
 
                 if (accessory1.getId().equals(accessory.getAccessory().getId())) {
+                    System.out.println("Matching ID found. Checking offsets..");
                     // compare offsets
                     Vec3 offset1 = accessory1.getOffset();
                     if (offset.equals(offset1)) {
@@ -190,6 +193,37 @@ public class SnipeScreen extends Screen {
         }
 
         return accessories.isEmpty(); // all accessories were identical (no non-matched accessories remain)
+    }
+
+    // Accessory#attachmentTransform
+    private static Vec3 attachmentTransform(gg.cloaks.javaclient.model.Accessory.AttachmentEnum attachment, double x, double y, double z) {
+        double dy;
+        double dx;
+
+        switch (attachment) {
+            case HEAD:
+                dy = 8.0;
+                dx = 8.0;
+                break;
+            case RIGHT_ARM:
+                dy = 0.0;
+                dx = 8.0;
+                break;
+            case LEFT_ARM:
+                dy = 0.0;
+                dx = 7.0;
+                break;
+            default:
+                dy = -2.0;
+                dx = 8.0;
+                break;
+        }
+
+        return new Vec3(
+                (x + dx) / 16.0,
+                (y + dy) / 16.0,
+                (z + 8.0) / 16.0
+        );
     }
 
     @Override
