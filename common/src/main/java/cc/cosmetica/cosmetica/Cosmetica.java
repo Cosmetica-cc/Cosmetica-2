@@ -18,10 +18,7 @@ package cc.cosmetica.cosmetica;
 
 import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.impl.Logging;
-import cc.cosmetica.cosmetica.gui.CosmeticaHomeScreen;
-import cc.cosmetica.cosmetica.gui.OutfitSelectScreen;
-import cc.cosmetica.cosmetica.gui.OutfitWheelScreen;
-import cc.cosmetica.cosmetica.gui.StyleNametagScreen;
+import cc.cosmetica.cosmetica.gui.*;
 import cc.cosmetica.cosmetica.util.Lore;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.State;
@@ -219,15 +216,9 @@ public class Cosmetica {
 		Screens.registerScreen(CosmeticaHomeScreen.ID, new CosmeticaHomeScreen());
 		Screens.registerScreen(StyleNametagScreen.ID, StyleNametagScreen::new);
 		Screens.registerScreen(OutfitSelectScreen.ID, new OutfitSelectScreen());
+		Screens.registerScreen(CreateNewOutfitScreen.ID, CreateNewOutfitScreen::new);
 	}
 
-	/**
-	 * @deprecated use {@link CompletableFuture#thenApplyAsync}
-	 */
-	@Deprecated
-	public static <T> Consumer<T> mainThreadCall(Consumer<T> tConsumer) {
-		return t -> Minecraft.getInstance().execute(()->tConsumer.accept(t));
-	}
 	public static <T> Function<T, Void> mainThreadExcept(Consumer<T> tConsumer) {
 		return t -> {
 			Minecraft.getInstance().execute(()->tConsumer.accept(t));
