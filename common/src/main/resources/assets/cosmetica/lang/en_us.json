@@ -17,7 +17,7 @@
   "label.cosmetica.newOutfit": "New Outfit",
   "label.cosmetica.outfitCount": "Used %s/%s slots",
   "label.create_new_outfit.outfitName": "Outfit Name",
-  "label.create_new_outfit.public": "Public Outfit: %s",
+  "label.create_new_outfit.searchable": "Searchable: %s",
   "label.icons.icon": "Icon: %s",
   "label.icons.no_icon": "Icon: §7No Icon",
   "label.lore.lore": "Lore: %s",

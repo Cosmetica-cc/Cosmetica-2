@@ -53,7 +53,7 @@ public class CreateNewOutfitScreen extends Screen {
                 new TextBox(Text.translatable("label.create_new_outfit.outfitName"), this.outfitName, true, 64)
                         .setDisabled(disabled),
                 new Button(Text.translatable(
-                        "label.create_new_outfit.public",
+                        "label.create_new_outfit.searchable",
                         outfitPublic ? Text.GUI_YES.getDisplayString() : Text.GUI_NO.getDisplayString()),
                         () -> this.outfitPublic.set(!outfitPublic))
                         .setDisabled(disabled),

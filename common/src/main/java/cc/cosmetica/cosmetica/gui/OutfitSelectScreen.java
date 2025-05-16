@@ -63,7 +63,7 @@ public class OutfitSelectScreen extends Screen {
                         .set(EntryList.Grid.COLUMN_GAP, 2)
                         .set(EntryList.Grid.ROW_GAP, 2)
                         .set(BACKGROUND_COLOUR, OptionalInt.empty())),
-                new Button(Text.translatable("label.cosmetica.newOutfit"), Screens::closeCurrentScreen/*TODO new outfit creation*/),
+                new Button(Text.translatable("label.cosmetica.newOutfit"), ()->Screens.setScreen(CreateNewOutfitScreen.ID)),
                 new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
         };
     }
