@@ -60,16 +60,9 @@ public class StyleNametagScreen extends Screen {
         // refresh available icons
         CosmeticaAPI.performAsync(DefaultApi::iconsControllerGet)
                 .thenAccept(icons -> Minecraft.getInstance().execute(() -> {
-                    // todo make function in core for Icon -> ImageCosmetic?
                     List<ImageCosmetic> newAvailableIcons = new ArrayList<>();
                     for (Icon icon : icons) {
-                        newAvailableIcons.add(new ImageCosmetic(
-                                CosmeticaModel.getOrCreateImage("icon", icon.getId(), icon.getTexture(),
-                                        icon.getFrames().intValue(), icon.getTicksPerFrame().intValue()),
-                                icon.getName(),
-                                icon.getId(),
-                                Cosmetic.gameProfileOf(icon.getCreator()),
-                                icon.getThumbnail()));
+                        newAvailableIcons.add(ImageCosmetic.fromIcon(icon));
                     }
                     Logging.getInstance().debug("loaded {} available icons", newAvailableIcons.size());
                     availableIcons.set(newAvailableIcons);
