@@ -9,8 +9,7 @@
     "keybinds.KeyMappingMixin",
     "keybinds.LevelRendererTickMixin",
     "keybinds.OptionsMixin",
-    "snipe.GameRendererMixin",
-    "textures.HttpTextureMixin"
+    "snipe.GameRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

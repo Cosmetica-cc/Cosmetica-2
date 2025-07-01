@@ -96,7 +96,7 @@ public class CosmeticaHomeScreen extends Screen {
 		}
 
 		for (Accessory accessory : cosmetics.getAccessories()) {
-			CachedImage thumbnail = CosmeticaModel.getOrCreateImage("thumbs-a", accessory.getId(), accessory.getThumbnail(), 1, 1);
+			CachedImage thumbnail = CosmeticaModel.getOrCreateImage("thumbs-a", accessory.getId(), accessory.getThumbnail(), 1, 2);
 
 			// n.b. reference to CachedImage needs to be stored on the entry so it doesn't get GC'd
 			entryList.add(new CosmeticEntry(

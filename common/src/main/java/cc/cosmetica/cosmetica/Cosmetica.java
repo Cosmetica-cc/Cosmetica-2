@@ -23,27 +23,14 @@ import cc.cosmetica.cosmetica.util.Lore;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.State;
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.platform.NativeImage;
 import gg.cloaks.javaclient.api.DefaultApi;
 import gg.cloaks.javaclient.model.UpdateLoreDto;
 import gg.cloaks.javaclient.model.UserConnection;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.file.Files;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -122,71 +109,6 @@ public class Cosmetica {
 							.map(OutfitWheelScreen.OutfitOption::new)
 							.collect(Collectors.toList()));
 				}));
-	}
-
-	/**
-	 * Based on NativeImage#load (lambda method_22801)
-	 */
-	public static void downloadWebpToPng(String source, @NotNull File destination,
-										 Function<InputStream, NativeImage> load, Consumer<NativeImage> onLoad) {
-		HttpURLConnection connection = null;
-		Logging.getInstance().debug("WEBP: Downloading {} to {}", source, destination);
-
-		try {
-			connection = (HttpURLConnection)(new URL(source))
-					.openConnection(Minecraft.getInstance().getProxy());
-			connection.setDoInput(true);
-			connection.setDoOutput(false);
-			connection.connect();
-
-			if (connection.getResponseCode() / 100 == 2) {
-				// Cosmetica: Transform Webp to Png
-				// https://github.com/haraldk/TwelveMonkeys?tab=readme-ov-file#advanced-usage
-				BufferedImage image;
-
-				try (ImageInputStream input = ImageIO.createImageInputStream(connection.getInputStream())) {
-					Iterator<ImageReader> readers = ImageIO.getImageReaders(input);
-
-					if (!readers.hasNext()) {
-						throw new IllegalArgumentException("No reader for input");
-					}
-
-					ImageReader reader = readers.next();
-
-					try {
-						reader.setInput(input);
-						image = reader.read(0);
-					} finally {
-						// avoid memory leaks
-						reader.dispose();
-					}
-				}
-
-				// crop cosmetica thumbnails!
-				if (source.contains("cloaks.gg")) {
-					image = image.getSubimage(0, 0, image.getWidth(), image.getWidth());
-				}
-
-				// successful read
-				Files.createDirectories(destination.getParentFile().toPath());
-				ImageIO.write(image, "png", destination);
-
-				InputStream inputStream = new FileInputStream(destination);
-
-				Minecraft.getInstance().execute(() -> {
-					NativeImage nativeImage = load.apply(inputStream);
-
-					if (nativeImage != null) {
-						onLoad.accept(nativeImage);
-					}
-				});
-			}
-		} catch (Exception exception) {
-			Logging.getInstance().error("Couldn't download WEBP texture at " + source, exception);
-		} finally {
-			if (connection != null)
-				connection.disconnect();
-		}
 	}
 
 	public static void openWebPanel() {
