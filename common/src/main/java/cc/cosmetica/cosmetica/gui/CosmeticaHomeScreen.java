@@ -88,7 +88,7 @@ public class CosmeticaHomeScreen extends Screen {
 			ImageCosmetic cosmetic = cosmetics.getCloak().get();
 
 			entryList.add(new CosmeticEntry(
-					new ResourceKey("cosmetica", "icon.png"),
+					new ResourceKey("cosmetica", "icon.png"),//TODO replace this with cosmetica loading & swap on load? or do it in the texture itself
 					cosmetic.getId(),
 					cosmetic.getName(),
 					cosmetic.getCreator().isPresent() ? cosmetic.getCreator().get().getName() : "Could not load creator"
@@ -96,6 +96,7 @@ public class CosmeticaHomeScreen extends Screen {
 		}
 
 		for (Accessory accessory : cosmetics.getAccessories()) {
+			// todo settings can maybe be passed as a builder (core)
 			CachedImage thumbnail = CosmeticaModel.getOrCreateImage("thumbs-a", accessory.getId(), accessory.getThumbnail(), 8, 3);
 
 			// n.b. reference to CachedImage needs to be stored on the entry so it doesn't get GC'd
