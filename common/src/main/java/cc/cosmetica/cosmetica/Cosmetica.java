@@ -17,6 +17,8 @@
 package cc.cosmetica.cosmetica;
 
 import cc.cosmetica.core.api.*;
+import cc.cosmetica.core.api.texture.CosmeticaTexture;
+import cc.cosmetica.core.impl.BlockModelManager;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.gui.*;
 import cc.cosmetica.cosmetica.util.Lore;
@@ -28,6 +30,7 @@ import gg.cloaks.javaclient.model.UpdateLoreDto;
 import gg.cloaks.javaclient.model.UserConnection;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -77,7 +80,8 @@ public class Cosmetica {
 						lore.getContent(),
 						UpdateLoreDto.ColorEnum.fromValue(lore.getColor().getValue()),
 						lore.getIconUrl() == null ? null :
-								CosmeticaModel.getOrCreateImage("lore", lore.getService(), lore.getIconUrl(), 1, 0),
+								CosmeticaModel.getOrCreateImage("lore", lore.getService(),
+										new CosmeticaTexture.Builder(lore.getIconUrl(), FALLBACK_TEXTURE).frames(1, 1)),
 						lore.getType() == gg.cloaks.javaclient.model.Lore.TypeEnum.CONNECTION ? lore.getService()
 						: (lore.getType() == gg.cloaks.javaclient.model.Lore.TypeEnum.PRONOUNS ? Lore.PRONOUN_SERVICE : "")
 				);
@@ -147,4 +151,6 @@ public class Cosmetica {
 			return null;
 		};
 	}
+
+	public static final ResourceLocation FALLBACK_TEXTURE = new ResourceLocation("cosmetica", "icon.png");
 }

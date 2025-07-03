@@ -19,6 +19,7 @@ package cc.cosmetica.cosmetica.gui;
 import cc.cosmetica.core.api.CachedImage;
 import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.CosmeticaModel;
+import cc.cosmetica.core.api.texture.CosmeticaTexture;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.Keybinds;
 import cc.cosmetica.cosmetica.Setting;
@@ -519,9 +520,10 @@ public class OutfitWheelScreen extends Screen {
             this.id = outfit.getId();
             this.thumbnail = CosmeticaModel.getOrCreateImage("thumbs-o", // thumbs-outfit
                     this.id,
-                    outfit.getThumbnail(),
-                    1,
-                    1);
+                    new CosmeticaTexture.Builder(outfit.getThumbnail(), Cosmetica.FALLBACK_TEXTURE)
+                            .frames(8, 1)
+                            .autoAnimate(false) // core: better to allow 0 ticks per frame or separate autoAnimate?
+                    );
             this.usable = outfit.isUsable();
             this.accessories = outfit.getAccessories();
             this.capeId = outfit.getCloak() == null ? "" : outfit.getCloak().getId();

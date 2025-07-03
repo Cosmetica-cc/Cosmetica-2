@@ -17,6 +17,7 @@
 package cc.cosmetica.cosmetica.gui;
 
 import cc.cosmetica.core.api.*;
+import cc.cosmetica.core.api.texture.CosmeticaTexture;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.Keybinds;
 import cc.cosmetica.cosmetica.Setting;
@@ -97,7 +98,10 @@ public class CosmeticaHomeScreen extends Screen {
 
 		for (Accessory accessory : cosmetics.getAccessories()) {
 			// todo settings can maybe be passed as a builder (core)
-			CachedImage thumbnail = CosmeticaModel.getOrCreateImage("thumbs-a", accessory.getId(), accessory.getThumbnail(), 8, 3);
+			CachedImage thumbnail = CosmeticaModel.getOrCreateImage("thumbs-a", accessory.getId(),
+					// ticks per frame isnt even provided what a scam who wrote cosmetica core
+					// TODO better to just provide the JavaClient reference instead of mapping everything? The image and model take up more ram than the JSON anyway
+					new CosmeticaTexture.Builder(accessory.getThumbnail(), Cosmetica.FALLBACK_TEXTURE).frames(8, 3));
 
 			// n.b. reference to CachedImage needs to be stored on the entry so it doesn't get GC'd
 			entryList.add(new CosmeticEntry(
