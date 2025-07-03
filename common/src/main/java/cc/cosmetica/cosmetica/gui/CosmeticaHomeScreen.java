@@ -32,6 +32,7 @@ import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Region;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.TextureManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -98,7 +99,8 @@ public class CosmeticaHomeScreen extends Screen {
 
 		for (Accessory accessory : cosmetics.getAccessories()) {
 			// todo settings can maybe be passed as a builder (core)
-			CachedImage thumbnail = CosmeticaModel.getOrCreateImage("thumbs-a", accessory.getId(),
+			CachedImage thumbnail =
+					accessory.getThumbnail() == null ? NO_THUMBNAIL : CosmeticaModel.getOrCreateImage("thumbs-a", accessory.getId(),
 					// ticks per frame isnt even provided what a scam who wrote cosmetica core
 					// TODO better to just provide the JavaClient reference instead of mapping everything? The image and model take up more ram than the JSON anyway
 					new CosmeticaTexture.Builder(accessory.getThumbnail(), Cosmetica.FALLBACK_TEXTURE).frames(8, 3));
@@ -127,4 +129,5 @@ public class CosmeticaHomeScreen extends Screen {
 	}
 
 	public static final ResourceKey ID = new ResourceKey("cosmetica", "home");
+	public static final CachedImage NO_THUMBNAIL = new CachedImage(Cosmetica.FALLBACK_TEXTURE);
 }
