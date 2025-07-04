@@ -524,7 +524,8 @@ public class OutfitWheelScreen extends Screen {
                             new CosmeticaTexture.Builder(outfit.getThumbnail(), Cosmetica.LOADING_TEXTURE)
                                 .frames(8, 1)
                                 .failToLoadTexture(Cosmetica.FALLBACK_TEXTURE)
-                                .autoAnimate(false) // core: better to allow 0 ticks per frame or separate autoAnimate?
+                                    // todo should we show a live preview? (low priority)
+                                .autoAnimate(CosmeticaTexture.AutoAnimate.NEVER)
                     );
             this.usable = outfit.isUsable();
             this.accessories = outfit.getAccessories();

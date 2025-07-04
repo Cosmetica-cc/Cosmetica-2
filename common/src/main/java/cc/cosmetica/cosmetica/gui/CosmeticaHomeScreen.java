@@ -102,8 +102,10 @@ public class CosmeticaHomeScreen extends Screen {
 			CachedImage thumbnail =
 					accessory.getThumbnail() == null ? NO_THUMBNAIL : CosmeticaModel.getOrCreateImage("thumbs-a", accessory.getId(),
 					// ticks per frame isnt even provided what a scam who wrote cosmetica core
-					// TODO better to just provide the JavaClient reference instead of mapping everything? The image and model take up more ram than the JSON anyway
-					new CosmeticaTexture.Builder(accessory.getThumbnail(), Cosmetica.LOADING_TEXTURE).frames(8, 3).failToLoadTexture(Cosmetica.FALLBACK_TEXTURE));
+					new CosmeticaTexture.Builder(accessory.getThumbnail(), Cosmetica.LOADING_TEXTURE)
+							.frames(8, accessory.getJsonObject().getTicksPerFrame().intValue())
+							.failToLoadTexture(Cosmetica.FALLBACK_TEXTURE)
+							.autoAnimate(CosmeticaTexture.AutoAnimate.NEVER_TILESHEETS));
 
 			// n.b. reference to CachedImage needs to be stored on the entry so it doesn't get GC'd
 			entryList.add(new CosmeticEntry(
