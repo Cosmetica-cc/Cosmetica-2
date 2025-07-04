@@ -518,11 +518,13 @@ public class OutfitWheelScreen extends Screen {
     public static class OutfitOption {
         public OutfitOption(Outfit outfit) {
             this.id = outfit.getId();
-            this.thumbnail = CosmeticaModel.getOrCreateImage("thumbs-o", // thumbs-outfit
-                    this.id,
-                    new CosmeticaTexture.Builder(outfit.getThumbnail(), Cosmetica.FALLBACK_TEXTURE)
-                            .frames(8, 1)
-                            .autoAnimate(false) // core: better to allow 0 ticks per frame or separate autoAnimate?
+            this.thumbnail = outfit.getThumbnail() == null ? CosmeticaHomeScreen.NO_THUMBNAIL :
+                    CosmeticaModel.getOrCreateImage("thumbs-o", // thumbs-outfit
+                            this.id,
+                            new CosmeticaTexture.Builder(outfit.getThumbnail(), Cosmetica.LOADING_TEXTURE)
+                                .frames(8, 1)
+                                .failToLoadTexture(Cosmetica.FALLBACK_TEXTURE)
+                                .autoAnimate(false) // core: better to allow 0 ticks per frame or separate autoAnimate?
                     );
             this.usable = outfit.isUsable();
             this.accessories = outfit.getAccessories();

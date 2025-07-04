@@ -153,4 +153,5 @@ public class Cosmetica {
 	}
 
 	public static final ResourceLocation FALLBACK_TEXTURE = new ResourceLocation("cosmetica", "icon.png");
+	public static final ResourceLocation LOADING_TEXTURE = new ResourceLocation("cosmetica", "textures/loading.png");
 }
