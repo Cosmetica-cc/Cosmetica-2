@@ -57,7 +57,7 @@ public final class Authentication {
      */
     private static void startAuthentication() throws IOException {
         // check for cached token
-        Path sessionsInfo = BlockModelManager.getCacheFile(SESSIONS);
+        Path sessionsInfo = BlockModelManager.getCacheFile(SESSIONS, null);
         Properties properties = new Properties();
 
         if (Files.isRegularFile(sessionsInfo)) {
