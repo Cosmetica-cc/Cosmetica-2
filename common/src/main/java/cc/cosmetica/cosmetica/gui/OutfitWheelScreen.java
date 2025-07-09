@@ -88,8 +88,11 @@ public class OutfitWheelScreen extends Screen {
             int right = pageChangeButton[1];
             int pcWidth = pageChangeButton[2];
 
-            boolean previousPage = this.getPage() > 0;
-            boolean nextPage = this.getPage() < this.getLastPage();
+//            boolean previousPage = this.getPage() > 0;
+//            boolean nextPage = this.getPage() < this.getLastPage();
+            // wrap around
+            boolean previousPage = this.getLastPage() > 0;
+            boolean nextPage = previousPage;
 
             boolean hoveredY = mouseY >= titleHeight && mouseY <= titleHeight + this.font.lineHeight + 1;
             boolean hoveredPrevPage = hoveredY && mouseX >= left-pcWidth/2 && mouseX <= left+pcWidth/2+1;
@@ -376,12 +379,17 @@ public class OutfitWheelScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        if (delta > 0) {
-            this.page = Math.max(0, this.page - delta);
-        } else {
-            this.page = Math.min(this.getLastPage(), this.page - delta);
-        }
+//        if (delta > 0) {
+//            this.page = Math.max(0, this.page - delta);\
+//        } else {
+//            this.page = Math.min(this.getLastPage(), this.page - delta);
+//        }
 
+        // wrap around
+        this.page = (this.page - delta) % (this.getLastPage() + 1);
+        if (this.page < 0) {
+            this.page = this.getLastPage() + 1 + this.page;
+        }
         return true;
     }
 

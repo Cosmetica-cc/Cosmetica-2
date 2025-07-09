@@ -18,7 +18,6 @@ package cc.cosmetica.cosmetica;
 
 import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.api.texture.CosmeticaTexture;
-import cc.cosmetica.core.impl.BlockModelManager;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.gui.*;
 import cc.cosmetica.cosmetica.util.Lore;
