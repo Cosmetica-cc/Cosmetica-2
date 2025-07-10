@@ -23,7 +23,6 @@ import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -46,7 +45,7 @@ public class OutfitPlayer extends Component {
 	public List<Component> build() {
 		return Arrays.asList(
 				new Div(
-					new FakePlayer(player, true)
+					new GUIPlayer(player, true)
 							.withStyle(Style.create().set(WIDTH, fixed(OptionalInt.of(50)))),
 					new Label(Text.literal(this.outfitName)),
 					new Button(Text.translatable("button.cosmetica.changeOutfit"), () -> Screens.setScreen(OutfitSelectScreen.ID)),

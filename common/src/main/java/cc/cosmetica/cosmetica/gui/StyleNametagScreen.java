@@ -16,9 +16,7 @@
 
 package cc.cosmetica.cosmetica.gui;
 
-import cc.cosmetica.core.api.Cosmetic;
 import cc.cosmetica.core.api.CosmeticaAPI;
-import cc.cosmetica.core.api.CosmeticaModel;
 import cc.cosmetica.core.api.ImageCosmetic;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
@@ -83,7 +81,7 @@ public class StyleNametagScreen extends Screen {
                 new Div(
                         new LoreSelector(this.loreDirty, availableLores)
                                 .tag("flex-1"),
-                        new FakePlayer(self, true),
+                        new GUIPlayer(self, true),
                         new IconSelector(this.iconDirty, availableIcons)
                                 .tag("flex-1")
                 ).tag("horizontal", "flex-1", "main-content"),
@@ -94,7 +92,7 @@ public class StyleNametagScreen extends Screen {
     @Override
     public @NotNull Stylesheet getStylesheet() {
         return super.getStylesheet()
-                .component(FakePlayer.class, Style.create()
+                .component(GUIPlayer.class, Style.create()
                         .set(WIDTH, fixed(OptionalInt.of(50)))
                         .set(ALIGN_SELF, Optional.of(Align.CENTRE)))
                 .tag("horizontal", Style.create()

@@ -32,7 +32,6 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
-import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.api.DefaultApi;
 import gg.cloaks.javaclient.model.CopyOutfitDto;
 import gg.cloaks.javaclient.model.PlanRestrictions;
@@ -41,7 +40,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static cc.cosmetica.cosmetica.Cosmetica.mainThreadExcept;
@@ -114,7 +116,7 @@ public class ReplaceOutfitSlotScreen extends Component {
                         new OutfitCount(this.outfitLimit)
                 ).tag("title"),
                 new Div(
-                        new Div(new FakePlayer(player, true)
+                        new Div(new GUIPlayer(player, true)
                                 .withStyle(Style.create()
                                         .set(MIN_WIDTH, screen(12, 0))
                                 ),
