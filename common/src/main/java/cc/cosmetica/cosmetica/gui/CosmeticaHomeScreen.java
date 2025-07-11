@@ -16,13 +16,14 @@
 
 package cc.cosmetica.cosmetica.gui;
 
-import cc.cosmetica.core.api.*;
+import cc.cosmetica.core.api.Accessory;
+import cc.cosmetica.core.api.CachedImage;
+import cc.cosmetica.core.api.Cosmetics;
+import cc.cosmetica.core.api.ImageCosmetic;
 import cc.cosmetica.core.api.texture.CosmeticaTexture;
 import cc.cosmetica.cosmetica.Cosmetica;
-import cc.cosmetica.cosmetica.Keybinds;
 import cc.cosmetica.cosmetica.Setting;
 import cc.cosmetica.cosmetica.gui.widget.*;
-import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.Screens;
@@ -30,11 +31,8 @@ import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
-import cc.cosmetica.kupe.api.maths.Region;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.TextureManager;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,7 +98,7 @@ public class CosmeticaHomeScreen extends Screen {
 		for (Accessory accessory : cosmetics.getAccessories()) {
 			// todo settings can maybe be passed as a builder (core)
 			CachedImage thumbnail =
-					accessory.getThumbnail() == null ? NO_THUMBNAIL : CosmeticaModel.getOrCreateImage("thumbs-a", accessory.getId(),
+					accessory.getThumbnail() == null ? NO_THUMBNAIL : ThumbnailCache.getOrCreateImage("thumbs-a", accessory.getId(),
 					// ticks per frame isnt even provided what a scam who wrote cosmetica core
 					new CosmeticaTexture.Builder(accessory.getThumbnail(), Cosmetica.LOADING_TEXTURE)
 							.frames(8, accessory.getJsonObject().getTicksPerFrame().intValue())
