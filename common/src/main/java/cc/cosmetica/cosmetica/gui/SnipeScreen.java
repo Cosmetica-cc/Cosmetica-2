@@ -23,6 +23,7 @@ import cc.cosmetica.core.api.ImageCosmetic;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.StateHolder;
+import cc.cosmetica.cosmetica.gui.player.AccessoryAttachment;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticsBrowser;
 import cc.cosmetica.kupe.api.*;
@@ -76,12 +77,18 @@ public class SnipeScreen extends Screen {
         List<CosmeticEntry> entryList = new ArrayList<>();
         CosmeticaHomeScreen.populateEntryList(entryList, outfit);
 
+        GUIPlayer guiPlayer = new GUIPlayer(player, true);
+        if (playerUUID == null) {
+            // specify outfit cosmetics to show
+            guiPlayer.configureOverride(AccessoryAttachment.INSTANCE, outfit.getAccessories());
+        }
+        guiPlayer.configureOverride(GUIPlayer.CAPE, outfit.getCloak().map(ImageCosmetic::getImage).map(ci -> ci.location).orElse(null));
+
         return new Component[] {
                 new Div(
                         new Div(
                                 new Div().withStyle(Style.create().set(HEIGHT, fixedSize(10))),
-                                new GUIPlayer(player, true)
-                                    .withStyle(Style.create().set(WIDTH, screen(12, 0)))
+                                    guiPlayer.withStyle(Style.create().set(WIDTH, screen(12, 0)))
                         ).tag("main-section")
                                 .withStyle(Style.create()
                                         .set(Div.JUSTIFY_CONTENT, Justify.CENTRE)),

@@ -20,9 +20,11 @@ import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.api.texture.CosmeticaTexture;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.gui.*;
+import cc.cosmetica.cosmetica.gui.player.AccessoryAttachment;
 import cc.cosmetica.cosmetica.util.Lore;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.State;
+import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.api.DefaultApi;
 import gg.cloaks.javaclient.model.UpdateLoreDto;
@@ -53,6 +55,9 @@ public class Cosmetica {
 
 	public static void init() {
 		Screens.setAllowDebug(true);
+
+		// register gui accessory attachment
+		GUIPlayer.registerAttachment(AccessoryAttachment.INSTANCE);
 
 		// cosmetic states
 		Cosmetics.registerCosmeticsChangeCallback((le, cosmetics) -> {
