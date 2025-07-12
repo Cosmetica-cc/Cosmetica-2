@@ -33,6 +33,7 @@ import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,30 +81,42 @@ public class CosmeticaHomeScreen extends Screen {
 		if (cosmetics == null)
 			return; // no cosmetics
 
-		// TODO this should only show API cosmetics no? Or at least only allow editing if controlling manager is self.
+		// TODO this should only show API cosmetics and only allow editing if own cosmetics.
 		// some kind of notification if no internet
 		// this also means for local player, even when null, we need to handle backup cosmetics no?
 
+		boolean showSeparateElytra = true;
 		if (cosmetics.getCloak().isPresent()) {
-			ImageCosmetic cosmetic = cosmetics.getCloak().get();
+			ImageCosmetic cloak = cosmetics.getCloak().get();
+
+			String message = "Cloak";
+			if (cloak.getId().equals(cosmetics.getElytra().map(ImageCosmetic::getId).orElse(null))) {
+				message = "Cloak + Elytra";
+				showSeparateElytra = false;
+			}
 
 			entryList.add(new CosmeticEntry(
-					new ResourceKey("cosmetica", "icon.png"),//TODO replace this with cosmetica loading & swap on load? or do it in the texture itself
-					cosmetic.getId(),
-					cosmetic.getName(),
-					cosmetic.getCreator().isPresent() ? cosmetic.getCreator().get().getName() : "Could not load creator"
+					getOrCreateThumb(cloak.getThumbnail(), "thumbs-c", cloak.getId(), 3), // TODO in core give ticks per frame (expose AnimatedTextureCosmetic)
+					cloak.getId(),
+					cloak.getName(),
+					message //cloak.getCreator().isPresent() ? cloak.getCreator().get().getName() : "Could not load creator"
+			));
+		}
+
+		if (showSeparateElytra && cosmetics.getElytra().isPresent()) {
+			ImageCosmetic elytra = cosmetics.getElytra().get();
+
+			entryList.add(new CosmeticEntry(
+					getOrCreateThumb(elytra.getThumbnail(), "thumbs-c", elytra.getId(), 3), // TODO in core give ticks per frame (expose AnimatedTextureCosmetic)
+					elytra.getId(),
+					elytra.getName(),
+					"Elytra"//elytra.getCreator().isPresent() ? elytra.getCreator().get().getName() : "Could not load creator"
 			));
 		}
 
 		for (Accessory accessory : cosmetics.getAccessories()) {
-			// todo settings can maybe be passed as a builder (core)
-			CachedImage thumbnail =
-					accessory.getThumbnail() == null ? NO_THUMBNAIL : ThumbnailCache.getOrCreateImage("thumbs-a", accessory.getId(),
-					// ticks per frame isnt even provided what a scam who wrote cosmetica core
-					new CosmeticaTexture.Builder(accessory.getThumbnail(), Cosmetica.LOADING_TEXTURE)
-							.frames(8, accessory.getJsonObject().getTicksPerFrame().intValue())
-							.failToLoadTexture(Cosmetica.FALLBACK_TEXTURE)
-							.autoAnimate(CosmeticaTexture.AutoAnimate.NEVER_TILESHEETS));
+			// texture for thumbnail
+			CachedImage thumbnail = getOrCreateThumb(accessory.getThumbnail(), "thumbs-a", accessory.getId(), accessory.getJsonObject().getTicksPerFrame().intValue());
 
 			// n.b. reference to CachedImage needs to be stored on the entry so it doesn't get GC'd
 			entryList.add(new CosmeticEntry(
@@ -112,6 +125,18 @@ public class CosmeticaHomeScreen extends Screen {
 					accessory.getName(),
 					accessory.getCreator().isPresent() ? accessory.getCreator().get().getName() : "Could not load creator"
 			));
+		}
+	}
+
+	private static CachedImage getOrCreateThumb(@Nullable String thumbnail, String category, String id, int ticksPerFrame) {
+		if (thumbnail == null) {
+			return NO_THUMBNAIL;
+		} else {
+			return ThumbnailCache.getOrCreateImage(category, id,
+					new CosmeticaTexture.Builder(thumbnail, Cosmetica.LOADING_TEXTURE)
+							.frames(8, ticksPerFrame)
+							.failToLoadTexture(Cosmetica.FALLBACK_TEXTURE)
+							.autoAnimate(CosmeticaTexture.AutoAnimate.NEVER_TILESHEETS));
 		}
 	}
 
