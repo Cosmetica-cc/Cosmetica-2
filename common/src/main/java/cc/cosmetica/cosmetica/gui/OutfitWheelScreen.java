@@ -385,10 +385,17 @@ public class OutfitWheelScreen extends Screen {
 //            this.page = Math.min(this.getLastPage(), this.page - delta);
 //        }
 
+        int prevPage = this.getPage();
+
         // wrap around
         this.page = (this.page - delta) % (this.getLastPage() + 1);
         if (this.page < 0) {
             this.page = this.getLastPage() + 1 + this.page;
+        }
+
+        // audio feedback for scrolling
+        if (prevPage != this.getPage()) {
+            GuiUtils.playClick();
         }
         return true;
     }
