@@ -32,46 +32,59 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.OptionalInt;
+import java.util.*;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 public class CosmeticEntry extends Component {
-	public CosmeticEntry(ResourceKey icon, String id, String name, String owner) {
+	public CosmeticEntry(ResourceKey icon, String id, String name, String owner, int editable) {
 		this.image = null;
 		this.icon = icon;
 		this.id = id;
 		this.name = name;
 		this.owner = owner;
+		this.editable = editable;
 	}
 
-	public CosmeticEntry(CachedImage image, String id, String name, String owner) {
+	public CosmeticEntry(CachedImage image, String id, String name, String owner, int editable) {
 		this.image = image;
 		this.icon = new ResourceKey(image.location);
 		this.id = id;
 		this.name = name;
 		this.owner = owner;
+		this.editable = editable;
 	}
 
 	// need to hold onto cached image so it doesn't get GC'd
 	private final CachedImage image;
+	//
 	private final ResourceKey icon;
 	private final String id;
 	private final String name;
 	private final String owner;
+	private final int editable;
 
 	@Override
 	public List<Component> build() {
-		return ImmutableList.of(new Div(
+		List<Component> content = new ArrayList<>(Arrays.asList(
 				new Image(this.icon).setTransparent(1.0f),
 				new Div(
 						new Label(Text.literal(this.name)),
 						new Label(Text.literal(this.owner))
-				).tag("centry_names"),
-				new Button(Text.literal("X"), () -> {})
-		).tag("centry_root"));
+				).tag("centry_names")
+		));
+
+		// add X if editable
+		if (this.editable > 0) {
+			content.add(new Button(Text.literal("X"), () -> {})
+					.setDisabled(this.editable != 1)
+					.withStyle(Style.create().set(TOOLTIP,
+							this.editable == 1 ? Optional.empty()
+									: Optional.of(new Tooltip(Text.translatable("cosmetica.offline")))
+					)));
+		}
+
+		return ImmutableList.of(new Div(content.toArray(new Component[content.size()])).tag("centry_root"));
 	}
 
 	@Override

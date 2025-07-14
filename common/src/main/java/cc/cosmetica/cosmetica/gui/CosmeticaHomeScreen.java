@@ -53,7 +53,7 @@ public class CosmeticaHomeScreen extends Screen {
 
 		Cosmetics cosmetics = Cosmetica.OWN_COSMETICS.acquire(this);
 		List<CosmeticEntry> entryList = new ArrayList<>();
-		populateEntryList(entryList, cosmetics);
+		populateEntryList(entryList, cosmetics, 1); // TODO offline detection
 
 		return new Component[] {
 				new Div(
@@ -76,12 +76,13 @@ public class CosmeticaHomeScreen extends Screen {
 	 * Create the GUI cosmetic list entries for each cosmetic the player is wearing.
 	 * @param entryList the list to populate.
 	 * @param cosmetics the cosmetics the player is wearing.
+	 * @param editable whether cosmetics are editable. Can be 0 (not editable) 1 (editable) or 2 (offline).
 	 */
-	static void populateEntryList(final List<CosmeticEntry> entryList, Cosmetics cosmetics) {
+	static void populateEntryList(final List<CosmeticEntry> entryList, Cosmetics cosmetics, int editable) {
 		if (cosmetics == null)
 			return; // no cosmetics
 
-		// TODO this should only show API cosmetics and only allow editing if own cosmetics.
+		// (wip) this should only show API cosmetics and only allow editing if own cosmetics.
 		// some kind of notification if no internet
 		// this also means for local player, even when null, we need to handle backup cosmetics no?
 
@@ -99,7 +100,8 @@ public class CosmeticaHomeScreen extends Screen {
 					getOrCreateThumb(cloak.getThumbnail(), "thumbs-c", cloak.getId(), 3), // TODO in core give ticks per frame (expose AnimatedTextureCosmetic)
 					cloak.getId(),
 					cloak.getName(),
-					message //cloak.getCreator().isPresent() ? cloak.getCreator().get().getName() : "Could not load creator"
+					message, //cloak.getCreator().isPresent() ? cloak.getCreator().get().getName() : "Could not load creator"
+					editable
 			));
 		}
 
@@ -110,7 +112,8 @@ public class CosmeticaHomeScreen extends Screen {
 					getOrCreateThumb(elytra.getThumbnail(), "thumbs-c", elytra.getId(), 3), // TODO in core give ticks per frame (expose AnimatedTextureCosmetic)
 					elytra.getId(),
 					elytra.getName(),
-					"Elytra"//elytra.getCreator().isPresent() ? elytra.getCreator().get().getName() : "Could not load creator"
+					"Elytra", //elytra.getCreator().isPresent() ? elytra.getCreator().get().getName() : "Could not load creator"
+					editable
 			));
 		}
 
@@ -123,7 +126,8 @@ public class CosmeticaHomeScreen extends Screen {
 					thumbnail,
 					accessory.getId(),
 					accessory.getName(),
-					accessory.getCreator().isPresent() ? accessory.getCreator().get().getName() : "Could not load creator"
+					accessory.getCreator().isPresent() ? accessory.getCreator().get().getName() : "Could not load creator",
+					editable
 			));
 		}
 	}

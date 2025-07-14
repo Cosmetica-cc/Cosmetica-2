@@ -75,7 +75,7 @@ public class SnipeScreen extends Screen {
 
         // we can do something similar to home screen.
         List<CosmeticEntry> entryList = new ArrayList<>();
-        CosmeticaHomeScreen.populateEntryList(entryList, outfit);
+        CosmeticaHomeScreen.populateEntryList(entryList, outfit, 0);
 
         GUIPlayer guiPlayer = new GUIPlayer(player, true);
         if (playerUUID == null) {
