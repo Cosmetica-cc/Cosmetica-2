@@ -158,5 +158,5 @@ public class CosmeticaHomeScreen extends Screen {
 	}
 
 	public static final ResourceKey ID = new ResourceKey("cosmetica", "home");
-	public static final CachedImage NO_THUMBNAIL = new CachedImage(Cosmetica.FALLBACK_TEXTURE);
+	public static final CachedImage NO_THUMBNAIL = new CachedImage(Cosmetica.FALLBACK_TEXTURE, 0);
 }
