@@ -107,7 +107,6 @@ public class SlideToggle extends Component {
         canvas.drawRect(miniBoxX + KNOB_WIDTH - 1, y + 2, 1, region.getHeight() - 2, 0, shade, shade, shade);
 
         // update ease
-        // todo, kupe should give delta time, at least in render, for animations
         long newTime = System.currentTimeMillis();
         if (ease < 1) {
             ease = Math.min(1, ease + (newTime - time) * 0.001f / 0.1f); // 0.5s
