@@ -19,10 +19,16 @@ package cc.cosmetica.cosmetica.gui.widget;
 import cc.cosmetica.cosmetica.gui.OutfitSelectScreen;
 import cc.cosmetica.cosmetica.gui.StyleNametagScreen;
 import cc.cosmetica.kupe.api.Screens;
+import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import cc.cosmetica.kupe.impl.KupeScreen;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.SkinCustomizationScreen;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,17 +46,34 @@ public class OutfitPlayer extends Component {
 
 	private final UUID player;
 	private final String outfitName;
+	private final State<Boolean> showingElytra = new State<>(false);
 
 	@Override
 	public List<Component> build() {
 		return Arrays.asList(
 				new Div(
 					new GUIPlayer(player, true)
-							.withStyle(Style.create().set(WIDTH, fixed(OptionalInt.of(50)))),
+					{
+						@Override
+						public List<Component> build() {
+							boolean showElytra = showingElytra.acquire((GUIPlayer)this);
+							this.hideAttachments(showElytra ? CAPE : ELYTRA);
+							this.showAttachments(showElytra ? ELYTRA : CAPE);
+							return super.build();
+						}
+					}.showNametag(true).withStyle(Style.create().set(WIDTH, fixed(OptionalInt.of(50)))),
 					new Label(Text.literal(this.outfitName)),
+					new SlideToggle(
+							this.showingElytra,
+							Text.translatable("button.cosmetica.toggleCape"),
+							Text.translatable("button.cosmetica.toggleElytra")),
 					new Button(Text.translatable("button.cosmetica.changeOutfit"), () -> Screens.setScreen(OutfitSelectScreen.ID)),
-					new Button(Text.translatable("button.cosmetica.styleNametag"), () -> {
-						Screens.setScreen(StyleNametagScreen.ID);
+//					new Button(Text.translatable("button.cosmetica.styleNametag"), () -> {
+//						Screens.setScreen(StyleNametagScreen.ID);
+//					}),
+					// *.title ensures no ... for consistency with Cosmetica's buttons
+					new Button(Text.translatable("options.skinCustomisation.title"), () -> {
+						Minecraft.getInstance().setScreen(new SkinCustomizationScreen(Minecraft.getInstance().screen, Minecraft.getInstance().options));
 					})
 				).withStyle(Style.create()
 						.set(Div.JUSTIFY_CONTENT, Justify.CENTRE)

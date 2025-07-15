@@ -62,9 +62,13 @@ public class CosmeticaHomeScreen extends Screen {
 								new Div(
 										new IconButton(
 												new ResourceKey("cosmetica", "textures/gear.png"),
-												() -> Screens.setScreen(new CosmeticaSettingsScreen(CosmeticaSettingsScreen.SETTINGS_SCREEN, Setting.SETTINGS), CosmeticaSettingsScreen.SETTINGS_SCREEN))
+												() -> Screens.setScreen(new CosmeticaSettingsScreen(CosmeticaSettingsScreen.SETTINGS_SCREEN, Setting.SETTINGS), CosmeticaSettingsScreen.SETTINGS_SCREEN)),
+										new IconButton(
+												new ResourceKey("minecraft", "textures/item/name_tag.png"),
+												() -> Screens.setScreen(StyleNametagScreen.ID))
 								).withStyle(Style.create()
-										.set(Div.ALIGN_ITEMS, Align.START))
+										.set(Div.ALIGN_ITEMS, Align.START)
+										.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X))
 						).tag("main-section"),
 						new CosmeticsBrowser(entryList, true).tag("main-section")
 				).tag("main-content"),
