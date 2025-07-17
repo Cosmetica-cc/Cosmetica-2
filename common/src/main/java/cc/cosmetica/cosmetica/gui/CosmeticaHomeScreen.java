@@ -52,8 +52,8 @@ public class CosmeticaHomeScreen extends Screen {
 		UUID self = Minecraft.getInstance().getUser().getGameProfile().getId();
 
 		Cosmetics cosmetics = Cosmetica.OWN_COSMETICS.acquire(this);
-		List<CosmeticEntry> entryList = new ArrayList<>();
-		populateEntryList(entryList, cosmetics, 1); // TODO offline detection
+		List<CosmeticEntry> entries = new ArrayList<>();
+		populateEntryList(entries, cosmetics, 1); // TODO offline detection
 
 		return new Component[] {
 				new Div(
@@ -70,7 +70,7 @@ public class CosmeticaHomeScreen extends Screen {
 										.set(Div.ALIGN_ITEMS, Align.START)
 										.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X))
 						).tag("main-section"),
-						new CosmeticsBrowser(entryList, true).tag("main-section")
+						new CosmeticsBrowser(entries, true).tag("main-section")
 				).tag("main-content"),
 				new MenuEndSelection()
 		};

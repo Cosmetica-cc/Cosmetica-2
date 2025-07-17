@@ -61,7 +61,8 @@ public class CosmeticsBrowser extends Div {
 						.set(PADDING, fixed(new Margins(30, 10, 12, 10)))
 						.set(Div.ALIGN_ITEMS, Align.STRETCH_START))
 				.tag("contents-wrapper", Style.create()
-						.set(FLEX, 1))
+						.set(FLEX, 1)
+						.set(SCROLLBAR_POSITION, ScrollbarPosition.OUTSIDE))
 				.tag("width-200", Style.create()
 						.set(WIDTH, fixed(OptionalInt.of(200))));
 	}
