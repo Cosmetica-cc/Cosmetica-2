@@ -96,7 +96,9 @@ public class ReplaceOutfitSlotScreen extends Component {
         boolean setting = this.setting.acquire(this);
         @Nullable ReplaceableOutfit replacing = this.replacing.acquire(this);
 
-        List<OutfitWheelScreen.OutfitOption> options = Cosmetica.OWN_OUTFITS.acquire(this);
+        // don't auto update list once button is clicked, we'll auto close soon anyway.
+        // if auto-update is kept the user sees the removal before screen closes - a bit messy!
+        List<OutfitWheelScreen.OutfitOption> options = setting ? Cosmetica.OWN_OUTFITS.peek() : Cosmetica.OWN_OUTFITS.acquire(this);
 
         List<Component> components = options.stream()
                 .map(ReplaceableOutfit::new)
@@ -104,7 +106,7 @@ public class ReplaceOutfitSlotScreen extends Component {
                 .collect(Collectors.toCollection(ArrayList::new));
         // prepend 'new outfit'
         int outfitLimit = this.outfitLimit.acquire(this);
-        int currentCount = Cosmetica.OWN_OUTFITS.extract(this, List::size);
+        int currentCount = options.size();
         if (currentCount < outfitLimit)
             components.add(0, new ReplaceableOutfit());
 
