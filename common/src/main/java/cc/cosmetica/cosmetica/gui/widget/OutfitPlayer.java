@@ -17,18 +17,14 @@
 package cc.cosmetica.cosmetica.gui.widget;
 
 import cc.cosmetica.cosmetica.gui.OutfitSelectScreen;
-import cc.cosmetica.cosmetica.gui.StyleNametagScreen;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
-import cc.cosmetica.kupe.impl.KupeScreen;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.SkinCustomizationScreen;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -52,7 +48,7 @@ public class OutfitPlayer extends Component {
 	public List<Component> build() {
 		return Arrays.asList(
 				new Div(
-					new GUIPlayer(player, true)
+					new RotatableGUIPlayer(player)
 					{
 						@Override
 						public List<Component> build() {

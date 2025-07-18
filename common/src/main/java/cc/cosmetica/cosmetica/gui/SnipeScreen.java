@@ -26,6 +26,7 @@ import cc.cosmetica.cosmetica.StateHolder;
 import cc.cosmetica.cosmetica.gui.player.AccessoryAttachment;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticsBrowser;
+import cc.cosmetica.cosmetica.gui.widget.RotatableGUIPlayer;
 import cc.cosmetica.kupe.api.*;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
@@ -77,7 +78,7 @@ public class SnipeScreen extends Screen {
         List<CosmeticEntry> entryList = new ArrayList<>();
         CosmeticaHomeScreen.populateEntryList(entryList, outfit, 0);
 
-        GUIPlayer guiPlayer = new GUIPlayer(player, true);
+        GUIPlayer guiPlayer = new RotatableGUIPlayer(player);
         if (playerUUID == null) {
             // specify outfit cosmetics to show
             guiPlayer.configureOverride(AccessoryAttachment.INSTANCE, outfit.getAccessories());
