@@ -416,11 +416,13 @@ public class OutfitWheelScreen extends Screen {
      * @return the radius of the outer edge of the outer ring of outfits.
      */
     private double getOuterEdgeRadius() {
-        return this.scaleFactor * this.height / 2.5;
+        float guiScale = Minecraft.getInstance().options.guiScale / (Minecraft.getInstance().options.guiScale < 3 ? 3.0f : 4.0f);
+        return guiScale * this.scaleFactor * this.height / 2.5;
     }
 
     private int getTitleHeight() {
-        return this.height / 2 - (int)(this.height / 2.5) - 12;
+        float guiScale = Minecraft.getInstance().options.guiScale / (Minecraft.getInstance().options.guiScale < 3 ? 3.0f : 4.0f);
+        return this.height / 2 - (int)(guiScale * this.height / 2.5) - 12;
     }
 
     private Component getPageLabel() {
