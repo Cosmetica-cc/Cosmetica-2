@@ -99,12 +99,12 @@ public class SlideToggle extends Component {
             miniBoxX += (int)Mth.lerp(ease, KNOB_WIDTH, 0);
         }
 
-        canvas.drawRect(miniBoxX, y + 1, KNOB_WIDTH, region.getHeight(), 0, btn, btn, btn);
+        canvas.drawRect(miniBoxX, y + 1, KNOB_WIDTH, region.getHeight() - 2, 0, btn, btn, btn);
         // highlights and shadows
         canvas.drawRect(miniBoxX, y + 1, KNOB_WIDTH - 1, 1, 0, highlight, highlight, highlight);
-        canvas.drawRect(miniBoxX, y + 1, 1, region.getHeight() - 2, 0, highlight, highlight, highlight);
+        canvas.drawRect(miniBoxX, y + 1, 1, region.getHeight() - 3, 0, highlight, highlight, highlight);
         canvas.drawRect(miniBoxX + 1, region.getFinalY() - 1, KNOB_WIDTH - 1, 1, 0, shade, shade, shade);
-        canvas.drawRect(miniBoxX + KNOB_WIDTH - 1, y + 2, 1, region.getHeight() - 2, 0, shade, shade, shade);
+        canvas.drawRect(miniBoxX + KNOB_WIDTH - 1, y + 2, 1, region.getHeight() - 3, 0, shade, shade, shade);
 
         // update ease
         long newTime = System.currentTimeMillis();
