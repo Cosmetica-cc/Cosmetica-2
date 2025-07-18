@@ -107,6 +107,8 @@ public class Keybinds {
         // closing the in-game cosmetica menu brings you back to gameplay
         if (screen == null) rightShiftMenu = false;
 
+        if (set) System.out.println("set");
+
         if (set) {
             if (screen == null) {
                 rightShiftMenu = true;

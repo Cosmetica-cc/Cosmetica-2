@@ -96,6 +96,7 @@ public class SnipeScreen extends Screen {
                                         this.showingElytra,
                                         Text.translatable("button.cosmetica.toggleCape"),
                                         Text.translatable("button.cosmetica.toggleElytra"))
+                                        .withStyle(Style.create().set(MARGINS, fixed(new Margins(5,0,0,0))))
                         ).tag("main-section")
                                 .withStyle(Style.create()
                                         .set(Div.JUSTIFY_CONTENT, Justify.CENTRE)),
