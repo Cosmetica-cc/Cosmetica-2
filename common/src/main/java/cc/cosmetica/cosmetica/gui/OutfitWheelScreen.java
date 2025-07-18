@@ -123,7 +123,7 @@ public class OutfitWheelScreen extends Screen {
             double diffTime = (currentTime - this.lastScaleTime) / 50.0;
             this.lastScaleTime = currentTime;
 
-            final double baseChangeRate = 0.35;
+            final double baseChangeRate = 0.3;
             double scaleChange = baseChangeRate - 0.01 * baseChangeRate * Math.exp(2 * this.scaleFactor);
             this.scaleFactor += scaleChange * diffTime;
 
