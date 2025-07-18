@@ -53,11 +53,16 @@ public class OutfitWheelScreen extends Screen {
         // todo maybe implement this as kupe screen so we can update outfit list automatically on outfit change
         this.options = Cosmetica.OWN_OUTFITS.peek();
         this.passEvents = true;
+
+        if (page > this.getLastPage()) {
+            page = 0;
+        }
     }
 
     // Important!
     // double for scroll wheel reasons. use getPage() to get the actual page.
-    private double page = 0;
+    // remember page
+    private static double page = 0;
 
     // scaling
     private double scaleFactor = 0.05;
@@ -334,16 +339,16 @@ public class OutfitWheelScreen extends Screen {
             boolean hoveredNextPage = mouseX >= right-pcWidth/2 && mouseX <= right+pcWidth/2+1;
 
             if (hoveredNextPage) {
-                this.page = (int)this.page + 1;
-                if (this.page > this.getLastPage()) {
-                    this.page = 0;
+                page = (int)page + 1;
+                if (page > this.getLastPage()) {
+                    page = 0;
                 }
 
                 GuiUtils.playClick();
                 return true;
             } else if (hoveredPrevPage) {
-                this.page = (int)this.page - 1;
-                if (this.page < 0) this.page = this.getLastPage();
+                page = (int)page - 1;
+                if (page < 0) page = this.getLastPage();
 
                 GuiUtils.playClick();
                 return true;
@@ -378,18 +383,12 @@ public class OutfitWheelScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-//        if (delta > 0) {
-//            this.page = Math.max(0, this.page - delta);\
-//        } else {
-//            this.page = Math.min(this.getLastPage(), this.page - delta);
-//        }
-
         int prevPage = this.getPage();
 
         // wrap around
-        this.page = (this.page - delta) % (this.getLastPage() + 1);
-        if (this.page < 0) {
-            this.page = this.getLastPage() + 1 + this.page;
+        page = (page - delta) % (this.getLastPage() + 1);
+        if (page < 0) {
+            page = this.getLastPage() + 1 + page;
         }
 
         // audio feedback for scrolling
@@ -408,7 +407,7 @@ public class OutfitWheelScreen extends Screen {
     }
 
     private int getPage() {
-        return (int) this.page;
+        return (int) page;
     }
 
     /**
