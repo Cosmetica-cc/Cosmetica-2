@@ -16,6 +16,8 @@
 
 package cc.cosmetica.cosmetica.gui.widget;
 
+import cc.cosmetica.kupe.api.State;
+import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.Element;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import cc.cosmetica.kupe.api.gui.PointerEvents;
@@ -25,18 +27,34 @@ import cc.cosmetica.kupe.api.maths.Region;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.UUID;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.POINTER_EVENTS;
 
+/**
+ * GUI player with shared extended interactivity, for Cosmetica's screens.
+ */
 public class RotatableGUIPlayer extends GUIPlayer {
-    public RotatableGUIPlayer(@NotNull UUID uuid) {
+    public RotatableGUIPlayer(@NotNull UUID uuid, @Nullable State<Boolean> showingElytra) {
         super(uuid, true);
+        this.showingElytra = showingElytra;
     }
 
+    private final @Nullable State<Boolean> showingElytra;
     private boolean drag = false;
     private double xStart = 0;
     private float yawStart = 0;
+
+    @Override
+    public List<Component> build() {
+        if (showingElytra != null) {
+            boolean showElytra = showingElytra.acquire(this);
+            this.hideAttachments(showElytra ? CAPE : ELYTRA);
+            this.showAttachments(showElytra ? ELYTRA : CAPE);
+        }
+        return super.build();
+    }
 
     @Override
     public void mouseClicked(Element target, double x, double y, int button) {

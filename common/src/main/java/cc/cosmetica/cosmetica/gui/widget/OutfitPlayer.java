@@ -48,16 +48,7 @@ public class OutfitPlayer extends Component {
 	public List<Component> build() {
 		return Arrays.asList(
 				new Div(
-					new RotatableGUIPlayer(player)
-					{
-						@Override
-						public List<Component> build() {
-							boolean showElytra = showingElytra.acquire((GUIPlayer)this);
-							this.hideAttachments(showElytra ? CAPE : ELYTRA);
-							this.showAttachments(showElytra ? ELYTRA : CAPE);
-							return super.build();
-						}
-					}.showNametag(true).withStyle(Style.create().set(WIDTH, fixed(OptionalInt.of(50)))),
+					new RotatableGUIPlayer(player, this.showingElytra).showNametag(true).withStyle(Style.create().set(WIDTH, fixed(OptionalInt.of(50)))),
 					new Label(Text.literal(this.outfitName)),
 					new SlideToggle(
 							this.showingElytra,

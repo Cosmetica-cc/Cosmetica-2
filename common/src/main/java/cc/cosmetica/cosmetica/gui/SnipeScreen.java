@@ -27,6 +27,7 @@ import cc.cosmetica.cosmetica.gui.player.AccessoryAttachment;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticsBrowser;
 import cc.cosmetica.cosmetica.gui.widget.RotatableGUIPlayer;
+import cc.cosmetica.cosmetica.gui.widget.SlideToggle;
 import cc.cosmetica.kupe.api.*;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
@@ -67,6 +68,7 @@ public class SnipeScreen extends Screen {
 
     private final State<Cosmetics> cosmetics;
     private final State<Boolean> isSetting;
+    private final State<Boolean> showingElytra = new State<>(false);
     private final @Nullable UUID playerUUID;
 
     @Override
@@ -78,7 +80,7 @@ public class SnipeScreen extends Screen {
         List<CosmeticEntry> entryList = new ArrayList<>();
         CosmeticaHomeScreen.populateEntryList(entryList, outfit, 0);
 
-        GUIPlayer guiPlayer = new RotatableGUIPlayer(player);
+        GUIPlayer guiPlayer = new RotatableGUIPlayer(player, this.showingElytra);
         if (playerUUID == null) {
             // specify outfit cosmetics to show
             guiPlayer.configureOverride(AccessoryAttachment.INSTANCE, outfit.getAccessories());
@@ -89,7 +91,11 @@ public class SnipeScreen extends Screen {
                 new Div(
                         new Div(
                                 new Div().withStyle(Style.create().set(HEIGHT, fixedSize(10))),
-                                    guiPlayer.withStyle(Style.create().set(WIDTH, screen(12, 0)))
+                                    guiPlayer.withStyle(Style.create().set(WIDTH, screen(12, 0))),
+                                new SlideToggle(
+                                        this.showingElytra,
+                                        Text.translatable("button.cosmetica.toggleCape"),
+                                        Text.translatable("button.cosmetica.toggleElytra"))
                         ).tag("main-section")
                                 .withStyle(Style.create()
                                         .set(Div.JUSTIFY_CONTENT, Justify.CENTRE)),
