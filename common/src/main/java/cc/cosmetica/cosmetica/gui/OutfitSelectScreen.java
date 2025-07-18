@@ -28,6 +28,7 @@ import cc.cosmetica.kupe.api.gui.Element;
 import cc.cosmetica.kupe.api.gui.Image;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import cc.cosmetica.kupe.api.maths.Margins;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -59,7 +60,7 @@ public class OutfitSelectScreen extends Screen {
                 ).withStyle(Style.create()
                         .set(WIDTH, screen(75, 0))
                         .set(MIN_WIDTH, screen(75, 0))
-                        .set(MIN_HEIGHT, screen(0, 75))
+                        .set(MIN_HEIGHT, screen(0, 60))
                         .set(EntryList.Grid.COLUMN_GAP, 2)
                         .set(EntryList.Grid.ROW_GAP, 2)
                         .set(BACKGROUND_COLOUR, OptionalInt.empty())),
@@ -71,6 +72,9 @@ public class OutfitSelectScreen extends Screen {
     @Override
     public @NotNull Stylesheet getStylesheet() {
         return super.getStylesheet()
+                .tag("body", Style.create()
+                        // 15(title margin) + 6(related to text height) + 2(extra gap)
+                        .set(MARGINS, fixed(new Margins(15 + 6 + 2, 0, 0, 0))))
                 .component(SelectableOutfit.class, Style.create()
                         .set(WIDTH, fixed(OptionalInt.of(50)))
                         .set(HEIGHT, fixed(OptionalInt.of(50))));
