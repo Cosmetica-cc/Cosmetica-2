@@ -114,7 +114,7 @@ public class OutfitWheelScreen extends Screen {
         RenderSystem.disableBlend();
 
         // Draw Icons
-        this.drawThumbs(canvas, centreX, centreY, 0.5 * (outerEdgeSize + innerEdgeSize));
+        this.drawThumbs(canvas, centreX, centreY, 0.5 * (outerEdgeSize + innerEdgeSize), (float) (0.5 * (outerEdgeSize - innerEdgeSize)));
 
         // scale up
         if (this.scaleFactor < 1) {
@@ -139,9 +139,9 @@ public class OutfitWheelScreen extends Screen {
      * @param centreX the x position of the centre of the outfit ring.
      * @param centreY the y position of the centre of the outfit ring.
      * @param distance the distance from the outfit ring at which to render the icons.
+     * @param scale the size of the icons.
      */
-    private void drawThumbs(Canvas canvas, double centreX, double centreY, double distance) {
-        float scale = this.height <= 380 ? 1.0f : 2.0f;
+    private void drawThumbs(Canvas canvas, double centreX, double centreY, double distance, float scale) {
 
         final int nSectors = 8;
         final double theta = 2.0 * Math.PI / nSectors;
@@ -157,12 +157,11 @@ public class OutfitWheelScreen extends Screen {
 
                 final float x = (float) (centreX + distance * Math.cos(angle));
                 final float y = (float) (centreY + distance * Math.sin(angle));
-                final float size = 32 * scale * (float)this.scaleFactor;
 
-                final float x0 = x - size/2;
-                final float y0 = y - size/2;
-                final float x1 = x + size/2;
-                final float y1 = y + size/2;
+                final float x0 = x - scale /2;
+                final float y0 = y - scale /2;
+                final float x1 = x + scale /2;
+                final float y1 = y + scale /2;
 
                 OutfitOption outfit = this.options.get(index);
                 Minecraft.getInstance().getTextureManager().bind(outfit.thumbnail.location);
