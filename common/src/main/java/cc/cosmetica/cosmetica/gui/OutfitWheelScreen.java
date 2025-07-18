@@ -123,7 +123,7 @@ public class OutfitWheelScreen extends Screen {
             double diffTime = (currentTime - this.lastScaleTime) / 50.0;
             this.lastScaleTime = currentTime;
 
-            final double baseChangeRate = 0.2;
+            final double baseChangeRate = 0.4;
             double scaleChange = baseChangeRate - 0.01 * baseChangeRate * Math.exp(2 * this.scaleFactor);
             this.scaleFactor += scaleChange * diffTime;
 
@@ -417,7 +417,7 @@ public class OutfitWheelScreen extends Screen {
      */
     private double getOuterEdgeRadius() {
 //        float guiScale = Minecraft.getInstance().options.guiScale / (Minecraft.getInstance().options.guiScale < 3 ? 3.0f : 4.0f);
-        return this.scaleFactor * Minecraft.getInstance().options.guiScale == 4 ? (this.height / 2.5) : (this.height / 3.0);
+        return this.scaleFactor * (Minecraft.getInstance().options.guiScale == 4 ? (this.height / 2.5) : (this.height / 3.0));
     }
 
     private int getTitleHeight() {
