@@ -92,7 +92,7 @@ public class StyleNametagScreen extends Screen {
                                 }
                                 return super.build();
                             }
-                        }.showNametag(true),
+                        }.showNametag(true).tag("preview-player"),
                         new IconSelector(this.iconDirty, availableIcons)
                                 .tag("flex-1")
                 ).tag("horizontal", "flex-1", "main-content"),
@@ -103,7 +103,7 @@ public class StyleNametagScreen extends Screen {
     @Override
     public @NotNull Stylesheet getStylesheet() {
         return super.getStylesheet()
-                .component(RotatableGUIPlayer.class, Style.create()
+                .tag("preview-player", Style.create()
                         .set(WIDTH, fixed(OptionalInt.of(50)))
                         .set(ALIGN_SELF, Optional.of(Align.CENTRE)))
                 .tag("horizontal", Style.create()
