@@ -185,13 +185,14 @@ public class LoreSelector extends Div {
         }
 
         protected final String lore;
+        boolean allowDuplication = false;
 
         @Override
         public void mouseClicked(Element target, double x, double y, int button) {
             if (button == GLFW.GLFW_MOUSE_BUTTON_1) {
                 Lore current = Cosmetica.SELECTED_LORE.peek();
 
-                if (!Objects.equals(this.lore, current.text)) {
+                if (allowDuplication || !Objects.equals(this.lore, current.text)) {
                     LoreSelector.this.loreModified.set(true);
                     // we should already be on Minecraft thread.
                     Lore old = current.old == null ? current : current.old;
@@ -235,6 +236,7 @@ public class LoreSelector extends Div {
     private class SelectablePronoun extends SelectableLore {
         public SelectablePronoun(String lore) {
             super(lore);
+            allowDuplication = true;
         }
 
         @Override

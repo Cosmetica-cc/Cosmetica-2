@@ -103,7 +103,7 @@ public class StyleNametagScreen extends Screen {
     @Override
     public @NotNull Stylesheet getStylesheet() {
         return super.getStylesheet()
-                .component(GUIPlayer.class, Style.create()
+                .component(RotatableGUIPlayer.class, Style.create()
                         .set(WIDTH, fixed(OptionalInt.of(50)))
                         .set(ALIGN_SELF, Optional.of(Align.CENTRE)))
                 .tag("horizontal", Style.create()
