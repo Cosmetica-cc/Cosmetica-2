@@ -31,6 +31,7 @@ public final class Division<T> {
     private final NavigableMap<Double, T> redBlackTree;
     private T min;
     private double minKey = Double.MAX_VALUE;
+    private int count = 0;
 
     /**
      * Add a new section with the given parameters.
@@ -39,6 +40,10 @@ public final class Division<T> {
      * @return this division instance.
      */
     public Division<T> addSection(double minBound, T value) {
+        if (!this.redBlackTree.containsValue(value)) {
+            this.count++;
+        }
+
         this.redBlackTree.put(minBound, value);
 
         if (minBound < this.minKey) {
@@ -47,6 +52,14 @@ public final class Division<T> {
         }
 
         return this;
+    }
+
+    /**
+     * Get the number of distinct categories in the division.
+     * @return the number of categories. This is counted as the number of unique values added by addSection.
+     */
+    public int count() {
+        return this.count;
     }
 
     /**

@@ -148,7 +148,7 @@ public class OutfitWheelScreen extends Screen {
      */
     private void drawThumbs(Canvas canvas, double centreX, double centreY, double distance, float scale) {
 
-        final int nSectors = 8;
+        final int nSectors = SECTORS.count();
         final double theta = 2.0 * Math.PI / nSectors;
         final int currentOutfitIndex = Cosmetica.SELECTED_OUTFIT_ID.peek().map(this::indexOf).orElse(-1);
 
@@ -158,7 +158,7 @@ public class OutfitWheelScreen extends Screen {
             int index = i + this.getPage() * nSectors;
 
             if (index < this.options.size()) {
-                double angle = theta * (i - 1.5);
+                double angle = theta * (i - 1.5); // offset for centre & rotation
 
                 final float x = (float) (centreX + distance * Math.cos(angle));
                 final float y = (float) (centreY + distance * Math.sin(angle));
@@ -201,7 +201,7 @@ public class OutfitWheelScreen extends Screen {
                              double outerEdgeSize, double innerButtonSize,
                              double innerEdgeSize, int highlightedSector) {
         final PolyBuilder builder = canvas.drawTriangles(PolyBuilder.Mode.POSITION_COLOUR);
-        final int nOutfitSectors = 8;
+        final int nOutfitSectors = SECTORS.count();
         final int nRenderSectors = 64;
         final double theta = 2.0 * Math.PI / nRenderSectors;
 
@@ -361,7 +361,7 @@ public class OutfitWheelScreen extends Screen {
 
         if (selectedButton > -1) {
             if (selectedButton < 8) {
-                int index = selectedButton + this.getPage() * 8;
+                int index = selectedButton + this.getPage() * SECTORS.count();
 
                 if (index < this.options.size()) {
                     OutfitOption outfit = this.options.get(index);
@@ -403,7 +403,7 @@ public class OutfitWheelScreen extends Screen {
      * @return the last page that exists in the wheel.
      */
     private int getLastPage() {
-        return (this.options.size() - 1) / 8;
+        return (this.options.size() - 1) / SECTORS.count();
     }
 
     private int getPage() {
@@ -478,16 +478,24 @@ public class OutfitWheelScreen extends Screen {
     /**
      * The angles of the start of each sector of the outer ring.
      */
+//    private static final Division<Integer> SECTORS = new Division<Integer>()
+//            .addSection(2 * Math.PI * (6.0/8.0), 0)
+//            .addSection(2 * Math.PI * (7.0/8.0), 1)
+//            .addSection(2 * Math.PI * (8.0/8.0), 2)
+//            .addSection(0, 2)
+//            .addSection(2 * Math.PI * (1.0/8.0), 3)
+//            .addSection(2 * Math.PI * (2.0/8.0), 4)
+//            .addSection(2 * Math.PI * (3.0/8.0), 5)
+//            .addSection(2 * Math.PI * (4.0/8.0), 6)
+//            .addSection(2 * Math.PI * (5.0/8.0), 7);
     private static final Division<Integer> SECTORS = new Division<Integer>()
-            .addSection(2 * Math.PI * (6.0/8.0), 0)
-            .addSection(2 * Math.PI * (7.0/8.0), 1)
-            .addSection(2 * Math.PI * (8.0/8.0), 2)
+            .addSection(2 * Math.PI * (4.0/6.0), 0)
+            .addSection(2 * Math.PI * (5.0/6.0), 1)
+            .addSection(2 * Math.PI * (6.0/6.0), 2)
             .addSection(0, 2)
-            .addSection(2 * Math.PI * (1.0/8.0), 3)
-            .addSection(2 * Math.PI * (2.0/8.0), 4)
-            .addSection(2 * Math.PI * (3.0/8.0), 5)
-            .addSection(2 * Math.PI * (4.0/8.0), 6)
-            .addSection(2 * Math.PI * (5.0/8.0), 7);
+            .addSection(2 * Math.PI * (1.0/6.0), 3)
+            .addSection(2 * Math.PI * (2.0/6.0), 4)
+            .addSection(2 * Math.PI * (3.0/6.0), 5);
 
     /**
      * Check if the given key for the key mapping is down. This is preferred over .isDown() due to isDown only working is this.minecraft.screen == null.
@@ -565,14 +573,6 @@ public class OutfitWheelScreen extends Screen {
                         new RuntimeException("Outfits Controller Equip", except).printStackTrace();
                         return null;
                     });
-        }
-
-        public static OutfitOption ofNullable(@Nullable Outfit outfit) {
-            if (outfit == null) {
-                return null;
-            }
-
-            return new OutfitOption(outfit);
         }
     }
 }
