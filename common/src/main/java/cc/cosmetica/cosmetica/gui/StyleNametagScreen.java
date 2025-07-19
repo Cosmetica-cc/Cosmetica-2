@@ -23,11 +23,9 @@ import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.widget.IconSelector;
 import cc.cosmetica.cosmetica.gui.widget.LoreSelector;
 import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
+import cc.cosmetica.cosmetica.gui.widget.RotatableGUIPlayer;
 import cc.cosmetica.cosmetica.util.Lore;
-import cc.cosmetica.kupe.api.ResourceKey;
-import cc.cosmetica.kupe.api.Screen;
-import cc.cosmetica.kupe.api.Screens;
-import cc.cosmetica.kupe.api.State;
+import cc.cosmetica.kupe.api.*;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
@@ -81,7 +79,20 @@ public class StyleNametagScreen extends Screen {
                 new Div(
                         new LoreSelector(this.loreDirty, availableLores)
                                 .tag("flex-1"),
-                        new GUIPlayer(self, true),
+                        new RotatableGUIPlayer(self, null)
+                        {
+                            private int nametag = -1;
+                            @Override
+                            public List<Component> build() {
+                                Lore lore = Cosmetica.SELECTED_LORE.acquire(this);
+                                if (nametag == -1) {
+                                    nametag = this.createNametag(Text.literal(lore.text), 0.75f);
+                                } else {
+                                    this.updateNametag(nametag, Text.literal(lore.text), 0.75f);
+                                }
+                                return super.build();
+                            }
+                        }.showNametag(true),
                         new IconSelector(this.iconDirty, availableIcons)
                                 .tag("flex-1")
                 ).tag("horizontal", "flex-1", "main-content"),

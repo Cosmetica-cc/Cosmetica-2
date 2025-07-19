@@ -16,10 +16,7 @@
 
 package cc.cosmetica.cosmetica.gui;
 
-import cc.cosmetica.core.api.Accessory;
-import cc.cosmetica.core.api.CachedImage;
-import cc.cosmetica.core.api.Cosmetics;
-import cc.cosmetica.core.api.ImageCosmetic;
+import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.api.texture.CosmeticaTexture;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.Setting;
@@ -58,7 +55,9 @@ public class CosmeticaHomeScreen extends Screen {
 		return new Component[] {
 				new Div(
 						new LayeredSpace(true,
-								new OutfitPlayer(self, Optional.ofNullable(cosmetics).flatMap(Cosmetics::getOutfitName).orElse("§7No Outfit")),
+								new OutfitPlayer(self,
+										Optional.ofNullable(cosmetics).flatMap(Cosmetics::getOutfitName).orElse("§7No Outfit"),
+										Optional.ofNullable(cosmetics).flatMap(Cosmetics::getLore).orElse(NametagConfig.EMPTY)),
 								new Div(
 										new IconButton(
 												new ResourceKey("cosmetica", "textures/gear.png"),

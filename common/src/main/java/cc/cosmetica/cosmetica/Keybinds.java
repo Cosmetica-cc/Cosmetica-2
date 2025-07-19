@@ -17,6 +17,7 @@
 package cc.cosmetica.cosmetica;
 
 import cc.cosmetica.core.api.Cosmetics;
+import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.gui.CosmeticaHomeScreen;
 import cc.cosmetica.cosmetica.gui.OutfitWheelScreen;
 import cc.cosmetica.cosmetica.gui.SnipeScreen;
@@ -102,12 +103,15 @@ public class Keybinds {
 
         // Right Shift
         set = false;
-        while (Keybinds.CUSTOMISE.consumeClick())
+        while (Keybinds.CUSTOMISE.consumeClick()) {
             set = true;
+        }
         // closing the in-game cosmetica menu brings you back to gameplay
         if (screen == null) rightShiftMenu = false;
 
-        if (set) System.out.println("set");
+        if (Keybinds.CUSTOMISE.isDown()) {
+            Logging.getInstance().debug("rsm = " + rightShiftMenu + ", consumed click = " + set);
+        }
 
         if (set) {
             if (screen == null) {

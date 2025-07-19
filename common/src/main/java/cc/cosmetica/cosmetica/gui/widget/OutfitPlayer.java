@@ -16,6 +16,7 @@
 
 package cc.cosmetica.cosmetica.gui.widget;
 
+import cc.cosmetica.core.api.NametagConfig;
 import cc.cosmetica.cosmetica.gui.OutfitSelectScreen;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.State;
@@ -35,20 +36,22 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.WIDTH;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.fixed;
 
 public class OutfitPlayer extends Component {
-	public OutfitPlayer(UUID player, String outfitName) {
+	public OutfitPlayer(UUID player, String outfitName, NametagConfig lore) {
 		this.player = player;
 		this.outfitName = outfitName;
+		this.lore = lore;
 	}
 
 	private final UUID player;
 	private final String outfitName;
+	private final NametagConfig lore;
 	private final State<Boolean> showingElytra = new State<>(false);
 
 	@Override
 	public List<Component> build() {
 		return Arrays.asList(
 				new Div(
-					new RotatableGUIPlayer(player, this.showingElytra).showNametag(true).withStyle(Style.create().set(WIDTH, fixed(OptionalInt.of(50)))),
+					new RotatableGUIPlayer(player, this.showingElytra).showNametag(true).addNametag(Text.literal(this.lore.getPrefix()), 0.75f).withStyle(Style.create().set(WIDTH, fixed(OptionalInt.of(50)))),
 					new Label(Text.literal(this.outfitName)),
 					new SlideToggle(
 							this.showingElytra,
