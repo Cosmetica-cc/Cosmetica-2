@@ -86,9 +86,9 @@ public class StyleNametagScreen extends Screen {
                             public List<Component> build() {
                                 Lore lore = Cosmetica.SELECTED_LORE.acquire(this);
                                 if (nametag == -1) {
-                                    nametag = this.createNametag(Text.literal(lore.text), 0.75f);
+                                    nametag = this.createNametag(Text.literal(lore.formatted()), 0.75f);
                                 } else {
-                                    this.updateNametag(nametag, Text.literal(lore.text), 0.75f);
+                                    this.updateNametag(nametag, Text.literal(lore.formatted()), 0.75f);
                                 }
                                 return super.build();
                             }
@@ -159,9 +159,9 @@ public class StyleNametagScreen extends Screen {
             Logging.getInstance().debug("Removing lore");
             return DefaultApi::loreControllerRemoveLore;
         } else {
-            Logging.getInstance().debug("Updating Lore to {}", newLore.text);
+            Logging.getInstance().debug("Updating Lore to {}", newLore.value);
             UpdateLoreDto update = new UpdateLoreDto();
-            update.content(newLore.text);
+            update.content(newLore.value);
             update.color(newLore.colour);
             update.type(newLore.getType());
             return api -> api.loreControllerUpdateLore(update);

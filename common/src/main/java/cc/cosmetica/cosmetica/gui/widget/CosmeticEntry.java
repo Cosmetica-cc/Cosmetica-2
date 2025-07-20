@@ -92,7 +92,7 @@ public class CosmeticEntry extends Component {
 
 	@Override
 	protected void paintBackground(Canvas canvas, Region region, Margins padding) {
-//		RenderSystem.disableDepthTest();
+//		RenderSystem.disableAlphaTest();
 		super.paintBackground(canvas, region, padding);
 	}
 

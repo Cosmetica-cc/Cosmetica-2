@@ -24,20 +24,32 @@ import gg.cloaks.javaclient.model.UpdateLoreDto;
  */
 public class Lore {
     public Lore(String text, UpdateLoreDto.ColorEnum colour, CachedImage icon, String service) {
-        this.text = text;
+        this(text, text, colour, icon, service);
+    }
+
+    public Lore(String value, String display, UpdateLoreDto.ColorEnum colour, CachedImage icon, String service) {
+        this.value = value;
+        this.displayText = display;
         this.colour = colour;
         this.icon = icon;
         this.service = service;
     }
 
     public Lore old; // used to store previous Lore when pre-emptively showing a new lore
-    public final String text;
+    /**
+     * The lore value. Used when setting the lore.
+     */
+    public final String value;
+    /**
+     * The lore display text. Purely visual for preview.
+     */
+    public final String displayText;
     public final UpdateLoreDto.ColorEnum colour;
     public final CachedImage icon;
     public final String service;
 
     public boolean isNoLore() {
-        return this.text.isEmpty();
+        return this.value.isEmpty();
     }
 
     public String formatted() {
@@ -62,7 +74,7 @@ public class Lore {
             default:
                 c = "f"; break;
         }
-        return "§" + c + this.text;
+        return "§" + c + this.displayText;
     }
 
     public UpdateLoreDto.TypeEnum getType() {

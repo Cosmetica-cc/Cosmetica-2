@@ -17,10 +17,7 @@
 package cc.cosmetica.cosmetica.gui.widget;
 
 import cc.cosmetica.core.api.CachedImage;
-import cc.cosmetica.core.api.CosmeticaAPI;
-import cc.cosmetica.core.api.CosmeticaModel;
 import cc.cosmetica.core.api.texture.CosmeticaTexture;
-import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.util.Lore;
 import cc.cosmetica.kupe.api.Canvas;
@@ -34,7 +31,6 @@ import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
-import gg.cloaks.javaclient.api.DefaultApi;
 import gg.cloaks.javaclient.model.LoreOptions;
 import gg.cloaks.javaclient.model.UpdateLoreDto;
 import gg.cloaks.javaclient.model.UserConnection;
@@ -92,7 +88,7 @@ public class LoreSelector extends Div {
         Function<Component, SelectableLore> selectedState = t -> Cosmetica.SELECTED_LORE.extract(t, loreObj -> {
             SelectableLore selected = null;
             for (SelectableLore lore : loreValues)
-                if (lore.lore.equals(loreObj.text)) {
+                if (lore.value.equals(loreObj.value)) {
                     selected = lore;
                     break;
                 }
@@ -189,10 +185,10 @@ public class LoreSelector extends Div {
      */
     private class SelectableLore extends Div {
         public SelectableLore(String lore) {
-            this.lore = lore;
+            this.value = lore;
         }
 
-        protected final String lore;
+        protected final String value;
         boolean allowDuplication = false;
 
         @Override
@@ -200,7 +196,7 @@ public class LoreSelector extends Div {
             if (button == GLFW.GLFW_MOUSE_BUTTON_1) {
                 Lore current = Cosmetica.SELECTED_LORE.peek();
 
-                if (allowDuplication || !Objects.equals(this.lore, current.text)) {
+                if (allowDuplication || !Objects.equals(this.value, current.value)) {
                     LoreSelector.this.loreModified.set(true);
                     // we should already be on Minecraft thread.
                     Lore old = current.old == null ? current : current.old;
@@ -212,12 +208,12 @@ public class LoreSelector extends Div {
         @Override
         public List<Component> build() {
             return ImmutableList.of(
-                    new Label(Text.literal(lore))
+                    new Label(Text.literal(value))
             );
         }
 
         Lore createLore(Lore current, Lore old) {
-            Lore lore = new Lore(this.lore, current.colour, CachedImage.NO_TEXTURE, "");
+            Lore lore = new Lore(this.value, current.colour, CachedImage.NO_TEXTURE, "");
             lore.old = old;
             return lore;
         }
@@ -257,12 +253,12 @@ public class LoreSelector extends Div {
 
             // count slashes
             int slashes = 0;
-            for (char c : current.text.toCharArray()) {
+            for (char c : current.value.toCharArray()) {
                 if (c == '/') slashes++;
             }
 
             return ImmutableList.of(new Div(
-                    new Label(Text.literal(this.lore)).tag("flex-1"),
+                    new Label(Text.literal(this.value)).tag("flex-1"),
                     new Button(Text.literal("+"), () -> super.mouseClicked(null, 0, 0, 0))
                             .setDisabled(slashes == 3) // max 4 pronouns
             ).tag("innerdiv"));
@@ -277,8 +273,8 @@ public class LoreSelector extends Div {
                 int slashes = 0;
                 StringBuilder sb = new StringBuilder();
 
-                for (int i = 0; i < current.text.length(); i++) {
-                    char c = current.text.charAt(i);
+                for (int i = 0; i < current.value.length(); i++) {
+                    char c = current.value.charAt(i);
                     if (c == '/') slashes++;
                     // immediately on the fourth, cut off. replace the final pronoun.
                     // this is a backup case. this shouldn't be able to happen
@@ -288,9 +284,9 @@ public class LoreSelector extends Div {
                     sb.append(c);
                 }
 
-                lore = new Lore(sb + "/" + this.lore, current.colour, CachedImage.NO_TEXTURE, Lore.PRONOUN_SERVICE);
+                lore = new Lore(sb + "/" + this.value, current.colour, CachedImage.NO_TEXTURE, Lore.PRONOUN_SERVICE);
             } else {
-                lore = new Lore(this.lore, current.colour, CachedImage.NO_TEXTURE, Lore.PRONOUN_SERVICE);
+                lore = new Lore(this.value, current.colour, CachedImage.NO_TEXTURE, Lore.PRONOUN_SERVICE);
             }
 
             lore.old = old;
@@ -318,9 +314,8 @@ public class LoreSelector extends Div {
             this.username = Text.literal(connection.getUsername());
             this.serviceName = Text.literal("§7" + connection.getServiceName());
             // TODO add these to 'keep'
-            // TODO allow changing url location for tesitng
             this.texture = ThumbnailCache.getOrCreateImage("connections", connection.getServiceId(),
-                    new CosmeticaTexture.Builder("https://cosmetica.cc/connections/" + connection.getServiceId() + ".webp", Cosmetica.LOADING_TEXTURE)
+                    new CosmeticaTexture.Builder(System.getProperty("cosmetica.website", "https://cosmetica.cc") + "/connections/" + connection.getServiceId() + ".webp", Cosmetica.LOADING_TEXTURE)
                             .failToLoadTexture(Cosmetica.FALLBACK_TEXTURE));
         }
 
@@ -354,7 +349,7 @@ public class LoreSelector extends Div {
 
         @Override
         Lore createLore(Lore current, Lore old) {
-            return new Lore(this.lore, current.colour, CachedImage.NO_TEXTURE, this.lore /*serviceId*/);
+            return new Lore(this.value, this.username.getDisplayString(), current.colour, this.texture, this.value /*serviceId*/);
         }
     }
 }
