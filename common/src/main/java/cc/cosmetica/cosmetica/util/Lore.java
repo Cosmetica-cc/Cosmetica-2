@@ -18,16 +18,20 @@ package cc.cosmetica.cosmetica.util;
 
 import cc.cosmetica.core.api.CachedImage;
 import gg.cloaks.javaclient.model.UpdateLoreDto;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
 
 /**
  * Pojo for lore.
  */
 public class Lore {
-    public Lore(String text, UpdateLoreDto.ColorEnum colour, CachedImage icon, String service) {
+    public Lore(String text, UpdateLoreDto.ColorEnum colour, @NotNull CachedImage icon, String service) {
         this(text, text, colour, icon, service);
     }
 
-    public Lore(String value, String display, UpdateLoreDto.ColorEnum colour, CachedImage icon, String service) {
+    public Lore(String value, String display, UpdateLoreDto.ColorEnum colour, @NotNull CachedImage icon, String service) {
+        Objects.requireNonNull(icon, "Icon cannot be null! Use NO_TEXTURE.");
         this.value = value;
         this.displayText = display;
         this.colour = colour;

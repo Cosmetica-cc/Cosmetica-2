@@ -16,6 +16,7 @@
 
 package cc.cosmetica.cosmetica.gui;
 
+import cc.cosmetica.core.api.CachedImage;
 import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.ImageCosmetic;
 import cc.cosmetica.core.impl.Logging;
@@ -85,6 +86,10 @@ public class StyleNametagScreen extends Screen {
                             @Override
                             public List<Component> build() {
                                 Lore lore = Cosmetica.SELECTED_LORE.acquire(this);
+                                CachedImage icon = Cosmetica.SELECTED_ICON.extract(this, ic -> !ic.getImage().isLoaded() ? null : ic.getImage());
+                                this.icon(icon);
+                                this.loreIcon(!lore.icon.isLoaded() ? null : lore.icon);
+
                                 if (nametag == -1) {
                                     nametag = this.createNametag(Text.literal(lore.formatted()), 0.75f);
                                 } else {

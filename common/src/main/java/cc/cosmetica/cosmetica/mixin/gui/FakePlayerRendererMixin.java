@@ -18,6 +18,7 @@ package cc.cosmetica.cosmetica.mixin.gui;
 
 import cc.cosmetica.core.api.CachedImage;
 import cc.cosmetica.core.impl.NametagRenderer;
+import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.widget.RotatableGUIPlayer;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Context;
@@ -55,13 +56,13 @@ public class FakePlayerRendererMixin {
     @Inject(at = @At("HEAD"), method = "renderNametag")
     private void onRenderNametag(GUIPlayer.Nametag nametag, Canvas canvas, MultiBufferSource bufferSource,
                                  int packedLight, CallbackInfo ci) {
-        if (nametag == this.nametags.get(0)) {
-            if (this.cosmetica$icon0 != null) {
-                NametagRenderer.prepareIcon(this.cosmetica$icon0, 2, true);
+        if (nametag == nametags.get(0)) {
+            if (cosmetica$icon0 != null) {
+                NametagRenderer.prepareIcon(cosmetica$icon0, 2, true);
             }
-        } else if (nametag == this.nametags.get(1)) {
-            if (this.cosmetica$icon1 != null) {
-                NametagRenderer.prepareIcon(this.cosmetica$icon1, 2, true);
+        } else if (nametags.size() > 1 && nametag == nametags.get(1)) {
+            if (cosmetica$icon1 != null) {
+                NametagRenderer.prepareIcon(cosmetica$icon1, 2, true);
             }
         }
     }

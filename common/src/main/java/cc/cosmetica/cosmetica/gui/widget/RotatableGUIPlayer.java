@@ -50,9 +50,12 @@ public class RotatableGUIPlayer extends GUIPlayer {
 
     public @Nullable CachedImage loreIcon, icon;
 
-    public RotatableGUIPlayer icons(@Nullable CachedImage loreIcon, @Nullable CachedImage icon) {
-        this.loreIcon = loreIcon;
+    public RotatableGUIPlayer icon(@Nullable CachedImage icon) {
         this.icon = icon;
+        return this;
+    }
+    public RotatableGUIPlayer loreIcon(@Nullable CachedImage icon) {
+        this.loreIcon = icon;
         return this;
     }
 

@@ -57,7 +57,8 @@ public class CosmeticaHomeScreen extends Screen {
 						new LayeredSpace(true,
 								new OutfitPlayer(self,
 										Optional.ofNullable(cosmetics).flatMap(Cosmetics::getOutfitName).orElse("§7No Outfit"),
-										Optional.ofNullable(cosmetics).flatMap(Cosmetics::getLore).orElse(NametagConfig.EMPTY)),
+										Optional.ofNullable(cosmetics).flatMap(Cosmetics::getLore).orElse(NametagConfig.EMPTY),
+										Optional.ofNullable(cosmetics).map(Cosmetics::getNametag).orElse(NametagConfig.EMPTY)),
 								new Div(
 										new IconButton(
 												new ResourceKey("cosmetica", "textures/gear.png"),
