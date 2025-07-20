@@ -16,6 +16,8 @@
 
 package cc.cosmetica.cosmetica.gui.widget;
 
+import cc.cosmetica.core.api.CachedImage;
+import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.Element;
@@ -45,6 +47,14 @@ public class RotatableGUIPlayer extends GUIPlayer {
     private boolean drag = false;
     private double xStart = 0;
     private float yawStart = 0;
+
+    public @Nullable CachedImage loreIcon, icon;
+
+    public RotatableGUIPlayer icons(@Nullable CachedImage loreIcon, @Nullable CachedImage icon) {
+        this.loreIcon = loreIcon;
+        this.icon = icon;
+        return this;
+    }
 
     @Override
     public List<Component> build() {

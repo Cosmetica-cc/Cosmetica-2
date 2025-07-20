@@ -16,6 +16,7 @@
   },
   "mixins": [
     "attach.ArmourStandMixin",
-    "attach.PlayerMixin"
+    "attach.PlayerMixin",
+    "gui.FakePlayerRendererMixin"
   ]
 }
