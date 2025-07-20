@@ -119,9 +119,15 @@ public class Cosmetica {
 				}));
 	}
 
-	public static void openWebPanel() {
-		// todo login to website
-		copyAndOpenURL("https://cosmetica.cc/home");
+	public static void openWebPanel(String targetPage) {
+		CosmeticaAPI.performAsync(DefaultApi::authControllerGenerateExchangeToken)
+				.thenAccept(token -> {
+					Cosmetica.copyAndOpenURL("https://cosmetica.cc/login?token=" + token + "&state=" + targetPage);
+				})
+				.exceptionally(ex -> {
+					Logging.getInstance().error("Unable to open " + targetPage + " page", ex);
+					return null;
+				});
 	}
 
 	public static void copyAndOpenURL(String url) {

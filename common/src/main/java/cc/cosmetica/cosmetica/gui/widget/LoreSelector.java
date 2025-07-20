@@ -17,6 +17,8 @@
 package cc.cosmetica.cosmetica.gui.widget;
 
 import cc.cosmetica.core.api.CachedImage;
+import cc.cosmetica.core.api.CosmeticaAPI;
+import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.util.Lore;
 import cc.cosmetica.kupe.api.Canvas;
@@ -30,10 +32,10 @@ import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
+import gg.cloaks.javaclient.api.DefaultApi;
 import gg.cloaks.javaclient.model.LoreOptions;
 import gg.cloaks.javaclient.model.UpdateLoreDto;
 import gg.cloaks.javaclient.model.UserConnection;
-import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
@@ -99,10 +101,10 @@ public class LoreSelector extends Div {
                 new LoreHeader(Cosmetica.SELECTED_LORE::acquire, loreOptions.getColors()).tag("horizontal", "header"),
                 (page == 2 && loreValues.length == 0) ? new Div(
                         new Div().tag("flex-1"),
-                        new Label(Text.translatable("label.lore.referToWebsite")),
-                        new Button(Text.translatable("button.lore.openWebPanel"), Cosmetica::openWebPanel),
+                        new Label(Text.translatable("label.lore.noConnections")),
+                        new Button(Text.translatable("button.lore.connectDiscord"), LoreSelector::openConnectDiscord),
                         new Div().withStyle(Style.create().set(FLEX, 3))
-                ).tag("flex-1", "refer-to-website") :
+                ).tag("flex-1", "no-connections") :
                 new EntryList.Div(loreValues, selectedState)
                         .selected(
                                 Style.create()
@@ -131,7 +133,7 @@ public class LoreSelector extends Div {
                         .set(ALIGN_ITEMS, Align.STRETCH_START))
                 .tag("header", Style.create()
                         .set(MARGINS, fixed(new Margins(0,0,2,0))))
-                .tag("refer-to-website", Style.create()
+                .tag("no-connections", Style.create()
                         .set(BACKGROUND_COLOUR, OptionalInt.of(0))
                         .set(PADDING, fixed(new Margins(2)))
                         .set(Label.ALIGN_TEXT, Align.CENTRE))
@@ -139,6 +141,10 @@ public class LoreSelector extends Div {
                         .set(WIDTH, percent(33, 0)))
                 .tag("lore-types", Style.create()
                         .set(JUSTIFY_CONTENT, Justify.SPACE_BETWEEN));
+    }
+
+    private static void openConnectDiscord() {
+        Cosmetica.openWebPanel("discord-connect");
     }
 
     private static class LoreHeader extends Div {

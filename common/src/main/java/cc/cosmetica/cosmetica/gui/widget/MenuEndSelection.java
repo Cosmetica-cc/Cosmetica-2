@@ -48,7 +48,7 @@ public class MenuEndSelection extends Div {
         return ImmutableList.of(
                 new Button(Text.GUI_DONE, Screens::closeCurrentScreen),
                 new IconButton(new ResourceKey("cosmetica", "textures/internet.png"), () -> {
-                    Cosmetica.openWebPanel();
+                    Cosmetica.openWebPanel("home");
                     CLICKED.set(true);
                 }, (region, x, y) -> {
                     if (CLICKED.peek() && !region.contains((int)x, (int)y)) {
