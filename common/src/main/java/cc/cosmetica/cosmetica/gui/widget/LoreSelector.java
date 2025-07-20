@@ -18,6 +18,8 @@ package cc.cosmetica.cosmetica.gui.widget;
 
 import cc.cosmetica.core.api.CachedImage;
 import cc.cosmetica.core.api.CosmeticaAPI;
+import cc.cosmetica.core.api.CosmeticaModel;
+import cc.cosmetica.core.api.texture.CosmeticaTexture;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.util.Lore;
@@ -315,7 +317,11 @@ public class LoreSelector extends Div {
             super(connection.getServiceId() /* Connection lore is set by service id. */);
             this.username = Text.literal(connection.getUsername());
             this.serviceName = Text.literal("§7" + connection.getServiceName());
-            this.texture = CachedImage.NO_TEXTURE;
+            // TODO add these to 'keep'
+            // TODO allow changing url location for tesitng
+            this.texture = ThumbnailCache.getOrCreateImage("connections", connection.getServiceId(),
+                    new CosmeticaTexture.Builder("https://cosmetica.cc/connections/" + connection.getServiceId() + ".webp", Cosmetica.LOADING_TEXTURE)
+                            .failToLoadTexture(Cosmetica.FALLBACK_TEXTURE));
         }
 
         private final Text username;

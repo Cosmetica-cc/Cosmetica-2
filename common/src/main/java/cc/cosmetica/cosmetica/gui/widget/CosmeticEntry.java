@@ -19,6 +19,7 @@ package cc.cosmetica.cosmetica.gui.widget;
 import cc.cosmetica.core.api.CachedImage;
 import cc.cosmetica.core.api.CosmeticaModel;
 import cc.cosmetica.core.impl.BlockModelManager;
+import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;
@@ -28,7 +29,9 @@ import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
+import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
@@ -85,6 +88,12 @@ public class CosmeticEntry extends Component {
 		}
 
 		return ImmutableList.of(new Div(content.toArray(new Component[content.size()])).tag("centry_root"));
+	}
+
+	@Override
+	protected void paintBackground(Canvas canvas, Region region, Margins padding) {
+//		RenderSystem.disableDepthTest();
+		super.paintBackground(canvas, region, padding);
 	}
 
 	@Override
