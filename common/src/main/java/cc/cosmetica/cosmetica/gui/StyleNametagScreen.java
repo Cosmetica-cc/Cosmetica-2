@@ -53,17 +53,17 @@ public class StyleNametagScreen extends Screen {
 
         // refresh available lores
         CosmeticaAPI.performAsync(DefaultApi::loreControllerGetLoreOptions)
-                .thenAccept(loreOptions -> Minecraft.getInstance().execute(() -> availableLores.set(loreOptions)));
+                .thenAcceptAsync(loreOptions -> availableLores.set(loreOptions), Minecraft.getInstance());
         // refresh available icons
         CosmeticaAPI.performAsync(DefaultApi::iconsControllerGet)
-                .thenAccept(icons -> Minecraft.getInstance().execute(() -> {
+                .thenAcceptAsync(icons -> {
                     List<ImageCosmetic> newAvailableIcons = new ArrayList<>();
                     for (Icon icon : icons) {
                         newAvailableIcons.add(ImageCosmetic.fromIcon(icon));
                     }
                     Logging.getInstance().debug("loaded {} available icons", newAvailableIcons.size());
                     availableIcons.set(newAvailableIcons);
-                }));
+                }, Minecraft.getInstance());
     }
 
     private final AtomicBoolean iconDirty = new AtomicBoolean(false);

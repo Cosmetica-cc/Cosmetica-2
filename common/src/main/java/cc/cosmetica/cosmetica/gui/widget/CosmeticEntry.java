@@ -17,10 +17,11 @@
 package cc.cosmetica.cosmetica.gui.widget;
 
 import cc.cosmetica.core.api.CachedImage;
-import cc.cosmetica.core.api.CosmeticaModel;
-import cc.cosmetica.core.impl.BlockModelManager;
+import cc.cosmetica.core.api.Cosmetics;
+import cc.cosmetica.cosmetica.gui.ConfirmScreen;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.ResourceKey;
+import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.RootStylesheet;
@@ -31,41 +32,44 @@ import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 public class CosmeticEntry extends Component {
-	public CosmeticEntry(ResourceKey icon, String id, String name, String owner, int editable) {
+	public CosmeticEntry(Cosmetics cosmetics, ResourceKey icon, String id, String name, String owner, int editable, Category category) {
+		this.parentOutfit = cosmetics;
 		this.image = null;
 		this.icon = icon;
 		this.id = id;
 		this.name = name;
 		this.owner = owner;
 		this.editable = editable;
+		this.category = category;
 	}
 
-	public CosmeticEntry(CachedImage image, String id, String name, String owner, int editable) {
+	public CosmeticEntry(Cosmetics cosmetics, CachedImage image, String id, String name, String owner, int editable, Category category) {
+		this.parentOutfit = cosmetics;
 		this.image = image;
 		this.icon = new ResourceKey(image.location);
 		this.id = id;
 		this.name = name;
 		this.owner = owner;
 		this.editable = editable;
+		this.category = category;
 	}
 
 	// need to hold onto cached image so it doesn't get GC'd
 	private final CachedImage image;
 	//
+	private final Cosmetics parentOutfit;
 	private final ResourceKey icon;
 	private final String id;
 	private final String name;
 	private final String owner;
 	private final int editable;
+	private final Category category;
 
 	@Override
 	public List<Component> build() {
@@ -77,14 +81,15 @@ public class CosmeticEntry extends Component {
 				).tag("centry_names")
 		));
 
-		// add X if editable
+		// add remove button if editable
 		if (this.editable > 0) {
-			content.add(new Button(Text.literal("X"), () -> {})
-					.setDisabled(this.editable != 1)
-					.withStyle(Style.create().set(TOOLTIP,
-							this.editable == 1 ? Optional.empty()
-									: Optional.of(new Tooltip(Text.translatable("cosmetica.offline")))
-					)));
+			content.add(new Button(Text.literal("-"), () -> {
+				Screens.setScreen(new ConfirmScreen(this.parentOutfit, this.id, this.name), Text.translatable("screens.cosmetica.confirmDeletion"));
+			}).setDisabled(this.editable != 1)
+			  .withStyle(Style.create().set(TOOLTIP,
+					this.editable == 1 ? Optional.empty()
+							: Optional.of(new Tooltip(Text.translatable("cosmetica.offline")))
+			  )));
 		}
 
 		return ImmutableList.of(new Div(content.toArray(new Component[content.size()])).tag("centry_root"));
@@ -123,5 +128,10 @@ public class CosmeticEntry extends Component {
 	static {
 		RootStylesheet.setDefaultOverrides(CosmeticEntry.class, Style.create()
 				.set(MAXIMUM_SIZE, fixed(new Dimensions(Integer.MAX_VALUE, 40))));
+	}
+
+	public enum Category {
+		ACCESSORY,
+		CAPE
 	}
 }

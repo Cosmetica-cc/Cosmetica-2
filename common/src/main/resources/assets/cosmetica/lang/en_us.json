@@ -15,6 +15,7 @@
   "key.cosmetica.select_outfit": "Outfit Wheel",
   "key.cosmetica.snipe": "Outfit Sniper",
   "label.browse.search": "Search...",
+  "label.cosmetica.confirmRemove": "Are you sure you would like to remove %s from %s?",
   "label.cosmetica.create": "Create",
   "label.cosmetica.loading": "Loading...",
   "label.cosmetica.newOutfit": "New Outfit",
@@ -22,11 +23,12 @@
   "label.create_new_outfit.outfitName": "Outfit Name",
   "label.create_new_outfit.searchable": "Searchable: %s",
   "label.icons.icon": "Icon: %s",
-  "label.icons.no_icon": "Icon: §7No Icon",
+  "label.icons.noIcon": "Icon: §7No Icon",
   "label.lore.lore": "Lore: %s",
-  "label.lore.no_lore": "Lore: §7No Lore",
+  "label.lore.noLore": "Lore: §7No Lore",
   "label.lore.noConnections": "You don't have any connections yet!",
   "label.wheel.page": "Page %s/%s",
+  "screens.cosmetica.confirmDeletion": "Confirm Deletion",
   "screens.cosmetica.create_new_outfit": "Create New Outfit",
   "screens.cosmetica.home": "Cosmetica",
   "screens.cosmetica.outfit_select": "Select Outfit",
@@ -40,5 +42,6 @@
   "setting.cosmetica.wheel.false": "Hold",
   "tooltip.cosmetica.openWebPanel": "Open Web Panel",
   "tooltip.cosmetica.outfitAlreadySelected": "Already wearing this outfit!",
-  "tooltip.cosmetica.copiedURL": "Copied URL!"
+  "tooltip.cosmetica.copiedURL": "Copied URL!",
+  "tooltip.cosmetica.updatingOutfit": "Updating Outfit..."
 }

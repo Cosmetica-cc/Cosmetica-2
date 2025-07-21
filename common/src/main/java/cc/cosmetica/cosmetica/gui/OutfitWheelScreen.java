@@ -20,6 +20,7 @@ import cc.cosmetica.core.api.CachedImage;
 import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.CosmeticaModel;
 import cc.cosmetica.core.api.texture.CosmeticaTexture;
+import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.Keybinds;
 import cc.cosmetica.cosmetica.Setting;
@@ -568,7 +569,7 @@ public class OutfitWheelScreen extends Screen {
             Cosmetica.SELECTED_OUTFIT_ID.set(Optional.of(this.id));
 
             CosmeticaAPI.performAsync(api -> api.outfitsControllerEquip(this.id))
-                    .thenAccept(user -> System.out.println("Success!"))
+                    .thenAccept(user -> Logging.getInstance().debug("Equip Success!"))
                     .exceptionally(except -> {
                         new RuntimeException("Outfits Controller Equip", except).printStackTrace();
                         return null;

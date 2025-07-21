@@ -101,11 +101,13 @@ public class CosmeticaHomeScreen extends Screen {
 			}
 
 			entryList.add(new CosmeticEntry(
+					cosmetics,
 					getOrCreateThumb(cloak.getThumbnail(), "thumbs-c", cloak.getId(), 3), // TODO in core give ticks per frame (expose AnimatedTextureCosmetic)
 					cloak.getId(),
 					cloak.getName(),
 					message, //cloak.getCreator().isPresent() ? cloak.getCreator().get().getName() : "Could not load creator"
-					editable
+					editable,
+					CosmeticEntry.Category.CAPE
 			));
 		}
 
@@ -113,11 +115,13 @@ public class CosmeticaHomeScreen extends Screen {
 			ImageCosmetic elytra = cosmetics.getElytra().get();
 
 			entryList.add(new CosmeticEntry(
+					cosmetics,
 					getOrCreateThumb(elytra.getThumbnail(), "thumbs-c", elytra.getId(), 3), // TODO in core give ticks per frame (expose AnimatedTextureCosmetic)
 					elytra.getId(),
 					elytra.getName(),
 					"Elytra", //elytra.getCreator().isPresent() ? elytra.getCreator().get().getName() : "Could not load creator"
-					editable
+					editable,
+					CosmeticEntry.Category.CAPE
 			));
 		}
 
@@ -127,11 +131,13 @@ public class CosmeticaHomeScreen extends Screen {
 
 			// n.b. reference to CachedImage needs to be stored on the entry so it doesn't get GC'd
 			entryList.add(new CosmeticEntry(
+					cosmetics,
 					thumbnail,
 					accessory.getId(),
 					accessory.getName(),
 					accessory.getCreator().isPresent() ? accessory.getCreator().get().getName() : "Could not load creator",
-					editable
+					editable,
+					CosmeticEntry.Category.ACCESSORY
 			));
 		}
 	}

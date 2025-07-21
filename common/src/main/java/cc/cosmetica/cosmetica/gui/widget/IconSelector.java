@@ -118,7 +118,7 @@ public class IconSelector extends Div {
             boolean noIcon = icon == null;
             ResourceLocation location = noIcon ? null : icon.cosmetic.getImage().location;
 
-            Text displayIcon = noIcon ? Text.translatable("label.icons.no_icon") :
+            Text displayIcon = noIcon ? Text.translatable("label.icons.noIcon") :
                     Text.translatable("label.icons.icon", icon.cosmetic.getName());
 
             return ImmutableList.of(

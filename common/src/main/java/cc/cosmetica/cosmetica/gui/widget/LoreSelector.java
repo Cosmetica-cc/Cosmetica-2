@@ -157,7 +157,7 @@ public class LoreSelector extends Div {
         @Override
         public List<Component> build() {
             Lore lore = this.icon.apply(this);
-            Text displayLore = lore.isNoLore() ? Text.translatable("label.lore.no_lore") : Text.translatable("label.lore.lore", lore.formatted());
+            Text displayLore = lore.isNoLore() ? Text.translatable("label.lore.noLore") : Text.translatable("label.lore.lore", lore.formatted());
 
             List<Component> result = new ArrayList<>();
 
