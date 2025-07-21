@@ -49,7 +49,6 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 public class StyleNametagScreen extends Screen {
     public StyleNametagScreen() {
         super(ID);
-        Screens.closeCurrentScreen();
 
         // refresh available lores
         CosmeticaAPI.performAsync(DefaultApi::loreControllerGetLoreOptions)

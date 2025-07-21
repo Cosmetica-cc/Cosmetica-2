@@ -36,10 +36,8 @@ import gg.cloaks.javaclient.model.CreateOutfitDto;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.math.BigDecimal;
+import java.util.*;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
@@ -94,7 +92,11 @@ public class ConfirmScreen extends Screen {
                                     CreateOutfitAccessoryDto caod = new CreateOutfitAccessoryDto();
                                     caod.id(accessory.getId());
                                     caod.mirrored(accessory.isMirrored());
-                                    caod.setOffset(accessory.getJsonObject().getOffset());
+                                    caod.setOffset(Arrays.asList(
+                                            BigDecimal.valueOf(accessory.getOffset().x),
+                                            BigDecimal.valueOf(accessory.getOffset().y),
+                                            BigDecimal.valueOf(accessory.getOffset().z)
+                                    ));
                                     accessories.add(caod);
                                 }
                             }
