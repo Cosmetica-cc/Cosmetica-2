@@ -63,11 +63,12 @@ public class SnipeScreen extends Screen {
         // TODO armour stands dont have an autoupdated cosmetic state currently. we subscribe to automatic outfit updates, so this should be done?
         this.cosmetics = ((StateHolder)entity).cosmetica$getCosmeticState();
         this.playerUUID = entity instanceof Player ? entity.getUUID() : null;
-        this.isSetting = new State<>(false);
+        // TODO use a central state for authenticated in case re-auth. compose states with isSetting
+        this.isSettingOrUnauthenticated = new State<>(CosmeticaAPI.isAuthenticated());
     }
 
     private final State<Cosmetics> cosmetics;
-    private final State<Boolean> isSetting;
+    private final State<Boolean> isSettingOrUnauthenticated;
     private final State<Boolean> showingElytra = new State<>(false);
     private final @Nullable UUID playerUUID;
 
@@ -104,12 +105,12 @@ public class SnipeScreen extends Screen {
                                 .tag("main-section")
                 ).tag("main-content"),
                 new StealTheirLookButton(
-                        outfit, this.isSetting,
+                        outfit, this.isSettingOrUnauthenticated,
                         Text.translatable("button.cosmetica.stealHisLook"),
                         () -> {
                             String outfitId = outfit.getOutfitId().orElse("");
                             if (outfitId.isEmpty()) {
-                                this.isSetting.set(true);
+                                this.isSettingOrUnauthenticated.set(true);
                                 CosmeticaAPI.performAsync(DefaultApi::outfitsControllerUnequip)
                                         .thenAccept(__ -> {
                                             Logging.getInstance().debug("Cleared Cosmetics by Steal-their-look.");
@@ -117,7 +118,7 @@ public class SnipeScreen extends Screen {
                                         })
                                         .exceptionally(err -> {
                                             Logging.getInstance().error("Failed to unequip cosmetics!", err);
-                                            Minecraft.getInstance().tell(()->this.isSetting.set(false));
+                                            Minecraft.getInstance().tell(()->this.isSettingOrUnauthenticated.set(false));
                                             return null;
                                         });
                                 return;
@@ -128,7 +129,7 @@ public class SnipeScreen extends Screen {
                             // do match by value and swap the id for own for better user experience
                             String ownedOutfit = findIdenticalOwnedOutfit(outfit);
                             if (ownedOutfit != null) {
-                                this.isSetting.set(true);
+                                this.isSettingOrUnauthenticated.set(true);
                                 // can set cosmetics immediately
                                 CosmeticaAPI.performAsync(api->api.outfitsControllerEquip(ownedOutfit))
                                         .thenAccept(__ -> {
@@ -137,7 +138,7 @@ public class SnipeScreen extends Screen {
                                         })
                                         .exceptionally(err -> {
                                             Logging.getInstance().error("Failed to set cosmetics!", err);
-                                            Minecraft.getInstance().tell(()->this.isSetting.set(false));
+                                            Minecraft.getInstance().tell(()->this.isSettingOrUnauthenticated.set(false));
                                             return null;
                                         });
                             } else {

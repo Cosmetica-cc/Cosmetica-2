@@ -49,13 +49,16 @@ public class CosmeticaHomeScreen extends Screen {
 		UUID self = Minecraft.getInstance().getUser().getGameProfile().getId();
 
 		Cosmetics cosmetics = Cosmetica.OWN_COSMETICS.acquire(this);
+		boolean authenticated = CosmeticaAPI.isAuthenticated();
+
 		List<CosmeticEntry> entries = new ArrayList<>();
-		populateEntryList(entries, cosmetics, 1); // TODO offline detection
+		populateEntryList(entries, cosmetics, authenticated ? 2 : 1);
 
 		return new Component[] {
 				new Div(
 						new LayeredSpace(true,
 								new OutfitPlayer(self,
+										authenticated,
 										Optional.ofNullable(cosmetics).flatMap(Cosmetics::getOutfitName).orElse("§7No Outfit"),
 										Optional.ofNullable(cosmetics).flatMap(Cosmetics::getLore).orElse(NametagConfig.EMPTY),
 										Optional.ofNullable(cosmetics).map(Cosmetics::getNametag).orElse(NametagConfig.EMPTY)),
@@ -66,6 +69,8 @@ public class CosmeticaHomeScreen extends Screen {
 										new IconButton(
 												new ResourceKey("minecraft", "textures/item/name_tag.png"),
 												() -> Screens.setScreen(StyleNametagScreen.ID))
+												.setDisabled(!authenticated)
+												.withStyle(Cosmetica.authTooltip(authenticated))
 								).withStyle(Style.create()
 										.set(Div.ALIGN_ITEMS, Align.START)
 										.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X))

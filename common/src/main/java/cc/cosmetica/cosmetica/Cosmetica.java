@@ -25,7 +25,10 @@ import cc.cosmetica.cosmetica.gui.player.AccessoryAttachment;
 import cc.cosmetica.cosmetica.util.Lore;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.State;
+import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
+import cc.cosmetica.kupe.api.gui.Tooltip;
+import cc.cosmetica.kupe.api.gui.style.Style;
 import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.api.DefaultApi;
 import gg.cloaks.javaclient.model.UpdateLoreDto;
@@ -41,6 +44,8 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static cc.cosmetica.kupe.api.gui.style.CommonProperties.TOOLTIP;
 
 public class Cosmetica {
 	// States showing the actual latest cosmetica server data
@@ -138,6 +143,12 @@ public class Cosmetica {
 		} catch (Exception e) {
 			throw new RuntimeException("bruh", e);
 		}
+	}
+
+	public static Style authTooltip(boolean authenticated) {
+		return Style.create().set(TOOLTIP, authenticated ?
+				Optional.empty() :
+				Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.offline"))));
 	}
 
 	// ============== //

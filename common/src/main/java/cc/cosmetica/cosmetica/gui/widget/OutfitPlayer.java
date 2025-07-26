@@ -17,6 +17,7 @@
 package cc.cosmetica.cosmetica.gui.widget;
 
 import cc.cosmetica.core.api.NametagConfig;
+import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.OutfitSelectScreen;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.State;
@@ -36,14 +37,16 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.WIDTH;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.fixed;
 
 public class OutfitPlayer extends Component {
-	public OutfitPlayer(UUID player, String outfitName, NametagConfig lore, NametagConfig nametag) {
+	public OutfitPlayer(UUID player, boolean authenticated, String outfitName, NametagConfig lore, NametagConfig nametag) {
 		this.player = player;
 		this.outfitName = outfitName;
 		this.lore = lore;
 		this.nametag = nametag;
+		this.authenticated = authenticated;
 	}
 
 	private final UUID player;
+	private final boolean authenticated;
 	private final String outfitName;
 	private final NametagConfig lore;
 	private final NametagConfig nametag;
@@ -62,7 +65,9 @@ public class OutfitPlayer extends Component {
 							this.showingElytra,
 							Text.translatable("button.cosmetica.toggleCape"),
 							Text.translatable("button.cosmetica.toggleElytra")),
-					new Button(Text.translatable("button.cosmetica.changeOutfit"), () -> Screens.setScreen(OutfitSelectScreen.ID)),
+					new Button(Text.translatable("button.cosmetica.changeOutfit"), () -> Screens.setScreen(OutfitSelectScreen.ID))
+							.setDisabled(!authenticated)
+							.withStyle(Cosmetica.authTooltip(authenticated)),
 //					new Button(Text.translatable("button.cosmetica.styleNametag"), () -> {
 //						Screens.setScreen(StyleNametagScreen.ID);
 //					}),

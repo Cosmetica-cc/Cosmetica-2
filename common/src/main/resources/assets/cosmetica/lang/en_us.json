@@ -43,5 +43,6 @@
   "tooltip.cosmetica.openWebPanel": "Open Web Panel",
   "tooltip.cosmetica.outfitAlreadySelected": "Already wearing this outfit!",
   "tooltip.cosmetica.copiedURL": "Copied URL!",
+  "tooltip.cosmetica.offline": "This feature is unavailable because you are offline",
   "tooltip.cosmetica.updatingOutfit": "Updating Outfit..."
 }
