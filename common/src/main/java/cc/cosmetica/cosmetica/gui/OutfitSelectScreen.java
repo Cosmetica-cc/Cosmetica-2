@@ -18,10 +18,7 @@ package cc.cosmetica.cosmetica.gui;
 
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.widget.EntryList;
-import cc.cosmetica.kupe.api.ResourceKey;
-import cc.cosmetica.kupe.api.Screen;
-import cc.cosmetica.kupe.api.Screens;
-import cc.cosmetica.kupe.api.Text;
+import cc.cosmetica.kupe.api.*;
 import cc.cosmetica.kupe.api.gui.Button;
 import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.Element;
@@ -29,6 +26,7 @@ import cc.cosmetica.kupe.api.gui.Image;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Margins;
+import cc.cosmetica.kupe.api.maths.Region;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -116,6 +114,17 @@ public class OutfitSelectScreen extends Screen {
             GuiUtils.playClick();
             // visually set & make request
             this.option.equipAsync();
+        }
+
+        @Override
+        public void render(Canvas canvas, Region region, Margins padding, int mouseX, int mouseY) {
+            // hover
+            if (region.contains(mouseX, mouseY)) {
+                canvas.setTransparency(0.5f);//todo fix kupe transparency
+                canvas.drawRect(region, 0x77FFFFFF);
+                canvas.disableTransparency();
+            }
+            super.render(canvas, region, padding, mouseX, mouseY);
         }
     }
 }
