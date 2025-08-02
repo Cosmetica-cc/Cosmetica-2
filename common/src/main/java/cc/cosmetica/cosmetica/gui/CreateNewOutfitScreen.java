@@ -20,16 +20,17 @@ import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.kupe.api.*;
-import cc.cosmetica.kupe.api.gui.Button;
-import cc.cosmetica.kupe.api.gui.Component;
-import cc.cosmetica.kupe.api.gui.Div;
-import cc.cosmetica.kupe.api.gui.TextBox;
-import gg.cloaks.javaclient.api.DefaultApi;
+import cc.cosmetica.kupe.api.gui.*;
+import cc.cosmetica.kupe.api.gui.style.Style;
 import gg.cloaks.javaclient.model.CreateOutfitDto;
 import net.minecraft.client.Minecraft;
-import org.openapitools.jackson.nullable.JsonNullable;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static cc.cosmetica.kupe.api.gui.style.CommonProperties.TOOLTIP;
 
 public class CreateNewOutfitScreen extends Screen {
     public CreateNewOutfitScreen() {
@@ -45,7 +46,6 @@ public class CreateNewOutfitScreen extends Screen {
 
     @Override
     protected Component[] buildScreen() {
-        String outfitName = this.outfitName.acquire(this);
         boolean outfitPublic = this.outfitPublic.acquire(this);
         boolean disabled = this.disabled.acquire(this);
 
@@ -57,10 +57,24 @@ public class CreateNewOutfitScreen extends Screen {
                         outfitPublic ? Text.GUI_YES.getDisplayString() : Text.GUI_NO.getDisplayString()),
                         () -> this.outfitPublic.set(!outfitPublic))
                         .setDisabled(disabled),
-                new Div(
+                createSubmissionGroup(outfitPublic, disabled)
+        };
+    }
+
+    private Component createSubmissionGroup(boolean outfitPublic, boolean disabled) {
+        final int nameMinChars = 3;
+
+        return new Div() {
+            @Override
+            public List<Component> build() {
+                // todo trim() doesn't account for special characters like fwsp
+                String outfitName = CreateNewOutfitScreen.this.outfitName.acquire(this).trim();
+                boolean legalName = outfitName.length() >= nameMinChars;
+
+                return Arrays.asList(
                         new Button(Text.translatable("label.cosmetica.create"), () -> {
                             // disable buttons/textbox
-                            this.disabled.set(true);
+                            CreateNewOutfitScreen.this.disabled.set(true);
                             // make request
                             CreateOutfitDto dto = new CreateOutfitDto()
                                     .name(outfitName)
@@ -71,11 +85,15 @@ public class CreateNewOutfitScreen extends Screen {
                                     .thenAcceptAsync(outfit -> Screens.closeCurrentScreen(), Minecraft.getInstance()) // should receive websocket update
                                     .exceptionally(Cosmetica.mainThreadExcept(err -> {
                                         Logging.getInstance().error("Error creating new outfit", err);
-                                        this.disabled.set(false);
+                                        CreateNewOutfitScreen.this.disabled.set(false);
                                     }));
-                        }).setDisabled(disabled),
+                        }).setDisabled(disabled || !legalName),
                         new Button(Text.GUI_CANCEL, Screens::closeCurrentScreen).setDisabled(disabled)
-                )
+                                .withStyle(Style.create()
+                                        .set(TOOLTIP, !legalName && !outfitName.isEmpty() ? Optional.of(new Tooltip(Text.translatable("cosmetica.tooltip.notLongEnough"))) : Optional.empty())
+                                )
+                );
+            }
         };
     }
 
