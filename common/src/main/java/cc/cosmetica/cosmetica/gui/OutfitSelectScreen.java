@@ -16,19 +16,23 @@
 
 package cc.cosmetica.cosmetica.gui;
 
+import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.widget.EntryList;
+import cc.cosmetica.cosmetica.gui.widget.OutfitCount;
 import cc.cosmetica.kupe.api.*;
-import cc.cosmetica.kupe.api.gui.Button;
-import cc.cosmetica.kupe.api.gui.Component;
-import cc.cosmetica.kupe.api.gui.Element;
-import cc.cosmetica.kupe.api.gui.Image;
+import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
+import gg.cloaks.javaclient.api.DefaultApi;
+import gg.cloaks.javaclient.model.PlanRestrictions;
+import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
 
+import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.OptionalInt;
 
@@ -37,39 +41,56 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 /**
  * The menu outfit select screen. For the wheel, see {@link OutfitWheelScreen}.
  */
-public class OutfitSelectScreen extends Screen {
+public class OutfitSelectScreen extends Component {
     public OutfitSelectScreen() {
-        super(ID);
+        this.title = ID.translationKey("screens");
+        this.outfitLimit = new State<>(-1);
+
+        CosmeticaAPI.performAsync(DefaultApi::premiumControllerGetRestrictions)
+                .thenApply(PlanRestrictions::getMaxOutfits)
+                .thenApply(BigDecimal::intValue)
+                .thenAcceptAsync(this.outfitLimit::set, Minecraft.getInstance());
 //        Cosmetica.fetchOutfits();
     }
 
+    private final Text title;
+    private final State<Integer> outfitLimit;
+
     @Override
-    protected Component[] buildScreen() {
+    public List<Component> build() {
         List<OutfitWheelScreen.OutfitOption> options = Cosmetica.OWN_OUTFITS.acquire(this);
 
         SelectableOutfit[] components = options.stream()
                 .map(SelectableOutfit::new)
                 .toArray(SelectableOutfit[]::new);
 
-        return new Component[] {
-                new EntryList.Grid(
-                        components,
-                        grid -> Cosmetica.SELECTED_OUTFIT_ID.extract(grid, id -> find(components, id.orElse("")))
-                ).withStyle(Style.create()
-                        .set(WIDTH, screen(75, 0))
-                        .set(MIN_WIDTH, screen(75, 0))
-                        .set(MIN_HEIGHT, screen(0, 60))
-                        .set(EntryList.Grid.COLUMN_GAP, 2)
-                        .set(EntryList.Grid.ROW_GAP, 2)
-                        .set(BACKGROUND_COLOUR, OptionalInt.empty())),
-                new Button(Text.translatable("label.cosmetica.newOutfit"), ()->Screens.setScreen(CreateNewOutfitScreen.ID)),
-                new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
-        };
+        return Arrays.asList(
+                new Div(
+                        new Label(this.title),
+                        new OutfitCount(this.outfitLimit)
+                ).tag("title"),
+                new Div(
+                        new EntryList.Grid(
+                                components,
+                                grid -> Cosmetica.SELECTED_OUTFIT_ID.extract(grid, id -> find(components, id.orElse("")))
+                        ).withStyle(Style.create()
+                                .set(WIDTH, screen(75, 0))
+                                .set(MIN_WIDTH, screen(75, 0))
+                                .set(MIN_HEIGHT, screen(0, 60))
+                                .set(EntryList.Grid.COLUMN_GAP, 2)
+                                .set(EntryList.Grid.ROW_GAP, 2)
+                                .set(BACKGROUND_COLOUR, OptionalInt.empty())),
+                        new Button(Text.translatable("label.cosmetica.newOutfit"), ()->Screens.setScreen(CreateNewOutfitScreen.ID)),
+                        new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
+                ).tag("body")
+        );
     }
 
     @Override
     public @NotNull Stylesheet getStylesheet() {
-        return super.getStylesheet()
+        return new Stylesheet()
+                .tag("body", Screen.BODY_DEFAULT_STYLE)
+                .tag("title", Screen.TITLE_DEFAULT_STYLE)
                 .tag("body", Style.create()
                         // 15(title margin) + 6(related to text height) + 2(extra gap)
                         .set(MARGINS, fixed(new Margins(15 + 6 + 2, 0, 0, 0))))
