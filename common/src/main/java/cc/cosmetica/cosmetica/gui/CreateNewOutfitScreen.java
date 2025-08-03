@@ -61,14 +61,23 @@ public class CreateNewOutfitScreen extends Screen {
         };
     }
 
+    public static String strip(String input) {
+        if (input == null) {
+            return null;
+        }
+        // Handle all unicode spaces
+        return input.replaceAll("^[\\p{Space}]+|[\\p{Space}]+$", "");
+    }
+
     private Component createSubmissionGroup(boolean outfitPublic, boolean disabled) {
         final int nameMinChars = 3;
 
         return new Div() {
             @Override
             public List<Component> build() {
-                // todo trim() doesn't account for special characters like fwsp
-                String outfitName = CreateNewOutfitScreen.this.outfitName.acquire(this).trim();
+                // todo check other character constraints
+                // combined with trim in case \pSpace doesn't account for control characters - though I doubt they can type those
+                String outfitName = strip(CreateNewOutfitScreen.this.outfitName.acquire(this).trim());
                 boolean legalName = outfitName.length() >= nameMinChars;
 
                 return Arrays.asList(
