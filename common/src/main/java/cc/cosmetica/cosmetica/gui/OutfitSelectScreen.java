@@ -26,6 +26,7 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
+import com.mojang.blaze3d.systems.RenderSystem;
 import gg.cloaks.javaclient.api.DefaultApi;
 import gg.cloaks.javaclient.model.PlanRestrictions;
 import net.minecraft.client.Minecraft;
@@ -95,6 +96,7 @@ public class OutfitSelectScreen extends Component {
                         // 15(title margin) + 6(related to text height) + 2(extra gap)
                         .set(MARGINS, fixed(new Margins(15 + 6 + 2, 0, 0, 0))))
                 .component(SelectableOutfit.class, Style.create()
+//                        .set(POINTER_EVENTS, PointerEvents.ALL)
                         .set(WIDTH, fixed(OptionalInt.of(50)))
                         .set(HEIGHT, fixed(OptionalInt.of(50))));
     }
@@ -118,18 +120,57 @@ public class OutfitSelectScreen extends Component {
     /**
      * A selectable outfit item in the menu.
      */
-    static class SelectableOutfit extends Image {
+    static class SelectableOutfit extends LayeredSpace {
         SelectableOutfit(OutfitWheelScreen.OutfitOption option) {
-            super(new ResourceKey(option.thumbnail.location));
+            super(true);
             this.option = option;
-            this.setTransparent(option.usable ? 1.0f : 0.5f);
         }
 
         private final OutfitWheelScreen.OutfitOption option;
+        // todo perhaps transparency more cleanly done as a reactive state on the icon
+        private Image icon;
+
+        @Override
+        public List<Component> build() {
+            final int deleteButtonSize = 12;
+            final int margin = 50-deleteButtonSize;
+            final ResourceKey deleteTexture = new ResourceKey("cosmetica", "textures/remove.png");
+
+            return Arrays.asList(
+                    new Image(new ResourceKey(option.thumbnail.location))
+                            .setTransparent(option.usable ? 1.0f : 0.5f),
+                    (this.icon = new Image(deleteTexture) {
+                        @Override
+                        public void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
+                            if (region.contains(mouseX, mouseY)) {
+                                canvas.setTransparency(1.0f);
+                                // todo kupe api for binding a texture
+                                RenderSystem.enableTexture();
+                                Minecraft.getInstance().getTextureManager().bind(deleteTexture.toResourceLocation());
+
+                                PolyBuilder builder = canvas.drawQuads(PolyBuilder.Mode.POSITION_COLOUR_TEXTURE);
+
+                                // anticlockwise
+                                builder.vertex(region.getX(), region.getEndY(), 0).colour(1.0f, 0.2f, 0.2f, 0.8f).uv(0, 1).endVertex();
+                                builder.vertex(region.getEndX(), region.getEndY(), 0).colour(1.0f, 0.2f, 0.2f, 0.8f).uv(1, 1).endVertex();
+                                builder.vertex(region.getEndX(), region.getY(), 0).colour(1.0f, 0.2f, 0.2f, 0.8f).uv(1, 0).endVertex();
+                                builder.vertex(region.getX(), region.getY(), 0).colour(1.0f, 0.2f, 0.2f, 0.8f).uv(0, 0).endVertex();
+
+                                builder.build();
+                            } else {
+                                super.paint(canvas, region, mouseX, mouseY);
+                            }
+                        }
+                    }).withStyle(Style.create().set(MARGINS, fixed(new Margins(0, 0, margin, margin))))
+            );
+        }
 
         @Override
         public void mouseClicked(Element target, double x, double y, int button) {
             if (!this.option.usable) return;
+            // require first child clicked (i.e. the image, not the delete)
+            if (!target.getParent().isPresent() || target.getParent().get().getComponent() != this || target.getParent().get().getChildren().get(0) != target)
+                return;
             if (this.option.id.equals(Cosmetica.SELECTED_OUTFIT_ID.peek().orElse(""))) return;
             // play click sound
             GuiUtils.playClick();
@@ -141,10 +182,24 @@ public class OutfitSelectScreen extends Component {
         public void render(Canvas canvas, Region region, Margins padding, int mouseX, int mouseY) {
             // hover
             if (region.contains(mouseX, mouseY)) {
-                canvas.setTransparency(0.5f);//todo fix kupe transparency
-                canvas.drawRect(region, 0x77FFFFFF);
-                canvas.disableTransparency();
+                // not selected delete button
+                if (!region.shrinkMargins(new Margins(0, 0, 50-12, 50-12)).contains(mouseX, mouseY)) {
+                    // selected icon
+                    canvas.setTransparency(0.5f);
+                    canvas.drawRect(region, 0x77FFFFFF);
+                    canvas.disableTransparency();
+
+                    this.icon.setTransparent(1.0f);
+                }
+                // commented to show complete logic. icon overrides rendering to tint in this case, so not necessary.
+//                else {
+//                    this.icon.setTransparent(0.8f);
+//                }
+            } else {
+                // not selected; don't show icon
+                this.icon.setTransparent(0.0f);
             }
+
             super.render(canvas, region, padding, mouseX, mouseY);
         }
     }
