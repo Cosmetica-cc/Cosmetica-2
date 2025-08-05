@@ -97,7 +97,7 @@ public class OutfitSelectScreen extends Component {
                         .set(MARGINS, fixed(new Margins(15 + 6 + 2, 0, 0, 0))))
                 .component(SelectableOutfit.class, Style.create()
 //                        .set(POINTER_EVENTS, PointerEvents.ALL)
-                        .set(WIDTH, fixed(OptionalInt.of(50)))
+                        .set(WIDTH, fixed(OptionalInt.of(50 * 2/3)))
                         .set(HEIGHT, fixed(OptionalInt.of(50))));
     }
 
@@ -133,7 +133,6 @@ public class OutfitSelectScreen extends Component {
         @Override
         public List<Component> build() {
             final int deleteButtonSize = 12;
-            final int margin = 50-deleteButtonSize;
             final ResourceKey deleteTexture = new ResourceKey("cosmetica", "textures/remove.png");
 
             return Arrays.asList(
@@ -161,7 +160,7 @@ public class OutfitSelectScreen extends Component {
                                 super.paint(canvas, region, mouseX, mouseY);
                             }
                         }
-                    }).withStyle(Style.create().set(MARGINS, fixed(new Margins(0, 0, margin, margin))))
+                    }).withStyle(Style.create().set(MARGINS, fixed(new Margins(0, 0, 50-deleteButtonSize, 50*2/3 - deleteButtonSize))))
             );
         }
 
@@ -183,7 +182,7 @@ public class OutfitSelectScreen extends Component {
             // hover
             if (region.contains(mouseX, mouseY)) {
                 // not selected delete button
-                if (!region.shrinkMargins(new Margins(0, 0, 50-12, 50-12)).contains(mouseX, mouseY)) {
+                if (!region.shrinkMargins(new Margins(0, 0, 50-12, 50*2/3-12)).contains(mouseX, mouseY)) {
                     // selected icon
                     canvas.setTransparency(0.5f);
                     canvas.drawRect(region, 0x77FFFFFF);
