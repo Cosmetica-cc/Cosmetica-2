@@ -137,6 +137,7 @@ public class OutfitSelectScreen extends Component {
 
             return Arrays.asList(
                     new Image(new ResourceKey(option.thumbnail.location))
+                            .crop(0, 0.1667f, 0, 0.1667f)
                             .setTransparent(option.usable ? 1.0f : 0.5f),
                     (this.icon = new Image(deleteTexture) {
                         @Override
