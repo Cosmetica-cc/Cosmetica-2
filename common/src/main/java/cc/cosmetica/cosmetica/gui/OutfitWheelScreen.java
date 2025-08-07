@@ -153,8 +153,6 @@ public class OutfitWheelScreen extends Screen {
         final double theta = 2.0 * Math.PI / nSectors;
         final int currentOutfitIndex = Cosmetica.SELECTED_OUTFIT_ID.peek().map(this::indexOf).orElse(-1);
 
-        RenderSystem.enableTexture();
-
         for (int i = 0; i < nSectors; i++) {
             int index = i + this.getPage() * nSectors;
 

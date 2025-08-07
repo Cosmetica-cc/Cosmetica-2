@@ -143,9 +143,7 @@ public class OutfitSelectScreen extends Component {
                         public void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
                             if (region.contains(mouseX, mouseY)) {
                                 canvas.setTransparency(1.0f);
-                                // todo kupe api for binding a texture
-                                RenderSystem.enableTexture();
-                                Minecraft.getInstance().getTextureManager().bind(deleteTexture.toResourceLocation());
+                                canvas.setTexture(deleteTexture);
 
                                 PolyBuilder builder = canvas.drawQuads(PolyBuilder.Mode.POSITION_COLOUR_TEXTURE);
 
