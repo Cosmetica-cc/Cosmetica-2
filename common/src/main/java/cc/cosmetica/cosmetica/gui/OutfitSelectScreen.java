@@ -136,8 +136,15 @@ public class OutfitSelectScreen extends Component {
             final ResourceKey deleteTexture = new ResourceKey("cosmetica", "textures/remove.png");
 
             return Arrays.asList(
-                    new Image(new ResourceKey(option.thumbnail.location))
-                            .crop(0, 0.1667f, 0, 0.1667f)
+                    new Image(new ResourceKey(option.thumbnail.location)) {
+                        @Override
+                        public void mouseClicked(Element target, double x, double y, int button) {
+                            if (target.getComponent() == this) {
+                                // delete outfit confirm
+
+                            }
+                        }
+                    }       .crop(0, 0.1667f, 0, 0.1667f)
                             .setTransparent(option.usable ? 1.0f : 0.5f),
                     (this.icon = new Image(deleteTexture) {
                         @Override

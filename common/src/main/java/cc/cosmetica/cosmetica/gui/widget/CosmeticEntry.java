@@ -18,7 +18,7 @@ package cc.cosmetica.cosmetica.gui.widget;
 
 import cc.cosmetica.core.api.CachedImage;
 import cc.cosmetica.core.api.Cosmetics;
-import cc.cosmetica.cosmetica.gui.ConfirmScreen;
+import cc.cosmetica.cosmetica.gui.ConfirmRemoveCosmeticScreen;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screens;
@@ -84,7 +84,7 @@ public class CosmeticEntry extends Component {
 		// add remove button if editable
 		if (this.editable > 0) {
 			content.add(new Button(Text.literal("-"), () -> {
-				Screens.setScreen(new ConfirmScreen(this.parentOutfit, this.id, this.name), Text.translatable("screens.cosmetica.confirmDeletion"));
+				Screens.setScreen(new ConfirmRemoveCosmeticScreen(this.parentOutfit, this.id, this.name), Text.translatable("screens.cosmetica.confirmDeletion"));
 			}).setDisabled(this.editable != 1)
 			  .withStyle(Style.create().set(TOOLTIP,
 					this.editable == 1 ? Optional.empty()
