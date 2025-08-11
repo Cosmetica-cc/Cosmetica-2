@@ -97,8 +97,8 @@ public class OutfitSelectScreen extends Component {
                         .set(MARGINS, fixed(new Margins(15 + 6 + 2, 0, 0, 0))))
                 .component(SelectableOutfit.class, Style.create()
 //                        .set(POINTER_EVENTS, PointerEvents.ALL)
-                        .set(WIDTH, fixed(OptionalInt.of(50 * 2/3)))
-                        .set(HEIGHT, fixed(OptionalInt.of(50))));
+                        .set(WIDTH, fixed(OptionalInt.of(69 * 2/3)))
+                        .set(HEIGHT, fixed(OptionalInt.of(69))));
     }
 
     public static final ResourceKey ID = new ResourceKey("cosmetica", "outfit_select");
@@ -132,41 +132,49 @@ public class OutfitSelectScreen extends Component {
 
         @Override
         public List<Component> build() {
-            final int deleteButtonSize = 12;
+            final int deleteButtonSize = 15;
             final ResourceKey deleteTexture = new ResourceKey("cosmetica", "textures/remove.png");
 
             return Arrays.asList(
-                    new Image(new ResourceKey(option.thumbnail.location)) {
-                        @Override
-                        public void mouseClicked(Element target, double x, double y, int button) {
-                            if (target.getComponent() == this) {
-                                // delete outfit confirm
-
-                            }
-                        }
-                    }       .crop(0, 0.1667f, 0, 0.1667f)
+                    new Image(new ResourceKey(option.thumbnail.location))
+                            .crop(0, 0.1667f, 0, 0.1667f)
                             .setTransparent(option.usable ? 1.0f : 0.5f),
                     (this.icon = new Image(deleteTexture) {
                         @Override
                         public void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
                             if (region.contains(mouseX, mouseY)) {
-                                canvas.setTransparency(1.0f);
-                                canvas.setTexture(deleteTexture);
+                                boolean selected = SelectableOutfit.this.option.id.equals(Cosmetica.SELECTED_OUTFIT_ID.peek().orElse(""));
+                                // don't draw icon on selected item
+                                if (!selected) {
+                                    canvas.setTransparency(1.0f);
+                                    canvas.setTexture(deleteTexture);
 
-                                PolyBuilder builder = canvas.drawQuads(PolyBuilder.Mode.POSITION_COLOUR_TEXTURE);
+                                    PolyBuilder builder = canvas.drawQuads(PolyBuilder.Mode.POSITION_COLOUR_TEXTURE);
 
-                                // anticlockwise
-                                builder.vertex(region.getX(), region.getEndY(), 0).colour(1.0f, 0.2f, 0.2f, 0.8f).uv(0, 1).endVertex();
-                                builder.vertex(region.getEndX(), region.getEndY(), 0).colour(1.0f, 0.2f, 0.2f, 0.8f).uv(1, 1).endVertex();
-                                builder.vertex(region.getEndX(), region.getY(), 0).colour(1.0f, 0.2f, 0.2f, 0.8f).uv(1, 0).endVertex();
-                                builder.vertex(region.getX(), region.getY(), 0).colour(1.0f, 0.2f, 0.2f, 0.8f).uv(0, 0).endVertex();
+                                    // anticlockwise
+                                    builder.vertex(region.getX(), region.getEndY(), 0).colour(1.0f, 0.2f, 0.2f, 0.8f).uv(0, 1).endVertex();
+                                    builder.vertex(region.getEndX(), region.getEndY(), 0).colour(1.0f, 0.2f, 0.2f, 0.8f).uv(1, 1).endVertex();
+                                    builder.vertex(region.getEndX(), region.getY(), 0).colour(1.0f, 0.2f, 0.2f, 0.8f).uv(1, 0).endVertex();
+                                    builder.vertex(region.getX(), region.getY(), 0).colour(1.0f, 0.2f, 0.2f, 0.8f).uv(0, 0).endVertex();
 
-                                builder.build();
+                                    builder.build();
+                                }
                             } else {
                                 super.paint(canvas, region, mouseX, mouseY);
                             }
                         }
-                    }).withStyle(Style.create().set(MARGINS, fixed(new Margins(0, 0, 50-deleteButtonSize, 50*2/3 - deleteButtonSize))))
+
+                        @Override
+                        public void mouseClicked(Element target, double x, double y, int button) {
+                            if (target.getComponent() == this) {
+                                // delete outfit confirm
+                                // can't delete current outfit
+                                if (SelectableOutfit.this.option.id.equals(Cosmetica.SELECTED_OUTFIT_ID.peek().orElse(""))) return;
+                                // play click sound
+                                GuiUtils.playClick();
+                            }
+                        }
+                    }).withStyle(Style.create().set(MARGINS, fixed(new Margins(0, 0, 69-deleteButtonSize, 69*2/3 - deleteButtonSize))))
             );
         }
 
@@ -187,18 +195,26 @@ public class OutfitSelectScreen extends Component {
         public void render(Canvas canvas, Region region, Margins padding, int mouseX, int mouseY) {
             // hover
             if (region.contains(mouseX, mouseY)) {
+                boolean selected = this.option.id.equals(Cosmetica.SELECTED_OUTFIT_ID.peek().orElse(""));
+
                 // not selected delete button
-                if (!region.shrinkMargins(new Margins(0, 0, 50-12, 50*2/3-12)).contains(mouseX, mouseY)) {
+                if (selected || !region.shrinkMargins(new Margins(0, 0, 69-15, 69*2/3-15)).contains(mouseX, mouseY)) {
                     // selected icon
                     canvas.setTransparency(0.5f);
                     canvas.drawRect(region, 0x77FFFFFF);
                     canvas.disableTransparency();
 
-                    this.icon.setTransparent(1.0f);
+                    if (selected) {
+                        // don't show icon
+                        this.icon.setTransparent(0.0f);
+                    } else {
+                        this.icon.setTransparent(1.0f);
+                    }
                 }
                 // commented to show complete logic. icon overrides rendering to tint in this case, so not necessary.
 //                else {
-//                    this.icon.setTransparent(0.8f);
+//                    if (selected)  this.icon.setTransparent(0.0f);
+//                    if (!selected) this.icon.setTransparent(0.8f);
 //                }
             } else {
                 // not selected; don't show icon
