@@ -540,6 +540,7 @@ public class OutfitWheelScreen extends Screen {
     public static class OutfitOption {
         public OutfitOption(Outfit outfit) {
             this.id = outfit.getId();
+            this.name = outfit.getName();
             this.thumbnail = outfit.getThumbnail() == null ? CosmeticaHomeScreen.NO_THUMBNAIL :
                     CosmeticaModel.getOrCreateImage("thumbs-o", // thumbs-outfit
                             this.id,
@@ -555,6 +556,7 @@ public class OutfitWheelScreen extends Screen {
             this.elytraId = outfit.getElytra() == null ? "" : outfit.getElytra().getId();
         }
         final String id;
+        final String name;
         final CachedImage thumbnail;
         final boolean usable;
         final List<OutfitAccessory> accessories;

@@ -172,6 +172,11 @@ public class OutfitSelectScreen extends Component {
                                 if (SelectableOutfit.this.option.id.equals(Cosmetica.SELECTED_OUTFIT_ID.peek().orElse(""))) return;
                                 // play click sound
                                 GuiUtils.playClick();
+                                // delete
+                                Screens.setScreen(new ConfirmRemoveOutfitScreen(
+                                        SelectableOutfit.this.option.id,
+                                        SelectableOutfit.this.option.name
+                                ), Text.translatable("screens.cosmetica.confirmDeletion"));
                             }
                         }
                     }).withStyle(Style.create().set(MARGINS, fixed(new Margins(0, 0, 69-deleteButtonSize, 69*2/3 - deleteButtonSize))))
