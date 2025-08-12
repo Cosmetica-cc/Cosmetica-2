@@ -15,6 +15,7 @@
   "key.cosmetica.select_outfit": "Outfit Wheel",
   "key.cosmetica.snipe": "Outfit Sniper",
   "label.browse.search": "Search...",
+  "label.cosmetica.confirmDelete": "Are you sure you would like to delete '%s'? This cannot be undone!",
   "label.cosmetica.confirmRemove": "Are you sure you would like to remove %s from %s?",
   "label.cosmetica.create": "Create",
   "label.cosmetica.loading": "Loading...",
@@ -40,9 +41,10 @@
   "setting.cosmetica.wheel": "Outfit Wheel",
   "setting.cosmetica.wheel.true": "Toggle",
   "setting.cosmetica.wheel.false": "Hold",
+  "tooltip.cosmetica.copiedURL": "Copied URL!",
+  "tooltip.cosmetica.deletingOutfit": "Deleting Outfit...",
   "tooltip.cosmetica.openWebPanel": "Open Web Panel",
   "tooltip.cosmetica.outfitAlreadySelected": "Already wearing this outfit!",
-  "tooltip.cosmetica.copiedURL": "Copied URL!",
   "tooltip.cosmetica.offline": "This feature is unavailable because you are offline",
   "tooltip.cosmetica.updatingOutfit": "Updating Outfit..."
 }

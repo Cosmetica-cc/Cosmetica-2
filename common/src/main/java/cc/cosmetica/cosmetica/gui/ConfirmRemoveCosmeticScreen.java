@@ -35,7 +35,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public class ConfirmRemoveCosmeticScreen extends AbstractConfirmScreen {
+public final class ConfirmRemoveCosmeticScreen extends AbstractConfirmScreen {
     public ConfirmRemoveCosmeticScreen(Cosmetics parentOutfit, String itemId, String itemName) {
         super(Text.translatable("screens.cosmetica.confirmDeletion"));
 
