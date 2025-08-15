@@ -52,7 +52,7 @@ public class CosmeticaHomeScreen extends Screen {
 		boolean authenticated = CosmeticaAPI.isAuthenticated();
 
 		List<CosmeticEntry> entries = new ArrayList<>();
-		populateEntryList(entries, cosmetics, authenticated ? 2 : 1);
+		populateEntryList(entries, cosmetics, authenticated ? 1 : 2);
 
 		return new Component[] {
 				new Div(

@@ -64,7 +64,7 @@ public class SnipeScreen extends Screen {
         this.cosmetics = ((StateHolder)entity).cosmetica$getCosmeticState();
         this.playerUUID = entity instanceof Player ? entity.getUUID() : null;
         // TODO use a central state for authenticated in case re-auth. compose states with isSetting
-        this.isSettingOrUnauthenticated = new State<>(CosmeticaAPI.isAuthenticated());
+        this.isSettingOrUnauthenticated = new State<>(!CosmeticaAPI.isAuthenticated());
     }
 
     private final State<Cosmetics> cosmetics;
