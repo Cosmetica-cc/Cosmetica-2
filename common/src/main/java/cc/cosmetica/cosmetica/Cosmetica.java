@@ -19,7 +19,6 @@ package cc.cosmetica.cosmetica;
 import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.api.texture.CosmeticaTexture;
 import cc.cosmetica.core.impl.Logging;
-import cc.cosmetica.core.impl.NametagRenderer;
 import cc.cosmetica.cosmetica.gui.*;
 import cc.cosmetica.cosmetica.gui.player.AccessoryAttachment;
 import cc.cosmetica.cosmetica.util.Lore;
@@ -162,6 +161,7 @@ public class Cosmetica {
 		// Use persistent screen object to keep state data
 		// - we want to keep track of what the user was last doing
 		Screens.registerScreen(CosmeticaHomeScreen.ID, new CosmeticaHomeScreen());
+		Screens.registerScreen(BrowseScreen.ID, new BrowseScreen());
 		Screens.registerScreen(StyleNametagScreen.ID, StyleNametagScreen::new);
 		Screens.registerScreen(OutfitSelectScreen.ID, new OutfitSelectScreen());
 		Screens.registerScreen(CreateNewOutfitScreen.ID, CreateNewOutfitScreen::new);

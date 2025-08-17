@@ -22,7 +22,6 @@ import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.Setting;
 import cc.cosmetica.cosmetica.gui.widget.*;
 import cc.cosmetica.kupe.api.ResourceKey;
-import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
@@ -39,46 +38,17 @@ import java.util.UUID;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
-public class CosmeticaHomeScreen extends Screen {
+public class CosmeticaHomeScreen extends AbstractHomeScreen {
 	public CosmeticaHomeScreen() {
 		super(ID);
 	}
 
 	@Override
-	protected Component[] buildScreen() {
-		UUID self = Minecraft.getInstance().getUser().getGameProfile().getId();
-
-		Cosmetics cosmetics = Cosmetica.OWN_COSMETICS.acquire(this);
-		boolean authenticated = CosmeticaAPI.isAuthenticated();
-
+	protected @NotNull Component createRightMenu(Cosmetics cosmetics, boolean authenticated) {
 		List<CosmeticEntry> entries = new ArrayList<>();
 		populateEntryList(entries, cosmetics, authenticated ? 1 : 2);
 
-		return new Component[] {
-				new Div(
-						new LayeredSpace(true,
-								new OutfitPlayer(self,
-										authenticated,
-										Optional.ofNullable(cosmetics).flatMap(Cosmetics::getOutfitName).orElse("§7No Outfit"),
-										Optional.ofNullable(cosmetics).flatMap(Cosmetics::getLore).orElse(NametagConfig.EMPTY),
-										Optional.ofNullable(cosmetics).map(Cosmetics::getNametag).orElse(NametagConfig.EMPTY)),
-								new Div(
-										new IconButton(
-												new ResourceKey("cosmetica", "textures/gear.png"),
-												() -> Screens.setScreen(new CosmeticaSettingsScreen(CosmeticaSettingsScreen.SETTINGS_SCREEN, Setting.SETTINGS), CosmeticaSettingsScreen.SETTINGS_SCREEN)),
-										new IconButton(
-												new ResourceKey("minecraft", "textures/item/name_tag.png"),
-												() -> Screens.setScreen(StyleNametagScreen.ID))
-												.setDisabled(!authenticated)
-												.withStyle(Cosmetica.authTooltip(authenticated))
-								).withStyle(Style.create()
-										.set(Div.ALIGN_ITEMS, Align.START)
-										.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X))
-						).tag("main-section"),
-						new CosmeticsBrowser(entries, true).tag("main-section")
-				).tag("main-content"),
-				new MenuEndSelection()
-		};
+		return new CosmeticsList(entries, true);
 	}
 
 	/**
@@ -157,19 +127,6 @@ public class CosmeticaHomeScreen extends Screen {
 							.failToLoadTexture(Cosmetica.FALLBACK_TEXTURE)
 							.autoAnimate(CosmeticaTexture.AutoAnimate.NEVER_TILESHEETS));
 		}
-	}
-
-	@Override
-	public @NotNull Stylesheet getStylesheet() {
-		return super.getStylesheet()
-				.tag("main-content", Style.create()
-						.set(FLEX, 1)
-						.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
-						.set(Div.JUSTIFY_CONTENT, Justify.CENTRE)
-						.set(Div.ALIGN_ITEMS, Align.CENTRE))
-				.tag("main-section", Style.create()
-						.set(WIDTH, screen(50, 0))
-						.set(HEIGHT, percent(0, 100)));
 	}
 
 	public static final ResourceKey ID = new ResourceKey("cosmetica", "home");

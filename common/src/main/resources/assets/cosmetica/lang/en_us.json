@@ -29,6 +29,7 @@
   "label.lore.noLore": "Lore: §7No Lore",
   "label.lore.noConnections": "You don't have any connections yet!",
   "label.wheel.page": "Page %s/%s",
+  "screens.cosmetica.browse":  "Cosmetica",
   "screens.cosmetica.confirmDeletion": "Confirm Deletion",
   "screens.cosmetica.create_new_outfit": "Create New Outfit",
   "screens.cosmetica.home": "Cosmetica",

@@ -33,8 +33,8 @@ import java.util.OptionalInt;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
-public class CosmeticsBrowser extends Div {
-	public CosmeticsBrowser(Collection<CosmeticEntry> entries, boolean editable) {
+public class CosmeticsList extends Div {
+	public CosmeticsList(Collection<CosmeticEntry> entries, boolean editable) {
 		this.entries = entries.toArray(new CosmeticEntry[0]);
 		this.editable = editable;
 	}

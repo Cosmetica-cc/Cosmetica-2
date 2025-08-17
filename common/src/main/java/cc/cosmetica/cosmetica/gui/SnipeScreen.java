@@ -25,7 +25,7 @@ import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.StateHolder;
 import cc.cosmetica.cosmetica.gui.player.AccessoryAttachment;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
-import cc.cosmetica.cosmetica.gui.widget.CosmeticsBrowser;
+import cc.cosmetica.cosmetica.gui.widget.CosmeticsList;
 import cc.cosmetica.cosmetica.gui.widget.RotatableGUIPlayer;
 import cc.cosmetica.cosmetica.gui.widget.SlideToggle;
 import cc.cosmetica.kupe.api.*;
@@ -101,7 +101,7 @@ public class SnipeScreen extends Screen {
                         ).tag("main-section")
                                 .withStyle(Style.create()
                                         .set(Div.JUSTIFY_CONTENT, Justify.CENTRE)),
-                        new CosmeticsBrowser(entryList, false)
+                        new CosmeticsList(entryList, false)
                                 .tag("main-section")
                 ).tag("main-content"),
                 new StealTheirLookButton(

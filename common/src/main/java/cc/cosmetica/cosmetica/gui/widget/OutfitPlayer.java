@@ -51,6 +51,12 @@ public class OutfitPlayer extends Component {
 	private final NametagConfig lore;
 	private final NametagConfig nametag;
 	private final State<Boolean> showingElytra = new State<>(false);
+	private boolean disable = false;
+
+	public OutfitPlayer setDisabled(boolean disabled) {
+		this.disable = disabled;
+		return this;
+	}
 
 	@Override
 	public List<Component> build() {
@@ -66,15 +72,15 @@ public class OutfitPlayer extends Component {
 							Text.translatable("button.cosmetica.toggleCape"),
 							Text.translatable("button.cosmetica.toggleElytra")),
 					new Button(Text.translatable("button.cosmetica.changeOutfit"), () -> Screens.setScreen(OutfitSelectScreen.ID))
-							.setDisabled(!authenticated)
-							.withStyle(Cosmetica.authTooltip(authenticated)),
+							.setDisabled(!authenticated || disable)// hide tooltip if just disabled
+							.withStyle(Cosmetica.authTooltip(disable||authenticated)),
 //					new Button(Text.translatable("button.cosmetica.styleNametag"), () -> {
 //						Screens.setScreen(StyleNametagScreen.ID);
 //					}),
 					// *.title ensures no ... for consistency with Cosmetica's buttons
 					new Button(Text.translatable("options.skinCustomisation.title"), () -> {
 						Minecraft.getInstance().setScreen(new SkinCustomizationScreen(Minecraft.getInstance().screen, Minecraft.getInstance().options));
-					})
+					}).setDisabled(disable)
 				).withStyle(Style.create()
 						.set(Div.JUSTIFY_CONTENT, Justify.CENTRE)
 						.set(Div.ALIGN_ITEMS, Align.CENTRE))
