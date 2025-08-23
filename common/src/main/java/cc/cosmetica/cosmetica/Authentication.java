@@ -98,7 +98,7 @@ public final class Authentication {
 
     private static void logIn(Path sessionInfoPath, Properties sessionInfo) {
         try {
-            if (CosmeticaAPI.login()) {
+            if (CosmeticaAPI.login().isSuccess()) {
                 String token = CosmeticaAPI.getSessionToken();
                 User user = Minecraft.getInstance().getUser();
 
