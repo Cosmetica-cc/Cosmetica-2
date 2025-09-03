@@ -106,12 +106,16 @@ public class Keybinds {
         while (Keybinds.CUSTOMISE.consumeClick()) {
             set = true;
         }
+
+//        System.out.println(Keybinds.CUSTOMISE.isDown());
+        if(set)System.out.println("set");
         // closing the in-game cosmetica menu brings you back to gameplay
         if (screen == null) rightShiftMenu = false;
 
         if (Keybinds.CUSTOMISE.isDown()) {
             Logging.getInstance().debug("rsm = " + rightShiftMenu + ", consumed click = " + set);
         }
+
 
         if (set) {
             if (screen == null) {

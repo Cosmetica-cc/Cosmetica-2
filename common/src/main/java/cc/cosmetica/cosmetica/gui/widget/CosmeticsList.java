@@ -16,6 +16,8 @@
 
 package cc.cosmetica.cosmetica.gui.widget;
 
+import cc.cosmetica.cosmetica.BrowseScreen;
+import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Align;
 import cc.cosmetica.kupe.api.gui.Button;
@@ -47,7 +49,9 @@ public class CosmeticsList extends Div {
 		return this.editable ? ImmutableList.of(
 				new EntryList.Div(this.entries)
 						.tag("width-200", "contents-wrapper"),
-				new Button(Text.literal("+"), () -> {}).tag("width-200")
+				new Button(Text.literal("+"), () ->
+					Screens.setScreen(BrowseScreen.ID)
+				).tag("width-200")
 		) : ImmutableList.of(
 				new EntryList.Div(this.entries)
 						.tag("width-200", "contents-wrapper")
