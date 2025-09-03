@@ -30,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 public class BrowseScreen extends AbstractHomeScreen {
     public BrowseScreen() {
         super(ID);
+        super.lockActions = true;
     }
 
     @Override
