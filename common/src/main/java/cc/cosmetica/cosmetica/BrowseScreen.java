@@ -18,10 +18,18 @@ package cc.cosmetica.cosmetica;
 
 import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.cosmetica.gui.AbstractHomeScreen;
+import cc.cosmetica.cosmetica.gui.widget.CosmeticsList;
 import cc.cosmetica.kupe.api.ResourceKey;
+import cc.cosmetica.kupe.api.State;
+import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.Div;
+import cc.cosmetica.kupe.api.gui.TextBox;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Screen for browsing and applying new cosmetics.
@@ -35,8 +43,24 @@ public class BrowseScreen extends AbstractHomeScreen {
 
     @Override
     protected @NotNull Component createRightMenu(Cosmetics cosmetics, boolean authenticated) {
-        return new Div();
+        return new CosmeticsBrowser();
     }
 
     public static final ResourceKey ID = new ResourceKey("cosmetica", "browse");
+
+    private static final class CosmeticsBrowser extends Div {
+        private final State<String> searchQuery = new State<>("");
+
+        @Override
+        public List<Component> build() {
+            return Arrays.asList(
+                    new TextBox(
+                            Text.translatable("label.browse.search"), // todo better format for translation strings?
+                            this.searchQuery,
+                            true,
+                            32),
+                    new CosmeticsList(Collections.emptyList(), false)
+            );
+        }
+    }
 }
