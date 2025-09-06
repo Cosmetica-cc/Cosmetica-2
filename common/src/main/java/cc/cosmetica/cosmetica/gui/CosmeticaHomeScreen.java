@@ -46,89 +46,12 @@ public class CosmeticaHomeScreen extends AbstractHomeScreen {
 	@Override
 	protected @NotNull Component createRightMenu(Cosmetics cosmetics, boolean authenticated) {
 		List<CosmeticEntry> entries = new ArrayList<>();
-		populateEntryList(entries, cosmetics, authenticated ? 1 : 2);
+		CosmeticEntry.populateEntryList(entries, cosmetics, authenticated ? 1 : 2);
 
 		return new CosmeticsList(entries, true);
 	}
 
-	/**
-	 * Create the GUI cosmetic list entries for each cosmetic the player is wearing.
-	 * @param entryList the list to populate.
-	 * @param cosmetics the cosmetics the player is wearing.
-	 * @param editable whether cosmetics are editable. Can be 0 (not editable) 1 (editable) or 2 (offline).
-	 */
-	static void populateEntryList(final List<CosmeticEntry> entryList, Cosmetics cosmetics, int editable) {
-		if (cosmetics == null)
-			return; // no cosmetics
 
-		// (wip) this should only show API cosmetics and only allow editing if own cosmetics.
-		// some kind of notification if no internet
-		// this also means for local player, even when null, we need to handle backup cosmetics no?
-
-		boolean showSeparateElytra = true;
-		if (cosmetics.getCloak().isPresent()) {
-			ImageCosmetic cloak = cosmetics.getCloak().get();
-
-			String message = "Cloak";
-			if (cloak.getId().equals(cosmetics.getElytra().map(ImageCosmetic::getId).orElse(null))) {
-				message = "Cloak + Elytra";
-				showSeparateElytra = false;
-			}
-
-			entryList.add(new CosmeticEntry(
-					cosmetics,
-					getOrCreateThumb(cloak.getThumbnail(), "thumbs-c", cloak.getId(), 3), // TODO in core give ticks per frame (expose AnimatedTextureCosmetic)
-					cloak.getId(),
-					cloak.getName(),
-					message, //cloak.getCreator().isPresent() ? cloak.getCreator().get().getName() : "Could not load creator"
-					editable,
-					CosmeticEntry.Category.CAPE
-			));
-		}
-
-		if (showSeparateElytra && cosmetics.getElytra().isPresent()) {
-			ImageCosmetic elytra = cosmetics.getElytra().get();
-
-			entryList.add(new CosmeticEntry(
-					cosmetics,
-					getOrCreateThumb(elytra.getThumbnail(), "thumbs-c", elytra.getId(), 3), // TODO in core give ticks per frame (expose AnimatedTextureCosmetic)
-					elytra.getId(),
-					elytra.getName(),
-					"Elytra", //elytra.getCreator().isPresent() ? elytra.getCreator().get().getName() : "Could not load creator"
-					editable,
-					CosmeticEntry.Category.CAPE
-			));
-		}
-
-		for (Accessory accessory : cosmetics.getAccessories()) {
-			// texture for thumbnail
-			CachedImage thumbnail = getOrCreateThumb(accessory.getThumbnail(), "thumbs-a", accessory.getId(), accessory.getJsonObject().getTicksPerFrame().intValue());
-
-			// n.b. reference to CachedImage needs to be stored on the entry so it doesn't get GC'd
-			entryList.add(new CosmeticEntry(
-					cosmetics,
-					thumbnail,
-					accessory.getId(),
-					accessory.getName(),
-					accessory.getCreator().isPresent() ? accessory.getCreator().get().getName() : "Could not load creator",
-					editable,
-					CosmeticEntry.Category.ACCESSORY
-			));
-		}
-	}
-
-	private static CachedImage getOrCreateThumb(@Nullable String thumbnail, String category, String id, int ticksPerFrame) {
-		if (thumbnail == null) {
-			return NO_THUMBNAIL;
-		} else {
-			return ThumbnailCache.getOrCreateImage(category, id,
-					new CosmeticaTexture.Builder(thumbnail, Cosmetica.LOADING_TEXTURE)
-							.frames(8, ticksPerFrame)
-							.failToLoadTexture(Cosmetica.FALLBACK_TEXTURE)
-							.autoAnimate(CosmeticaTexture.AutoAnimate.NEVER_TILESHEETS));
-		}
-	}
 
 	public static final ResourceKey ID = new ResourceKey("cosmetica", "home");
-	public static final CachedImage NO_THUMBNAIL = new CachedImage(Cosmetica.FALLBACK_TEXTURE, 0);
 }

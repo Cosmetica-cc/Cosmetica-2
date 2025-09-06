@@ -25,6 +25,7 @@ import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Margins;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.function.Function;
@@ -83,7 +84,7 @@ public final class EntryList {
             return this;
         }
 
-        private final @Nullable Function<Component, ? extends @Nullable Component> selected;
+        final @Nullable Function<Component, ? extends @Nullable Component> selected;
         private Style selectedStyle;
 
         @Override
@@ -94,6 +95,24 @@ public final class EntryList {
         @Override
         public Stylesheet getStylesheet() {
             return makeStylesheet(this.selectedStyle);
+        }
+    }
+
+    /**
+     * A div whose entries are dynamic (automatically updating state).
+     */
+    public static class DynamicDiv extends Div {
+        public DynamicDiv(State<List<Component>> entries, Function<Component, ? extends @Nullable Component> selected) {
+            super(new Component[0], selected);
+            this.entries = entries;
+        }
+
+        private final State<List<Component>> entries;
+
+        @Override
+        public List<Component> build() {
+            List<Component> contents = this.entries.acquire(this);
+            return retag(this, contents, this.selected);
         }
     }
 

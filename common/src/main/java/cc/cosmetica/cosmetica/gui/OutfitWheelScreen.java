@@ -24,6 +24,7 @@ import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.Keybinds;
 import cc.cosmetica.cosmetica.Setting;
+import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
 import cc.cosmetica.cosmetica.mixin.keybinds.KeyMappingAccessor;
 import cc.cosmetica.cosmetica.util.Division;
 import cc.cosmetica.kupe.api.Canvas;
@@ -541,7 +542,7 @@ public class OutfitWheelScreen extends Screen {
         public OutfitOption(Outfit outfit) {
             this.id = outfit.getId();
             this.name = outfit.getName();
-            this.thumbnail = outfit.getThumbnail() == null ? CosmeticaHomeScreen.NO_THUMBNAIL :
+            this.thumbnail = outfit.getThumbnail() == null ? CosmeticEntry.NO_THUMBNAIL :
                     CosmeticaModel.getOrCreateImage("thumbs-o", // thumbs-outfit
                             this.id,
                             new CosmeticaTexture.Builder(outfit.getThumbnail(), Cosmetica.LOADING_TEXTURE)

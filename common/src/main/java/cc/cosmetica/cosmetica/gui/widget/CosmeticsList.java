@@ -16,7 +16,7 @@
 
 package cc.cosmetica.cosmetica.gui.widget;
 
-import cc.cosmetica.cosmetica.BrowseScreen;
+import cc.cosmetica.cosmetica.gui.BrowseScreen;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Align;
@@ -41,7 +41,7 @@ public class CosmeticsList extends Div {
 		this.editable = editable;
 	}
 
-	private final CosmeticEntry[] entries;
+	protected final CosmeticEntry[] entries;
 	private final boolean editable;
 
 	@Override
