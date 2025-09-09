@@ -46,7 +46,7 @@ public class CosmeticaHomeScreen extends AbstractHomeScreen {
 	@Override
 	protected @NotNull Component createRightMenu(Cosmetics cosmetics, boolean authenticated) {
 		List<CosmeticEntry> entries = new ArrayList<>();
-		CosmeticEntry.populateEntryList(entries, cosmetics, authenticated ? 1 : 2);
+		CosmeticEntry.populateEntryList(entries, cosmetics, CosmeticEntry.Type.removable(authenticated));
 
 		return new CosmeticsList(entries, true);
 	}

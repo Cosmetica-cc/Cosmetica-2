@@ -79,7 +79,7 @@ public class SnipeScreen extends Screen {
 
         // we can do something similar to home screen.
         List<CosmeticEntry> entryList = new ArrayList<>();
-        CosmeticEntry.populateEntryList(entryList, outfit, 0);
+        CosmeticEntry.populateEntryList(entryList, outfit, CosmeticEntry.Type.LISTED);
 
         GUIPlayer guiPlayer = new RotatableGUIPlayer(player, this.showingElytra);
         if (playerUUID == null) {

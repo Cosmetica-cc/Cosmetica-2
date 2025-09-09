@@ -43,25 +43,25 @@ import java.util.*;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 public class CosmeticEntry extends Component {
-	public CosmeticEntry(Cosmetics cosmetics, ResourceKey icon, String id, String name, String owner, int editable, Category category) {
+	public CosmeticEntry(Cosmetics cosmetics, ResourceKey icon, String id, String name, String owner, Type type, Category category) {
 		this.parentOutfit = cosmetics;
 		this.image = null;
 		this.icon = icon;
 		this.id = id;
 		this.name = name;
 		this.owner = owner;
-		this.editable = editable;
+		this.editable = type;
 		this.category = category;
 	}
 
-	public CosmeticEntry(Cosmetics cosmetics, CachedImage image, String id, String name, String owner, int editable, Category category) {
+	public CosmeticEntry(Cosmetics cosmetics, CachedImage image, String id, String name, String owner, Type type, Category category) {
 		this.parentOutfit = cosmetics;
 		this.image = image;
 		this.icon = new ResourceKey(image.location);
 		this.id = id;
 		this.name = name;
 		this.owner = owner;
-		this.editable = editable;
+		this.editable = type;
 		this.category = category;
 	}
 
@@ -73,7 +73,7 @@ public class CosmeticEntry extends Component {
 	private final String id;
 	private final String name;
 	private final String owner;
-	private final int editable;
+	private final Type editable;
 	private final Category category;
 
 	@Override
@@ -87,12 +87,12 @@ public class CosmeticEntry extends Component {
 		));
 
 		// add remove button if editable
-		if (this.editable > 0) {
+		if (this.editable.hasRemoveButton()) {
 			content.add(new Button(Text.literal("-"), () -> {
 				Screens.setScreen(new ConfirmRemoveCosmeticScreen(this.parentOutfit, this.id, this.name), Text.translatable("screens.cosmetica.confirmDeletion"));
-			}).setDisabled(this.editable != 1)
+			}).setDisabled(this.editable == Type.REMOVABLE_OFFLINE)
 			  .withStyle(Style.create().set(TOOLTIP,
-					this.editable == 1 ? Optional.empty()
+					this.editable == Type.REMOVABLE ? Optional.empty()
 							: Optional.of(new Tooltip(Text.translatable("cosmetica.offline")))
 			  )));
 		}
@@ -146,9 +146,9 @@ public class CosmeticEntry extends Component {
 	 * Create the GUI cosmetic list entries for each cosmetic the player is wearing.
 	 * @param entryList the list to populate.
 	 * @param cosmetics the cosmetics the player is wearing.
-	 * @param editable whether cosmetics are editable. Can be 0 (not editable) 1 (editable) or 2 (offline).
+	 * @param type control the type of widget to show for the cosmetics.
 	 */
-	public static void populateEntryList(final List<CosmeticEntry> entryList, Cosmetics cosmetics, int editable) {
+	public static void populateEntryList(final List<CosmeticEntry> entryList, Cosmetics cosmetics, Type type) {
 		if (cosmetics == null)
 			return; // no cosmetics
 
@@ -172,7 +172,7 @@ public class CosmeticEntry extends Component {
 					cloak.getId(),
 					cloak.getName(),
 					message, //cloak.getCreator().isPresent() ? cloak.getCreator().get().getName() : "Could not load creator"
-					editable,
+					type,
 					CosmeticEntry.Category.CAPE
 			));
 		}
@@ -186,7 +186,7 @@ public class CosmeticEntry extends Component {
 					elytra.getId(),
 					elytra.getName(),
 					"Elytra", //elytra.getCreator().isPresent() ? elytra.getCreator().get().getName() : "Could not load creator"
-					editable,
+					type,
 					CosmeticEntry.Category.CAPE
 			));
 		}
@@ -202,7 +202,7 @@ public class CosmeticEntry extends Component {
 					accessory.getId(),
 					accessory.getName(),
 					accessory.getCreator().isPresent() ? accessory.getCreator().get().getName() : "Could not load creator",
-					editable,
+					type,
 					CosmeticEntry.Category.ACCESSORY
 			));
 		}
@@ -217,6 +217,21 @@ public class CosmeticEntry extends Component {
 							.frames(8, ticksPerFrame)
 							.failToLoadTexture(Cosmetica.FALLBACK_TEXTURE)
 							.autoAnimate(CosmeticaTexture.AutoAnimate.NEVER_TILESHEETS));
+		}
+	}
+
+	public enum Type {
+		LISTED,
+		REMOVABLE,
+		REMOVABLE_OFFLINE,
+		EQUIPPABLE;
+
+		boolean hasRemoveButton() {
+			return this == REMOVABLE || this == REMOVABLE_OFFLINE;
+		}
+
+		public static Type removable(boolean authenticated) {
+			return authenticated ? REMOVABLE : REMOVABLE_OFFLINE;
 		}
 	}
 }
