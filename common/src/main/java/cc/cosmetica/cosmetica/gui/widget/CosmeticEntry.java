@@ -16,10 +16,7 @@
 
 package cc.cosmetica.cosmetica.gui.widget;
 
-import cc.cosmetica.core.api.Accessory;
-import cc.cosmetica.core.api.CachedImage;
-import cc.cosmetica.core.api.Cosmetics;
-import cc.cosmetica.core.api.ImageCosmetic;
+import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.api.texture.CosmeticaTexture;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.ConfirmRemoveCosmeticScreen;
@@ -88,13 +85,22 @@ public class CosmeticEntry extends Component {
 
 		// add remove button if editable
 		if (this.editable.hasRemoveButton()) {
-			content.add(new Button(Text.literal("-"), () -> {
-				Screens.setScreen(new ConfirmRemoveCosmeticScreen(this.parentOutfit, this.id, this.name), Text.translatable("screens.cosmetica.confirmDeletion"));
-			}).setDisabled(this.editable == Type.REMOVABLE_OFFLINE)
-			  .withStyle(Style.create().set(TOOLTIP,
-					this.editable == Type.REMOVABLE ? Optional.empty()
-							: Optional.of(new Tooltip(Text.translatable("cosmetica.offline")))
-			  )));
+			content.add(
+					new Button(Text.literal("-"), () -> {
+						Screens.setScreen(new ConfirmRemoveCosmeticScreen(this.parentOutfit, this.id, this.name), Text.translatable("screens.cosmetica.confirmDeletion"));
+					}).setDisabled(this.editable == Type.REMOVABLE_OFFLINE)
+					  .withStyle(Style.create().set(TOOLTIP,
+							this.editable == Type.REMOVABLE ? Optional.empty()
+									: Optional.of(new Tooltip(Text.translatable("cosmetica.offline")))
+					  ))
+					  .tag("button_subtract")
+			);
+		} else if (this.editable == Type.EQUIPPABLE) {
+			content.add(
+					new Button(Text.literal("+"), () -> {
+						// TODO equip
+					}).tag("button_add")
+			);
 		}
 
 		return ImmutableList.of(new Div(content.toArray(new Component[content.size()])).tag("centry_root"));
@@ -119,8 +125,11 @@ public class CosmeticEntry extends Component {
 					.set(MIN_WIDTH, fixedSize(38))
 					.set(MIN_HEIGHT, fixedSize(38)))
 			.component(Button.class, Style.create()
-					.set(ALIGN_SELF, Optional.of(Align.START))
 					.set(MAXIMUM_SIZE, fixed(new Dimensions(20, 20))))
+			.tag("button_subtract", Style.create()
+					.set(MARGINS, fixed(new Margins(0,5,0,0))))
+			.tag("button_add", Style.create()
+					.set(ALIGN_SELF, Optional.of(Align.START)))
 			.tag("centry_root", Style.create()
 					.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
 					.set(Div.ALIGN_ITEMS, Align.CENTRE)
@@ -193,7 +202,7 @@ public class CosmeticEntry extends Component {
 
 		for (Accessory accessory : cosmetics.getAccessories()) {
 			// texture for thumbnail
-			CachedImage thumbnail = getOrCreateThumb(accessory.getThumbnail(), "thumbs-a", accessory.getId(), accessory.getJsonObject().getTicksPerFrame().intValue());
+			CachedImage thumbnail = getOrCreateThumb(accessory.getThumbnail(), "thumbs-c", accessory.getId(), accessory.getJsonObject().getTicksPerFrame().intValue());
 
 			// n.b. reference to CachedImage needs to be stored on the entry so it doesn't get GC'd
 			entryList.add(new CosmeticEntry(
@@ -204,6 +213,26 @@ public class CosmeticEntry extends Component {
 					accessory.getCreator().isPresent() ? accessory.getCreator().get().getName() : "Could not load creator",
 					type,
 					CosmeticEntry.Category.ACCESSORY
+			));
+		}
+	}
+
+	/**
+	 * Populate entry list of cosmetics for browse.
+	 * @param entryList       the entrylist to populate.
+	 * @param cosmetics       the list of cosmetics on the browse page.
+	 * @param equipOntoOutfit the outfit to equip onto.
+	 */
+	public static void populateBrowseList(final List<CosmeticEntry> entryList, List<gg.cloaks.javaclient.model.Cosmetic> cosmetics, Cosmetics equipOntoOutfit) {
+		for (gg.cloaks.javaclient.model.Cosmetic cosmetic : cosmetics) {
+			entryList.add(new CosmeticEntry(
+					equipOntoOutfit,
+					getOrCreateThumb("https://cdn.valoeghese.nz/gumi.png" /*FIXME thumbnail*/, "thumbs-c", cosmetic.getId(), 1 /*ticks per frame FIXME*/),
+					cosmetic.getId(),
+					cosmetic.getName(),
+					cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
+					Type.EQUIPPABLE,
+					Category.CAPE // FIXME get actual category
 			));
 		}
 	}
