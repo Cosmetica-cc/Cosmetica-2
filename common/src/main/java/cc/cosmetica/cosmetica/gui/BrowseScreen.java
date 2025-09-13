@@ -19,6 +19,7 @@ package cc.cosmetica.cosmetica.gui;
 import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.core.impl.Logging;
+import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticsList;
 import cc.cosmetica.cosmetica.gui.widget.EntryList;
@@ -27,6 +28,10 @@ import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.TextBox;
+import cc.cosmetica.kupe.api.gui.style.CommonProperties;
+import cc.cosmetica.kupe.api.gui.style.Style;
+import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.model.SearchCosmeticsDto;
 import net.minecraft.client.Minecraft;
@@ -35,6 +40,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Function;
+
+import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 /**
  * Screen for browsing and applying new cosmetics.
@@ -87,6 +94,7 @@ public class BrowseScreen extends AbstractHomeScreen {
             public List<Component> build() {
                 // Acquire states
                 String query = CosmeticsBrowser.this.searchQuery.acquire(this);
+                @Nullable Cosmetics outfit = Cosmetica.OWN_COSMETICS.acquire(this);
 
                 // Build Search
                 final int nextState = this.state + 1;
@@ -99,7 +107,7 @@ public class BrowseScreen extends AbstractHomeScreen {
                 CosmeticaAPI.performAsync(api -> api.searchControllerSearchCosmetics(dto))
                         .thenAcceptAsync(cosmetics -> {
                             ArrayList next = new ArrayList();
-//                            CosmeticEntry.populateEntryList(next, cosmetics, 0);
+                            CosmeticEntry.populateBrowseList(next, cosmetics, outfit);
                             this.pageResults.set(next);
                             this.selected.set(null);
                         }, Minecraft.getInstance())
@@ -113,6 +121,14 @@ public class BrowseScreen extends AbstractHomeScreen {
                 return ImmutableList.of(
                         new EntryList.DynamicDiv(this.pageResults, this.selected::acquire)
                 );
+            }
+
+            @Override
+            public Stylesheet getStylesheet() {
+                return new Stylesheet()
+                        .component(EntryList.DynamicDiv.class, Style.create()
+                                .set(MARGINS, fixed(new Margins(10, 0, 0, 0)))
+                                .set(HEIGHT, screen(0, 70)));
             }
         }
     }

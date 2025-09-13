@@ -129,7 +129,7 @@ public class CosmeticEntry extends Component {
 			.tag("button_subtract", Style.create()
 					.set(ALIGN_SELF, Optional.of(Align.START)))
 			.tag("button_add", Style.create()
-					.set(MARGINS, fixed(new Margins(0,5,0,0))))
+					.set(MARGINS, fixed(new Margins(0,10,0,0))))
 			.tag("centry_root", Style.create()
 					.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
 					.set(Div.ALIGN_ITEMS, Align.CENTRE)
@@ -223,10 +223,10 @@ public class CosmeticEntry extends Component {
 	 * @param cosmetics       the list of cosmetics on the browse page.
 	 * @param equipOntoOutfit the outfit to equip onto.
 	 */
-	public static void populateBrowseList(final List<CosmeticEntry> entryList, List<gg.cloaks.javaclient.model.Cosmetic> cosmetics, Cosmetics equipOntoOutfit) {
+	public static void populateBrowseList(final List<CosmeticEntry> entryList, List<gg.cloaks.javaclient.model.Cosmetic> cosmetics, @Nullable Cosmetics equipOntoOutfit) {
 		for (gg.cloaks.javaclient.model.Cosmetic cosmetic : cosmetics) {
 			entryList.add(new CosmeticEntry(
-					equipOntoOutfit,
+					equipOntoOutfit, // TODO handle null lol
 					getOrCreateThumb("https://cdn.valoeghese.nz/gumi.png" /*FIXME thumbnail*/, "thumbs-c", cosmetic.getId(), 1 /*ticks per frame FIXME*/),
 					cosmetic.getId(),
 					cosmetic.getName(),
