@@ -21,14 +21,14 @@ import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
-import cc.cosmetica.cosmetica.gui.widget.CosmeticsList;
 import cc.cosmetica.cosmetica.gui.widget.EntryList;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
+import cc.cosmetica.kupe.api.gui.Align;
 import cc.cosmetica.kupe.api.gui.Component;
+import cc.cosmetica.kupe.api.gui.Div;
 import cc.cosmetica.kupe.api.gui.TextBox;
-import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Margins;
@@ -38,8 +38,9 @@ import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
-import java.util.function.Function;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
@@ -53,83 +54,75 @@ public class BrowseScreen extends AbstractHomeScreen {
         super.lockActions = true;
     }
 
+    private final State<String> searchQuery = new State<>("");
+
     @Override
     protected @NotNull Component createRightMenu(Cosmetics cosmetics, boolean authenticated) {
-        return new CosmeticsBrowser(Collections.emptyList());
+        /*
+         * Browser layout.
+         */
+        return new Div(
+                new TextBox(
+                        Text.translatable("label.browse.search"), // todo better format for translation strings?
+                        this.searchQuery,
+                        true,
+                        32),
+                new Results()
+        ).withStyle(Style.create()
+                .set(PADDING, fixed(new Margins(30, 10, 12, 10)))
+                .set(Div.ALIGN_ITEMS, Align.STRETCH_START));
     }
 
     public static final ResourceKey ID = new ResourceKey("cosmetica", "browse");
 
-    /**
-     * Browser layout.
-     */
-    private static final class CosmeticsBrowser extends CosmeticsList {
-        public CosmeticsBrowser(Collection<CosmeticEntry> entries) {
-            super(entries, false);
-        }
 
-        private final State<String> searchQuery = new State<>("");
+    /**
+     * Browser results. Automatically updates.
+     */
+    private class Results extends Component {
+        private final State<List<Component>> pageResults = new State<>(Collections.emptyList());
+        private final State<@Nullable CosmeticEntry> selected = new State<>(null);
+        private volatile int state = 0;
 
         @Override
         public List<Component> build() {
-            return Arrays.asList(
-                    new TextBox(
-                            Text.translatable("label.browse.search"), // todo better format for translation strings?
-                            this.searchQuery,
-                            true,
-                            32),
-                    new Results()
+            // Acquire states
+            String query = BrowseScreen.this.searchQuery.acquire(this);
+            @Nullable Cosmetics outfit = Cosmetica.OWN_COSMETICS.acquire(this);
+
+            // Build Search
+            final int nextState = this.state + 1;
+            this.state = nextState;
+
+            SearchCosmeticsDto dto = new SearchCosmeticsDto();
+            dto.setName(query);
+
+            // Send Search
+            CosmeticaAPI.performAsync(api -> api.searchControllerSearchCosmetics(dto))
+                    .thenAcceptAsync(cosmetics -> {
+                        ArrayList next = new ArrayList();
+                        CosmeticEntry.populateBrowseList(next, cosmetics, outfit);
+                        this.pageResults.set(next);
+                        this.selected.set(null);
+                    }, Minecraft.getInstance())
+                    .exceptionally(ex -> {
+                        Logging.getInstance().error("Error performing search for " + query, ex);
+                        // TODO show error visually
+                        return null;
+                    });
+
+            // Layout
+            return ImmutableList.of(
+                    new EntryList.DynamicDiv(this.pageResults, this.selected::acquire)
             );
         }
 
-        /**
-         * Browser results. Automatically updates.
-         */
-        private class Results extends Component {
-            private final State<List<Component>> pageResults = new State<>(Collections.emptyList());
-            private final State<@Nullable CosmeticEntry> selected = new State<>(null);
-            private volatile int state = 0;
-
-            @Override
-            public List<Component> build() {
-                // Acquire states
-                String query = CosmeticsBrowser.this.searchQuery.acquire(this);
-                @Nullable Cosmetics outfit = Cosmetica.OWN_COSMETICS.acquire(this);
-
-                // Build Search
-                final int nextState = this.state + 1;
-                this.state = nextState;
-
-                SearchCosmeticsDto dto = new SearchCosmeticsDto();
-                dto.setName(query);
-
-                // Send Search
-                CosmeticaAPI.performAsync(api -> api.searchControllerSearchCosmetics(dto))
-                        .thenAcceptAsync(cosmetics -> {
-                            ArrayList next = new ArrayList();
-                            CosmeticEntry.populateBrowseList(next, cosmetics, outfit);
-                            this.pageResults.set(next);
-                            this.selected.set(null);
-                        }, Minecraft.getInstance())
-                        .exceptionally(ex -> {
-                            Logging.getInstance().error("Error performing search for " + query, ex);
-                            // TODO show error visually
-                            return null;
-                        });
-
-                // Layout
-                return ImmutableList.of(
-                        new EntryList.DynamicDiv(this.pageResults, this.selected::acquire)
-                );
-            }
-
-            @Override
-            public Stylesheet getStylesheet() {
-                return new Stylesheet()
-                        .component(EntryList.DynamicDiv.class, Style.create()
-                                .set(MARGINS, fixed(new Margins(10, 0, 0, 0)))
-                                .set(HEIGHT, screen(0, 70)));
-            }
+        @Override
+        public Stylesheet getStylesheet() {
+            return new Stylesheet()
+                    .component(EntryList.DynamicDiv.class, Style.create()
+                            .set(MARGINS, fixed(new Margins(10, 0, 0, 0)))
+                            .set(HEIGHT, screen(0, 70)));
         }
     }
 }
