@@ -20,6 +20,7 @@ import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.api.texture.CosmeticaTexture;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.ConfirmRemoveCosmeticScreen;
+import cc.cosmetica.cosmetica.util.Thumbnail;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screens;
@@ -225,9 +226,10 @@ public class CosmeticEntry extends Component {
 	 */
 	public static void populateBrowseList(final List<CosmeticEntry> entryList, List<gg.cloaks.javaclient.model.Cosmetic> cosmetics, @Nullable Cosmetics equipOntoOutfit) {
 		for (gg.cloaks.javaclient.model.Cosmetic cosmetic : cosmetics) {
+			System.out.println( ((Thumbnail)cosmetic).getThumbnail() );
 			entryList.add(new CosmeticEntry(
 					equipOntoOutfit, // TODO handle null lol
-					getOrCreateThumb("https://cdn.valoeghese.nz/gumi.png" /*FIXME thumbnail*/, "thumbs-c", cosmetic.getId(), 1 /*ticks per frame FIXME*/),
+					getOrCreateThumb(/*"https://cdn.valoeghese.nz/gumi.png"*/ ((Thumbnail)cosmetic).getThumbnail() /*FIXME thumbnail*/, "thumbs-c", cosmetic.getId(), 1 /*ticks per frame FIXME*/),
 					cosmetic.getId(),
 					cosmetic.getName(),
 					cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
