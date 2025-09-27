@@ -83,8 +83,10 @@ public class BrowseScreen extends AbstractHomeScreen {
     @Override
     public @NotNull Stylesheet getStylesheet() {
         return super.getStylesheet()
+                .component(Results.class, Style.create()
+                        .set(HEIGHT, (vw, vh, pw, ph) -> OptionalInt.of(ph - 22)))
                 .tag("btn-search-adjust", Style.create()
-                        .set(WIDTH, fixed(OptionalInt.of(20))))
+                        .set(WIDTH, fixedSize(20)))
                 .tag("searchbar", Style.create()
                         .set(WIDTH, (vw, vh, pw, ph) -> OptionalInt.of(pw - 22 * 2)));
     }

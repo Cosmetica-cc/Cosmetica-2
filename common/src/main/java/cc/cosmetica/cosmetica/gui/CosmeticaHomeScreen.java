@@ -51,7 +51,5 @@ public class CosmeticaHomeScreen extends AbstractHomeScreen {
 		return new CosmeticsList(entries, true);
 	}
 
-
-
 	public static final ResourceKey ID = new ResourceKey("cosmetica", "home");
 }
