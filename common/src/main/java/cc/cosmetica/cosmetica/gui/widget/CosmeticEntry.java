@@ -232,7 +232,7 @@ public class CosmeticEntry extends Component {
 					cosmetic.getName(),
 					cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
 					Type.EQUIPPABLE,
-					Category.CAPE // FIXME get actual category
+					"accessory".equals(cosmetic.getType()) ? Category.ACCESSORY : Category.CAPE
 			));
 		}
 	}
