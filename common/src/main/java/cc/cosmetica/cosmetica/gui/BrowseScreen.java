@@ -25,12 +25,10 @@ import cc.cosmetica.cosmetica.gui.widget.EntryList;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
-import cc.cosmetica.kupe.api.gui.Align;
-import cc.cosmetica.kupe.api.gui.Component;
-import cc.cosmetica.kupe.api.gui.Div;
-import cc.cosmetica.kupe.api.gui.TextBox;
+import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.model.SearchCosmeticsDto;
@@ -41,6 +39,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.OptionalInt;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
@@ -55,6 +54,8 @@ public class BrowseScreen extends AbstractHomeScreen {
     }
 
     private final State<String> searchQuery = new State<>("");
+    // TODO use in outfit player for preview (or similar)
+    private final State<@Nullable CosmeticEntry> selected = new State<>(null);
 
     @Override
     protected @NotNull Component createRightMenu(Cosmetics cosmetics, boolean authenticated) {
@@ -62,15 +63,30 @@ public class BrowseScreen extends AbstractHomeScreen {
          * Browser layout.
          */
         return new Div(
-                new TextBox(
-                        Text.translatable("label.browse.search"), // todo better format for translation strings?
-                        this.searchQuery,
-                        true,
-                        32),
+                new Div(
+                        new TextBox(
+                                Text.translatable("label.browse.search"), // todo better format for translation strings?
+                                this.searchQuery,
+                                true,
+                                32).tag("searchbar"),
+                        new Button(Text.literal(" "), ()->{}).tag("btn-search-adjust"), // sort
+                        new Button(Text.literal(" "), ()->{}).tag("btn-search-adjust")  // filter
+                ).withStyle(Style.create()
+                        .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
+                        .set(Div.JUSTIFY_CONTENT, Justify.SPACE_BETWEEN)),
                 new Results()
         ).withStyle(Style.create()
                 .set(PADDING, fixed(new Margins(30, 10, 12, 10)))
                 .set(Div.ALIGN_ITEMS, Align.STRETCH_START));
+    }
+
+    @Override
+    public @NotNull Stylesheet getStylesheet() {
+        return super.getStylesheet()
+                .tag("btn-search-adjust", Style.create()
+                        .set(WIDTH, fixed(OptionalInt.of(20))))
+                .tag("searchbar", Style.create()
+                        .set(WIDTH, (vw, vh, pw, ph) -> OptionalInt.of(pw - 22 * 2)));
     }
 
     public static final ResourceKey ID = new ResourceKey("cosmetica", "browse");
@@ -81,7 +97,6 @@ public class BrowseScreen extends AbstractHomeScreen {
      */
     private class Results extends Component {
         private final State<List<Component>> pageResults = new State<>(Collections.emptyList());
-        private final State<@Nullable CosmeticEntry> selected = new State<>(null);
         private volatile int state = 0;
 
         @Override
@@ -103,7 +118,7 @@ public class BrowseScreen extends AbstractHomeScreen {
                         ArrayList next = new ArrayList();
                         CosmeticEntry.populateBrowseList(next, cosmetics, outfit);
                         this.pageResults.set(next);
-                        this.selected.set(null);
+                        BrowseScreen.this.selected.set(null);
                     }, Minecraft.getInstance())
                     .exceptionally(ex -> {
                         Logging.getInstance().error("Error performing search for " + query, ex);
@@ -113,7 +128,7 @@ public class BrowseScreen extends AbstractHomeScreen {
 
             // Layout
             return ImmutableList.of(
-                    new EntryList.DynamicDiv(this.pageResults, this.selected::acquire)
+                    new EntryList.DynamicDiv(this.pageResults, BrowseScreen.this.selected::acquire)
             );
         }
 
