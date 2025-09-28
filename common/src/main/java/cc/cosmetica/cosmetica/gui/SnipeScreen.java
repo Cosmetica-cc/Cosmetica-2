@@ -196,7 +196,7 @@ public class SnipeScreen extends Screen {
                 Accessory accessory1 = accessoriesIterator.next();
 
                 if (accessory1.getId().equals(accessory.getAccessory().getId())) {
-                    System.out.println("Matching ID found. Checking offsets..");
+                    Logging.getInstance().debug("Matching ID found. Checking offsets..");
                     // compare offsets
                     Vec3 offset1 = accessory1.getOffset();
                     if (offset.equals(offset1)) {

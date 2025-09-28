@@ -108,7 +108,7 @@ public class Keybinds {
         }
 
 //        System.out.println(Keybinds.CUSTOMISE.isDown());
-        if(set)System.out.println("set");
+//        if(set)System.out.println("set");
         // closing the in-game cosmetica menu brings you back to gameplay
         if (screen == null) rightShiftMenu = false;
 

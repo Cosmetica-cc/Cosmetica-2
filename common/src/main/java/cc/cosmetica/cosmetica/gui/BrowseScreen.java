@@ -36,10 +36,7 @@ import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.OptionalInt;
+import java.util.*;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
@@ -54,6 +51,7 @@ public class BrowseScreen extends AbstractHomeScreen {
     }
 
     private final State<String> searchQuery = new State<>("");
+    private final State<Menu> menu = new State<>(Menu.NONE);
     // TODO use in outfit player for preview (or similar)
     private final State<@Nullable CosmeticEntry> selected = new State<>(null);
 
@@ -62,22 +60,59 @@ public class BrowseScreen extends AbstractHomeScreen {
         /*
          * Browser layout.
          */
-        return new Div(
+        return new LayeredSpace(
+                true,
+                new Div() {
+                    @Override
+                    public List<Component> build() {
+                        Menu menu = BrowseScreen.this.menu.acquire(this);
+                        System.out.println(menu);
+
+                        if (menu == Menu.SORT) {
+                            return Arrays.asList(
+                                    new Div(
+                                            new Label(Text.literal("Recent")),
+                                            new Label(Text.literal("Popular")),
+                                            new Label(Text.literal("Official"))
+                                    ).withStyle(Style.create()
+                                            .set(Label.ALIGN_TEXT, Align.START)
+                                            .set(ALIGN_ITEMS, Align.STRETCH_START)
+                                            .set(MARGINS, fixed(new Margins(24,0,0,0)))
+                                            .set(PADDING, fixed(new Margins(1, 2)))
+                                            .set(BACKGROUND_COLOUR, OptionalInt.of(0x858585))
+                                            .set(BORDER, Border.create(Border.BorderConfig.split(1, 0xA1A1A1, 0x595959)))
+                                            .set(ALIGN_SELF, Optional.of(Align.END))
+                                            .set(WIDTH, percent(30, 0)))
+                            );
+                        }
+                        return super.build();
+                    }
+                }.withStyle(Style.create().set(Z_INDEX, 10)),
                 new Div(
-                        new TextBox(
-                                Text.translatable("label.browse.search"), // todo better format for translation strings?
-                                this.searchQuery,
-                                true,
-                                32).tag("searchbar"),
-                        new Button(Text.literal(" "), ()->{}).tag("btn-search-adjust"), // sort
-                        new Button(Text.literal(" "), ()->{}).tag("btn-search-adjust")  // filter
+                        new Div(
+                                new TextBox(
+                                        Text.translatable("label.browse.search"), // todo better format for translation strings?
+                                        this.searchQuery,
+                                        true,
+                                        32).tag("searchbar"),
+                                new Button(Text.literal(" "), ()-> this.open(Menu.SORT)).tag("btn-search-adjust"), // sort
+                                new Button(Text.literal(" "), ()-> this.open(Menu.FILTER)).tag("btn-search-adjust")  // filter
+                        ).withStyle(Style.create()
+                                .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
+                                .set(Div.JUSTIFY_CONTENT, Justify.SPACE_BETWEEN)),
+                        new Results()
                 ).withStyle(Style.create()
-                        .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
-                        .set(Div.JUSTIFY_CONTENT, Justify.SPACE_BETWEEN)),
-                new Results()
+                        .set(Div.ALIGN_ITEMS, Align.STRETCH_START))
         ).withStyle(Style.create()
-                .set(PADDING, fixed(new Margins(30, 10, 12, 10)))
-                .set(Div.ALIGN_ITEMS, Align.STRETCH_START));
+                .set(PADDING, fixed(new Margins(30, 10, 12, 10))));
+    }
+
+    private void open(Menu menu) {
+        if (this.menu.peek() == menu) {
+            this.menu.set(Menu.NONE);
+        } else {
+            this.menu.set(menu);
+        }
     }
 
     @Override
@@ -93,6 +128,11 @@ public class BrowseScreen extends AbstractHomeScreen {
 
     public static final ResourceKey ID = new ResourceKey("cosmetica", "browse");
 
+    private enum Menu {
+        NONE,
+        SORT,
+        FILTER
+    }
 
     /**
      * Browser results. Automatically updates.

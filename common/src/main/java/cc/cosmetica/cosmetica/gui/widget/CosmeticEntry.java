@@ -226,10 +226,10 @@ public class CosmeticEntry extends Component {
 	 */
 	public static void populateBrowseList(final List<CosmeticEntry> entryList, List<gg.cloaks.javaclient.model.Cosmetic> cosmetics, @Nullable Cosmetics equipOntoOutfit) {
 		for (gg.cloaks.javaclient.model.Cosmetic cosmetic : cosmetics) {
-			System.out.println( ((Thumbnail)cosmetic).getThumbnail() );
+//			System.out.println( ((Thumbnail)cosmetic).getThumbnail() );
 			entryList.add(new CosmeticEntry(
 					equipOntoOutfit, // TODO handle null lol
-					getOrCreateThumb(/*"https://cdn.valoeghese.nz/gumi.png"*/ ((Thumbnail)cosmetic).getThumbnail() /*FIXME thumbnail*/, "thumbs-c", cosmetic.getId(), 1 /*ticks per frame FIXME*/),
+					getOrCreateThumb(((Thumbnail)cosmetic).getThumbnail(), "thumbs-c", cosmetic.getId(), 1 /*ticks per frame FIXME*/),
 					cosmetic.getId(),
 					cosmetic.getName(),
 					cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
