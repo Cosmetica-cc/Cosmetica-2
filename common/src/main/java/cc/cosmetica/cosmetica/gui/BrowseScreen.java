@@ -21,6 +21,7 @@ import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
+import cc.cosmetica.cosmetica.gui.widget.DropdownMenu;
 import cc.cosmetica.cosmetica.gui.widget.EntryList;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.State;
@@ -38,6 +39,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
+import static cc.cosmetica.kupe.api.gui.Div.ALIGN_ITEMS;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 /**
@@ -52,6 +54,8 @@ public class BrowseScreen extends AbstractHomeScreen {
 
     private final State<String> searchQuery = new State<>("");
     private final State<Menu> menu = new State<>(Menu.NONE);
+    private final State<Sort> sort = new State<>(Sort.RECENT);
+
     // TODO use in outfit player for preview (or similar)
     private final State<@Nullable CosmeticEntry> selected = new State<>(null);
 
@@ -70,19 +74,7 @@ public class BrowseScreen extends AbstractHomeScreen {
 
                         if (menu == Menu.SORT) {
                             return Arrays.asList(
-                                    new Div(
-                                            new Label(Text.literal("Recent")),
-                                            new Label(Text.literal("Popular")),
-                                            new Label(Text.literal("Official"))
-                                    ).withStyle(Style.create()
-                                            .set(Label.ALIGN_TEXT, Align.START)
-                                            .set(ALIGN_ITEMS, Align.STRETCH_START)
-                                            .set(MARGINS, fixed(new Margins(24,0,0,0)))
-                                            .set(PADDING, fixed(new Margins(1, 2)))
-                                            .set(BACKGROUND_COLOUR, OptionalInt.of(0x858585))
-                                            .set(BORDER, Border.create(Border.BorderConfig.split(1, 0xA1A1A1, 0x595959)))
-                                            .set(ALIGN_SELF, Optional.of(Align.END))
-                                            .set(WIDTH, percent(30, 0)))
+                                    new DropdownMenu<>(sort::set, Sort::text, Sort.values())
                             );
                         }
                         return super.build();
@@ -102,7 +94,7 @@ public class BrowseScreen extends AbstractHomeScreen {
                                 .set(Div.JUSTIFY_CONTENT, Justify.SPACE_BETWEEN)),
                         new Results()
                 ).withStyle(Style.create()
-                        .set(Div.ALIGN_ITEMS, Align.STRETCH_START))
+                        .set(ALIGN_ITEMS, Align.STRETCH_START))
         ).withStyle(Style.create()
                 .set(PADDING, fixed(new Margins(30, 10, 12, 10))));
     }
@@ -134,6 +126,22 @@ public class BrowseScreen extends AbstractHomeScreen {
         FILTER
     }
 
+    private enum Sort {
+        RECENT("label.cosmetica.sort.recent"),
+        POPULAR("label.cosmetica.sort.popular"),
+        OFFICIAL("label.cosmetica.sort.official");
+
+        Sort(String translationKey) {
+            this.text = Text.translatable(translationKey);
+        }
+
+        private final Text text;
+
+        Text text() {
+            return this.text;
+        }
+    }
+
     /**
      * Browser results. Automatically updates.
      */
@@ -145,6 +153,8 @@ public class BrowseScreen extends AbstractHomeScreen {
         public List<Component> build() {
             // Acquire states
             String query = BrowseScreen.this.searchQuery.acquire(this);
+            Sort sort = BrowseScreen.this.sort.acquire(this);
+
             @Nullable Cosmetics outfit = Cosmetica.OWN_COSMETICS.acquire(this);
 
             // Build Search
@@ -152,6 +162,7 @@ public class BrowseScreen extends AbstractHomeScreen {
             this.state = nextState;
 
             SearchCosmeticsDto dto = new SearchCosmeticsDto();
+            //dto.set
             dto.setName(query);
 
             // Send Search
