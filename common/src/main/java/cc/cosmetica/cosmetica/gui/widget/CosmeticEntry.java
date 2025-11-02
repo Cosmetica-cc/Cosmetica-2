@@ -239,7 +239,7 @@ public class CosmeticEntry extends Component {
 						cosmetic.getName(),
 						cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
 						Type.EQUIPPABLE,
-						"accessory".equals(cosmetic.getType()) ? Category.ACCESSORY : Category.CAPE
+						Category.UNKNOWN
 				));
 			} else if (c instanceof AnimatedTextureCosmetic) {
 				AnimatedTextureCosmetic cosmetic = (AnimatedTextureCosmetic) c;
@@ -251,7 +251,7 @@ public class CosmeticEntry extends Component {
 						cosmetic.getName(),
 						cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
 						Type.EQUIPPABLE,
-						Category.CAPE
+						"cape".equals(cosmetic.getType()) ? Category.CAPE : Category.UNKNOWN
 				));
 			} else if (c instanceof gg.cloaks.javaclient.model.Accessory) {
 				gg.cloaks.javaclient.model.Accessory cosmetic = (gg.cloaks.javaclient.model.Accessory) c;
@@ -263,7 +263,7 @@ public class CosmeticEntry extends Component {
 						cosmetic.getName(),
 						cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
 						Type.EQUIPPABLE,
-						Category.ACCESSORY
+						"accessory".equals(cosmetic.getType()) ? Category.ACCESSORY : Category.UNKNOWN
 				));
 			}
 		}
