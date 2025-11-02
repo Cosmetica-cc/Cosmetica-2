@@ -16,7 +16,6 @@
     "defaultRequire": 1
   },
   "mixins": [
-    "JCACosmeticMixin",
     "attach.ArmourStandMixin",
     "attach.PlayerMixin",
     "gui.FakePlayerRendererMixin"

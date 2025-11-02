@@ -34,7 +34,7 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
-import gg.cloaks.javaclient.api.DefaultApi;
+import gg.cloaks.javaclient.api.OutfitsApi;
 import gg.cloaks.javaclient.model.OutfitAccessory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.LivingEntity;
@@ -111,7 +111,7 @@ public class SnipeScreen extends Screen {
                             String outfitId = outfit.getOutfitId().orElse("");
                             if (outfitId.isEmpty()) {
                                 this.isSettingOrUnauthenticated.set(true);
-                                CosmeticaAPI.performAsync(DefaultApi::outfitsControllerUnequip)
+                                CosmeticaAPI.outfits().requestAsync(OutfitsApi::unequip)
                                         .thenAccept(__ -> {
                                             Logging.getInstance().debug("Cleared Cosmetics by Steal-their-look.");
                                             Minecraft.getInstance().tell(Screens::closeCurrentScreen);
@@ -131,7 +131,7 @@ public class SnipeScreen extends Screen {
                             if (ownedOutfit != null) {
                                 this.isSettingOrUnauthenticated.set(true);
                                 // can set cosmetics immediately
-                                CosmeticaAPI.performAsync(api->api.outfitsControllerEquip(ownedOutfit))
+                                CosmeticaAPI.outfits().requestAsync(api->api.equip(ownedOutfit))
                                         .thenAccept(__ -> {
                                             Logging.getInstance().debug("Set Cosmetics by Steal-their-look.");
                                             Minecraft.getInstance().tell(Screens::closeCurrentScreen);

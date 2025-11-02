@@ -20,7 +20,6 @@ import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.api.texture.CosmeticaTexture;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.ConfirmRemoveCosmeticScreen;
-import cc.cosmetica.cosmetica.util.Thumbnail;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screens;
@@ -34,6 +33,8 @@ import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
+import gg.cloaks.javaclient.model.AnimatedTextureCosmetic;
+import gg.cloaks.javaclient.model.SearchCosmetics200ResponseInner;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -147,7 +148,8 @@ public class CosmeticEntry extends Component {
 
 	public enum Category {
 		ACCESSORY,
-		CAPE
+		CAPE,
+		UNKNOWN
 	}
 
 	public static final CachedImage NO_THUMBNAIL = new CachedImage(Cosmetica.FALLBACK_TEXTURE, 0);
@@ -224,18 +226,46 @@ public class CosmeticEntry extends Component {
 	 * @param cosmetics       the list of cosmetics on the browse page.
 	 * @param equipOntoOutfit the outfit to equip onto.
 	 */
-	public static void populateBrowseList(final List<CosmeticEntry> entryList, List<gg.cloaks.javaclient.model.Cosmetic> cosmetics, @Nullable Cosmetics equipOntoOutfit) {
-		for (gg.cloaks.javaclient.model.Cosmetic cosmetic : cosmetics) {
-//			System.out.println( ((Thumbnail)cosmetic).getThumbnail() );
-			entryList.add(new CosmeticEntry(
-					equipOntoOutfit, // TODO handle null lol
-					getOrCreateThumb(((Thumbnail)cosmetic).getThumbnail(), "thumbs-c", cosmetic.getId(), 1 /*ticks per frame FIXME*/),
-					cosmetic.getId(),
-					cosmetic.getName(),
-					cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
-					Type.EQUIPPABLE,
-					"accessory".equals(cosmetic.getType()) ? Category.ACCESSORY : Category.CAPE
-			));
+	public static void populateBrowseList(final List<CosmeticEntry> entryList, List<? extends SearchCosmetics200ResponseInner> cosmetics, @Nullable Cosmetics equipOntoOutfit) {
+		for (SearchCosmetics200ResponseInner c : cosmetics) {
+			// Silly auto generated api has forced my hand
+			if (c instanceof gg.cloaks.javaclient.model.Cosmetic) {
+				gg.cloaks.javaclient.model.Cosmetic cosmetic = (gg.cloaks.javaclient.model.Cosmetic) c;
+
+				entryList.add(new CosmeticEntry(
+						equipOntoOutfit, // TODO handle null lol
+						CachedImage.NO_TEXTURE,
+						cosmetic.getId(),
+						cosmetic.getName(),
+						cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
+						Type.EQUIPPABLE,
+						"accessory".equals(cosmetic.getType()) ? Category.ACCESSORY : Category.CAPE
+				));
+			} else if (c instanceof AnimatedTextureCosmetic) {
+				AnimatedTextureCosmetic cosmetic = (AnimatedTextureCosmetic) c;
+
+				entryList.add(new CosmeticEntry(
+						equipOntoOutfit, // TODO handle null lol
+						getOrCreateThumb(cosmetic.getThumbnail(), "thumbs-c", cosmetic.getId(), cosmetic.getTicksPerFrame().intValue()),
+						cosmetic.getId(),
+						cosmetic.getName(),
+						cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
+						Type.EQUIPPABLE,
+						Category.CAPE
+				));
+			} else if (c instanceof gg.cloaks.javaclient.model.Accessory) {
+				gg.cloaks.javaclient.model.Accessory cosmetic = (gg.cloaks.javaclient.model.Accessory) c;
+
+				entryList.add(new CosmeticEntry(
+						equipOntoOutfit, // TODO handle null lol
+						getOrCreateThumb(cosmetic.getThumbnail(), "thumbs-c", cosmetic.getId(), cosmetic.getTicksPerFrame().intValue()),
+						cosmetic.getId(),
+						cosmetic.getName(),
+						cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
+						Type.EQUIPPABLE,
+						Category.ACCESSORY
+				));
+			}
 		}
 	}
 

@@ -32,7 +32,8 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import com.google.common.collect.ImmutableList;
-import gg.cloaks.javaclient.api.DefaultApi;
+import gg.cloaks.javaclient.api.IconsApi;
+import gg.cloaks.javaclient.api.LoreApi;
 import gg.cloaks.javaclient.model.Icon;
 import gg.cloaks.javaclient.model.LoreOptions;
 import gg.cloaks.javaclient.model.UpdateLoreDto;
@@ -51,10 +52,10 @@ public class StyleNametagScreen extends Screen {
         super(ID);
 
         // refresh available lores
-        CosmeticaAPI.performAsync(DefaultApi::loreControllerGetLoreOptions)
+        CosmeticaAPI.lore().requestAsync(LoreApi::getLoreOptions)
                 .thenAcceptAsync(loreOptions -> availableLores.set(loreOptions), Minecraft.getInstance());
         // refresh available icons
-        CosmeticaAPI.performAsync(DefaultApi::iconsControllerGet)
+        CosmeticaAPI.icons().requestAsync(IconsApi::get)
                 .thenAcceptAsync(icons -> {
                     List<ImageCosmetic> newAvailableIcons = new ArrayList<>();
                     for (Icon icon : icons) {
@@ -126,7 +127,7 @@ public class StyleNametagScreen extends Screen {
         if (this.loreDirty.compareAndSet(true, false)) {
             Lore selectedLore = Cosmetica.SELECTED_LORE.peek();
 
-            CosmeticaAPI.performAsync(this.updateLoreFunction(selectedLore))
+            CosmeticaAPI.lore().requestAsync(this.updateLoreFunction(selectedLore))
                     .exceptionally(e -> {
                         // Prevent race condition by resetting on the minecraft thread
                         Minecraft.getInstance().tell(() -> {
@@ -145,7 +146,7 @@ public class StyleNametagScreen extends Screen {
         if (this.iconDirty.compareAndSet(true, false)) {
             ImageCosmetic selectedIcon = Cosmetica.SELECTED_ICON.peek();
             Logging.getInstance().debug("Updating Icon to {}", selectedIcon.getName());
-            CosmeticaAPI.performAsync(api -> api.iconsControllerEquip(selectedIcon.getId()))
+            CosmeticaAPI.icons().requestAsync(api -> api.equip(selectedIcon.getId()))
                     .exceptionally(e -> {
                         // TODO is there a race condition
                         assert Cosmetica.OWN_COSMETICS.peek() != null; // trust me bro
@@ -158,17 +159,17 @@ public class StyleNametagScreen extends Screen {
         }
     }
 
-    private Function<DefaultApi, ?> updateLoreFunction(Lore newLore) {
+    private Function<LoreApi, ?> updateLoreFunction(Lore newLore) {
         if (newLore.isNoLore()) {
             Logging.getInstance().debug("Removing lore");
-            return DefaultApi::loreControllerRemoveLore;
+            return LoreApi::removeLore;
         } else {
             Logging.getInstance().debug("Updating Lore to {}", newLore.value);
             UpdateLoreDto update = new UpdateLoreDto();
             update.content(newLore.value);
             update.color(newLore.colour);
             update.type(newLore.getType());
-            return api -> api.loreControllerUpdateLore(update);
+            return api -> api.updateLore(update);
         }
     }
 

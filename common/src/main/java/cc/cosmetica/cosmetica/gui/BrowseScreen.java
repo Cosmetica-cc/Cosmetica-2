@@ -32,7 +32,7 @@ import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
-import gg.cloaks.javaclient.model.SearchCosmeticsDto;
+import gg.cloaks.javaclient.model.*;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -166,7 +166,7 @@ public class BrowseScreen extends AbstractHomeScreen {
             dto.setName(query);
 
             // Send Search
-            CosmeticaAPI.performAsync(api -> api.searchControllerSearchCosmetics(dto))
+            CosmeticaAPI.search().requestAsync(api -> api.searchCosmetics(dto))
                     .thenAcceptAsync(cosmetics -> {
                         ArrayList next = new ArrayList();
                         CosmeticEntry.populateBrowseList(next, cosmetics, outfit);

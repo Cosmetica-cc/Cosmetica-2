@@ -26,8 +26,7 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
-import com.mojang.blaze3d.systems.RenderSystem;
-import gg.cloaks.javaclient.api.DefaultApi;
+import gg.cloaks.javaclient.api.PremiumApi;
 import gg.cloaks.javaclient.model.PlanRestrictions;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
@@ -47,7 +46,7 @@ public class OutfitSelectScreen extends Component {
         this.title = ID.translationKey("screens");
         this.outfitLimit = new State<>(-1);
 
-        CosmeticaAPI.performAsync(DefaultApi::premiumControllerGetRestrictions)
+        CosmeticaAPI.premiumApi().requestAsync(PremiumApi::getRestrictions)
                 .thenApply(PlanRestrictions::getMaxOutfits)
                 .thenApply(BigDecimal::intValue)
                 .thenAcceptAsync(this.outfitLimit::set, Minecraft.getInstance());

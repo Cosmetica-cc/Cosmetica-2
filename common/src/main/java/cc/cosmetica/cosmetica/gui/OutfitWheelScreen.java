@@ -569,7 +569,7 @@ public class OutfitWheelScreen extends Screen {
             // -> we should always show currently equipped outfit in wheel and not whats rendering! (as that is delayed by load)
             Cosmetica.SELECTED_OUTFIT_ID.set(Optional.of(this.id));
 
-            CosmeticaAPI.performAsync(api -> api.outfitsControllerEquip(this.id))
+            CosmeticaAPI.outfits().requestAsync(api -> api.equip(this.id))
                     .thenAccept(user -> Logging.getInstance().debug("Equip Success!"))
                     .exceptionally(except -> {
                         new RuntimeException("Outfits Controller Equip", except).printStackTrace();

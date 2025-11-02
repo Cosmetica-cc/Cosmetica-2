@@ -32,7 +32,7 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
-import gg.cloaks.javaclient.api.DefaultApi;
+import gg.cloaks.javaclient.api.PremiumApi;
 import gg.cloaks.javaclient.model.CopyOutfitDto;
 import gg.cloaks.javaclient.model.PlanRestrictions;
 import net.minecraft.client.Minecraft;
@@ -65,7 +65,7 @@ public class ReplaceOutfitSlotScreen extends Component {
         this.newOutfitCosmetics = new State<>(initialCosmetics);
         this.outfitLimit = new State<>(-1);
 
-        CosmeticaAPI.performAsync(DefaultApi::premiumControllerGetRestrictions)
+        CosmeticaAPI.premiumApi().requestAsync(PremiumApi::getRestrictions)
                 .thenApply(PlanRestrictions::getMaxOutfits)
                 .thenApply(BigDecimal::intValue)
                 .thenAcceptAsync(this.outfitLimit::set, Minecraft.getInstance());
@@ -73,7 +73,7 @@ public class ReplaceOutfitSlotScreen extends Component {
         Cosmetica.fetchOutfits();
 
         CosmeticaAPI.subscribe(CosmeticaAPI.SubscriptionEvent.OUTFIT, this.newOutfit, STEAL_THEIR_LOOK.toResourceLocation(), () -> {
-            CosmeticaAPI.performAsync(api -> api.outfitsControllerGet(this.newOutfit.toString()))
+            CosmeticaAPI.outfits().requestAsync(api -> api.get(this.newOutfit.toString()))
                     .thenApply(OutfitCosmetics::new)
                     .thenAcceptAsync(this.newOutfitCosmetics::set, Minecraft.getInstance())
                     .exceptionally(err->{
@@ -148,15 +148,15 @@ public class ReplaceOutfitSlotScreen extends Component {
                                 dto.equip(true);
 
                                 if (oldOutfit.option == null) {
-                                    CosmeticaAPI.performAsync(api -> api.outfitsControllerCopy(this.newOutfit.toString(), dto))
+                                    CosmeticaAPI.outfits().requestAsync(api -> api.copy(this.newOutfit.toString(), dto))
                                             .thenAcceptAsync(outfit1 -> Minecraft.getInstance().setScreen(null), Minecraft.getInstance())
                                             .exceptionally(mainThreadExcept(err -> {
                                                 Logging.getInstance().error("Error stealing look (new)", err);
                                                 this.setting.set(false);
                                             }));
                                 } else {
-                                    CosmeticaAPI.performAsync(api -> {api.outfitsControllerDelete(oldOutfit.option.id); return api;})
-                                            .thenApply(api -> api.outfitsControllerCopy(this.newOutfit.toString(), dto))
+                                    CosmeticaAPI.outfits().requestAsync(api -> {api.delete(oldOutfit.option.id); return api;})
+                                            .thenApply(api -> api.copy(this.newOutfit.toString(), dto))
                                             .thenAcceptAsync(outfit1 -> Minecraft.getInstance().setScreen(null), Minecraft.getInstance())
                                             .exceptionally(mainThreadExcept(err -> {
                                                 Logging.getInstance().error("Error stealing look (replace)", err);

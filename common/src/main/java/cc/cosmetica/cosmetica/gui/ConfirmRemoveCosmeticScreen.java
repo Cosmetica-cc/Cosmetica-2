@@ -102,7 +102,7 @@ public final class ConfirmRemoveCosmeticScreen extends AbstractConfirmScreen {
         }
 
         this.setting.set(true);
-        CosmeticaAPI.performAsync(api -> api.outfitsControllerModify(this.outfitId, dto))
+        CosmeticaAPI.outfits().requestAsync(api -> api.modify(this.outfitId, dto))
                 .thenAcceptAsync(o -> Screens.closeCurrentScreen(), Minecraft.getInstance())
                 .exceptionally(Cosmetica.mainThreadExcept(ex -> {
                     Logging.getInstance().error("Error updating outfit {}", ex, this.outfitId);

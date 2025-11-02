@@ -29,7 +29,8 @@ import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import cc.cosmetica.kupe.api.gui.Tooltip;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import com.google.common.collect.ImmutableList;
-import gg.cloaks.javaclient.api.DefaultApi;
+import gg.cloaks.javaclient.api.AuthApi;
+import gg.cloaks.javaclient.api.OutfitsApi;
 import gg.cloaks.javaclient.model.UpdateLoreDto;
 import gg.cloaks.javaclient.model.UserConnection;
 import net.minecraft.Util;
@@ -116,7 +117,7 @@ public class Cosmetica {
 
 	// TODO better way to refresh outfits
 	public static void fetchOutfits() {
-		CosmeticaAPI.performAsync(DefaultApi::outfitsControllerGetOwn)
+		CosmeticaAPI.outfits().requestAsync(OutfitsApi::getOwn)
 				.thenAccept(list -> Minecraft.getInstance().tell(() -> {
 					OWN_OUTFITS.set(list.stream()
 							.map(OutfitWheelScreen.OutfitOption::new)
@@ -125,7 +126,7 @@ public class Cosmetica {
 	}
 
 	public static void openWebPanel(String targetPage) {
-		CosmeticaAPI.performAsync(DefaultApi::authControllerGenerateExchangeToken)
+		CosmeticaAPI.auth().requestAsync(AuthApi::generateExchangeToken)
 				.thenAccept(token -> {
 					Cosmetica.copyAndOpenURL("https://cosmetica.cc/login?token=" + token + "&state=" + targetPage);
 				})

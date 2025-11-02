@@ -48,8 +48,8 @@ public final class ConfirmRemoveOutfitScreen extends AbstractConfirmScreen {
     @Override
     protected void onConfirm() {
         this.setting.set(true);
-        CosmeticaAPI.performAsync(api -> {
-                    api.outfitsControllerDelete(outfitId);
+        CosmeticaAPI.outfits().requestAsync(api -> {
+                    api.delete(outfitId);
                     return (Void)null;
                 })
                 .thenAcceptAsync(none -> Screens.closeCurrentScreen(), Minecraft.getInstance())
