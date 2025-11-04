@@ -34,7 +34,8 @@ import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.model.AnimatedTextureCosmetic;
-import gg.cloaks.javaclient.model.SearchCosmetics200ResponseInner;
+import gg.cloaks.javaclient.model.CosmeticEnvelope;
+import gg.cloaks.javaclient.model.TextureCosmetic;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -93,16 +94,21 @@ public class CosmeticEntry extends Component {
 					}).setDisabled(this.editable == Type.REMOVABLE_OFFLINE)
 					  .withStyle(Style.create().set(TOOLTIP,
 							this.editable == Type.REMOVABLE ? Optional.empty()
-									: Optional.of(new Tooltip(Text.translatable("cosmetica.offline")))
+									: Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.offline")))
 					  ))
 					  .tag("button_subtract")
 			);
-		} else if (this.editable == Type.EQUIPPABLE) {
-			content.add(
-					new Button(Text.literal("+"), () -> {
-						// TODO equip
-					}).tag("button_add")
-			);
+		} else if (this.editable.hasEquipButton()) {
+			Button b = (Button) new Button(Text.literal("+"), () -> {
+				// TODO equip
+			}).tag("button_add");
+
+			if (this.editable == Type.EQUIPPABLE_UNSUPPORTED) {
+				b.setDisabled(true);
+				b.withStyle(Style.create().set(TOOLTIP, Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.outdated")))));
+			}
+
+			content.add(b);
 		}
 
 		return ImmutableList.of(new Div(content.toArray(new Component[content.size()])).tag("centry_root"));
@@ -226,11 +232,10 @@ public class CosmeticEntry extends Component {
 	 * @param cosmetics       the list of cosmetics on the browse page.
 	 * @param equipOntoOutfit the outfit to equip onto.
 	 */
-	public static void populateBrowseList(final List<CosmeticEntry> entryList, List<? extends SearchCosmetics200ResponseInner> cosmetics, @Nullable Cosmetics equipOntoOutfit) {
-		for (SearchCosmetics200ResponseInner c : cosmetics) {
-			// Silly auto generated api has forced my hand
-			if (c instanceof gg.cloaks.javaclient.model.Cosmetic) {
-				gg.cloaks.javaclient.model.Cosmetic cosmetic = (gg.cloaks.javaclient.model.Cosmetic) c;
+	public static void populateBrowseList(final List<CosmeticEntry> entryList, List<CosmeticEnvelope> cosmetics, @Nullable Cosmetics equipOntoOutfit) {
+		for (CosmeticEnvelope envelope : cosmetics) {
+			if (envelope.getCosmetic() != null) {
+				gg.cloaks.javaclient.model.Cosmetic cosmetic = envelope.getCosmetic();
 
 				entryList.add(new CosmeticEntry(
 						equipOntoOutfit, // TODO handle null lol
@@ -238,23 +243,24 @@ public class CosmeticEntry extends Component {
 						cosmetic.getId(),
 						cosmetic.getName(),
 						cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
-						Type.EQUIPPABLE,
+						Type.EQUIPPABLE_UNSUPPORTED,
 						Category.UNKNOWN
 				));
-			} else if (c instanceof AnimatedTextureCosmetic) {
-				AnimatedTextureCosmetic cosmetic = (AnimatedTextureCosmetic) c;
+			} else if (envelope.getTextureCosmetic() != null) {
+				TextureCosmetic cosmetic = envelope.getTextureCosmetic();
 
 				entryList.add(new CosmeticEntry(
 						equipOntoOutfit, // TODO handle null lol
-						getOrCreateThumb(cosmetic.getThumbnail(), "thumbs-c", cosmetic.getId(), cosmetic.getTicksPerFrame().intValue()),
+						getOrCreateThumb(cosmetic.getThumbnail(), "thumbs-c", cosmetic.getId(), 1),
 						cosmetic.getId(),
 						cosmetic.getName(),
 						cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
-						Type.EQUIPPABLE,
-						"cape".equals(cosmetic.getType()) ? Category.CAPE : Category.UNKNOWN
+						Type.EQUIPPABLE_UNSUPPORTED,
+						Category.UNKNOWN
 				));
-			} else if (c instanceof gg.cloaks.javaclient.model.Accessory) {
-				gg.cloaks.javaclient.model.Accessory cosmetic = (gg.cloaks.javaclient.model.Accessory) c;
+			} else if (envelope.getAnimatedTextureCosmetic() != null) {
+				AnimatedTextureCosmetic cosmetic = envelope.getAnimatedTextureCosmetic();
+				Category category = "cape".equals(cosmetic.getType()) ? Category.CAPE : Category.UNKNOWN;
 
 				entryList.add(new CosmeticEntry(
 						equipOntoOutfit, // TODO handle null lol
@@ -262,8 +268,21 @@ public class CosmeticEntry extends Component {
 						cosmetic.getId(),
 						cosmetic.getName(),
 						cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
-						Type.EQUIPPABLE,
-						"accessory".equals(cosmetic.getType()) ? Category.ACCESSORY : Category.UNKNOWN
+						category == Category.UNKNOWN ? Type.EQUIPPABLE_UNSUPPORTED : Type.EQUIPPABLE,
+						category
+				));
+			} else if (envelope.getAccessory() != null) {
+				gg.cloaks.javaclient.model.Accessory cosmetic = envelope.getAccessory();
+				Category category = "accessory".equals(cosmetic.getType()) ? Category.ACCESSORY : Category.UNKNOWN;
+
+				entryList.add(new CosmeticEntry(
+						equipOntoOutfit, // TODO handle null lol
+						getOrCreateThumb(cosmetic.getThumbnail(), "thumbs-c", cosmetic.getId(), cosmetic.getTicksPerFrame().intValue()),
+						cosmetic.getId(),
+						cosmetic.getName(),
+						cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
+						category == Category.UNKNOWN ? Type.EQUIPPABLE_UNSUPPORTED : Type.EQUIPPABLE,
+						category
 				));
 			}
 		}
@@ -282,13 +301,33 @@ public class CosmeticEntry extends Component {
 	}
 
 	public enum Type {
+		/**
+		 * Lists the item only. No additional widgets.
+		 */
 		LISTED,
+		/**
+		 * Removable item from its outfit.
+		 */
 		REMOVABLE,
+		/**
+		 * Removable item, but you are offline.
+		 */
 		REMOVABLE_OFFLINE,
-		EQUIPPABLE;
+		/**
+		 * Item that is equippable to its outfit.
+		 */
+		EQUIPPABLE,
+		/**
+		 * Item that is equippable but unsupported (outdated mod version?).
+		 */
+		EQUIPPABLE_UNSUPPORTED;
 
 		boolean hasRemoveButton() {
 			return this == REMOVABLE || this == REMOVABLE_OFFLINE;
+		}
+
+		boolean hasEquipButton() {
+			return this == EQUIPPABLE || this == EQUIPPABLE_UNSUPPORTED;
 		}
 
 		public static Type removable(boolean authenticated) {
