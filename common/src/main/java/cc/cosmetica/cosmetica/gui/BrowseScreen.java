@@ -25,6 +25,7 @@ import cc.cosmetica.cosmetica.gui.cosmeticconfig.CosmeticOptions;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
 import cc.cosmetica.cosmetica.gui.widget.DropdownMenu;
 import cc.cosmetica.cosmetica.gui.widget.EntryList;
+import cc.cosmetica.cosmetica.gui.widget.SliderWidget;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.State;
@@ -230,14 +231,15 @@ public class BrowseScreen extends AbstractHomeScreen {
 
                 // TODO max number of cosmetics on outfit
                 // Because outfit can change whilst browsing.
+                State<Float> f = new State<>(0.33f);
 
                 return Arrays.asList(new Div(
                             new Image(new ResourceKey(triple.getLeft().getThumbnail().location))
                                     .setTransparent(1.0f),
                             // name
                             new Label(Text.literal(triple.getLeft().getName())),
-                            // settings...,
-
+                            // settings...
+                            new SliderWidget(f, f_ -> Text.literal("a: " + f_ * 2)),
                             // space
                             new Div().tag("flex-1"),
                             // submit
