@@ -21,6 +21,7 @@ import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
+import cc.cosmetica.cosmetica.util.EquipUtil;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Label;
@@ -29,9 +30,7 @@ import gg.cloaks.javaclient.model.CreateOutfitAccessoryDto;
 import gg.cloaks.javaclient.model.CreateOutfitDto;
 import net.minecraft.client.Minecraft;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -87,14 +86,7 @@ public final class ConfirmRemoveCosmeticScreen extends AbstractConfirmScreen {
             List<CreateOutfitAccessoryDto> accessories = new ArrayList<>();
             for (Accessory accessory : parentOutfit.getAccessories()) {
                 if (!accessory.getId().equals(removedItemId)) {
-                    CreateOutfitAccessoryDto caod = new CreateOutfitAccessoryDto();
-                    caod.id(accessory.getId());
-                    caod.mirrored(accessory.isMirrored());
-                    caod.setOffset(Arrays.asList(
-                            BigDecimal.valueOf(accessory.getOffset().x),
-                            BigDecimal.valueOf(accessory.getOffset().y),
-                            BigDecimal.valueOf(accessory.getOffset().z)
-                    ));
+                    CreateOutfitAccessoryDto caod = EquipUtil.dtoFromAccessory(accessory);
                     accessories.add(caod);
                 }
             }

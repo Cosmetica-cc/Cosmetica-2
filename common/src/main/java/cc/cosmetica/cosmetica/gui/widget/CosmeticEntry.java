@@ -20,6 +20,9 @@ import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.api.texture.CosmeticaTexture;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.ConfirmRemoveCosmeticScreen;
+import cc.cosmetica.cosmetica.gui.cosmeticconfig.AccessoryOptions;
+import cc.cosmetica.cosmetica.gui.cosmeticconfig.CapeOptions;
+import cc.cosmetica.cosmetica.gui.cosmeticconfig.CosmeticOptions;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screens;
@@ -35,26 +38,19 @@ import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.model.AnimatedTextureCosmetic;
 import gg.cloaks.javaclient.model.CosmeticEnvelope;
+import gg.cloaks.javaclient.model.CreateOutfitDto;
 import gg.cloaks.javaclient.model.TextureCosmetic;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.util.*;
+import java.util.function.Consumer;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 public class CosmeticEntry extends Component {
-	public CosmeticEntry(Cosmetics cosmetics, ResourceKey icon, String id, String name, String owner, Type type, Category category) {
-		this.parentOutfit = cosmetics;
-		this.image = null;
-		this.icon = icon;
-		this.id = id;
-		this.name = name;
-		this.owner = owner;
-		this.editable = type;
-		this.category = category;
-	}
-
-	public CosmeticEntry(Cosmetics cosmetics, CachedImage image, String id, String name, String owner, Type type, Category category) {
+	public CosmeticEntry(Cosmetics cosmetics, @Nullable CosmeticEnvelope cosmetic, CachedImage image, String id, String name, String owner, Type type, Category category, @Nullable CosmeticEntry.EquipCallback onEquipButton) {
 		this.parentOutfit = cosmetics;
 		this.image = image;
 		this.icon = new ResourceKey(image.location);
@@ -63,6 +59,15 @@ public class CosmeticEntry extends Component {
 		this.owner = owner;
 		this.editable = type;
 		this.category = category;
+		this.cosmetic = cosmetic;
+		this.onEquipButton = onEquipButton;
+
+		if (cosmetic == null && type.hasEquipButton()) {
+			throw new IllegalArgumentException("Cannot have null cosmetic envelope for equippable item");
+		}
+		if (onEquipButton == null && type.hasEquipButton()) {
+			throw new IllegalArgumentException("Cannot have null on equip callback for equippable item");
+		}
 	}
 
 	// need to hold onto cached image so it doesn't get GC'd
@@ -75,6 +80,8 @@ public class CosmeticEntry extends Component {
 	private final String owner;
 	private final Type editable;
 	private final Category category;
+	private final @Nullable CosmeticEnvelope cosmetic;
+	private final @Nullable EquipCallback onEquipButton;
 
 	@Override
 	public List<Component> build() {
@@ -100,7 +107,32 @@ public class CosmeticEntry extends Component {
 			);
 		} else if (this.editable.hasEquipButton()) {
 			Button b = (Button) new Button(Text.literal("+"), () -> {
-				// TODO equip
+				// See: Constructor
+				assert this.cosmetic != null;
+				assert this.onEquipButton != null;
+				// Create cosmetic options
+				CosmeticOptions options;
+				switch (this.category) {
+					case ACCESSORY:
+						List<BigDecimal> offset = Objects.requireNonNull(this.cosmetic.getAccessory()).getOffset();
+						options = new AccessoryOptions(
+								new double[] { offset.get(0).doubleValue(), offset.get(3).doubleValue() },
+								new double[] { offset.get(1).doubleValue(), offset.get(4).doubleValue() },
+								new double[] { offset.get(2).doubleValue(), offset.get(5).doubleValue() }
+						);
+						break;
+					case CAPE:
+						int flags = Objects.requireNonNull(this.cosmetic.getAnimatedTextureCosmetic()).getFlags().intValue();
+						options = new CapeOptions((flags & 1) != 0, (flags & 2) != 0);
+						break;
+					case UNKNOWN: // Should never get here, as we disable the button for unknown types in {@link populateBrowseList}
+					default:
+						throw new IllegalArgumentException("Unknown type for " + this.name + " (" + this.id + "), cannot equip!");
+                }
+				// Give feedback
+				this.onEquipButton.accept(this.image, options, dto -> {
+					CosmeticaAPI.outfits().requestAsync(api -> api.modify(this.parentOutfit.getOutfitId().orElseThrow(IllegalStateException::new), dto));
+				});
 			}).tag("button_add");
 
 			if (this.editable == Type.EQUIPPABLE_UNSUPPORTED) {
@@ -186,12 +218,14 @@ public class CosmeticEntry extends Component {
 
 			entryList.add(new CosmeticEntry(
 					cosmetics,
-					getOrCreateThumb(cloak.getThumbnail(), "thumbs-c", cloak.getId(), 3), // TODO in core give ticks per frame (expose AnimatedTextureCosmetic)
+					null,
+					getOrCreateThumb(cloak.getThumbnail(), "thumbs-c", cloak.getId(), cloak.getImage().getFramePeriod()),
 					cloak.getId(),
 					cloak.getName(),
 					message, //cloak.getCreator().isPresent() ? cloak.getCreator().get().getName() : "Could not load creator"
 					type,
-					CosmeticEntry.Category.CAPE
+					CosmeticEntry.Category.CAPE,
+					null
 			));
 		}
 
@@ -200,12 +234,14 @@ public class CosmeticEntry extends Component {
 
 			entryList.add(new CosmeticEntry(
 					cosmetics,
+					null,
 					getOrCreateThumb(elytra.getThumbnail(), "thumbs-c", elytra.getId(), 3), // TODO in core give ticks per frame (expose AnimatedTextureCosmetic)
 					elytra.getId(),
 					elytra.getName(),
 					"Elytra", //elytra.getCreator().isPresent() ? elytra.getCreator().get().getName() : "Could not load creator"
 					type,
-					CosmeticEntry.Category.CAPE
+					CosmeticEntry.Category.CAPE,
+					null
 			));
 		}
 
@@ -216,12 +252,14 @@ public class CosmeticEntry extends Component {
 			// n.b. reference to CachedImage needs to be stored on the entry so it doesn't get GC'd
 			entryList.add(new CosmeticEntry(
 					cosmetics,
+					null,
 					thumbnail,
 					accessory.getId(),
 					accessory.getName(),
 					accessory.getCreator().isPresent() ? accessory.getCreator().get().getName() : "Could not load creator",
 					type,
-					CosmeticEntry.Category.ACCESSORY
+					CosmeticEntry.Category.ACCESSORY,
+					null
 			));
 		}
 	}
@@ -231,32 +269,40 @@ public class CosmeticEntry extends Component {
 	 * @param entryList       the entrylist to populate.
 	 * @param cosmetics       the list of cosmetics on the browse page.
 	 * @param equipOntoOutfit the outfit to equip onto.
+	 * @param equipCallback   called when a cosmetic equip button is pressed.
 	 */
-	public static void populateBrowseList(final List<CosmeticEntry> entryList, List<CosmeticEnvelope> cosmetics, @Nullable Cosmetics equipOntoOutfit) {
+	public static void populateBrowseList(final List<CosmeticEntry> entryList, List<CosmeticEnvelope> cosmetics, @NotNull Cosmetics equipOntoOutfit, EquipCallback equipCallback) {
+		Objects.requireNonNull(equipOntoOutfit, "Must have outfit to browse.");
+		Objects.requireNonNull(equipCallback, "Must have equip callback.");
+
 		for (CosmeticEnvelope envelope : cosmetics) {
 			if (envelope.getCosmetic() != null) {
 				gg.cloaks.javaclient.model.Cosmetic cosmetic = envelope.getCosmetic();
 
 				entryList.add(new CosmeticEntry(
 						equipOntoOutfit, // TODO handle null lol
+						envelope,
 						CachedImage.NO_TEXTURE,
 						cosmetic.getId(),
 						cosmetic.getName(),
 						cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
 						Type.EQUIPPABLE_UNSUPPORTED,
-						Category.UNKNOWN
+						Category.UNKNOWN,
+						equipCallback
 				));
 			} else if (envelope.getTextureCosmetic() != null) {
 				TextureCosmetic cosmetic = envelope.getTextureCosmetic();
 
 				entryList.add(new CosmeticEntry(
 						equipOntoOutfit, // TODO handle null lol
+						envelope,
 						getOrCreateThumb(cosmetic.getThumbnail(), "thumbs-c", cosmetic.getId(), 1),
 						cosmetic.getId(),
 						cosmetic.getName(),
 						cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
 						Type.EQUIPPABLE_UNSUPPORTED,
-						Category.UNKNOWN
+						Category.UNKNOWN,
+						equipCallback
 				));
 			} else if (envelope.getAnimatedTextureCosmetic() != null) {
 				AnimatedTextureCosmetic cosmetic = envelope.getAnimatedTextureCosmetic();
@@ -264,12 +310,14 @@ public class CosmeticEntry extends Component {
 
 				entryList.add(new CosmeticEntry(
 						equipOntoOutfit, // TODO handle null lol
+						envelope,
 						getOrCreateThumb(cosmetic.getThumbnail(), "thumbs-c", cosmetic.getId(), cosmetic.getTicksPerFrame().intValue()),
 						cosmetic.getId(),
 						cosmetic.getName(),
 						cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
 						category == Category.UNKNOWN ? Type.EQUIPPABLE_UNSUPPORTED : Type.EQUIPPABLE,
-						category
+						category,
+						equipCallback
 				));
 			} else if (envelope.getAccessory() != null) {
 				gg.cloaks.javaclient.model.Accessory cosmetic = envelope.getAccessory();
@@ -277,12 +325,14 @@ public class CosmeticEntry extends Component {
 
 				entryList.add(new CosmeticEntry(
 						equipOntoOutfit, // TODO handle null lol
+						envelope,
 						getOrCreateThumb(cosmetic.getThumbnail(), "thumbs-c", cosmetic.getId(), cosmetic.getTicksPerFrame().intValue()),
 						cosmetic.getId(),
 						cosmetic.getName(),
 						cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
 						category == Category.UNKNOWN ? Type.EQUIPPABLE_UNSUPPORTED : Type.EQUIPPABLE,
-						category
+						category,
+						equipCallback
 				));
 			}
 		}
@@ -333,5 +383,19 @@ public class CosmeticEntry extends Component {
 		public static Type removable(boolean authenticated) {
 			return authenticated ? REMOVABLE : REMOVABLE_OFFLINE;
 		}
+	}
+
+	/**
+	 * Equip callback for
+	 */
+	@FunctionalInterface
+	public interface EquipCallback {
+		/**
+		 * Called when the equip button for a cosmetic is called.
+		 * @param thumbnail the image for the thumbnail of the cosmetic being equipped.
+		 * @param options bounds for the customisation options of the cosmetic being equipped onto the outfit.
+		 * @param submit function to submit the equip request.
+		 */
+		void accept(CachedImage thumbnail, CosmeticOptions options, Consumer<CreateOutfitDto> submit);
 	}
 }

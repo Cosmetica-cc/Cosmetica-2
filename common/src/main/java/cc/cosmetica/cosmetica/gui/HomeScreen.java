@@ -35,7 +35,7 @@ public class HomeScreen extends AbstractHomeScreen {
 		List<CosmeticEntry> entries = new ArrayList<>();
 		CosmeticEntry.populateEntryList(entries, cosmetics, CosmeticEntry.Type.removable(authenticated));
 
-		return new CosmeticsList(entries, true);
+		return new CosmeticsList(entries, cosmetics == null ? CosmeticsList.ListType.DISABLED : CosmeticsList.ListType.EDITABLE);
 	}
 
 	public static final ResourceKey ID = new ResourceKey("cosmetica", "home");

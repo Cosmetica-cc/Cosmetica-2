@@ -101,7 +101,7 @@ public class SnipeScreen extends Screen {
                         ).tag("main-section")
                                 .withStyle(Style.create()
                                         .set(Div.JUSTIFY_CONTENT, Justify.CENTRE)),
-                        new CosmeticsList(entryList, false)
+                        new CosmeticsList(entryList, CosmeticsList.ListType.LIST_ONLY)
                                 .tag("main-section")
                 ).tag("main-content"),
                 new StealTheirLookButton(

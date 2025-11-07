@@ -19,10 +19,7 @@ package cc.cosmetica.cosmetica.gui.widget;
 import cc.cosmetica.cosmetica.gui.BrowseScreen;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
-import cc.cosmetica.kupe.api.gui.Align;
-import cc.cosmetica.kupe.api.gui.Button;
-import cc.cosmetica.kupe.api.gui.Component;
-import cc.cosmetica.kupe.api.gui.Div;
+import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Margins;
@@ -31,27 +28,29 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalInt;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 public class CosmeticsList extends Div {
-	public CosmeticsList(Collection<CosmeticEntry> entries, boolean editable) {
+	public CosmeticsList(Collection<CosmeticEntry> entries, ListType editable) {
 		this.entries = entries.toArray(new CosmeticEntry[0]);
 		this.editable = editable;
 	}
 
 	protected final CosmeticEntry[] entries;
-	private final boolean editable;
+	private final ListType editable;
 
 	@Override
 	public List<Component> build() {
-		return this.editable ? ImmutableList.of(
+		String[] buttonTags = this.editable == ListType.DISABLED ? new String[]{"width-250", "no-outfit-disabled"} : new String[]{"width-250"};
+		return this.editable != ListType.LIST_ONLY ? ImmutableList.of(
 				new EntryList.Div(this.entries)
 						.tag("width-250", "contents-wrapper"),
 				new Button(Text.literal("+"), () ->
 					Screens.setScreen(BrowseScreen.ID)
-				).tag("width-250")
+				).setDisabled(this.editable == ListType.DISABLED).tag("width-250")
 		) : ImmutableList.of(
 				new EntryList.Div(this.entries)
 						.tag("width-250", "contents-wrapper")
@@ -68,6 +67,23 @@ public class CosmeticsList extends Div {
 						.set(FLEX, 1)
 						.set(SCROLLBAR_POSITION, ScrollbarPosition.OUTSIDE))
 				.tag("width-250", Style.create()
-						.set(WIDTH, fixed(OptionalInt.of(250))));
+						.set(WIDTH, fixed(OptionalInt.of(250))))
+				.tag("no-outfit-disabled", Style.create()
+						.set(TOOLTIP, Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.noOutfitDisabled")))));
+	}
+
+	public enum ListType {
+		/**
+		 * Outfits that are editable by the user.
+		 */
+		EDITABLE,
+		/**
+		 * Outfits that can only be displayed.
+		 */
+		LIST_ONLY,
+		/**
+		 * In a context where the list is usually editable, but no outfit is selected and therefore the button should be disabled.
+		 */
+		DISABLED
 	}
 }

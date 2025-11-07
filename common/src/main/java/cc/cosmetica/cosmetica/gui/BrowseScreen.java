@@ -16,14 +16,17 @@
 
 package cc.cosmetica.cosmetica.gui;
 
+import cc.cosmetica.core.api.CachedImage;
 import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
+import cc.cosmetica.cosmetica.gui.cosmeticconfig.CosmeticOptions;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
 import cc.cosmetica.cosmetica.gui.widget.DropdownMenu;
 import cc.cosmetica.cosmetica.gui.widget.EntryList;
 import cc.cosmetica.kupe.api.ResourceKey;
+import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;
@@ -34,10 +37,12 @@ import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.model.*;
 import net.minecraft.client.Minecraft;
+import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 import static cc.cosmetica.kupe.api.gui.Div.ALIGN_ITEMS;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
@@ -55,7 +60,10 @@ public class BrowseScreen extends AbstractHomeScreen {
     private final State<String> searchQuery = new State<>("");
     private final State<Menu> menu = new State<>(Menu.NONE);
     private final State<Sort> sort = new State<>(Sort.RECENT);
-//    private final State<Obj>
+    /**
+     * The state for the item being configured before being equipped.
+     */
+    private final State<Optional<Triple<CachedImage, CosmeticOptions, Consumer<CreateOutfitDto>>>> configuring = new State<>(Optional.empty());
 
     // TODO use in outfit player for preview (or similar)
     private final State<@Nullable CosmeticEntry> selected = new State<>(null);
@@ -163,27 +171,34 @@ public class BrowseScreen extends AbstractHomeScreen {
 
             @Nullable Cosmetics outfit = Cosmetica.OWN_COSMETICS.acquire(this);
 
-            // Build Search
-            final int nextState = this.state + 1;
-            this.state = nextState;
+            // ! Can be removed on website whilst this screen is open
+            if (outfit == null) {
+                Screens.closeCurrentScreen();
+            } else {
+                // Build Search
+                final int nextState = this.state + 1;
+                this.state = nextState;
 
-            SearchCosmeticsDto dto = new SearchCosmeticsDto();
-            //dto.set
-            dto.setName(query);
+                SearchCosmeticsDto dto = new SearchCosmeticsDto();
+                //dto.set
+                dto.setName(query);
 
-            // Send Search
-            CosmeticaAPI.search().requestAsync(api -> api.searchCosmetics(dto))
-                    .thenAcceptAsync(cosmetics -> {
-                        ArrayList next = new ArrayList();
-                        CosmeticEntry.populateBrowseList(next, cosmetics, outfit);
-                        this.pageResults.set(next);
-                        BrowseScreen.this.selected.set(null);
-                    }, Minecraft.getInstance())
-                    .exceptionally(ex -> {
-                        Logging.getInstance().error("Error performing search for " + query, ex);
-                        // TODO show error visually
-                        return null;
-                    });
+                // Send Search
+                CosmeticaAPI.search().requestAsync(api -> api.searchCosmetics(dto))
+                        .thenAcceptAsync(cosmetics -> {
+                            ArrayList next = new ArrayList();
+                            CosmeticEntry.populateBrowseList(next, cosmetics, outfit, (image, envelope, submit) -> {
+                                BrowseScreen.this.configuring.set(Optional.of(Triple.of(image, envelope, submit)));
+                            });
+                            this.pageResults.set(next);
+                            BrowseScreen.this.selected.set(null);
+                        }, Minecraft.getInstance())
+                        .exceptionally(ex -> {
+                            Logging.getInstance().error("Error performing search for " + query, ex);
+                            // TODO show error visually
+                            return null;
+                        });
+            }
 
             // Layout
             return ImmutableList.of(
@@ -203,7 +218,23 @@ public class BrowseScreen extends AbstractHomeScreen {
     private class ConfigureCosmetic extends Div {
         @Override
         public List<Component> build() {
-            return super.build();
+            Optional<Triple<CachedImage, CosmeticOptions, Consumer<CreateOutfitDto>>> configuring = BrowseScreen.this.configuring.acquire(ConfigureCosmetic.this);
+
+            if (configuring.isPresent()) {
+                Triple<CachedImage, CosmeticOptions, Consumer<CreateOutfitDto>> triple = configuring.get();
+
+                return Arrays.asList(
+                        new Image(new ResourceKey(triple.getLeft().location)),
+                        // name
+                        // settings...,
+                        // space
+                        new Div().withStyle(Style.create().set(FLEX, 1))
+                        // submit
+                );
+            } else {
+                return ImmutableList.of();
+            }
         }
     }
 }
+

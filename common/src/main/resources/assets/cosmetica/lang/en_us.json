@@ -47,6 +47,7 @@
   "setting.cosmetica.wheel.false": "Hold",
   "tooltip.cosmetica.copiedURL": "Copied URL!",
   "tooltip.cosmetica.deletingOutfit": "Deleting Outfit...",
+  "tooltip.cosmetica.noOutfitDisabled": "No Outfit Equipped",
   "tooltip.cosmetica.openWebPanel": "Open Web Panel",
   "tooltip.cosmetica.outfitAlreadySelected": "Already wearing this outfit!",
   "tooltip.cosmetica.offline": "This feature is unavailable because you are offline",
