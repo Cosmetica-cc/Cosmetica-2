@@ -18,6 +18,7 @@ package cc.cosmetica.cosmetica.gui.cosmeticconfig;
 
 /**
  * Represents option parameters for customising an equipped cosmetic.
+ * Logic must be implemented by subtype.
  */
-public interface CosmeticOptions {
+public abstract class CosmeticOptions {
 }

@@ -63,7 +63,7 @@ public class BrowseScreen extends AbstractHomeScreen {
     /**
      * The state for the item being configured before being equipped.
      */
-    private final State<Optional<Triple<CachedImage, CosmeticOptions, Consumer<CreateOutfitDto>>>> configuring = new State<>(Optional.empty());
+    private final State<Optional<Triple<CosmeticEntry.CosmeticData, CosmeticOptions, Consumer<CreateOutfitDto>>>> configuring = new State<>(Optional.empty());
 
     // TODO use in outfit player for preview (or similar)
     private final State<@Nullable CosmeticEntry> selected = new State<>(null);
@@ -103,8 +103,8 @@ public class BrowseScreen extends AbstractHomeScreen {
                                 .set(Div.JUSTIFY_CONTENT, Justify.SPACE_BETWEEN)),
                         new LayeredSpace( // container for what can appear in search contents
                                 true,
-                                new ConfigureCosmetic(),
-                                new Results()
+                                new Results(),
+                                new ConfigureCosmetic()
                         ).tag("results")
                 ).withStyle(Style.create()
                         .set(WIDTH, fixedSize(250))
@@ -122,9 +122,15 @@ public class BrowseScreen extends AbstractHomeScreen {
     }
 
     @Override
+    public void unmount() {
+        this.configuring.set(Optional.empty());
+    }
+
+    @Override
     public @NotNull Stylesheet getStylesheet() {
         return super.getStylesheet()
                 .tag("results", Style.create()
+                        .set(MARGINS, fixed(new Margins(10, 0, 0, 0)))
                         .set(HEIGHT, (vw, vh, pw, ph) -> OptionalInt.of(ph - 22)))
                 .tag("btn-search-adjust", Style.create()
                         .set(WIDTH, fixedSize(20)))
@@ -210,7 +216,6 @@ public class BrowseScreen extends AbstractHomeScreen {
         public Stylesheet getStylesheet() {
             return new Stylesheet()
                     .component(EntryList.DynamicDiv.class, Style.create()
-                            .set(MARGINS, fixed(new Margins(10, 0, 0, 0)))
                             .set(HEIGHT, screen(0, 70)));
         }
     }
@@ -218,22 +223,46 @@ public class BrowseScreen extends AbstractHomeScreen {
     private class ConfigureCosmetic extends Div {
         @Override
         public List<Component> build() {
-            Optional<Triple<CachedImage, CosmeticOptions, Consumer<CreateOutfitDto>>> configuring = BrowseScreen.this.configuring.acquire(ConfigureCosmetic.this);
+            Optional<Triple<CosmeticEntry.CosmeticData, CosmeticOptions, Consumer<CreateOutfitDto>>> configuring = BrowseScreen.this.configuring.acquire(ConfigureCosmetic.this);
 
             if (configuring.isPresent()) {
-                Triple<CachedImage, CosmeticOptions, Consumer<CreateOutfitDto>> triple = configuring.get();
+                Triple<CosmeticEntry.CosmeticData, CosmeticOptions, Consumer<CreateOutfitDto>> triple = configuring.get();
 
-                return Arrays.asList(
-                        new Image(new ResourceKey(triple.getLeft().location)),
-                        // name
-                        // settings...,
-                        // space
-                        new Div().withStyle(Style.create().set(FLEX, 1))
-                        // submit
-                );
+                // TODO max number of cosmetics on outfit
+                // Because outfit can change whilst browsing.
+
+                return Arrays.asList(new Div(
+                            new Image(new ResourceKey(triple.getLeft().getThumbnail().location))
+                                    .setTransparent(1.0f),
+                            // name
+                            new Label(Text.literal(triple.getLeft().getName())),
+                            // settings...,
+
+                            // space
+                            new Div().tag("flex-1"),
+                            // submit
+                            new Div(
+                                    new Button(Text.translatable("button.cosmetica.equip"), () -> {}).tag("flex-1"),
+                                    new Div().withStyle(Style.create().set(WIDTH, fixedSize(4))),
+                                    new Button(Text.GUI_CANCEL, () -> BrowseScreen.this.configuring.set(Optional.empty())).tag("flex-1")
+                            ).withStyle(Style.create()
+                                    .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X))
+                ).tag("flex-1", "configure-main"));
             } else {
                 return ImmutableList.of();
             }
+        }
+
+        @Override
+        public Stylesheet getStylesheet() {
+            return new Stylesheet()
+                    .component(Image.class, Style.create()
+                            .set(WIDTH, fixedSize(50))
+                            .set(HEIGHT, fixedSize(50)))
+                    .tag("configure-main", Style.create()
+                            .set(BACKGROUND_COLOUR, OptionalInt.of(0x000000)))
+                    .tag("flex-1", Style.create()
+                            .set(FLEX, 1));
         }
     }
 }

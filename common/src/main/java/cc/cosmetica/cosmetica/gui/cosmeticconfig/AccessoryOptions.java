@@ -16,7 +16,7 @@
 
 package cc.cosmetica.cosmetica.gui.cosmeticconfig;
 
-public final class AccessoryOptions implements CosmeticOptions {
+public final class AccessoryOptions extends CosmeticOptions {
     public AccessoryOptions(double[] x, double[] y, double[] z) {
         this.x = x;
         this.y = y;

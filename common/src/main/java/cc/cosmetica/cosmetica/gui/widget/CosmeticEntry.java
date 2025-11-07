@@ -130,7 +130,7 @@ public class CosmeticEntry extends Component {
 						throw new IllegalArgumentException("Unknown type for " + this.name + " (" + this.id + "), cannot equip!");
                 }
 				// Give feedback
-				this.onEquipButton.accept(this.image, options, dto -> {
+				this.onEquipButton.accept(new CosmeticData(this.name, this.id, this.image), options, dto -> {
 					CosmeticaAPI.outfits().requestAsync(api -> api.modify(this.parentOutfit.getOutfitId().orElseThrow(IllegalStateException::new), dto));
 				});
 			}).tag("button_add");
@@ -392,10 +392,37 @@ public class CosmeticEntry extends Component {
 	public interface EquipCallback {
 		/**
 		 * Called when the equip button for a cosmetic is called.
-		 * @param thumbnail the image for the thumbnail of the cosmetic being equipped.
+		 * @param cosmetic basic data (thumbnail, id, and name) of the cosmetic being equipped.
 		 * @param options bounds for the customisation options of the cosmetic being equipped onto the outfit.
 		 * @param submit function to submit the equip request.
 		 */
-		void accept(CachedImage thumbnail, CosmeticOptions options, Consumer<CreateOutfitDto> submit);
+		void accept(CosmeticData cosmetic, CosmeticOptions options, Consumer<CreateOutfitDto> submit);
+	}
+
+	/**
+	 * Basic parsed cosmetic data pojo. Less data than the usual cosmetic data objects.
+	 */
+	public static class CosmeticData {
+        public CosmeticData(String name, String id, CachedImage thumbnail) {
+            this.name = name;
+			this.id = id;
+            this.thumbnail = thumbnail;
+        }
+
+		private final String name;
+		private final String id;
+		private final CachedImage thumbnail;
+
+		public String getName() {
+			return this.name;
+		}
+
+		public String getId() {
+			return this.id;
+		}
+
+		public CachedImage getThumbnail() {
+			return this.thumbnail;
+		}
 	}
 }

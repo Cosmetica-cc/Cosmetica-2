@@ -16,7 +16,7 @@
 
 package cc.cosmetica.cosmetica.gui.cosmeticconfig;
 
-public final class CapeOptions implements CosmeticOptions {
+public final class CapeOptions extends CosmeticOptions {
     public CapeOptions(boolean cloak, boolean elytra) {
         this.cloak = cloak;
         this.elytra = elytra;
