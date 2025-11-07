@@ -16,6 +16,7 @@
 
 package cc.cosmetica.cosmetica.gui.widget;
 
+import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Context;
 import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
@@ -59,12 +60,12 @@ public class SliderWidget extends MinecraftBuiltinComponent {
                 region.getHeight(), this.textFunction.apply(f).toMinecraftComponent(), f) {
             @Override
             protected void updateMessage() {
-                this.setMessage(SliderWidget.this.textFunction.apply(f).toMinecraftComponent());
+                this.setMessage(SliderWidget.this.textFunction.apply(SliderWidget.this.value.peek()).toMinecraftComponent());
             }
 
             @Override
             protected void applyValue() {
-                SliderWidget.this.value.set(f);
+                SliderWidget.this.value.set((float)this.value);
             }
         });
     }
@@ -79,12 +80,23 @@ public class SliderWidget extends MinecraftBuiltinComponent {
         }
     }
 
+//    @Override
+//    public void mouseMoved(Region region, double x, double y) {
+//        super.mouseMoved(region, x, y);
+//        if (this.drag) {// TODO allow mouseMoved to not only be on component
+//            this.minecraftWidget.mouseDragged(x, y, GLFW.GLFW_MOUSE_BUTTON_1, 0, 0);
+//        }
+//    }
+
+
+    int prevMouseX = 0;
     @Override
-    public void mouseMoved(Region region, double x, double y) {
-        super.mouseMoved(region, x, y);
-        if (this.drag) {
-            this.minecraftWidget.mouseDragged(x, y, GLFW.GLFW_MOUSE_BUTTON_1, 0, 0);
+    public void render(Canvas canvas, Region region, Margins padding, int mouseX, int mouseY) {
+        super.render(canvas, region, padding, mouseX, mouseY);
+        if (this.drag && (mouseX != prevMouseX)) {
+            this.minecraftWidget.mouseDragged(mouseX, mouseY, GLFW.GLFW_MOUSE_BUTTON_1, 0, 0);
         }
+        prevMouseX = mouseX;
     }
 
     @Override
