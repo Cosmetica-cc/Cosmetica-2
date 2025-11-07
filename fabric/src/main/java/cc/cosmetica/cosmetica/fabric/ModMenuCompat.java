@@ -16,7 +16,7 @@
 
 package cc.cosmetica.cosmetica.fabric;
 
-import cc.cosmetica.cosmetica.gui.CosmeticaHomeScreen;
+import cc.cosmetica.cosmetica.gui.HomeScreen;
 import cc.cosmetica.kupe.api.Screens;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
@@ -24,6 +24,6 @@ import com.terraformersmc.modmenu.api.ModMenuApi;
 public class ModMenuCompat implements ModMenuApi {
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
-        return parent -> Screens.getMinecraftScreen(CosmeticaHomeScreen.ID, parent);
+        return parent -> Screens.getMinecraftScreen(HomeScreen.ID, parent);
     }
 }

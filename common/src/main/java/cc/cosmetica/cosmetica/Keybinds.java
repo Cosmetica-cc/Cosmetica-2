@@ -18,7 +18,7 @@ package cc.cosmetica.cosmetica;
 
 import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.core.impl.Logging;
-import cc.cosmetica.cosmetica.gui.CosmeticaHomeScreen;
+import cc.cosmetica.cosmetica.gui.HomeScreen;
 import cc.cosmetica.cosmetica.gui.OutfitWheelScreen;
 import cc.cosmetica.cosmetica.gui.SnipeScreen;
 import cc.cosmetica.cosmetica.util.Sniper;
@@ -28,7 +28,6 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import org.lwjgl.glfw.GLFW;
 
@@ -120,7 +119,7 @@ public class Keybinds {
         if (set) {
             if (screen == null) {
                 rightShiftMenu = true;
-                Screens.setScreen(CosmeticaHomeScreen.ID);
+                Screens.setScreen(HomeScreen.ID);
             } else if (rightShiftMenu) {
                 // to-do: make cosmetica menu screens allow right shift, but not other keys
                 Minecraft.getInstance().setScreen(null);

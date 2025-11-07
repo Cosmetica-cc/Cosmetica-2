@@ -17,7 +17,7 @@
 package cc.cosmetica.cosmetica.mixin.button;
 
 import cc.cosmetica.core.impl.Logging;
-import cc.cosmetica.cosmetica.gui.CosmeticaHomeScreen;
+import cc.cosmetica.cosmetica.gui.HomeScreen;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -56,7 +56,7 @@ public abstract class OptionsScreenMixin extends Screen {
 								this.width / 2 - 155, this.height / 6 + 48 - 6,
 								150, 20,
 								Text.translatable("button.cosmetica.home").toMinecraftComponent(),
-								button -> Screens.setScreen(CosmeticaHomeScreen.ID)));
+								button -> Screens.setScreen(HomeScreen.ID)));
 						return;
 					}
 				}

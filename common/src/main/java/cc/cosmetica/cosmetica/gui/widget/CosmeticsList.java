@@ -48,13 +48,13 @@ public class CosmeticsList extends Div {
 	public List<Component> build() {
 		return this.editable ? ImmutableList.of(
 				new EntryList.Div(this.entries)
-						.tag("width-200", "contents-wrapper"),
+						.tag("width-250", "contents-wrapper"),
 				new Button(Text.literal("+"), () ->
 					Screens.setScreen(BrowseScreen.ID)
-				).tag("width-200")
+				).tag("width-250")
 		) : ImmutableList.of(
 				new EntryList.Div(this.entries)
-						.tag("width-200", "contents-wrapper")
+						.tag("width-250", "contents-wrapper")
 		);
 	}
 
@@ -67,7 +67,7 @@ public class CosmeticsList extends Div {
 				.tag("contents-wrapper", Style.create()
 						.set(FLEX, 1)
 						.set(SCROLLBAR_POSITION, ScrollbarPosition.OUTSIDE))
-				.tag("width-200", Style.create()
-						.set(WIDTH, fixed(OptionalInt.of(200))));
+				.tag("width-250", Style.create()
+						.set(WIDTH, fixed(OptionalInt.of(250))));
 	}
 }

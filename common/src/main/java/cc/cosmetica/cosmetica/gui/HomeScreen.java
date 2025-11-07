@@ -17,29 +17,16 @@
 package cc.cosmetica.cosmetica.gui;
 
 import cc.cosmetica.core.api.*;
-import cc.cosmetica.core.api.texture.CosmeticaTexture;
-import cc.cosmetica.cosmetica.Cosmetica;
-import cc.cosmetica.cosmetica.Setting;
 import cc.cosmetica.cosmetica.gui.widget.*;
 import cc.cosmetica.kupe.api.ResourceKey;
-import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.gui.*;
-import cc.cosmetica.kupe.api.gui.style.Style;
-import cc.cosmetica.kupe.api.gui.style.Stylesheet;
-import cc.cosmetica.kupe.api.maths.Axis2D;
-import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
-import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
-
-public class CosmeticaHomeScreen extends AbstractHomeScreen {
-	public CosmeticaHomeScreen() {
+public class HomeScreen extends AbstractHomeScreen {
+	public HomeScreen() {
 		super(ID);
 	}
 

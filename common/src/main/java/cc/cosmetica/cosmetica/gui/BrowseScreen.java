@@ -44,7 +44,7 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 /**
  * Screen for browsing and applying new cosmetics.
- * Should be seamless with {@link cc.cosmetica.cosmetica.gui.CosmeticaHomeScreen}.
+ * Should be seamless with {@link HomeScreen}.
  */
 public class BrowseScreen extends AbstractHomeScreen {
     public BrowseScreen() {
@@ -55,6 +55,7 @@ public class BrowseScreen extends AbstractHomeScreen {
     private final State<String> searchQuery = new State<>("");
     private final State<Menu> menu = new State<>(Menu.NONE);
     private final State<Sort> sort = new State<>(Sort.RECENT);
+//    private final State<Obj>
 
     // TODO use in outfit player for preview (or similar)
     private final State<@Nullable CosmeticEntry> selected = new State<>(null);
@@ -80,8 +81,8 @@ public class BrowseScreen extends AbstractHomeScreen {
                         return super.build();
                     }
                 }.withStyle(Style.create().set(Z_INDEX, 10)),
-                new Div(
-                        new Div(
+                new Div( // container of all the browse area
+                        new Div( // top 'head'
                                 new TextBox(
                                         Text.translatable("label.browse.search"), // todo better format for translation strings?
                                         this.searchQuery,
@@ -92,8 +93,13 @@ public class BrowseScreen extends AbstractHomeScreen {
                         ).withStyle(Style.create()
                                 .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
                                 .set(Div.JUSTIFY_CONTENT, Justify.SPACE_BETWEEN)),
-                        new Results()
+                        new LayeredSpace( // container for what can appear in search contents
+                                true,
+                                new ConfigureCosmetic(),
+                                new Results()
+                        ).tag("results")
                 ).withStyle(Style.create()
+                        .set(WIDTH, fixedSize(250))
                         .set(ALIGN_ITEMS, Align.STRETCH_START))
         ).withStyle(Style.create()
                 .set(PADDING, fixed(new Margins(30, 10, 12, 10))));
@@ -110,7 +116,7 @@ public class BrowseScreen extends AbstractHomeScreen {
     @Override
     public @NotNull Stylesheet getStylesheet() {
         return super.getStylesheet()
-                .component(Results.class, Style.create()
+                .tag("results", Style.create()
                         .set(HEIGHT, (vw, vh, pw, ph) -> OptionalInt.of(ph - 22)))
                 .tag("btn-search-adjust", Style.create()
                         .set(WIDTH, fixedSize(20)))
@@ -128,8 +134,8 @@ public class BrowseScreen extends AbstractHomeScreen {
 
     private enum Sort {
         RECENT("label.cosmetica.sort.recent"),
-        POPULAR("label.cosmetica.sort.popular"),
-        OFFICIAL("label.cosmetica.sort.official");
+        POPULAR("label.cosmetica.sort.popular");
+//        OFFICIAL("label.cosmetica.sort.official");
 
         Sort(String translationKey) {
             this.text = Text.translatable(translationKey);
@@ -191,6 +197,13 @@ public class BrowseScreen extends AbstractHomeScreen {
                     .component(EntryList.DynamicDiv.class, Style.create()
                             .set(MARGINS, fixed(new Margins(10, 0, 0, 0)))
                             .set(HEIGHT, screen(0, 70)));
+        }
+    }
+
+    private class ConfigureCosmetic extends Div {
+        @Override
+        public List<Component> build() {
+            return super.build();
         }
     }
 }
