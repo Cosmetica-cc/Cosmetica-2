@@ -331,6 +331,7 @@ public class BrowseScreen extends AbstractHomeScreen {
                                                 BigDecimal.valueOf(ao.getYRange().clampMap(yOffset.peek())),
                                                 BigDecimal.valueOf(ao.getZRange().clampMap(zOffset.peek()))
                                         ));
+                                accessoryDtos.add(newAccessoryDto);
 
                                 dto.setAccessories(accessoryDtos);
                             } else if (options instanceof CapeOptions) {
