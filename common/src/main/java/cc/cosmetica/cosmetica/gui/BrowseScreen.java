@@ -40,12 +40,15 @@ import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.model.*;
 import net.minecraft.client.Minecraft;
+import org.apache.commons.lang3.tuple.MutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static cc.cosmetica.kupe.api.gui.Div.ALIGN_ITEMS;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
@@ -66,7 +69,7 @@ public class BrowseScreen extends AbstractHomeScreen {
     /**
      * The state for the item being configured before being equipped.
      */
-    private final State<Optional<Triple<CosmeticEntry.CosmeticData, CosmeticOptions, Consumer<CreateOutfitDto>>>> configuring = new State<>(Optional.empty());
+    private final State<Optional<SelectedCosmeticTriple>> configuring = new State<>(Optional.empty());
 
     // TODO use in outfit player for preview (or similar)
     private final State<@Nullable CosmeticEntry> selected = new State<>(null);
@@ -197,7 +200,7 @@ public class BrowseScreen extends AbstractHomeScreen {
                         .thenAcceptAsync(cosmetics -> {
                             ArrayList next = new ArrayList();
                             CosmeticEntry.populateBrowseList(next, cosmetics, outfit, (image, envelope, submit) -> {
-                                BrowseScreen.this.configuring.set(Optional.of(Triple.of(image, envelope, submit)));
+                                BrowseScreen.this.configuring.set(Optional.of(new SelectedCosmeticTriple(image, envelope, submit)));
                             });
                             this.pageResults.set(next);
                             BrowseScreen.this.selected.set(null);
@@ -226,12 +229,12 @@ public class BrowseScreen extends AbstractHomeScreen {
     private class ConfigureCosmetic extends Div {
         @Override
         public List<Component> build() {
-            Optional<Triple<CosmeticEntry.CosmeticData, CosmeticOptions, Consumer<CreateOutfitDto>>> configuring = BrowseScreen.this.configuring.acquire(ConfigureCosmetic.this);
+            Optional<SelectedCosmeticTriple> configuring = BrowseScreen.this.configuring.acquire(ConfigureCosmetic.this);
 
             if (configuring.isPresent()) {
-                Triple<CosmeticEntry.CosmeticData, CosmeticOptions, Consumer<CreateOutfitDto>> triple = configuring.get();
+                SelectedCosmeticTriple triple = configuring.get();
 
-                // TODO handle max number of cosmetics on outfit (also change original check to use premiumdto stats)
+                // TODO handle max number of cosmetics on outfit (also remove original check due to cape replacement)
                 // Because outfit can change whilst browsing.
                 State<Float> xOffset = new State<>(0.5f);
                 State<Float> yOffset = new State<>(0.5f);
@@ -291,7 +294,33 @@ public class BrowseScreen extends AbstractHomeScreen {
                         // submit
                         children.add(
                                 new Div(
-                                    new Button(Text.translatable("button.cosmetica.equip"), () -> {}).tag("flex-1"),
+                                    new Button(Text.translatable("button.cosmetica.equip"), () -> {
+                                        CreateOutfitDto dto = new CreateOutfitDto();
+
+                                        if (options instanceof AccessoryOptions) {
+                                            AccessoryOptions ao = (AccessoryOptions) options;
+                                            // TODO equip accessory and prevent duplicates
+                                        } else if (options instanceof CapeOptions) {
+                                            CapeOptions co = (CapeOptions) options;
+                                            if (co.isCloak() && mirroredOrCloak.peek()) {
+                                                dto.setCloak(triple.getLeft().getId());
+                                            }
+                                            if (co.isElytra() && elytra.peek()) {
+                                                dto.setElytra(triple.getLeft().getId());
+                                            }
+                                        }
+
+                                        // TODO lock on this part of screen
+                                        // submit
+                                        triple.getRight().apply(dto)
+                                                .thenAcceptAsync(outfit -> {
+                                                    // Go back to search
+                                                    BrowseScreen.this.configuring.set(Optional.empty());
+                                                }, Minecraft.getInstance())
+                                                .exceptionally(Cosmetica.mainThreadExcept(ex -> {
+                                                    // Unlock with error notification? TODO
+                                                }));
+                                    }).tag("flex-1"),
                                     new Div().withStyle(Style.create().set(WIDTH, fixedSize(4))),
                                     new Button(Text.GUI_CANCEL, () -> BrowseScreen.this.configuring.set(Optional.empty())).tag("flex-1")
                                 ).withStyle(Style.create()
@@ -317,6 +346,28 @@ public class BrowseScreen extends AbstractHomeScreen {
                             .set(BACKGROUND_COLOUR, OptionalInt.of(0x000000)))
                     .tag("flex-1", Style.create()
                             .set(FLEX, 1));
+        }
+    }
+
+    // Because ImmutableTriple is a final class, extend MutableTriple for ease of implementation for now
+    private static class SelectedCosmeticTriple extends MutableTriple<CosmeticEntry.CosmeticData, CosmeticOptions, Function<CreateOutfitDto, CompletableFuture<Outfit>>> {
+        public SelectedCosmeticTriple(CosmeticEntry.CosmeticData image, CosmeticOptions envelope, Function<CreateOutfitDto, CompletableFuture<Outfit>> submit) {
+            super(image, envelope, submit);
+        }
+
+        @Override
+        public void setLeft(CosmeticEntry.CosmeticData left) {
+            throw new UnsupportedOperationException("SelectedCosmeticTriple is immutable");
+        }
+
+        @Override
+        public void setMiddle(CosmeticOptions middle) {
+            throw new UnsupportedOperationException("SelectedCosmeticTriple is immutable");
+        }
+
+        @Override
+        public void setRight(Function<CreateOutfitDto, CompletableFuture<Outfit>> right) {
+            throw new UnsupportedOperationException("SelectedCosmeticTriple is immutable");
         }
     }
 }

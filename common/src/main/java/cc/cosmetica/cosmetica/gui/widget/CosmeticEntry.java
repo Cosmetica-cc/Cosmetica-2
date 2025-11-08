@@ -17,6 +17,7 @@
 package cc.cosmetica.cosmetica.gui.widget;
 
 import cc.cosmetica.core.api.*;
+import cc.cosmetica.core.api.Accessory;
 import cc.cosmetica.core.api.texture.CosmeticaTexture;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.ConfirmRemoveCosmeticScreen;
@@ -36,16 +37,15 @@ import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
-import gg.cloaks.javaclient.model.AnimatedTextureCosmetic;
-import gg.cloaks.javaclient.model.CosmeticEnvelope;
-import gg.cloaks.javaclient.model.CreateOutfitDto;
-import gg.cloaks.javaclient.model.TextureCosmetic;
+import gg.cloaks.javaclient.model.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
@@ -131,7 +131,7 @@ public class CosmeticEntry extends Component {
                 }
 				// Give feedback
 				this.onEquipButton.accept(new CosmeticData(this.name, this.id, this.image), options, dto -> {
-					CosmeticaAPI.outfits().requestAsync(api -> api.modify(this.parentOutfit.getOutfitId().orElseThrow(IllegalStateException::new), dto));
+					return CosmeticaAPI.outfits().requestAsync(api -> api.modify(this.parentOutfit.getOutfitId().orElseThrow(IllegalStateException::new), dto));
 				});
 			}).tag("button_add");
 
@@ -396,7 +396,7 @@ public class CosmeticEntry extends Component {
 		 * @param options bounds for the customisation options of the cosmetic being equipped onto the outfit.
 		 * @param submit function to submit the equip request.
 		 */
-		void accept(CosmeticData cosmetic, CosmeticOptions options, Consumer<CreateOutfitDto> submit);
+		void accept(CosmeticData cosmetic, CosmeticOptions options, Function<CreateOutfitDto, CompletableFuture<Outfit>> submit);
 	}
 
 	/**
