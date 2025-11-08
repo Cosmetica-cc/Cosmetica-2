@@ -244,6 +244,8 @@ public class BrowseScreen extends AbstractHomeScreen {
                 State<Float> zOffset = new State<>(0.5f);
                 State<Boolean> mirroredOrCloak = new State<>(triple.getMiddle() instanceof CapeOptions);
                 State<Boolean> elytra = new State<>(true);
+                // lock for 'is setting'
+                State<Boolean> settingLock = new State<>(false);
 
                 return Arrays.asList(new Div() {
                     @Override
@@ -307,6 +309,7 @@ public class BrowseScreen extends AbstractHomeScreen {
                         children.add(new Div().tag("flex-1"));
                         // submit
                         final Button submitButton = new Button(Text.translatable("button.cosmetica.equip"), () -> {
+                            // Create the outfit changes
                             CreateOutfitDto dto = new CreateOutfitDto();
 
                             if (options instanceof AccessoryOptions) {
@@ -344,7 +347,8 @@ public class BrowseScreen extends AbstractHomeScreen {
                                 }
                             }
 
-                            // TODO lock on this part of screen
+                            // lock on this part of screen
+                            settingLock.set(true);
                             // submit
                             triple.getRight().apply(dto)
                                     .thenAcceptAsync(newOutfit -> {
@@ -352,14 +356,24 @@ public class BrowseScreen extends AbstractHomeScreen {
                                         BrowseScreen.this.configuring.set(Optional.empty());
                                     }, Minecraft.getInstance())
                                     .exceptionally(Cosmetica.mainThreadExcept(ex -> {
-                                        // Unlock with error notification? TODO
+                                        // Unlock
+                                        settingLock.set(false);
+                                        // TODO error notification
                                     }));
                         });
+
+                        boolean isSetting = settingLock.acquire(this);
 
                         // Handle this rare case!
                         // Should be closed next frame by Results anyway.
                         if (outfit == null) {
                             submitButton.setDisabled(true);
+                        } else if (isSetting) {
+                            submitButton.setDisabled(true);
+                            submitButton.withStyle(Style.create()
+                                    .set(TOOLTIP, Optional.of(new Tooltip(
+                                            Text.translatable("tooltip.cosmetica.equipping")
+                                    ))));
                         }
                         // TODO check max outfits
                         // check outfit duplicates
@@ -382,7 +396,9 @@ public class BrowseScreen extends AbstractHomeScreen {
                                 new Div(
                                     submitButton.tag("flex-1"),
                                     new Div().withStyle(Style.create().set(WIDTH, fixedSize(4))),
-                                    new Button(Text.GUI_CANCEL, () -> BrowseScreen.this.configuring.set(Optional.empty())).tag("flex-1")
+                                    // TODO consistency on whether cancel should be allowed?
+                                    // Better: prevent equip button from other cosmetics being pressed until a response, with a more generic message
+                                    new Button(Text.GUI_CANCEL, () -> BrowseScreen.this.configuring.set(Optional.empty())).setDisabled(isSetting).tag("flex-1")
                                 ).withStyle(Style.create()
                                         .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X))
                         );
