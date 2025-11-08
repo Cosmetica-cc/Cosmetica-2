@@ -52,6 +52,8 @@
   "setting.cosmetica.wheel": "Outfit Wheel",
   "setting.cosmetica.wheel.true": "Toggle",
   "setting.cosmetica.wheel.false": "Hold",
+  "tooltip.cosmetica.alreadyEquippedAccessory": "You have already equipped this accessory unmirrored!",
+  "tooltip.cosmetica.alreadyEquippedAccessoryMirrored": "You have already equipped this accessory mirrored!",
   "tooltip.cosmetica.copiedURL": "Copied URL!",
   "tooltip.cosmetica.deletingOutfit": "Deleting Outfit...",
   "tooltip.cosmetica.noOutfitDisabled": "No Outfit Equipped",

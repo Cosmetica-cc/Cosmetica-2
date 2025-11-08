@@ -16,6 +16,7 @@
 
 package cc.cosmetica.cosmetica.gui;
 
+import cc.cosmetica.core.api.Accessory;
 import cc.cosmetica.core.api.CachedImage;
 import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.Cosmetics;
@@ -28,6 +29,7 @@ import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
 import cc.cosmetica.cosmetica.gui.widget.DropdownMenu;
 import cc.cosmetica.cosmetica.gui.widget.EntryList;
 import cc.cosmetica.cosmetica.gui.widget.SliderWidget;
+import cc.cosmetica.cosmetica.util.EquipUtil;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.State;
@@ -45,6 +47,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -245,6 +248,11 @@ public class BrowseScreen extends AbstractHomeScreen {
                 return Arrays.asList(new Div() {
                     @Override
                     public List<Component> build() {
+                        // need to have a reference to original outfit
+                        // outfit should usually != null as the screen will be closed by Results.
+                        // In such a case, there will likely be one frame in which this is called with outfit == null
+                        @Nullable Cosmetics outfit = Cosmetica.OWN_COSMETICS.acquire(this);
+
                         // image
                         List<Component> children = new ArrayList<>();
                         children.add(
@@ -256,11 +264,12 @@ public class BrowseScreen extends AbstractHomeScreen {
                                         .withStyle(Style.create().set(MARGINS, fixed(new Margins(0,0,6,0)))));
                         // settings
                         CosmeticOptions options = triple.getMiddle();
+                        boolean mirrored; // move scope to outer block
                         if (options instanceof AccessoryOptions) {
                             AccessoryOptions ao = (AccessoryOptions) options;
 
                             // mirrored
-                            boolean mirrored = mirroredOrCloak.acquire(this);
+                            mirrored = mirroredOrCloak.acquire(this);
                             children.add(new Button(Text.translatable("button.cosmetica.equip.mirrored", mirrored ? Text.GUI_YES.getDisplayString() : Text.GUI_NO.getDisplayString()), () -> mirroredOrCloak.set(!mirrored)));
 
                             // axis positions
@@ -276,51 +285,101 @@ public class BrowseScreen extends AbstractHomeScreen {
                                 float precision = 0.1f / (float) ao.getZRange().getRange();
                                 children.add(new SliderWidget(zOffset, precision, f_ -> Text.translatable("button.cosmetica.equip.z", Double.toString(ao.getZRange().clampMap(f_)))));
                             }
-                        } else if (options instanceof CapeOptions) {
-                            CapeOptions co = (CapeOptions) options;
+                        } else {
+                            // to ensure effectively final value in greater scope
+                            // preferred over peek in lambda to guarantee no issues from race conditions
+                            mirrored = false;
+                            if (options instanceof CapeOptions) {
+                                CapeOptions co = (CapeOptions) options;
 
-                            if (co.isCloak()) {
-                                boolean isCloak = mirroredOrCloak.acquire(this);
-                                children.add(new Button(Text.translatable("button.cosmetica.equip.isCloak", isCloak ? Text.GUI_YES.getDisplayString() : Text.GUI_NO.getDisplayString()), () -> mirroredOrCloak.set(!isCloak)));
-                            }
+                                if (co.isCloak()) {
+                                    boolean isCloak = mirroredOrCloak.acquire(this);
+                                    children.add(new Button(Text.translatable("button.cosmetica.equip.isCloak", isCloak ? Text.GUI_YES.getDisplayString() : Text.GUI_NO.getDisplayString()), () -> mirroredOrCloak.set(!isCloak)));
+                                }
 
-                            if (co.isElytra()) {
-                                boolean isElytra = elytra.acquire(this);
-                                children.add(new Button(Text.translatable("button.cosmetica.equip.isElytra", isElytra ? Text.GUI_YES.getDisplayString() : Text.GUI_NO.getDisplayString()), () -> elytra.set(!isElytra)));
+                                if (co.isElytra()) {
+                                    boolean isElytra = elytra.acquire(this);
+                                    children.add(new Button(Text.translatable("button.cosmetica.equip.isElytra", isElytra ? Text.GUI_YES.getDisplayString() : Text.GUI_NO.getDisplayString()), () -> elytra.set(!isElytra)));
+                                }
                             }
                         }
                         // space
                         children.add(new Div().tag("flex-1"));
                         // submit
+                        final Button submitButton = new Button(Text.translatable("button.cosmetica.equip"), () -> {
+                            CreateOutfitDto dto = new CreateOutfitDto();
+
+                            if (options instanceof AccessoryOptions) {
+                                if (outfit == null) {
+                                    throw new IllegalStateException("Outfit is null but submit button was pressed?");
+                                }
+
+                                AccessoryOptions ao = (AccessoryOptions) options;
+
+                                // Equip accessory. Should be no illegal duplicates as button will be disabled.
+                                // Existing Accessory List
+                                List<CreateOutfitAccessoryDto> accessoryDtos = new ArrayList<>();
+                                for (Accessory accessory : outfit.getAccessories()) {
+                                    accessoryDtos.add(EquipUtil.dtoFromAccessory(accessory));
+                                }
+                                // Add new accessory
+                                CreateOutfitAccessoryDto newAccessoryDto = new CreateOutfitAccessoryDto()
+                                        .id(triple.getLeft().getId())
+                                        .mirrored(mirrored)
+                                        .offset(Arrays.asList(
+                                                BigDecimal.valueOf(ao.getXRange().clampMap(xOffset.peek())),
+                                                BigDecimal.valueOf(ao.getYRange().clampMap(yOffset.peek())),
+                                                BigDecimal.valueOf(ao.getZRange().clampMap(zOffset.peek()))
+                                        ));
+
+                                dto.setAccessories(accessoryDtos);
+                            } else if (options instanceof CapeOptions) {
+                                CapeOptions co = (CapeOptions) options;
+                                if (co.isCloak() && mirroredOrCloak.peek()) {
+                                    dto.setCloak(triple.getLeft().getId());
+                                }
+                                if (co.isElytra() && elytra.peek()) {
+                                    dto.setElytra(triple.getLeft().getId());
+                                }
+                            }
+
+                            // TODO lock on this part of screen
+                            // submit
+                            triple.getRight().apply(dto)
+                                    .thenAcceptAsync(newOutfit -> {
+                                        // Go back to search
+                                        BrowseScreen.this.configuring.set(Optional.empty());
+                                    }, Minecraft.getInstance())
+                                    .exceptionally(Cosmetica.mainThreadExcept(ex -> {
+                                        // Unlock with error notification? TODO
+                                    }));
+                        });
+
+                        // Handle this rare case!
+                        // Should be closed next frame by Results anyway.
+                        if (outfit == null) {
+                            submitButton.setDisabled(true);
+                        }
+                        // TODO check max outfits
+                        // check outfit duplicates
+                        else if (options instanceof AccessoryOptions) {
+                            for (Accessory existingAccessory : outfit.getAccessories()) {
+                                if (existingAccessory.getId().equals(triple.getLeft().getId())) {
+                                    if (existingAccessory.isMirrored() == mirrored) {
+                                        submitButton.setDisabled(true);
+                                        submitButton.withStyle(Style.create()
+                                                .set(TOOLTIP, Optional.of(new Tooltip(
+                                                        mirrored ?
+                                                                Text.translatable("tooltip.cosmetica.alreadyEquippedAccessoryMirrored") :
+                                                                Text.translatable("tooltip.cosmetica.alreadyEquippedAccessory")
+                                                ))));
+                                    }
+                                }
+                            }
+                        }
                         children.add(
                                 new Div(
-                                    new Button(Text.translatable("button.cosmetica.equip"), () -> {
-                                        CreateOutfitDto dto = new CreateOutfitDto();
-
-                                        if (options instanceof AccessoryOptions) {
-                                            AccessoryOptions ao = (AccessoryOptions) options;
-                                            // TODO equip accessory and prevent duplicates
-                                        } else if (options instanceof CapeOptions) {
-                                            CapeOptions co = (CapeOptions) options;
-                                            if (co.isCloak() && mirroredOrCloak.peek()) {
-                                                dto.setCloak(triple.getLeft().getId());
-                                            }
-                                            if (co.isElytra() && elytra.peek()) {
-                                                dto.setElytra(triple.getLeft().getId());
-                                            }
-                                        }
-
-                                        // TODO lock on this part of screen
-                                        // submit
-                                        triple.getRight().apply(dto)
-                                                .thenAcceptAsync(outfit -> {
-                                                    // Go back to search
-                                                    BrowseScreen.this.configuring.set(Optional.empty());
-                                                }, Minecraft.getInstance())
-                                                .exceptionally(Cosmetica.mainThreadExcept(ex -> {
-                                                    // Unlock with error notification? TODO
-                                                }));
-                                    }).tag("flex-1"),
+                                    submitButton.tag("flex-1"),
                                     new Div().withStyle(Style.create().set(WIDTH, fixedSize(4))),
                                     new Button(Text.GUI_CANCEL, () -> BrowseScreen.this.configuring.set(Optional.empty())).tag("flex-1")
                                 ).withStyle(Style.create()
