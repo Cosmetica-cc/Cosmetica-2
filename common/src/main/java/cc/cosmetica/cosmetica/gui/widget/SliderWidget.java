@@ -40,13 +40,15 @@ import java.util.function.Function;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.POINTER_EVENTS;
 
 public class SliderWidget extends MinecraftBuiltinComponent {
-    public SliderWidget(State<Float> value, Function<Float, Text> textFunction) {
+    public SliderWidget(State<Float> value, float precision, Function<Float, Text> textFunction) {
         this.value = value;
         this.textFunction = textFunction;
+        this.precision = precision;
     }
 
     private final State<Float> value;
     private final Function<Float, Text> textFunction;
+    private final float precision;
     private AbstractSliderButton cache;
 
     @Override
@@ -60,7 +62,11 @@ public class SliderWidget extends MinecraftBuiltinComponent {
                 region.getHeight(), this.textFunction.apply(f).toMinecraftComponent(), f) {
             @Override
             protected void updateMessage() {
-                this.setMessage(SliderWidget.this.textFunction.apply(SliderWidget.this.value.peek()).toMinecraftComponent());
+                float nf = SliderWidget.this.value.peek();
+                if (precision != 0) {
+                    nf = Math.round(nf / precision) * precision;
+                }
+                this.setMessage(SliderWidget.this.textFunction.apply(nf).toMinecraftComponent());
             }
 
             @Override

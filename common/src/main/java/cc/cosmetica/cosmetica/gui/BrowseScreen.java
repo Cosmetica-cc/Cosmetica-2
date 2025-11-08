@@ -21,6 +21,8 @@ import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
+import cc.cosmetica.cosmetica.gui.cosmeticconfig.AccessoryOptions;
+import cc.cosmetica.cosmetica.gui.cosmeticconfig.CapeOptions;
 import cc.cosmetica.cosmetica.gui.cosmeticconfig.CosmeticOptions;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
 import cc.cosmetica.cosmetica.gui.widget.DropdownMenu;
@@ -229,27 +231,77 @@ public class BrowseScreen extends AbstractHomeScreen {
             if (configuring.isPresent()) {
                 Triple<CosmeticEntry.CosmeticData, CosmeticOptions, Consumer<CreateOutfitDto>> triple = configuring.get();
 
-                // TODO max number of cosmetics on outfit
+                // TODO handle max number of cosmetics on outfit (also change original check to use premiumdto stats)
                 // Because outfit can change whilst browsing.
-                State<Float> f = new State<>(0.33f);
+                State<Float> xOffset = new State<>(0.5f);
+                State<Float> yOffset = new State<>(0.5f);
+                State<Float> zOffset = new State<>(0.5f);
+                State<Boolean> mirroredOrCloak = new State<>(triple.getMiddle() instanceof CapeOptions);
+                State<Boolean> elytra = new State<>(true);
 
-                return Arrays.asList(new Div(
-                            new Image(new ResourceKey(triple.getLeft().getThumbnail().location))
-                                    .setTransparent(1.0f),
-                            // name
-                            new Label(Text.literal(triple.getLeft().getName())),
-                            // settings...
-                            new SliderWidget(f, f_ -> Text.literal("a: " + f_ * 2)),
-                            // space
-                            new Div().tag("flex-1"),
-                            // submit
-                            new Div(
+                return Arrays.asList(new Div() {
+                    @Override
+                    public List<Component> build() {
+                        // image
+                        List<Component> children = new ArrayList<>();
+                        children.add(
+                                new Image(new ResourceKey(triple.getLeft().getThumbnail().location))
+                                        .setTransparent(1.0f));
+                        // name
+                        children.add(
+                                new Label(Text.literal(triple.getLeft().getName()))
+                                        .withStyle(Style.create().set(MARGINS, fixed(new Margins(0,0,6,0)))));
+                        // settings
+                        CosmeticOptions options = triple.getMiddle();
+                        if (options instanceof AccessoryOptions) {
+                            AccessoryOptions ao = (AccessoryOptions) options;
+
+                            // mirrored
+                            boolean mirrored = mirroredOrCloak.acquire(this);
+                            children.add(new Button(Text.translatable("button.cosmetica.equip.mirrored", mirrored ? Text.GUI_YES.getDisplayString() : Text.GUI_NO.getDisplayString()), () -> mirroredOrCloak.set(!mirrored)));
+
+                            // axis positions
+                            if (ao.getXRange().getRange() > 0) {
+                                float precision = 0.1f / (float) ao.getXRange().getRange();
+                                children.add(new SliderWidget(xOffset, precision, f_ -> Text.translatable("button.cosmetica.equip.x", Double.toString(ao.getXRange().clampMap(f_)))));
+                            }
+                            if (ao.getYRange().getRange() > 0) {
+                                float precision = 0.1f / (float) ao.getYRange().getRange();
+                                children.add(new SliderWidget(yOffset, precision, f_ -> Text.translatable("button.cosmetica.equip.y", Double.toString(ao.getYRange().clampMap(f_)))));
+                            }
+                            if (ao.getZRange().getRange() > 0) {
+                                float precision = 0.1f / (float) ao.getZRange().getRange();
+                                children.add(new SliderWidget(zOffset, precision, f_ -> Text.translatable("button.cosmetica.equip.z", Double.toString(ao.getZRange().clampMap(f_)))));
+                            }
+                        } else if (options instanceof CapeOptions) {
+                            CapeOptions co = (CapeOptions) options;
+
+                            if (co.isCloak()) {
+                                boolean isCloak = mirroredOrCloak.acquire(this);
+                                children.add(new Button(Text.translatable("button.cosmetica.equip.isCloak", isCloak ? Text.GUI_YES.getDisplayString() : Text.GUI_NO.getDisplayString()), () -> mirroredOrCloak.set(!isCloak)));
+                            }
+
+                            if (co.isElytra()) {
+                                boolean isElytra = elytra.acquire(this);
+                                children.add(new Button(Text.translatable("button.cosmetica.equip.isElytra", isElytra ? Text.GUI_YES.getDisplayString() : Text.GUI_NO.getDisplayString()), () -> elytra.set(!isElytra)));
+                            }
+                        }
+                        // space
+                        children.add(new Div().tag("flex-1"));
+                        // submit
+                        children.add(
+                                new Div(
                                     new Button(Text.translatable("button.cosmetica.equip"), () -> {}).tag("flex-1"),
                                     new Div().withStyle(Style.create().set(WIDTH, fixedSize(4))),
                                     new Button(Text.GUI_CANCEL, () -> BrowseScreen.this.configuring.set(Optional.empty())).tag("flex-1")
-                            ).withStyle(Style.create()
-                                    .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X))
-                ).tag("flex-1", "configure-main"));
+                                ).withStyle(Style.create()
+                                        .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X))
+                        );
+
+                        return children;
+                    }
+                }.withStyle(Style.create())
+                .tag("flex-1", "configure-main"));
             } else {
                 return ImmutableList.of();
             }

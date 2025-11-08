@@ -18,24 +18,45 @@ package cc.cosmetica.cosmetica.gui.cosmeticconfig;
 
 public final class AccessoryOptions extends CosmeticOptions {
     public AccessoryOptions(double[] x, double[] y, double[] z) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        this.x = new Range(x);
+        this.y = new Range(y);
+        this.z = new Range(z);
     }
 
-    private final double[] x;
-    private final double[] y;
-    private final double[] z;
+    private final Range x;
+    private final Range y;
+    private final Range z;
 
-    public double[] getXRange() {
-        return this.x;
-    }
+    public Range getXRange() { return this.x; }
 
-    public double[] getYRange() {
-        return this.y;
-    }
+    public Range getYRange() { return this.y; }
 
-    public double[] getZRange() {
-        return this.z;
+    public Range getZRange() { return this.z; }
+
+    /**
+     * Helper for range operations for Accessory offset sliders.
+     */
+    public class Range {
+        Range(double[] d) {
+            this.span = d;
+        }
+
+        private final double[] span;
+
+        public double getRange() {
+            return span[1] - span[0];
+        }
+
+        public double map(double d) {
+            return span[0] + d * (span[1] - span[0]);
+        }
+
+        public double clamp(double d) {
+            return d < span[0] ? span[0] : (d > span[1] ? span[1] : d);
+        }
+
+        public double clampMap(double d) {
+            return clamp(map(d));
+        }
     }
 }
