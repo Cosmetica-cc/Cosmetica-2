@@ -30,18 +30,18 @@ import cc.cosmetica.cosmetica.gui.widget.DropdownMenu;
 import cc.cosmetica.cosmetica.gui.widget.EntryList;
 import cc.cosmetica.cosmetica.gui.widget.SliderWidget;
 import cc.cosmetica.cosmetica.util.EquipUtil;
-import cc.cosmetica.kupe.api.ResourceKey;
-import cc.cosmetica.kupe.api.Screens;
-import cc.cosmetica.kupe.api.State;
-import cc.cosmetica.kupe.api.Text;
+import cc.cosmetica.kupe.api.*;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
+import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.model.*;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.EditBox;
 import org.apache.commons.lang3.tuple.MutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
@@ -67,6 +67,7 @@ public class BrowseScreen extends AbstractHomeScreen {
     }
 
     private final State<String> searchQuery = new State<>("");
+    private final State<String> debouncedSearchQuery = new State<>("");
     private final State<Menu> menu = new State<>(Menu.NONE);
     private final State<Sort> sort = new State<>(Sort.RECENT);
     /**
@@ -104,7 +105,64 @@ public class BrowseScreen extends AbstractHomeScreen {
                                         Text.translatable("label.browse.search"), // todo better format for translation strings?
                                         this.searchQuery,
                                         true,
-                                        32).tag("searchbar"),
+                                        32) {
+
+                                    private static final long DEBOUNCE_TIME = 600;
+                                    private long time = System.currentTimeMillis() - DEBOUNCE_TIME;
+
+                                    @Override
+                                    public boolean charTyped(char symbol, int modifiers) {
+                                        String queryBefore = BrowseScreen.this.searchQuery.peek();
+                                        boolean result = super.charTyped(symbol, modifiers);
+
+                                        if (!BrowseScreen.this.searchQuery.peek().equals(queryBefore)) {
+                                            this.updateDebounceQuery();
+                                        }
+
+                                        return result;
+                                    }
+
+                                    @Override
+                                    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+                                        String queryBefore = BrowseScreen.this.searchQuery.peek();
+                                        boolean result = super.keyPressed(keyCode, scanCode, modifiers);
+
+                                        if (!BrowseScreen.this.searchQuery.peek().equals(queryBefore)) {
+                                            this.updateDebounceQuery();
+                                        }
+
+                                        return result;
+                                    }
+
+                                    private void updateDebounceQuery() {
+                                        // debounce queries to every 600ms
+                                        long theTime = System.currentTimeMillis();
+
+                                        if (theTime - this.time > DEBOUNCE_TIME) {
+                                            BrowseScreen.this.debouncedSearchQuery.set(BrowseScreen.this.searchQuery.peek());
+                                            this.time = theTime;
+                                        } else {
+                                            CompletableFuture.runAsync(() -> {
+                                                try {
+                                                    Thread.sleep(DEBOUNCE_TIME);
+                                                } catch (InterruptedException e) {
+                                                    throw new RuntimeException(e);
+                                                }
+
+                                                Minecraft.getInstance().execute(() -> {
+                                                    // still same latest query
+                                                    long currentTime = System.currentTimeMillis();
+                                                    System.out.println("TEST");
+                                                    if (currentTime > this.time) {
+                                                        System.out.println("done");
+                                                        BrowseScreen.this.debouncedSearchQuery.set(BrowseScreen.this.searchQuery.peek());
+                                                        this.time = currentTime;
+                                                    }
+                                                });
+                                            });
+                                        }
+                                    }
+                                }.onEnter(BrowseScreen.this.debouncedSearchQuery::set).tag("searchbar"),
                                 new Button(Text.literal(" "), ()-> this.open(Menu.SORT)).tag("btn-search-adjust"), // sort
                                 new Button(Text.literal(" "), ()-> this.open(Menu.FILTER)).tag("btn-search-adjust")  // filter
                         ).withStyle(Style.create()
@@ -181,7 +239,7 @@ public class BrowseScreen extends AbstractHomeScreen {
         @Override
         public List<Component> build() {
             // Acquire states
-            String query = BrowseScreen.this.searchQuery.acquire(this);
+            String query = BrowseScreen.this.debouncedSearchQuery.acquire(this);
             Sort sort = BrowseScreen.this.sort.acquire(this);
 
             @Nullable Cosmetics outfit = Cosmetica.OWN_COSMETICS.acquire(this);
