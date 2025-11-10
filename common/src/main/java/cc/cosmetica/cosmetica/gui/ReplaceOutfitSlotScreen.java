@@ -55,7 +55,7 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
  * are used.
  * Unregistered. Pass ID as a second parameter when setting Kupe screen.
  */
-public class ReplaceOutfitSlotScreen extends Component {
+public class ReplaceOutfitSlotScreen extends Component implements AnimatedTextureScreen {
     protected ReplaceOutfitSlotScreen(Cosmetics initialCosmetics) {
         if (!initialCosmetics.getOutfitId().isPresent())
             throw new IllegalArgumentException("No outfit id for steal-their-look cosmetics?!");

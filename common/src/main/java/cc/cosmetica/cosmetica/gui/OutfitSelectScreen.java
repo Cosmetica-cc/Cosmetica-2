@@ -41,7 +41,7 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 /**
  * The menu outfit select screen. For the wheel, see {@link OutfitWheelScreen}.
  */
-public class OutfitSelectScreen extends Component {
+public class OutfitSelectScreen extends Component implements AnimatedTextureScreen {
     public OutfitSelectScreen() {
         this.title = ID.translationKey("screens");
         this.outfitLimit = new State<>(-1);

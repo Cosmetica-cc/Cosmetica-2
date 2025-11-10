@@ -47,7 +47,7 @@ import java.util.function.Function;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
-public class StyleNametagScreen extends Screen {
+public class StyleNametagScreen extends Screen implements AnimatedTextureScreen {
     public StyleNametagScreen() {
         super(ID);
 

@@ -42,7 +42,7 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 /**
  * Base for home-screen-like screens. Screens that are too different (snipe) shouldn't extend this.
  */
-public abstract class AbstractHomeScreen extends Screen {
+public abstract class AbstractHomeScreen extends Screen implements AnimatedTextureScreen {
     protected AbstractHomeScreen(ResourceKey id) {
         super(id);
     }

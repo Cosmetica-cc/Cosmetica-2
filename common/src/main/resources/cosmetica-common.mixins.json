@@ -10,7 +10,9 @@
     "keybinds.KeyMappingMixin",
     "keybinds.LevelRendererTickMixin",
     "keybinds.OptionsMixin",
-    "snipe.GameRendererMixin"
+    "snipe.GameRendererMixin",
+    "textures.KupeScreenMixin",
+    "textures.TitleScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1
