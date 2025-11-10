@@ -21,6 +21,7 @@ import cc.cosmetica.core.api.Accessory;
 import cc.cosmetica.core.api.texture.CosmeticaTexture;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.ConfirmRemoveCosmeticScreen;
+import cc.cosmetica.cosmetica.gui.GuiUtils;
 import cc.cosmetica.cosmetica.gui.cosmeticconfig.AccessoryOptions;
 import cc.cosmetica.cosmetica.gui.cosmeticconfig.CapeOptions;
 import cc.cosmetica.cosmetica.gui.cosmeticconfig.CosmeticOptions;
@@ -174,7 +175,7 @@ public class CosmeticEntry extends Component {
 					.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
 					.set(Div.ALIGN_ITEMS, Align.CENTRE)
 					.set(BACKGROUND_COLOUR, OptionalInt.of(0x858585))
-					.set(BORDER, Border.create(Border.BorderConfig.split(1, 0xA1A1A1, 0x595959))))
+					.set(BORDER, GuiUtils.POPOUT_BORDER))
 			.tag("centry_names", Style.create()
 					.set(Div.ALIGN_ITEMS, Align.STRETCH_START)
 					.set(FLEX, 1));

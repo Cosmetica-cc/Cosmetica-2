@@ -71,7 +71,7 @@ public class DropdownMenu<T> extends Div {
                         .set(MARGINS, fixed(new Margins(24,0,0,0)))
                         .set(PADDING, fixed(new Margins(1, 2)))
                         .set(BACKGROUND_COLOUR, OptionalInt.of(0x858585))
-                        .set(BORDER, Border.create(Border.BorderConfig.split(1, 0xA1A1A1, 0x595959)))
+                        .set(BORDER, GuiUtils.POPOUT_BORDER)
                         .set(ALIGN_SELF, Optional.of(Align.END))
                         .set(WIDTH, percent(30, 0)));
     }

@@ -36,7 +36,7 @@ public final class AccessoryOptions extends CosmeticOptions {
     /**
      * Helper for range operations for Accessory offset sliders.
      */
-    public class Range {
+    public final class Range {
         Range(double[] d) {
             this.span = d;
         }

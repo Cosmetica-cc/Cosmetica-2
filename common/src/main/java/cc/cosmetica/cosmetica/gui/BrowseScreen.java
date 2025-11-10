@@ -419,7 +419,9 @@ public class BrowseScreen extends AbstractHomeScreen {
                             .set(WIDTH, fixedSize(50))
                             .set(HEIGHT, fixedSize(50)))
                     .tag("configure-main", Style.create()
-                            .set(BACKGROUND_COLOUR, OptionalInt.of(0x000000)))
+                            .set(BACKGROUND_COLOUR, OptionalInt.of(0x858585))
+                            .set(BORDER, GuiUtils.POPOUT_BORDER)
+                            .set(PADDING, fixed(new Margins(1))))
                     .tag("flex-1", Style.create()
                             .set(FLEX, 1));
         }

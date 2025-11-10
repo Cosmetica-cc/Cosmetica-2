@@ -50,7 +50,7 @@ public class CosmeticsList extends Div {
 						.tag("width-250", "contents-wrapper"),
 				new Button(Text.literal("+"), () ->
 					Screens.setScreen(BrowseScreen.ID)
-				).setDisabled(this.editable == ListType.DISABLED).tag("width-250")
+				).setDisabled(this.editable == ListType.DISABLED).tag(buttonTags)
 		) : ImmutableList.of(
 				new EntryList.Div(this.entries)
 						.tag("width-250", "contents-wrapper")

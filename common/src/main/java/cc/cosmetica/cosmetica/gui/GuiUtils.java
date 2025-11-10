@@ -16,9 +16,12 @@
 
 package cc.cosmetica.cosmetica.gui;
 
+import cc.cosmetica.kupe.api.gui.Border;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.sounds.SoundEvents;
+
+import java.util.Optional;
 
 /**
  * Gui utils.
@@ -31,4 +34,7 @@ public class GuiUtils {
                 SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F)
         );
     }
+
+    public static final Optional<Border> POPOUT_BORDER = Border.create(Border.BorderConfig.split(1, 0xA1A1A1, 0x595959));
+    public static final Optional<Border> POP_IN_BORDER = Border.create(Border.BorderConfig.split(1, 0x595959, 0xA1A1A1));
 }
