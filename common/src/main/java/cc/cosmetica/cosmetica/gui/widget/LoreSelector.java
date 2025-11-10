@@ -316,7 +316,7 @@ public class LoreSelector extends Div {
             // TODO add these to 'keep'
             this.texture = ThumbnailCache.getOrCreateImage("connections", connection.getServiceId(),
                     new CosmeticaTexture.Builder(System.getProperty("cosmetica.website", "https://cosmetica.cc") + "/connections/" + connection.getServiceId() + ".webp", Cosmetica.LOADING_TEXTURE)
-                            .failToLoadTexture(Cosmetica.FALLBACK_TEXTURE));
+                            .failToLoadTexture(Cosmetica.FALLBACK_TEXTURE), false);
         }
 
         private final Text username;

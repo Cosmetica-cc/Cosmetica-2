@@ -220,7 +220,7 @@ public class CosmeticEntry extends Component {
 			entryList.add(new CosmeticEntry(
 					cosmetics,
 					null,
-					getOrCreateThumb(cloak.getThumbnail(), "thumbs-c", cloak.getId(), cloak.getImage().getFramePeriod()),
+					getOrCreateThumb(cloak.getThumbnail(), "thumbs-c", cloak.getId(), cloak.getImage().getFramePeriod(), false),
 					cloak.getId(),
 					cloak.getName(),
 					message, //cloak.getCreator().isPresent() ? cloak.getCreator().get().getName() : "Could not load creator"
@@ -236,7 +236,7 @@ public class CosmeticEntry extends Component {
 			entryList.add(new CosmeticEntry(
 					cosmetics,
 					null,
-					getOrCreateThumb(elytra.getThumbnail(), "thumbs-c", elytra.getId(), 3), // TODO in core give ticks per frame (expose AnimatedTextureCosmetic)
+					getOrCreateThumb(elytra.getThumbnail(), "thumbs-c", elytra.getId(), 3, false), // TODO in core give ticks per frame (expose AnimatedTextureCosmetic)
 					elytra.getId(),
 					elytra.getName(),
 					"Elytra", //elytra.getCreator().isPresent() ? elytra.getCreator().get().getName() : "Could not load creator"
@@ -248,7 +248,7 @@ public class CosmeticEntry extends Component {
 
 		for (Accessory accessory : cosmetics.getAccessories()) {
 			// texture for thumbnail
-			CachedImage thumbnail = getOrCreateThumb(accessory.getThumbnail(), "thumbs-c", accessory.getId(), accessory.getJsonObject().getTicksPerFrame().intValue());
+			CachedImage thumbnail = getOrCreateThumb(accessory.getThumbnail(), "thumbs-c", accessory.getId(), accessory.getJsonObject().getTicksPerFrame().intValue(), false);
 
 			// n.b. reference to CachedImage needs to be stored on the entry so it doesn't get GC'd
 			entryList.add(new CosmeticEntry(
@@ -297,7 +297,7 @@ public class CosmeticEntry extends Component {
 				entryList.add(new CosmeticEntry(
 						equipOntoOutfit, // TODO handle null lol
 						envelope,
-						getOrCreateThumb(cosmetic.getThumbnail(), "thumbs-c", cosmetic.getId(), 1),
+						getOrCreateThumb(cosmetic.getThumbnail(), "thumbs-c", cosmetic.getId(), 1, true),
 						cosmetic.getId(),
 						cosmetic.getName(),
 						cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
@@ -312,7 +312,7 @@ public class CosmeticEntry extends Component {
 				entryList.add(new CosmeticEntry(
 						equipOntoOutfit, // TODO handle null lol
 						envelope,
-						getOrCreateThumb(cosmetic.getThumbnail(), "thumbs-c", cosmetic.getId(), cosmetic.getTicksPerFrame().intValue()),
+						getOrCreateThumb(cosmetic.getThumbnail(), "thumbs-c", cosmetic.getId(), cosmetic.getTicksPerFrame().intValue(), true),
 						cosmetic.getId(),
 						cosmetic.getName(),
 						cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
@@ -327,7 +327,7 @@ public class CosmeticEntry extends Component {
 				entryList.add(new CosmeticEntry(
 						equipOntoOutfit, // TODO handle null lol
 						envelope,
-						getOrCreateThumb(cosmetic.getThumbnail(), "thumbs-c", cosmetic.getId(), cosmetic.getTicksPerFrame().intValue()),
+						getOrCreateThumb(cosmetic.getThumbnail(), "thumbs-c", cosmetic.getId(), cosmetic.getTicksPerFrame().intValue(), true),
 						cosmetic.getId(),
 						cosmetic.getName(),
 						cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
@@ -339,7 +339,7 @@ public class CosmeticEntry extends Component {
 		}
 	}
 
-	private static CachedImage getOrCreateThumb(@Nullable String thumbnail, String category, String id, int ticksPerFrame) {
+	private static CachedImage getOrCreateThumb(@Nullable String thumbnail, String category, String id, int ticksPerFrame, boolean browseCache) {
 		if (thumbnail == null) {
 			return NO_THUMBNAIL;
 		} else {
@@ -347,7 +347,7 @@ public class CosmeticEntry extends Component {
 					new CosmeticaTexture.Builder(thumbnail, Cosmetica.LOADING_TEXTURE)
 							.frames(8, ticksPerFrame)
 							.failToLoadTexture(Cosmetica.FALLBACK_TEXTURE)
-							.autoAnimate(CosmeticaTexture.AutoAnimate.NEVER_TILESHEETS));
+							.autoAnimate(CosmeticaTexture.AutoAnimate.NEVER_TILESHEETS), browseCache);
 		}
 	}
 
