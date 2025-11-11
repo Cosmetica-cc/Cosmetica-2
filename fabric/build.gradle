@@ -36,7 +36,6 @@ dependencies {
     include(implementation "com.twelvemonkeys.imageio:imageio-webp:${rootProject.imaging_version}")
 
     // Mod Menu (for Compat)
-    // TODO prevent shadowing Mod Menu
     modImplementation "com.terraformersmc:modmenu:1.16.22"
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
