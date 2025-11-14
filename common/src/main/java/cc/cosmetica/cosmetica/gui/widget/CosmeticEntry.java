@@ -16,8 +16,8 @@
 
 package cc.cosmetica.cosmetica.gui.widget;
 
-import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.api.Accessory;
+import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.api.texture.CosmeticaTexture;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.ConfirmRemoveCosmeticScreen;
@@ -45,13 +45,12 @@ import org.jetbrains.annotations.Nullable;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 public class CosmeticEntry extends Component {
-	public CosmeticEntry(Cosmetics cosmetics, @Nullable CosmeticEnvelope cosmetic, CachedImage image, String id, String name, String owner, Type type, Category category, @Nullable CosmeticEntry.EquipCallback onEquipButton) {
+	public CosmeticEntry(Cosmetics cosmetics, @Nullable CosmeticEnvelope cosmetic, CachedImage image, String id, String name, String owner, Type type, Category category, @Nullable CosmeticEntry.EquipCallback onEquipButton, boolean mirrored) {
 		this.parentOutfit = cosmetics;
 		this.image = image;
 		this.icon = new ResourceKey(image.location);
@@ -62,6 +61,8 @@ public class CosmeticEntry extends Component {
 		this.category = category;
 		this.cosmetic = cosmetic;
 		this.onEquipButton = onEquipButton;
+		// Only important for modifiable lists (own cosmetics)
+		this.mirrored = mirrored;
 
 		if (cosmetic == null && type.hasEquipButton()) {
 			throw new IllegalArgumentException("Cannot have null cosmetic envelope for equippable item");
@@ -79,6 +80,7 @@ public class CosmeticEntry extends Component {
 	private final String id;
 	private final String name;
 	private final String owner;
+	private final boolean mirrored;
 	private final Type editable;
 	private final Category category;
 	private final @Nullable CosmeticEnvelope cosmetic;
@@ -98,7 +100,7 @@ public class CosmeticEntry extends Component {
 		if (this.editable.hasRemoveButton()) {
 			content.add(
 					new Button(Text.literal("-"), () -> {
-						Screens.setScreen(new ConfirmRemoveCosmeticScreen(this.parentOutfit, this.id, this.name), Text.translatable("screens.cosmetica.confirmDeletion"));
+						Screens.setScreen(new ConfirmRemoveCosmeticScreen(this.parentOutfit, this.id, this.name, this.mirrored), Text.translatable("screens.cosmetica.confirmDeletion"));
 					}).setDisabled(this.editable == Type.REMOVABLE_OFFLINE)
 					  .withStyle(Style.create().set(TOOLTIP,
 							this.editable == Type.REMOVABLE ? Optional.empty()
@@ -226,7 +228,8 @@ public class CosmeticEntry extends Component {
 					message, //cloak.getCreator().isPresent() ? cloak.getCreator().get().getName() : "Could not load creator"
 					type,
 					CosmeticEntry.Category.CAPE,
-					null
+					null,
+					false
 			));
 		}
 
@@ -242,7 +245,8 @@ public class CosmeticEntry extends Component {
 					"Elytra", //elytra.getCreator().isPresent() ? elytra.getCreator().get().getName() : "Could not load creator"
 					type,
 					CosmeticEntry.Category.CAPE,
-					null
+					null,
+					false
 			));
 		}
 
@@ -260,7 +264,8 @@ public class CosmeticEntry extends Component {
 					accessory.getCreator().isPresent() ? accessory.getCreator().get().getName() : "Could not load creator",
 					type,
 					CosmeticEntry.Category.ACCESSORY,
-					null
+					null,
+					accessory.isMirrored()
 			));
 		}
 	}
@@ -289,7 +294,8 @@ public class CosmeticEntry extends Component {
 						cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
 						Type.EQUIPPABLE_UNSUPPORTED,
 						Category.UNKNOWN,
-						equipCallback
+						equipCallback,
+						false
 				));
 			} else if (envelope.getTextureCosmetic() != null) {
 				TextureCosmetic cosmetic = envelope.getTextureCosmetic();
@@ -303,7 +309,8 @@ public class CosmeticEntry extends Component {
 						cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
 						Type.EQUIPPABLE_UNSUPPORTED,
 						Category.UNKNOWN,
-						equipCallback
+						equipCallback,
+						false
 				));
 			} else if (envelope.getAnimatedTextureCosmetic() != null) {
 				AnimatedTextureCosmetic cosmetic = envelope.getAnimatedTextureCosmetic();
@@ -318,7 +325,8 @@ public class CosmeticEntry extends Component {
 						cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
 						category == Category.UNKNOWN ? Type.EQUIPPABLE_UNSUPPORTED : Type.EQUIPPABLE,
 						category,
-						equipCallback
+						equipCallback,
+						false
 				));
 			} else if (envelope.getAccessory() != null) {
 				gg.cloaks.javaclient.model.Accessory cosmetic = envelope.getAccessory();
@@ -333,7 +341,8 @@ public class CosmeticEntry extends Component {
 						cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
 						category == Category.UNKNOWN ? Type.EQUIPPABLE_UNSUPPORTED : Type.EQUIPPABLE,
 						category,
-						equipCallback
+						equipCallback,
+						false
 				));
 			}
 		}

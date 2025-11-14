@@ -334,15 +334,15 @@ public class BrowseScreen extends AbstractHomeScreen {
 
                             // axis positions
                             if (ao.getXRange().getRange() > 0) {
-                                float precision = 0.1f / (float) ao.getXRange().getRange();
+                                float precision = 0.5f / (float) ao.getXRange().getRange();
                                 children.add(new SliderWidget(xOffset, precision, f_ -> Text.translatable("button.cosmetica.equip.x", String.format("%.1f", ao.getXRange().clampMap(f_)))));
                             }
                             if (ao.getYRange().getRange() > 0) {
-                                float precision = 0.1f / (float) ao.getYRange().getRange();
+                                float precision = 0.5f / (float) ao.getYRange().getRange();
                                 children.add(new SliderWidget(yOffset, precision, f_ -> Text.translatable("button.cosmetica.equip.y", String.format("%.1f", ao.getYRange().clampMap(f_)))));
                             }
                             if (ao.getZRange().getRange() > 0) {
-                                float precision = 0.1f / (float) ao.getZRange().getRange();
+                                float precision = 0.5f / (float) ao.getZRange().getRange();
                                 children.add(new SliderWidget(zOffset, precision, f_ -> Text.translatable("button.cosmetica.equip.z", String.format("%.1f", ao.getZRange().clampMap(f_)))));
                             }
                         } else {

@@ -51,6 +51,13 @@ public class SliderWidget extends MinecraftBuiltinComponent {
     private final float precision;
     private AbstractSliderButton cache;
 
+    private float snapToPrecision(float f) {
+        if (precision == 0) {
+            return f;
+        }
+        return Math.round(f / precision) * precision;
+    }
+
     @Override
     public AbstractWidget createMinecraftWidget(Region region, Context context) {
         float f = this.value.acquire(this);
@@ -59,13 +66,10 @@ public class SliderWidget extends MinecraftBuiltinComponent {
                 region.getX(),
                 region.getY(),
                 region.getWidth(),
-                region.getHeight(), this.textFunction.apply(f).toMinecraftComponent(), f) {
+                region.getHeight(), this.textFunction.apply(snapToPrecision(f)).toMinecraftComponent(), f) {
             @Override
             protected void updateMessage() {
-                float nf = SliderWidget.this.value.peek();
-                if (precision != 0) {
-                    nf = Math.round(nf / precision) * precision;
-                }
+                float nf = snapToPrecision(SliderWidget.this.value.peek());
                 this.setMessage(SliderWidget.this.textFunction.apply(nf).toMinecraftComponent());
             }
 

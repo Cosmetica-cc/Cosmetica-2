@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Objects;
 
 public final class ConfirmRemoveCosmeticScreen extends AbstractConfirmScreen {
-    public ConfirmRemoveCosmeticScreen(Cosmetics parentOutfit, String itemId, String itemName) {
+    public ConfirmRemoveCosmeticScreen(Cosmetics parentOutfit, String itemId, String itemName, boolean mirrored) {
         super(Text.translatable("screens.cosmetica.confirmDeletion"));
 
         Objects.requireNonNull(parentOutfit.getOutfitId().orElse(null), "Cosmetics must represent an outfit to allow removals.");
@@ -43,12 +43,14 @@ public final class ConfirmRemoveCosmeticScreen extends AbstractConfirmScreen {
         this.outfitId = parentOutfit.getOutfitId().get();
         this.removedItemId = itemId;
         this.removedItemName = itemName;
+        this.removedItemMirrored = mirrored;
     }
 
     private final Cosmetics parentOutfit;
     private final String outfitId;
     private final String removedItemId;
     private final String removedItemName;
+    private final boolean removedItemMirrored;
 
     @Override
     protected Label createConfirmLabel() {
@@ -85,7 +87,7 @@ public final class ConfirmRemoveCosmeticScreen extends AbstractConfirmScreen {
         if (!alreadyFoundItem) {
             List<CreateOutfitAccessoryDto> accessories = new ArrayList<>();
             for (Accessory accessory : parentOutfit.getAccessories()) {
-                if (!accessory.getId().equals(removedItemId)) {
+                if (!accessory.getId().equals(removedItemId) || accessory.isMirrored() != removedItemMirrored) {
                     CreateOutfitAccessoryDto caod = EquipUtil.dtoFromAccessory(accessory);
                     accessories.add(caod);
                 }
