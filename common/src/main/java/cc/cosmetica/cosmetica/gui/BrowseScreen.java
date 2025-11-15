@@ -25,10 +25,7 @@ import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.cosmeticconfig.AccessoryOptions;
 import cc.cosmetica.cosmetica.gui.cosmeticconfig.CapeOptions;
 import cc.cosmetica.cosmetica.gui.cosmeticconfig.CosmeticOptions;
-import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
-import cc.cosmetica.cosmetica.gui.widget.DropdownMenu;
-import cc.cosmetica.cosmetica.gui.widget.EntryList;
-import cc.cosmetica.cosmetica.gui.widget.SliderWidget;
+import cc.cosmetica.cosmetica.gui.widget.*;
 import cc.cosmetica.cosmetica.util.EquipUtil;
 import cc.cosmetica.kupe.api.*;
 import cc.cosmetica.kupe.api.gui.*;
@@ -163,8 +160,8 @@ public class BrowseScreen extends AbstractHomeScreen {
                                         }
                                     }
                                 }.onEnter(BrowseScreen.this.debouncedSearchQuery::set).tag("searchbar"),
-                                new Button(Text.literal(" "), ()-> this.open(Menu.SORT)).tag("btn-search-adjust"), // sort
-                                new Button(Text.literal(" "), ()-> this.open(Menu.FILTER)).tag("btn-search-adjust")  // filter
+                                new IconButton(new ResourceKey("cosmetica", "textures/filter.png"), ()-> this.open(Menu.FILTER)).tag("btn-search-adjust"),  // filter
+                                new IconButton(new ResourceKey("cosmetica", "textures/sort.png"), ()-> this.open(Menu.SORT)).tag("btn-search-adjust") // sort
                         ).withStyle(Style.create()
                                 .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
                                 .set(Div.JUSTIFY_CONTENT, Justify.SPACE_BETWEEN)),
