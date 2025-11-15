@@ -35,6 +35,20 @@ public class GuiUtils {
         );
     }
 
-    public static final Optional<Border> POPOUT_BORDER = Border.create(Border.BorderConfig.split(1, 0xA1A1A1, 0x595959));
-    public static final Optional<Border> POP_IN_BORDER = Border.create(Border.BorderConfig.split(1, 0x595959, 0xA1A1A1));
+    // Common Colours
+    /**
+     * Normal grey background.
+     */
+    public static final int NORMAL_COLOUR = 0x858585;
+    /**
+     * Highlight for grey backgrounds.
+     */
+    public static final int HIGHLIGHT_COLOUR = 0xA1A1A1;
+    /**
+     * Shading for grey backgrounds.
+     */
+    public static final int SHADE_COLOUR = 0x595959;
+
+    public static final Optional<Border> POPOUT_BORDER = Border.create(Border.BorderConfig.split(1, HIGHLIGHT_COLOUR, SHADE_COLOUR));
+    public static final Optional<Border> POP_IN_BORDER = Border.create(Border.BorderConfig.split(1, SHADE_COLOUR, HIGHLIGHT_COLOUR));
 }

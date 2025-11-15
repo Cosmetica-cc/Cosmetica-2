@@ -17,7 +17,6 @@
 package cc.cosmetica.cosmetica.gui;
 
 import cc.cosmetica.core.api.Accessory;
-import cc.cosmetica.core.api.CachedImage;
 import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.core.impl.Logging;
@@ -27,27 +26,29 @@ import cc.cosmetica.cosmetica.gui.cosmeticconfig.CapeOptions;
 import cc.cosmetica.cosmetica.gui.cosmeticconfig.CosmeticOptions;
 import cc.cosmetica.cosmetica.gui.widget.*;
 import cc.cosmetica.cosmetica.util.EquipUtil;
-import cc.cosmetica.kupe.api.*;
+import cc.cosmetica.kupe.api.ResourceKey;
+import cc.cosmetica.kupe.api.Screens;
+import cc.cosmetica.kupe.api.State;
+import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
-import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
-import gg.cloaks.javaclient.model.*;
+import gg.cloaks.javaclient.model.CreateOutfitAccessoryDto;
+import gg.cloaks.javaclient.model.CreateOutfitDto;
+import gg.cloaks.javaclient.model.Outfit;
+import gg.cloaks.javaclient.model.SearchCosmeticsDto;
+import gg.cloaks.javaclient.model.SearchCosmeticsDto.TypesEnum;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.EditBox;
 import org.apache.commons.lang3.tuple.MutableTriple;
-import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static cc.cosmetica.kupe.api.gui.Div.ALIGN_ITEMS;
@@ -67,6 +68,8 @@ public class BrowseScreen extends AbstractHomeScreen {
     private final State<String> debouncedSearchQuery = new State<>("");
     private final State<Menu> menu = new State<>(Menu.NONE);
     private final State<Sort> sort = new State<>(Sort.RECENT);
+    private final State<Set<SearchCosmeticsDto.TypesEnum>> filter = new State<>(new HashSet<>());
+
     /**
      * The state for the item being configured before being equipped.
      */
@@ -90,7 +93,28 @@ public class BrowseScreen extends AbstractHomeScreen {
 
                         if (menu == Menu.SORT) {
                             return Arrays.asList(
-                                    new DropdownMenu<>(sort::set, Sort::text, Sort.values())
+                                    new DropdownMenu<>(sort, Sort::text, Sort.values())
+                            );
+                        } else if (menu == Menu.FILTER) {
+                            return Arrays.asList(
+                                    new DropdownToggles<>(filter, value -> {
+                                        switch (value) {
+                                        case CLOAK:
+                                            return Text.translatable("label.cosmetica.filter.cloaks");
+                                        case ELYTRA:
+                                            return Text.translatable("label.cosmetica.filter.elytras");
+                                        case HEAD:
+                                            return Text.translatable("label.cosmetica.filter.head");
+                                        case BODY:
+                                            return Text.translatable("label.cosmetica.filter.body");
+                                        case ARM:
+                                            return Text.translatable("label.cosmetica.filter.arm");
+                                        case LEG:
+                                            return Text.translatable("label.cosmetica.filter.leg");
+                                        default:
+                                            return Text.translatable("label.cosmetica.filter.unknown");
+                                        }
+                                    }, TypesEnum.CLOAK, TypesEnum.ELYTRA, TypesEnum.HEAD, TypesEnum.BODY, TypesEnum.ARM, TypesEnum.LEG)
                             );
                         }
                         return super.build();
@@ -149,9 +173,7 @@ public class BrowseScreen extends AbstractHomeScreen {
                                                 Minecraft.getInstance().execute(() -> {
                                                     // still same latest query
                                                     long currentTime = System.currentTimeMillis();
-                                                    System.out.println("TEST");
                                                     if (currentTime > this.time) {
-                                                        System.out.println("done");
                                                         BrowseScreen.this.debouncedSearchQuery.set(BrowseScreen.this.searchQuery.peek());
                                                         this.time = currentTime;
                                                     }
@@ -187,7 +209,10 @@ public class BrowseScreen extends AbstractHomeScreen {
 
     @Override
     public void unmount() {
+        // Clear non-persistent state (user sub-action)
         this.configuring.set(Optional.empty());
+        this.menu.set(Menu.NONE);
+        // We keep search query, sort, and filters
     }
 
     @Override
@@ -238,6 +263,7 @@ public class BrowseScreen extends AbstractHomeScreen {
             // Acquire states
             String query = BrowseScreen.this.debouncedSearchQuery.acquire(this);
             Sort sort = BrowseScreen.this.sort.acquire(this);
+            Set<SearchCosmeticsDto.TypesEnum> filter = BrowseScreen.this.filter.acquire(this);
 
             @Nullable Cosmetics outfit = Cosmetica.OWN_COSMETICS.acquire(this);
 
@@ -252,6 +278,7 @@ public class BrowseScreen extends AbstractHomeScreen {
                 SearchCosmeticsDto dto = new SearchCosmeticsDto();
                 //dto.set
                 dto.setName(query);
+                dto.setTypes(new ArrayList<>(filter));
 
                 // Send Search
                 CosmeticaAPI.search().requestAsync(api -> api.searchCosmetics(dto))
