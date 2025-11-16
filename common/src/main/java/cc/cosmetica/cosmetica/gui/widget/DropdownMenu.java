@@ -103,7 +103,7 @@ public class DropdownMenu<T> extends Div {
                         .set(BACKGROUND_COLOUR, OptionalInt.of(GuiUtils.NORMAL_COLOUR))
                         .set(BORDER, GuiUtils.POPOUT_BORDER)
                         .set(ALIGN_SELF, Optional.of(Align.END))
-                        .set(WIDTH, percent(30, 0))
+                        .set(WIDTH, percent(50, 0))
                         .set(MAXIMUM_SIZE, screen(100, 75, Dimensions::new)))
                 .tag("dropdown-item", Style.create()
                         .set(PADDING, fixed(new Margins(1, 0))))

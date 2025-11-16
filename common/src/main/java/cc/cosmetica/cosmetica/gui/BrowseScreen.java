@@ -40,7 +40,7 @@ import gg.cloaks.javaclient.model.CreateOutfitAccessoryDto;
 import gg.cloaks.javaclient.model.CreateOutfitDto;
 import gg.cloaks.javaclient.model.Outfit;
 import gg.cloaks.javaclient.model.SearchCosmeticsDto;
-import gg.cloaks.javaclient.model.SearchCosmeticsDto.TypesEnum;
+import gg.cloaks.javaclient.model.SearchCosmeticsDto.AttachmentsEnum;
 import net.minecraft.client.Minecraft;
 import org.apache.commons.lang3.tuple.MutableTriple;
 import org.jetbrains.annotations.NotNull;
@@ -67,8 +67,8 @@ public class BrowseScreen extends AbstractHomeScreen {
     private final State<String> searchQuery = new State<>("");
     private final State<String> debouncedSearchQuery = new State<>("");
     private final State<Menu> menu = new State<>(Menu.NONE);
-    private final State<Sort> sort = new State<>(Sort.RECENT);
-    private final State<Set<SearchCosmeticsDto.TypesEnum>> filter = new State<>(new HashSet<>());
+    private final State<Sort> sort = new State<>(Sort.NEWEST);
+    private final State<Set<SearchCosmeticsDto.AttachmentsEnum>> filter = new State<>(new HashSet<>());
 
     /**
      * The state for the item being configured before being equipped.
@@ -89,7 +89,6 @@ public class BrowseScreen extends AbstractHomeScreen {
                     @Override
                     public List<Component> build() {
                         Menu menu = BrowseScreen.this.menu.acquire(this);
-                        System.out.println(menu);
 
                         if (menu == Menu.SORT) {
                             return Arrays.asList(
@@ -114,7 +113,7 @@ public class BrowseScreen extends AbstractHomeScreen {
                                         default:
                                             return Text.translatable("label.cosmetica.filter.unknown");
                                         }
-                                    }, TypesEnum.CLOAK, TypesEnum.ELYTRA, TypesEnum.HEAD, TypesEnum.BODY, TypesEnum.ARM, TypesEnum.LEG)
+                                    }, AttachmentsEnum.CLOAK, AttachmentsEnum.ELYTRA, AttachmentsEnum.HEAD, AttachmentsEnum.BODY, AttachmentsEnum.ARM, AttachmentsEnum.LEG)
                             );
                         }
                         return super.build();
@@ -236,15 +235,18 @@ public class BrowseScreen extends AbstractHomeScreen {
     }
 
     private enum Sort {
-        RECENT("label.cosmetica.sort.recent"),
-        POPULAR("label.cosmetica.sort.popular");
-//        OFFICIAL("label.cosmetica.sort.official");
+        NEWEST("label.cosmetica.sort.newest", SearchCosmeticsDto.SortByEnum.NEWEST),
+        OLDEST("label.cosmetica.sort.oldest", SearchCosmeticsDto.SortByEnum.OLDEST),
+        MOST_POPULAR("label.cosmetica.sort.most_popular", SearchCosmeticsDto.SortByEnum.MOST_POPULAR),
+        LEAST_POPULAR("label.cosmetica.sort.least_popular", SearchCosmeticsDto.SortByEnum.LEAST_POPULAR);
 
-        Sort(String translationKey) {
+        Sort(String translationKey, SearchCosmeticsDto.SortByEnum sortByEnum) {
             this.text = Text.translatable(translationKey);
+            this.dtoEnumValue = sortByEnum;
         }
 
         private final Text text;
+        private final SearchCosmeticsDto.SortByEnum dtoEnumValue;
 
         Text text() {
             return this.text;
@@ -263,7 +265,7 @@ public class BrowseScreen extends AbstractHomeScreen {
             // Acquire states
             String query = BrowseScreen.this.debouncedSearchQuery.acquire(this);
             Sort sort = BrowseScreen.this.sort.acquire(this);
-            Set<SearchCosmeticsDto.TypesEnum> filter = BrowseScreen.this.filter.acquire(this);
+            Set<SearchCosmeticsDto.AttachmentsEnum> filter = BrowseScreen.this.filter.acquire(this);
 
             @Nullable Cosmetics outfit = Cosmetica.OWN_COSMETICS.acquire(this);
 
@@ -277,14 +279,17 @@ public class BrowseScreen extends AbstractHomeScreen {
 
                 SearchCosmeticsDto dto = new SearchCosmeticsDto();
                 //dto.set
-                dto.setName(query);
-                dto.setTypes(new ArrayList<>(filter));
+                dto.setQuery(query);
+                dto.setAttachments(new ArrayList<>(filter));
+                dto.setSortBy(sort.dtoEnumValue);
+                dto.setPageSize(BigDecimal.valueOf(20L));
+                dto.setPage(BigDecimal.valueOf(1)); // TODO paging
 
                 // Send Search
                 CosmeticaAPI.search().requestAsync(api -> api.searchCosmetics(dto))
                         .thenAcceptAsync(cosmetics -> {
                             ArrayList next = new ArrayList();
-                            CosmeticEntry.populateBrowseList(next, cosmetics, outfit, (image, envelope, submit) -> {
+                            CosmeticEntry.populateBrowseList(next, cosmetics.getResults(), outfit, (image, envelope, submit) -> {
                                 BrowseScreen.this.configuring.set(Optional.of(new SelectedCosmeticTriple(image, envelope, submit)));
                             });
                             this.pageResults.set(next);
