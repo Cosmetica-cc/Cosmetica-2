@@ -51,7 +51,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
-import static cc.cosmetica.kupe.api.gui.Div.ALIGN_ITEMS;
+import static cc.cosmetica.kupe.api.gui.Div.*;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 /**
@@ -68,6 +68,8 @@ public class BrowseScreen extends AbstractHomeScreen {
     private final State<String> debouncedSearchQuery = new State<>("");
     private final State<Menu> menu = new State<>(Menu.NONE);
     private final State<Sort> sort = new State<>(Sort.NEWEST);
+    private final State<Integer> page = new State<>(1);
+    private final State<Integer> pageCap = new State<>(1);
     private final State<Set<SearchCosmeticsDto.AttachmentsEnum>> filter = new State<>(new HashSet<>());
 
     /**
@@ -266,6 +268,7 @@ public class BrowseScreen extends AbstractHomeScreen {
             String query = BrowseScreen.this.debouncedSearchQuery.acquire(this);
             Sort sort = BrowseScreen.this.sort.acquire(this);
             Set<SearchCosmeticsDto.AttachmentsEnum> filter = BrowseScreen.this.filter.acquire(this);
+            int page = BrowseScreen.this.page.acquire(this);
 
             @Nullable Cosmetics outfit = Cosmetica.OWN_COSMETICS.acquire(this);
 
@@ -283,7 +286,7 @@ public class BrowseScreen extends AbstractHomeScreen {
                 dto.setAttachments(new ArrayList<>(filter));
                 dto.setSortBy(sort.dtoEnumValue);
                 dto.setPageSize(BigDecimal.valueOf(20L));
-                dto.setPage(BigDecimal.valueOf(1)); // TODO paging
+                dto.setPage(BigDecimal.valueOf(page)); // TODO paging
 
                 // Send Search
                 CosmeticaAPI.search().requestAsync(api -> api.searchCosmetics(dto))
@@ -293,6 +296,7 @@ public class BrowseScreen extends AbstractHomeScreen {
                                 BrowseScreen.this.configuring.set(Optional.of(new SelectedCosmeticTriple(image, envelope, submit)));
                             });
                             this.pageResults.set(next);
+                            BrowseScreen.this.pageCap.set(cosmetics.getEstimatedPages().intValue());
                             BrowseScreen.this.selected.set(null);
                         }, Minecraft.getInstance())
                         .exceptionally(ex -> {
@@ -304,15 +308,42 @@ public class BrowseScreen extends AbstractHomeScreen {
 
             // Layout
             return ImmutableList.of(
-                    new EntryList.DynamicDiv(this.pageResults, BrowseScreen.this.selected::acquire)
+                    new Div(
+                            new EntryList.DynamicDiv(this.pageResults, BrowseScreen.this.selected::acquire),
+                            new Div() { // todo replace anonymous div with DynamicLabel when added/possible
+                                @Override
+                                public List<Component> build() {
+                                    int page = BrowseScreen.this.page.acquire(this);
+                                    int pageCap = BrowseScreen.this.pageCap.acquire(this);
+                                    return ImmutableList.of(
+                                            new IconButton(new ResourceKey("cosmetica", "textures/page-left.png"), () -> {}).tag("page-button"),
+                                            new Label(Text.literal(page + " / " + pageCap)),
+                                            new IconButton(new ResourceKey("cosmetica", "textures/page-right.png"), () -> {}).tag("page-button")
+                                    );
+                                }
+                            }.tag("page-turner")
+                    ).tag("results-wrapper")
             );
         }
 
         @Override
         public Stylesheet getStylesheet() {
             return new Stylesheet()
+                    .tag("results-wrapper", Style.create()
+                            .set(HEIGHT, screen(0, 70))
+                            .set(JUSTIFY_CONTENT, Justify.SPACE_BETWEEN)
+                            .set(WIDTH, fixedSize(250)))
+                    .tag("page-turner", Style.create()
+                            .set(HEIGHT, fixedSize(12))
+                            .set(FLOW_DIRECTION, Axis2D.POSITIVE_X)
+                            .set(JUSTIFY_CONTENT, Justify.SPACE_BETWEEN)
+                            .set(MARGINS, fixed(new Margins(0, 12, 0, 0)))
+                            .set(WIDTH, percent(100, 0)))
+                    .tag("page-button", Style.create()
+                            .set(WIDTH, fixedSize(30)))
                     .component(EntryList.DynamicDiv.class, Style.create()
-                            .set(HEIGHT, screen(0, 70)));
+                            .set(WIDTH, fixedSize(250))
+                            .set(HEIGHT, (vw, vh, rw, rh) -> OptionalInt.of((int) (rh - 13))));
         }
     }
 
