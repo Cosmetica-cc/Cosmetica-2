@@ -260,69 +260,79 @@ public class BrowseScreen extends AbstractHomeScreen {
      */
     private class Results extends Component {
         private final State<List<Component>> pageResults = new State<>(Collections.emptyList());
-        private volatile int state = 0;
+        private volatile int searchId = 0;
 
         @Override
         public List<Component> build() {
             // Acquire states
-            String query = BrowseScreen.this.debouncedSearchQuery.acquire(this);
-            Sort sort = BrowseScreen.this.sort.acquire(this);
-            Set<SearchCosmeticsDto.AttachmentsEnum> filter = BrowseScreen.this.filter.acquire(this);
-            int page = BrowseScreen.this.page.acquire(this);
-
-            @Nullable Cosmetics outfit = Cosmetica.OWN_COSMETICS.acquire(this);
-
-            // ! Can be removed on website whilst this screen is open
-            if (outfit == null) {
-                Screens.closeCurrentScreen();
-            } else {
-                // Build Search
-                final int nextState = this.state + 1;
-                this.state = nextState;
-
-                SearchCosmeticsDto dto = new SearchCosmeticsDto();
-                //dto.set
-                dto.setQuery(query);
-                dto.setAttachments(new ArrayList<>(filter));
-                dto.setSortBy(sort.dtoEnumValue);
-                dto.setPageSize(BigDecimal.valueOf(20L));
-                dto.setPage(BigDecimal.valueOf(page)); // TODO paging
-
-                // Send Search
-                CosmeticaAPI.search().requestAsync(api -> api.searchCosmetics(dto))
-                        .thenAcceptAsync(cosmetics -> {
-                            ArrayList next = new ArrayList();
-                            CosmeticEntry.populateBrowseList(next, cosmetics.getResults(), outfit, (image, envelope, submit) -> {
-                                BrowseScreen.this.configuring.set(Optional.of(new SelectedCosmeticTriple(image, envelope, submit)));
-                            });
-                            this.pageResults.set(next);
-                            BrowseScreen.this.pageCap.set(cosmetics.getEstimatedPages().intValue());
-                            BrowseScreen.this.selected.set(null);
-                        }, Minecraft.getInstance())
-                        .exceptionally(ex -> {
-                            Logging.getInstance().error("Error performing search for " + query, ex);
-                            // TODO show error visually
-                            return null;
-                        });
-            }
+            final String query = BrowseScreen.this.debouncedSearchQuery.acquire(this);
+            final Sort sort = BrowseScreen.this.sort.acquire(this);
+            final Set<SearchCosmeticsDto.AttachmentsEnum> filter = BrowseScreen.this.filter.acquire(this);
+            // reset page when query/sort/filter changes
+            BrowseScreen.this.page.set(1);
 
             // Layout
             return ImmutableList.of(
-                    new Div(
-                            new EntryList.DynamicDiv(this.pageResults, BrowseScreen.this.selected::acquire),
-                            new Div() { // todo replace anonymous div with DynamicLabel when added/possible
-                                @Override
-                                public List<Component> build() {
-                                    int page = BrowseScreen.this.page.acquire(this);
-                                    int pageCap = BrowseScreen.this.pageCap.acquire(this);
-                                    return ImmutableList.of(
-                                            new IconButton(new ResourceKey("cosmetica", "textures/page-left.png"), () -> {}).tag("page-button"),
-                                            new Label(Text.literal(page + " / " + pageCap)),
-                                            new IconButton(new ResourceKey("cosmetica", "textures/page-right.png"), () -> {}).tag("page-button")
-                                    );
-                                }
-                            }.tag("page-turner")
-                    ).tag("results-wrapper")
+                    new Div() {
+                        @Override
+                        public List<Component> build() {
+                            int page = BrowseScreen.this.page.acquire(this);
+
+                            @Nullable Cosmetics outfit = Cosmetica.OWN_COSMETICS.acquire(this);
+
+                            // ! Can be removed on website whilst this screen is open
+                            if (outfit == null) {
+                                Screens.closeCurrentScreen();
+                            } else {
+                                // Build Search
+                                final int nextId = Results.this.searchId + 1;
+                                Results.this.searchId = nextId;
+
+                                SearchCosmeticsDto dto = new SearchCosmeticsDto();
+                                //dto.set
+                                dto.setQuery(query);
+                                dto.setAttachments(new ArrayList<>(filter));
+                                dto.setSortBy(sort.dtoEnumValue);
+                                dto.setPageSize(BigDecimal.valueOf(20L));
+                                dto.setPage(BigDecimal.valueOf(page)); // TODO paging
+
+                                // Send Search
+                                CosmeticaAPI.search().requestAsync(api -> api.searchCosmetics(dto))
+                                        .thenAcceptAsync(cosmetics -> {
+                                            ArrayList next = new ArrayList();
+                                            CosmeticEntry.populateBrowseList(next, cosmetics.getResults(), outfit, (image, envelope, submit) -> {
+                                                BrowseScreen.this.configuring.set(Optional.of(new SelectedCosmeticTriple(image, envelope, submit)));
+                                            });
+                                            if (nextId == searchId) Results.this.pageResults.set(next);
+                                            BrowseScreen.this.pageCap.set(cosmetics.getEstimatedPages().intValue());
+                                            BrowseScreen.this.selected.set(null);
+                                        }, Minecraft.getInstance())
+                                        .exceptionally(ex -> {
+                                            Logging.getInstance().error("Error performing search for " + query, ex);
+                                            // TODO show error visually
+                                            return null;
+                                        });
+                            }
+
+                            return ImmutableList.of(
+                                    new EntryList.DynamicDiv(Results.this.pageResults, BrowseScreen.this.selected::acquire),
+                                    new Div() { // todo replace anonymous div with DynamicLabel when added/possible
+                                        @Override
+                                        public List<Component> build() {
+                                            int page = BrowseScreen.this.page.acquire(this);
+                                            int pageCap = BrowseScreen.this.pageCap.acquire(this);
+                                            return ImmutableList.of(
+                                                    new IconButton(new ResourceKey("cosmetica", "textures/page-left.png"), () -> { int p = BrowseScreen.this.page.peek(); if (p > 1) BrowseScreen.this.page.set(BrowseScreen.this.page.peek() - 1); })
+                                                            .setDisabled(page <= 1).tag("page-button"),
+                                                    new Label(Text.literal(page + " / " + pageCap)),
+                                                    new IconButton(new ResourceKey("cosmetica", "textures/page-right.png"), () -> { int p = BrowseScreen.this.page.peek(); if (p < BrowseScreen.this.pageCap.peek()) BrowseScreen.this.page.set(p + 1); })
+                                                            .setDisabled(page >= pageCap).tag("page-button")
+                                            );
+                                        }
+                                    }.tag("page-turner")
+                            );
+                        }
+                    }.tag("results-wrapper")
             );
         }
 
@@ -337,13 +347,13 @@ public class BrowseScreen extends AbstractHomeScreen {
                             .set(HEIGHT, fixedSize(12))
                             .set(FLOW_DIRECTION, Axis2D.POSITIVE_X)
                             .set(JUSTIFY_CONTENT, Justify.SPACE_BETWEEN)
-                            .set(MARGINS, fixed(new Margins(0, 12, 0, 0)))
+                            .set(MARGINS, fixed(new Margins(0, 6, 0, 0)))
                             .set(WIDTH, percent(100, 0)))
                     .tag("page-button", Style.create()
                             .set(WIDTH, fixedSize(30)))
                     .component(EntryList.DynamicDiv.class, Style.create()
                             .set(WIDTH, fixedSize(250))
-                            .set(HEIGHT, (vw, vh, rw, rh) -> OptionalInt.of((int) (rh - 13))));
+                            .set(HEIGHT, (vw, vh, rw, rh) -> OptionalInt.of(rh - 13)));
         }
     }
 
