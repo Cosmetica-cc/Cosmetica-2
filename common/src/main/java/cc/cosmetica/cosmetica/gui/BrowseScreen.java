@@ -64,11 +64,10 @@ public class BrowseScreen extends AbstractHomeScreen {
         super.lockActions = true;
     }
 
-    private final State<String> searchQuery = new State<>("");
-    private final State<String> debouncedSearchQuery = new State<>("");
+    private final DebounceState<String> query = new DebounceState<>("", 600);
     private final State<Menu> menu = new State<>(Menu.NONE);
     private final State<Sort> sort = new State<>(Sort.NEWEST);
-    private final State<Integer> page = new State<>(1);
+    private final DebounceState<Integer> page = new DebounceState<>(1, 400);
     private final State<Integer> pageCap = new State<>(1);
     private final State<Set<SearchCosmeticsDto.AttachmentsEnum>> filter = new State<>(new HashSet<>());
 
@@ -125,64 +124,9 @@ public class BrowseScreen extends AbstractHomeScreen {
                         new Div( // top 'head'
                                 new TextBox(
                                         Text.translatable("label.browse.search"), // todo better format for translation strings?
-                                        this.searchQuery,
+                                        this.query,
                                         true,
-                                        32) {
-
-                                    private static final long DEBOUNCE_TIME = 600;
-                                    private long time = System.currentTimeMillis() - DEBOUNCE_TIME;
-
-                                    @Override
-                                    public boolean charTyped(char symbol, int modifiers) {
-                                        String queryBefore = BrowseScreen.this.searchQuery.peek();
-                                        boolean result = super.charTyped(symbol, modifiers);
-
-                                        if (!BrowseScreen.this.searchQuery.peek().equals(queryBefore)) {
-                                            this.updateDebounceQuery();
-                                        }
-
-                                        return result;
-                                    }
-
-                                    @Override
-                                    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-                                        String queryBefore = BrowseScreen.this.searchQuery.peek();
-                                        boolean result = super.keyPressed(keyCode, scanCode, modifiers);
-
-                                        if (!BrowseScreen.this.searchQuery.peek().equals(queryBefore)) {
-                                            this.updateDebounceQuery();
-                                        }
-
-                                        return result;
-                                    }
-
-                                    private void updateDebounceQuery() {
-                                        // debounce queries to every 600ms
-                                        long theTime = System.currentTimeMillis();
-
-                                        if (theTime - this.time > DEBOUNCE_TIME) {
-                                            BrowseScreen.this.debouncedSearchQuery.set(BrowseScreen.this.searchQuery.peek());
-                                            this.time = theTime;
-                                        } else {
-                                            CompletableFuture.runAsync(() -> {
-                                                try {
-                                                    Thread.sleep(DEBOUNCE_TIME);
-                                                } catch (InterruptedException e) {
-                                                    throw new RuntimeException(e);
-                                                }
-
-                                                Minecraft.getInstance().execute(() -> {
-                                                    // still same latest query
-                                                    long currentTime = System.currentTimeMillis();
-                                                    if (currentTime > this.time) {
-                                                        BrowseScreen.this.debouncedSearchQuery.set(BrowseScreen.this.searchQuery.peek());
-                                                        this.time = currentTime;
-                                                    }
-                                                });
-                                            });
-                                        }
-                                    }
-                                }.onEnter(BrowseScreen.this.debouncedSearchQuery::set).tag("searchbar"),
+                                        32).onEnter(BrowseScreen.this.query::setNow).tag("searchbar"),
                                 new IconButton(new ResourceKey("cosmetica", "textures/filter.png"), ()-> this.open(Menu.FILTER)).tag("btn-search-adjust"),  // filter
                                 new IconButton(new ResourceKey("cosmetica", "textures/sort.png"), ()-> this.open(Menu.SORT)).tag("btn-search-adjust") // sort
                         ).withStyle(Style.create()
@@ -265,11 +209,11 @@ public class BrowseScreen extends AbstractHomeScreen {
         @Override
         public List<Component> build() {
             // Acquire states
-            final String query = BrowseScreen.this.debouncedSearchQuery.acquire(this);
+            final String query = BrowseScreen.this.query.acquire(this);
             final Sort sort = BrowseScreen.this.sort.acquire(this);
             final Set<SearchCosmeticsDto.AttachmentsEnum> filter = BrowseScreen.this.filter.acquire(this);
             // reset page when query/sort/filter changes
-            BrowseScreen.this.page.set(1);
+            BrowseScreen.this.page.setNow(1);
 
             // Layout
             return ImmutableList.of(
@@ -319,7 +263,7 @@ public class BrowseScreen extends AbstractHomeScreen {
                                     new Div() { // todo replace anonymous div with DynamicLabel when added/possible
                                         @Override
                                         public List<Component> build() {
-                                            int page = BrowseScreen.this.page.acquire(this);
+                                            int page = BrowseScreen.this.page.acquireInstant(this);
                                             int pageCap = BrowseScreen.this.pageCap.acquire(this);
                                             return ImmutableList.of(
                                                     new IconButton(new ResourceKey("cosmetica", "textures/page-left.png"), () -> { int p = BrowseScreen.this.page.peek(); if (p > 1) BrowseScreen.this.page.set(BrowseScreen.this.page.peek() - 1); })
