@@ -266,10 +266,10 @@ public class BrowseScreen extends AbstractHomeScreen {
                                             int page = BrowseScreen.this.page.acquireInstant(this);
                                             int pageCap = BrowseScreen.this.pageCap.acquire(this);
                                             return ImmutableList.of(
-                                                    new IconButton(new ResourceKey("cosmetica", "textures/page-left.png"), () -> { int p = BrowseScreen.this.page.peek(); if (p > 1) BrowseScreen.this.page.set(BrowseScreen.this.page.peek() - 1); })
+                                                    new IconButton(new ResourceKey("cosmetica", page <= 1 ? "textures/page-left-disabled.png" : "textures/page-left.png"), () -> { int p = BrowseScreen.this.page.peek(); if (p > 1) BrowseScreen.this.page.set(BrowseScreen.this.page.peek() - 1); })
                                                             .setDisabled(page <= 1).tag("page-button"),
                                                     new Label(Text.literal(page + " / " + pageCap)),
-                                                    new IconButton(new ResourceKey("cosmetica", "textures/page-right.png"), () -> { int p = BrowseScreen.this.page.peek(); if (p < BrowseScreen.this.pageCap.peek()) BrowseScreen.this.page.set(p + 1); })
+                                                    new IconButton(new ResourceKey("cosmetica", page >= pageCap ? "textures/page-right-disabled.png" : "textures/page-right.png"), () -> { int p = BrowseScreen.this.page.peek(); if (p < BrowseScreen.this.pageCap.peek()) BrowseScreen.this.page.set(p + 1); })
                                                             .setDisabled(page >= pageCap).tag("page-button")
                                             );
                                         }
