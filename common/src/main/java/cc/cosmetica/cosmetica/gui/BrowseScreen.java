@@ -209,22 +209,26 @@ public class BrowseScreen extends AbstractHomeScreen {
                     }
                 }.withStyle(Style.create().set(Z_INDEX, 10)),
                 new Div( // container of all the browse area
-                        new Div( // top 'head'
-                                new TextBox(
-                                        Text.translatable("label.browse.search"), // todo better format for translation strings?
-                                        this.query,
-                                        true,
-                                        32).onEnter(BrowseScreen.this.query::setNow).tag("searchbar"),
-                                new IconButton(new ResourceKey("cosmetica", "textures/filter.png"), ()-> this.open(Menu.FILTER)).tag("btn-search-adjust"),  // filter
-                                new IconButton(new ResourceKey("cosmetica", "textures/sort.png"), ()-> this.open(Menu.SORT)).tag("btn-search-adjust") // sort
-                        ).withStyle(Style.create()
-                                .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
-                                .set(Div.JUSTIFY_CONTENT, Justify.SPACE_BETWEEN)),
+                        // -- global header moved to Results only
                         new LayeredSpace( // container for what can appear in search contents
                                 true,
-                                new Results(),
+                                new Div(
+                                        new Div( // top 'head'
+                                                new TextBox(
+                                                        Text.translatable("label.browse.search"), // todo better format for translation strings?
+                                                        this.query,
+                                                        true,
+                                                        32).onEnter(BrowseScreen.this.query::setNow).tag("searchbar"),
+                                                new IconButton(new ResourceKey("cosmetica", "textures/filter.png"), ()-> this.open(Menu.FILTER)).tag("btn-search-adjust"),  // filter
+                                                new IconButton(new ResourceKey("cosmetica", "textures/sort.png"), ()-> this.open(Menu.SORT)).tag("btn-search-adjust") // sort
+                                        ).withStyle(Style.create()
+                                                .set(WIDTH, percent(100, 0))
+                                                .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
+                                                .set(Div.JUSTIFY_CONTENT, Justify.SPACE_BETWEEN)),
+                                        new Results().tag("results")
+                                ),
                                 new ConfigureCosmetic()
-                        ).tag("results")
+                        ).tag("results-wrapper")
                 ).withStyle(Style.create()
                         .set(WIDTH, fixedSize(250))
                         .set(ALIGN_ITEMS, Align.STRETCH_START))
@@ -252,6 +256,8 @@ public class BrowseScreen extends AbstractHomeScreen {
     @Override
     public @NotNull Stylesheet getStylesheet() {
         return super.getStylesheet()
+                .tag("results-wrapper", Style.create()
+                        .set(HEIGHT, percent(0, 100)))
                 .tag("results", Style.create()
                         .set(MARGINS, fixed(new Margins(10, 0, 0, 0)))
                         .set(HEIGHT, (vw, vh, pw, ph) -> OptionalInt.of(ph - 22)))
@@ -380,14 +386,14 @@ public class BrowseScreen extends AbstractHomeScreen {
                                     }.tag("page-turner")
                             );
                         }
-                    }.tag("results-wrapper")
+                    }.tag("results-container")
             );
         }
 
         @Override
         public Stylesheet getStylesheet() {
             return new Stylesheet()
-                    .tag("results-wrapper", Style.create()
+                    .tag("results-container", Style.create()
                             .set(HEIGHT, screen(0, 70))
                             .set(JUSTIFY_CONTENT, Justify.SPACE_BETWEEN)
                             .set(WIDTH, fixedSize(250)))
