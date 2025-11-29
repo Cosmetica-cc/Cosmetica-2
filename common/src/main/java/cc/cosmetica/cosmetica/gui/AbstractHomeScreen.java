@@ -77,7 +77,7 @@ public abstract class AbstractHomeScreen extends Screen implements AnimatedTextu
         };
     }
 
-    protected MenuEndSelection createMenuEndSelection() {
+    protected Component createMenuEndSelection() {
         return new MenuEndSelection();
     }
 

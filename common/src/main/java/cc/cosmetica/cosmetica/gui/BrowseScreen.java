@@ -85,7 +85,7 @@ public class BrowseScreen extends AbstractHomeScreen {
 
 
     @Override
-    protected MenuEndSelection createMenuEndSelection() {
+    protected Component createMenuEndSelection() {
         return new MenuEndSelection() {
             @Override
             public List<Component> build() {
