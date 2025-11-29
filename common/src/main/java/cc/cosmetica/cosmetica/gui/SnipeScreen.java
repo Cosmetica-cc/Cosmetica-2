@@ -23,7 +23,7 @@ import cc.cosmetica.core.api.ImageCosmetic;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.StateHolder;
-import cc.cosmetica.cosmetica.gui.player.AccessoryAttachment;
+import cc.cosmetica.cosmetica.gui.player.AccessoriesAttachment;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticsList;
 import cc.cosmetica.cosmetica.gui.widget.RotatableGUIPlayer;
@@ -84,7 +84,7 @@ public class SnipeScreen extends Screen implements AnimatedTextureScreen {
         GUIPlayer guiPlayer = new RotatableGUIPlayer(player, this.showingElytra);
         if (playerUUID == null) {
             // specify outfit cosmetics to show
-            guiPlayer.configureOverride(AccessoryAttachment.INSTANCE, outfit.getAccessories());
+            guiPlayer.configureOverride(AccessoriesAttachment.INSTANCE, outfit.getAccessories());
         }
         guiPlayer.configureOverride(GUIPlayer.CAPE, outfit.getCloak().map(ImageCosmetic::getImage).map(ci -> ci.location).orElse(null));
 

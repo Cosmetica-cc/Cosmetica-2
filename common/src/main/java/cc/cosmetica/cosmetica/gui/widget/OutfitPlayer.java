@@ -27,11 +27,13 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.SkinCustomizationScreen;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.UUID;
+import java.util.function.UnaryOperator;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.WIDTH;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.fixed;
@@ -51,10 +53,17 @@ public class OutfitPlayer extends Component {
 	private final NametagConfig lore;
 	private final NametagConfig nametag;
 	private final State<Boolean> showingElytra = new State<>(false);
+
 	private boolean disable = false;
+	private UnaryOperator<GUIPlayer> overrides = gp -> gp;
 
 	public OutfitPlayer setDisabled(boolean disabled) {
 		this.disable = disabled;
+		return this;
+	}
+
+	public OutfitPlayer configureOverrides(UnaryOperator<GUIPlayer> overrides) {
+		this.overrides = overrides;
 		return this;
 	}
 
@@ -62,10 +71,12 @@ public class OutfitPlayer extends Component {
 	public List<Component> build() {
 		return Arrays.asList(
 				new Div(
-					new RotatableGUIPlayer(player, this.showingElytra)
-							.icon(nametag.getIcon().getImage().isLoaded() ? nametag.getIcon().getImage() : null)
-							.loreIcon(lore.getIcon().getImage().isLoaded() ? lore.getIcon().getImage() : null)
-							.showNametag(true).addNametag(Text.literal(this.lore.getPrefix()), 0.75f).withStyle(Style.create().set(WIDTH, fixed(OptionalInt.of(50)))),
+					this.overrides.apply(
+							new RotatableGUIPlayer(player, this.showingElytra)
+									.icon(nametag.getIcon().getImage().isLoaded() ? nametag.getIcon().getImage() : null)
+									.loreIcon(lore.getIcon().getImage().isLoaded() ? lore.getIcon().getImage() : null)
+									.showNametag(true).addNametag(Text.literal(this.lore.getPrefix()), 0.75f)
+					).withStyle(Style.create().set(WIDTH, fixed(OptionalInt.of(50)))),
 					new Label(Text.literal(this.outfitName)),
 					new SlideToggle(
 							this.showingElytra,

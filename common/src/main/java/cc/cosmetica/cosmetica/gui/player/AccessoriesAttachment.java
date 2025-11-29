@@ -36,8 +36,8 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Collection;
 import java.util.UUID;
 
-public class AccessoryAttachment implements GUIPlayer.Attachment<Collection<Accessory>> {
-    private AccessoryAttachment() {
+public class AccessoriesAttachment implements GUIPlayer.Attachment<Collection<Accessory>> {
+    private AccessoriesAttachment() {
     }
 
     @Override
@@ -130,5 +130,5 @@ public class AccessoryAttachment implements GUIPlayer.Attachment<Collection<Acce
     /**
      * Global instance of Accessory Attachment.
      */
-    public static final AccessoryAttachment INSTANCE = new AccessoryAttachment();
+    public static final AccessoriesAttachment INSTANCE = new AccessoriesAttachment();
 }

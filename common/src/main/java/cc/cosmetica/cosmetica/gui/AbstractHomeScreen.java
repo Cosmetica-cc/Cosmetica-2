@@ -47,8 +47,6 @@ public abstract class AbstractHomeScreen extends Screen implements AnimatedTextu
         super(id);
     }
 
-    protected boolean lockActions;
-
     @Override
     protected Component[] buildScreen() {
         UUID self = Minecraft.getInstance().getUser().getGameProfile().getId();
@@ -59,12 +57,7 @@ public abstract class AbstractHomeScreen extends Screen implements AnimatedTextu
         return new Component[] {
                 new Div(
                         new LayeredSpace(true,
-                                new OutfitPlayer(self,
-                                        authenticated,
-                                        Optional.ofNullable(cosmetics).flatMap(Cosmetics::getOutfitName).orElse("§7No Outfit"),
-                                        Optional.ofNullable(cosmetics).flatMap(Cosmetics::getLore).orElse(NametagConfig.EMPTY),
-                                        Optional.ofNullable(cosmetics).map(Cosmetics::getNametag).orElse(NametagConfig.EMPTY))
-                                        .setDisabled(this.lockActions),
+                                this.createOutfitPlayer(self, authenticated, cosmetics),
                                 new Div(
                                         new IconButton(
                                                 new ResourceKey("cosmetica", "textures/gear.png"),
@@ -82,6 +75,14 @@ public abstract class AbstractHomeScreen extends Screen implements AnimatedTextu
                 ).tag("main-content"),
                 new MenuEndSelection()
         };
+    }
+
+    protected Component createOutfitPlayer(UUID self, boolean authenticated, Cosmetics cosmetics) {
+        return new OutfitPlayer(self,
+                authenticated,
+                Optional.ofNullable(cosmetics).flatMap(Cosmetics::getOutfitName).orElse("§7No Outfit"),
+                Optional.ofNullable(cosmetics).flatMap(Cosmetics::getLore).orElse(NametagConfig.EMPTY),
+                Optional.ofNullable(cosmetics).map(Cosmetics::getNametag).orElse(NametagConfig.EMPTY));
     }
 
     /**

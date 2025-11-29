@@ -20,7 +20,7 @@ import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.api.texture.CosmeticaTexture;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.gui.*;
-import cc.cosmetica.cosmetica.gui.player.AccessoryAttachment;
+import cc.cosmetica.cosmetica.gui.player.AccessoriesAttachment;
 import cc.cosmetica.cosmetica.util.Lore;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.State;
@@ -63,7 +63,7 @@ public class Cosmetica {
 		Screens.setAllowDebug(true);
 
 		// register gui accessory attachment
-		GUIPlayer.registerAttachment(AccessoryAttachment.INSTANCE);
+		GUIPlayer.registerAttachment(AccessoriesAttachment.INSTANCE);
 
 		// cosmetic states
 		Cosmetics.registerCosmeticsChangeCallback((le, cosmetics) -> {

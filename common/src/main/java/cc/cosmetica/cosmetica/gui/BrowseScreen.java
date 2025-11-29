@@ -16,14 +16,13 @@
 
 package cc.cosmetica.cosmetica.gui;
 
-import cc.cosmetica.core.api.Accessory;
-import cc.cosmetica.core.api.CosmeticaAPI;
-import cc.cosmetica.core.api.Cosmetics;
+import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.cosmeticconfig.AccessoryOptions;
 import cc.cosmetica.cosmetica.gui.cosmeticconfig.CapeOptions;
 import cc.cosmetica.cosmetica.gui.cosmeticconfig.CosmeticOptions;
+import cc.cosmetica.cosmetica.gui.player.AccessoriesAttachment;
 import cc.cosmetica.cosmetica.gui.widget.*;
 import cc.cosmetica.cosmetica.util.EquipUtil;
 import cc.cosmetica.kupe.api.ResourceKey;
@@ -35,6 +34,8 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
+import cc.cosmetica.kupe.api.maths.Vec3;
+import cc.cosmetica.kupe.impl.fakeplayer.CapeAttachment;
 import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.model.CreateOutfitAccessoryDto;
 import gg.cloaks.javaclient.model.CreateOutfitDto;
@@ -43,6 +44,7 @@ import gg.cloaks.javaclient.model.SearchCosmeticsDto;
 import gg.cloaks.javaclient.model.SearchCosmeticsDto.AttachmentsEnum;
 import net.minecraft.client.Minecraft;
 import org.apache.commons.lang3.tuple.MutableTriple;
+import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -61,7 +63,6 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 public class BrowseScreen extends AbstractHomeScreen {
     public BrowseScreen() {
         super(ID);
-        super.lockActions = true;
     }
 
     private final DebounceState<String> query = new DebounceState<>("", 600);
@@ -75,9 +76,59 @@ public class BrowseScreen extends AbstractHomeScreen {
      * The state for the item being configured before being equipped.
      */
     private final State<Optional<SelectedCosmeticTriple>> configuring = new State<>(Optional.empty());
+    private final State<@Nullable Cosmetic> configuringDownloaded = new State<>(null);
+    private final State<Triple<Vec3, Boolean, Boolean>> options = new State<>(Triple.of(Vec3.XP, false, false));
 
-    // TODO use in outfit player for preview (or similar)
+    // TODO could be used in outfit player for preview before configure?
     private final State<@Nullable CosmeticEntry> selected = new State<>(null);
+//    private GUIPlayer player;
+
+    @Override
+    protected Component createOutfitPlayer(UUID self, boolean authenticated, Cosmetics cosmetics) {
+        return new Component() {
+            @Override
+            public List<Component> build() {
+                // downloaded cosmetic should be cleared when triple cleared
+                Triple<Vec3, Boolean, Boolean> options = BrowseScreen.this.options.acquire(this);
+                @Nullable Cosmetic downloaded = BrowseScreen.this.configuringDownloaded.acquire(this);
+
+                return ImmutableList.of(
+                        ((OutfitPlayer)BrowseScreen.super.createOutfitPlayer(self, authenticated, cosmetics))
+                                .configureOverrides(guiPlayer -> {
+                                    // Could Squeeze extra performance by bypassing state system
+                                    // And modifying gui player directly
+//                                  BrowseScreen.this.player = guiPlayer;
+
+                                    if (downloaded != null) {
+                                        if (downloaded instanceof Accessory) {
+                                            List<Accessory> accessories = new ArrayList<>(cosmetics.getAccessories());
+                                            accessories.add((Accessory) downloaded);
+                                            // TODO options
+                                            guiPlayer.configureOverride(AccessoriesAttachment.INSTANCE, accessories);
+                                        } else if (downloaded instanceof ImageCosmetic) {
+                                            // assume cape for now, as it's the only ImageCosmetic in the search menu
+                                            // that exists as of this release of Cosmetica
+                                            if (options.getMiddle()) {
+                                                // cloak toggle
+                                                guiPlayer.configureOverride(GUIPlayer.CAPE, ((ImageCosmetic) downloaded).getImage().location);
+                                            }
+                                            if (options.getRight()) {
+                                                // elytra toggle
+                                                guiPlayer.configureOverride(GUIPlayer.ELYTRA, new GUIPlayer.ElytraProperties(
+                                                        ((ImageCosmetic) downloaded).getImage().location,
+                                                        false,
+                                                        true
+                                                ));
+                                            }
+                                        }
+                                    }
+                                    return guiPlayer;
+                                })
+                                .setDisabled(true)
+                );
+            }
+        };
+    }
 
     @Override
     protected @NotNull Component createRightMenu(Cosmetics cosmetics, boolean authenticated) {
@@ -156,6 +207,7 @@ public class BrowseScreen extends AbstractHomeScreen {
     public void unmount() {
         // Clear non-persistent state (user sub-action)
         this.configuring.set(Optional.empty());
+        this.configuringDownloaded.set(null);
         this.menu.set(Menu.NONE);
         // We keep search query, sort, and filters
     }
@@ -244,8 +296,23 @@ public class BrowseScreen extends AbstractHomeScreen {
                                 CosmeticaAPI.search().requestAsync(api -> api.searchCosmetics(dto))
                                         .thenAcceptAsync(cosmetics -> {
                                             ArrayList next = new ArrayList();
-                                            CosmeticEntry.populateBrowseList(next, cosmetics.getResults(), outfit, (image, envelope, submit) -> {
-                                                BrowseScreen.this.configuring.set(Optional.of(new SelectedCosmeticTriple(image, envelope, submit)));
+                                            CosmeticEntry.populateBrowseList(next, cosmetics.getResults(), outfit, (data, options, envelope, submit) -> {
+                                                BrowseScreen.this.configuring.set(Optional.of(new SelectedCosmeticTriple(data, options, submit)));
+                                                // Set up Preview
+                                                switch (envelope.getType()) {
+                                                case COSMETIC:
+                                                case TEXTURE_COSMETIC:
+                                                case UNKNOWN_DEFAULT_OPEN_API:
+                                                    break;
+                                                case ANIMATED_TEXTURE_COSMETIC:
+                                                    assert envelope.getAnimatedTextureCosmetic() != null; // guaranteed by API
+                                                    BrowseScreen.this.configuringDownloaded.set(ImageCosmetic.fromAPI(envelope.getAnimatedTextureCosmetic(), "cape"));
+                                                    break;
+                                                case ACCESSORY:
+                                                    assert envelope.getAccessory() != null; // guaranteed
+//                                                    BrowseScreen.this.configuringDownloaded.set(Accessory.fromOutfitAccessory());
+                                                    break;
+                                                }
                                             });
                                             if (nextId == searchId) Results.this.pageResults.set(next);
                                             BrowseScreen.this.pageCap.set(cosmetics.getEstimatedPages().intValue());
@@ -260,7 +327,7 @@ public class BrowseScreen extends AbstractHomeScreen {
 
                             return ImmutableList.of(
                                     new EntryList.DynamicDiv(Results.this.pageResults, BrowseScreen.this.selected::acquire),
-                                    new Div() { // todo replace anonymous div with DynamicLabel when added/possible
+                                    new Div() { // Page buttons and page label
                                         @Override
                                         public List<Component> build() {
                                             int page = BrowseScreen.this.page.acquireInstant(this);
@@ -319,7 +386,13 @@ public class BrowseScreen extends AbstractHomeScreen {
                 // lock for 'is setting'
                 State<Boolean> settingLock = new State<>(false);
 
-                return Arrays.asList(new Div() {
+                return Arrays.asList(
+                        DataForwarder.merge(
+                                BrowseScreen.this.options,
+                                xOffset, yOffset, zOffset,
+                                mirroredOrCloak,
+                                elytra),
+                        new Div() {
                     @Override
                     public List<Component> build() {
                         // need to have a reference to original outfit
@@ -426,6 +499,7 @@ public class BrowseScreen extends AbstractHomeScreen {
                                     .thenAcceptAsync(newOutfit -> {
                                         // Go back to search
                                         BrowseScreen.this.configuring.set(Optional.empty());
+                                        BrowseScreen.this.configuringDownloaded.set(null);
                                     }, Minecraft.getInstance())
                                     .exceptionally(Cosmetica.mainThreadExcept(ex -> {
                                         // Unlock
@@ -470,7 +544,10 @@ public class BrowseScreen extends AbstractHomeScreen {
                                     new Div().withStyle(Style.create().set(WIDTH, fixedSize(4))),
                                     // TODO consistency on whether cancel should be allowed?
                                     // Better: prevent equip button from other cosmetics being pressed until a response, with a more generic message
-                                    new Button(Text.GUI_CANCEL, () -> BrowseScreen.this.configuring.set(Optional.empty())).setDisabled(isSetting).tag("flex-1")
+                                    new Button(Text.GUI_CANCEL, () -> {
+                                        BrowseScreen.this.configuring.set(Optional.empty());
+                                        BrowseScreen.this.configuringDownloaded.set(null);
+                                    }).setDisabled(isSetting).tag("flex-1")
                                 ).withStyle(Style.create()
                                         .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X))
                         );

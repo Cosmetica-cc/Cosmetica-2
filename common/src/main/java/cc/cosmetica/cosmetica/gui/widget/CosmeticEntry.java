@@ -133,7 +133,7 @@ public class CosmeticEntry extends Component {
 						throw new IllegalArgumentException("Unknown type for " + this.name + " (" + this.id + "), cannot equip!");
                 }
 				// Give feedback
-				this.onEquipButton.accept(new CosmeticData(this.name, this.id, this.image), options, dto -> {
+				this.onEquipButton.accept(new CosmeticData(this.name, this.id, this.image), options, this.cosmetic, dto -> {
 					return CosmeticaAPI.outfits().requestAsync(api -> api.modify(this.parentOutfit.getOutfitId().orElseThrow(IllegalStateException::new), dto));
 				});
 			}).tag("button_add");
@@ -404,9 +404,10 @@ public class CosmeticEntry extends Component {
 		 * Called when the equip button for a cosmetic is called.
 		 * @param cosmetic basic data (thumbnail, id, and name) of the cosmetic being equipped.
 		 * @param options bounds for the customisation options of the cosmetic being equipped onto the outfit.
+		 * @param envelope the full cosmetic envelope of the cosmetic.
 		 * @param submit function to submit the equip request.
 		 */
-		void accept(CosmeticData cosmetic, CosmeticOptions options, Function<CreateOutfitDto, CompletableFuture<Outfit>> submit);
+		void accept(CosmeticData cosmetic, CosmeticOptions options, CosmeticEnvelope envelope, Function<CreateOutfitDto, CompletableFuture<Outfit>> submit);
 	}
 
 	/**
