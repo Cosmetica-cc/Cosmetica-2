@@ -17,6 +17,8 @@
 package cc.cosmetica.cosmetica.gui;
 
 import cc.cosmetica.core.api.*;
+import cc.cosmetica.core.api.Accessory;
+import cc.cosmetica.core.api.Cosmetic;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.cosmeticconfig.AccessoryOptions;
@@ -37,10 +39,8 @@ import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Vec3;
 import cc.cosmetica.kupe.impl.fakeplayer.CapeAttachment;
 import com.google.common.collect.ImmutableList;
-import gg.cloaks.javaclient.model.CreateOutfitAccessoryDto;
-import gg.cloaks.javaclient.model.CreateOutfitDto;
-import gg.cloaks.javaclient.model.Outfit;
-import gg.cloaks.javaclient.model.SearchCosmeticsDto;
+import gg.cloaks.javaclient.api.PremiumApi;
+import gg.cloaks.javaclient.model.*;
 import gg.cloaks.javaclient.model.SearchCosmeticsDto.AttachmentsEnum;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.repository.Pack;
@@ -64,7 +64,14 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 public class BrowseScreen extends AbstractHomeScreen {
     public BrowseScreen() {
         super(ID);
+
+        CosmeticaAPI.premiumApi().requestAsync(PremiumApi::getRestrictions)
+                .thenApply(PlanRestrictions::getMaxAccessories)
+                .thenApply(BigDecimal::intValue)
+                .thenAcceptAsync(this.accessoryLimit::set, Minecraft.getInstance());
     }
+
+    private final State<Integer> accessoryLimit = new State<>(0);
 
     private final DebounceState<String> query = new DebounceState<>("", 600);
     private final State<Menu> menu = new State<>(Menu.NONE);
@@ -337,7 +344,7 @@ public class BrowseScreen extends AbstractHomeScreen {
                                 dto.setAttachments(new ArrayList<>(filter));
                                 dto.setSortBy(sort.dtoEnumValue);
                                 dto.setPageSize(BigDecimal.valueOf(20L));
-                                dto.setPage(BigDecimal.valueOf(page)); // TODO paging
+                                dto.setPage(BigDecimal.valueOf(page));
 
                                 // Send Search
                                 CosmeticaAPI.search().requestAsync(api -> api.searchCosmetics(dto))
@@ -556,6 +563,7 @@ public class BrowseScreen extends AbstractHomeScreen {
                         });
 
                         boolean isSetting = settingLock.acquire(this);
+                        int accessoryLimit = BrowseScreen.this.accessoryLimit.acquire(this);
 
                         // Handle this rare case!
                         // Should be closed next frame by Results anyway.
@@ -568,19 +576,27 @@ public class BrowseScreen extends AbstractHomeScreen {
                                             Text.translatable("tooltip.cosmetica.equipping")
                                     ))));
                         }
-                        // TODO check max outfits
-                        // check outfit duplicates
                         else if (options instanceof AccessoryOptions) {
-                            for (Accessory existingAccessory : outfit.getAccessories()) {
-                                if (existingAccessory.getId().equals(triple.getLeft().getId())) {
-                                    if (existingAccessory.isMirrored() == mirrored) {
-                                        submitButton.setDisabled(true);
-                                        submitButton.withStyle(Style.create()
-                                                .set(TOOLTIP, Optional.of(new Tooltip(
-                                                        mirrored ?
-                                                                Text.translatable("tooltip.cosmetica.alreadyEquippedAccessoryMirrored") :
-                                                                Text.translatable("tooltip.cosmetica.alreadyEquippedAccessory")
-                                                ))));
+                            // check max outfits
+                            if (outfit.getAccessories().size() >= accessoryLimit) {
+                                submitButton.setDisabled(true);
+                                submitButton.withStyle(Style.create()
+                                        .set(TOOLTIP, Optional.of(new Tooltip(
+                                                Text.translatable("tooltip.cosmetica.accessoryLimitReached", String.valueOf(outfit.getAccessories().size()), String.valueOf(accessoryLimit))
+                                        ))));
+                            } else {
+                                // check outfit duplicates
+                                for (Accessory existingAccessory : outfit.getAccessories()) {
+                                    if (existingAccessory.getId().equals(triple.getLeft().getId())) {
+                                        if (existingAccessory.isMirrored() == mirrored) {
+                                            submitButton.setDisabled(true);
+                                            submitButton.withStyle(Style.create()
+                                                    .set(TOOLTIP, Optional.of(new Tooltip(
+                                                            mirrored ?
+                                                                    Text.translatable("tooltip.cosmetica.alreadyEquippedAccessoryMirrored") :
+                                                                    Text.translatable("tooltip.cosmetica.alreadyEquippedAccessory")
+                                                    ))));
+                                        }
                                     }
                                 }
                             }
