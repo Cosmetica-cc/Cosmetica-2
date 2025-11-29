@@ -43,6 +43,7 @@ import gg.cloaks.javaclient.model.Outfit;
 import gg.cloaks.javaclient.model.SearchCosmeticsDto;
 import gg.cloaks.javaclient.model.SearchCosmeticsDto.AttachmentsEnum;
 import net.minecraft.client.Minecraft;
+import net.minecraft.server.packs.repository.Pack;
 import org.apache.commons.lang3.tuple.MutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
@@ -223,6 +224,8 @@ public class BrowseScreen extends AbstractHomeScreen {
                                                 new IconButton(new ResourceKey("cosmetica", "textures/sort.png"), ()-> this.open(Menu.SORT)).tag("btn-search-adjust") // sort
                                         ).withStyle(Style.create()
                                                 .set(WIDTH, percent(100, 0))
+                                                .set(MIN_HEIGHT, fixedSize(20))
+                                                .set(PADDING, fixed(new Margins(1, 1, 0, 1)))
                                                 .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
                                                 .set(Div.JUSTIFY_CONTENT, Justify.SPACE_BETWEEN)),
                                         new Results().tag("results")
@@ -259,9 +262,10 @@ public class BrowseScreen extends AbstractHomeScreen {
                 .tag("results-wrapper", Style.create()
                         .set(HEIGHT, percent(0, 100)))
                 .tag("results", Style.create()
-                        .set(MARGINS, fixed(new Margins(10, 0, 0, 0)))
+                        .set(MARGINS, fixed(new Margins(4, 0, 0, 0)))
                         .set(HEIGHT, (vw, vh, pw, ph) -> OptionalInt.of(ph - 22)))
                 .tag("btn-search-adjust", Style.create()
+                        .set(HEIGHT, fixedSize(20))
                         .set(WIDTH, fixedSize(20)))
                 .tag("searchbar", Style.create()
                         .set(WIDTH, (vw, vh, pw, ph) -> OptionalInt.of(pw - 22 * 2)));
