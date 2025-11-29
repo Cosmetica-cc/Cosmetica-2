@@ -90,6 +90,7 @@ public class BrowseScreen extends AbstractHomeScreen {
             public List<Component> build() {
                 // downloaded cosmetic should be cleared when triple cleared
                 Triple<Vec3, Boolean, Boolean> options = BrowseScreen.this.options.acquire(this);
+                Optional<SelectedCosmeticTriple> configuring = BrowseScreen.this.configuring.acquire(this);
                 @Nullable Cosmetic downloaded = BrowseScreen.this.configuringDownloaded.acquire(this);
 
                 return ImmutableList.of(
@@ -99,11 +100,24 @@ public class BrowseScreen extends AbstractHomeScreen {
                                     // And modifying gui player directly
 //                                  BrowseScreen.this.player = guiPlayer;
 
-                                    if (downloaded != null) {
+                                    if (downloaded != null && configuring.isPresent()) {
                                         if (downloaded instanceof Accessory) {
                                             List<Accessory> accessories = new ArrayList<>(cosmetics.getAccessories());
                                             accessories.add((Accessory) downloaded);
-                                            // TODO options
+                                            if (downloaded instanceof Accessory.Adjustable) {
+                                                Accessory.Adjustable newAccessory = (Accessory.Adjustable) downloaded;
+                                                AccessoryOptions ranges = (AccessoryOptions)configuring.get().getMiddle();
+                                                newAccessory.setOffset(
+                                                        newAccessory.getBaseOffset().add(
+                                                                ranges.getXRange().clampMap(options.getLeft().getX())/16.0,
+                                                                ranges.getYRange().clampMap(options.getLeft().getY())/16.0,
+                                                                ranges.getZRange().clampMap(options.getLeft().getZ())/16.0)
+                                                );
+                                                newAccessory.setMirrored(options.getMiddle());
+                                            } else {
+                                                // this shouldn't happen, but it's not worth crashing the game over
+                                                Logging.getInstance().warnOnce("browse-adjust", "Accessory in browse screen not adjustable. Adjustments will not appear in preview");
+                                            }
                                             guiPlayer.configureOverride(AccessoriesAttachment.INSTANCE, accessories);
                                         } else if (downloaded instanceof ImageCosmetic) {
                                             // assume cape for now, as it's the only ImageCosmetic in the search menu
@@ -310,7 +324,7 @@ public class BrowseScreen extends AbstractHomeScreen {
                                                     break;
                                                 case ACCESSORY:
                                                     assert envelope.getAccessory() != null; // guaranteed
-//                                                    BrowseScreen.this.configuringDownloaded.set(Accessory.fromOutfitAccessory());
+                                                    BrowseScreen.this.configuringDownloaded.set(Accessory.fromAccessory(envelope.getAccessory()));
                                                     break;
                                                 }
                                             });
