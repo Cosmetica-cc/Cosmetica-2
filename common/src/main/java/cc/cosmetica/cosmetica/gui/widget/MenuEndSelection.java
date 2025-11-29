@@ -26,9 +26,7 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
-import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,20 +37,21 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
  * A div containing the done and web panel buttons for the menu.
  */
 public class MenuEndSelection extends Div {
-    private final State<Boolean> CLICKED = new State<>(false);
+    private final State<Boolean> clicked = new State<>(false);
+    protected boolean disabled = false;
 
     @Override
     public List<Component> build() {
-        boolean clicked = CLICKED.acquire(this);
+        boolean clicked = this.clicked.acquire(this);
 
         return ImmutableList.of(
-                new Button(Text.GUI_DONE, Screens::closeCurrentScreen),
+                new Button(Text.GUI_DONE, Screens::closeCurrentScreen).setDisabled(this.disabled),
                 new IconButton(new ResourceKey("cosmetica", "textures/internet.png"), () -> {
                     Cosmetica.openWebPanel("home");
-                    CLICKED.set(true);
+                    this.clicked.set(true);
                 }, (region, x, y) -> {
-                    if (CLICKED.peek() && !region.contains((int)x, (int)y)) {
-                        CLICKED.set(false);
+                    if (this.clicked.peek() && !region.contains((int)x, (int)y)) {
+                        this.clicked.set(false);
                     }
                 })
                 .withStyle(Style.create()

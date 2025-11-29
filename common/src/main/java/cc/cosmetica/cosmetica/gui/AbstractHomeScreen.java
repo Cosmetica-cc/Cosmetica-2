@@ -73,8 +73,12 @@ public abstract class AbstractHomeScreen extends Screen implements AnimatedTextu
                         ).tag("main-section"),
                         this.createRightMenu(cosmetics, authenticated).tag("main-section")
                 ).tag("main-content"),
-                new MenuEndSelection()
+                createMenuEndSelection()
         };
+    }
+
+    protected MenuEndSelection createMenuEndSelection() {
+        return new MenuEndSelection();
     }
 
     protected Component createOutfitPlayer(UUID self, boolean authenticated, Cosmetics cosmetics) {

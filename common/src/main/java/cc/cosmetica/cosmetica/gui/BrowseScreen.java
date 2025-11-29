@@ -83,8 +83,29 @@ public class BrowseScreen extends AbstractHomeScreen {
     private final State<@Nullable CosmeticEntry> selected = new State<>(null);
 //    private GUIPlayer player;
 
+
+    @Override
+    protected MenuEndSelection createMenuEndSelection() {
+        return new MenuEndSelection() {
+            @Override
+            public List<Component> build() {
+                // Don't allow clicking done when configuring (must cancel or equip)
+                // TODO maybe move cancel/equip to the menu end selection region
+                Optional<SelectedCosmeticTriple> configuring = BrowseScreen.this.configuring.acquire(this);
+                this.disabled = configuring.isPresent();
+                return super.build();
+            }
+        };
+    }
+
     @Override
     protected Component createOutfitPlayer(UUID self, boolean authenticated, Cosmetics cosmetics) {
+        // don't recreate this component to preserve rotation in gui player
+        // TODO maybe use a state instead
+        // Would be cleaner, but clutters more states in the codebase and means more gui rebuilding
+        OutfitPlayer player = (OutfitPlayer)BrowseScreen.super.createOutfitPlayer(self, authenticated, cosmetics);
+        player.keepGuiPlayer();
+
         return new Component() {
             @Override
             public List<Component> build() {
@@ -94,51 +115,53 @@ public class BrowseScreen extends AbstractHomeScreen {
                 @Nullable Cosmetic downloaded = BrowseScreen.this.configuringDownloaded.acquire(this);
 
                 return ImmutableList.of(
-                        ((OutfitPlayer)BrowseScreen.super.createOutfitPlayer(self, authenticated, cosmetics))
-                                .configureOverrides(guiPlayer -> {
+                        player.configureOverrides(guiPlayer -> {
                                     // Could Squeeze extra performance by bypassing state system
-                                    // And modifying gui player directly
-//                                  BrowseScreen.this.player = guiPlayer;
+                                    // And modifying gui player directly, but it seems to be fast enough
+                                    // BrowseScreen.this.player = guiPlayer;
+                            guiPlayer.configureOverride(GUIPlayer.ELYTRA, null);
+                            guiPlayer.configureOverride(GUIPlayer.CAPE, null);
+                            guiPlayer.configureOverride(AccessoriesAttachment.INSTANCE, null);
 
-                                    if (downloaded != null && configuring.isPresent()) {
-                                        if (downloaded instanceof Accessory) {
-                                            List<Accessory> accessories = new ArrayList<>(cosmetics.getAccessories());
-                                            accessories.add((Accessory) downloaded);
-                                            if (downloaded instanceof Accessory.Adjustable) {
-                                                Accessory.Adjustable newAccessory = (Accessory.Adjustable) downloaded;
-                                                AccessoryOptions ranges = (AccessoryOptions)configuring.get().getMiddle();
-                                                newAccessory.setOffset(
-                                                        newAccessory.getBaseOffset().add(
-                                                                ranges.getXRange().clampMap(options.getLeft().getX())/16.0,
-                                                                ranges.getYRange().clampMap(options.getLeft().getY())/16.0,
-                                                                ranges.getZRange().clampMap(options.getLeft().getZ())/16.0)
-                                                );
-                                                newAccessory.setMirrored(options.getMiddle());
-                                            } else {
-                                                // this shouldn't happen, but it's not worth crashing the game over
-                                                Logging.getInstance().warnOnce("browse-adjust", "Accessory in browse screen not adjustable. Adjustments will not appear in preview");
-                                            }
-                                            guiPlayer.configureOverride(AccessoriesAttachment.INSTANCE, accessories);
-                                        } else if (downloaded instanceof ImageCosmetic) {
-                                            // assume cape for now, as it's the only ImageCosmetic in the search menu
-                                            // that exists as of this release of Cosmetica
-                                            if (options.getMiddle()) {
-                                                // cloak toggle
-                                                guiPlayer.configureOverride(GUIPlayer.CAPE, ((ImageCosmetic) downloaded).getImage().location);
-                                            }
-                                            if (options.getRight()) {
-                                                // elytra toggle
-                                                guiPlayer.configureOverride(GUIPlayer.ELYTRA, new GUIPlayer.ElytraProperties(
-                                                        ((ImageCosmetic) downloaded).getImage().location,
-                                                        false,
-                                                        true
-                                                ));
-                                            }
-                                        }
+                            if (downloaded != null && configuring.isPresent()) {
+                                if (downloaded instanceof Accessory) {
+                                    List<Accessory> accessories = new ArrayList<>(cosmetics.getAccessories());
+                                    accessories.add((Accessory) downloaded);
+                                    if (downloaded instanceof Accessory.Adjustable) {
+                                        Accessory.Adjustable newAccessory = (Accessory.Adjustable) downloaded;
+                                        AccessoryOptions ranges = (AccessoryOptions)configuring.get().getMiddle();
+                                        newAccessory.setOffset(
+                                                newAccessory.getBaseOffset().add(
+                                                        ranges.getXRange().clampMap(options.getLeft().getX())/16.0,
+                                                        ranges.getYRange().clampMap(options.getLeft().getY())/16.0,
+                                                        ranges.getZRange().clampMap(options.getLeft().getZ())/16.0)
+                                        );
+                                        newAccessory.setMirrored(options.getMiddle());
+                                    } else {
+                                        // this shouldn't happen, but it's not worth crashing the game over
+                                        Logging.getInstance().warnOnce("browse-adjust", "Accessory in browse screen not adjustable. Adjustments will not appear in preview");
                                     }
-                                    return guiPlayer;
-                                })
-                                .setDisabled(true)
+                                    guiPlayer.configureOverride(AccessoriesAttachment.INSTANCE, accessories);
+                                } else if (downloaded instanceof ImageCosmetic) {
+                                    // assume cape for now, as it's the only ImageCosmetic in the search menu
+                                    // that exists as of this release of Cosmetica
+                                    if (options.getMiddle()) {
+                                        // cloak toggle
+                                        guiPlayer.configureOverride(GUIPlayer.CAPE, ((ImageCosmetic) downloaded).getImage().location);
+                                    }
+                                    if (options.getRight()) {
+                                        // elytra toggle
+                                        guiPlayer.configureOverride(GUIPlayer.ELYTRA, new GUIPlayer.ElytraProperties(
+                                                ((ImageCosmetic) downloaded).getImage().location,
+                                                false,
+                                                true
+                                        ));
+                                    }
+                                }
+                            }
+                            return guiPlayer;
+                        })
+                        .setDisabled(true)
                 );
             }
         };
