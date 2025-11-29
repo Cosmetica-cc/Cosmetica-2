@@ -69,13 +69,16 @@ public class SliderWidget extends MinecraftBuiltinComponent {
                 region.getHeight(), this.textFunction.apply(snapToPrecision(f)).toMinecraftComponent(), f) {
             @Override
             protected void updateMessage() {
-                float nf = snapToPrecision(SliderWidget.this.value.peek());
+                float nf = SliderWidget.this.value.peek();
                 this.setMessage(SliderWidget.this.textFunction.apply(nf).toMinecraftComponent());
             }
 
             @Override
             protected void applyValue() {
-                SliderWidget.this.value.set((float)this.value);
+                float newValue = snapToPrecision((float) this.value);
+                if (SliderWidget.this.value.peek() != newValue) {
+                    SliderWidget.this.value.set(newValue);
+                }
             }
         });
     }
