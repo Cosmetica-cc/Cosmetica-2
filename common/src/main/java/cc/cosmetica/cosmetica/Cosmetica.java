@@ -16,6 +16,8 @@
 
 package cc.cosmetica.cosmetica;
 
+import cc.cosmetica.core.CosmeticaCore;
+import cc.cosmetica.core.CosmeticaCoreExpectPlatform;
 import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.api.texture.CosmeticaTexture;
 import cc.cosmetica.core.impl.Logging;
@@ -33,12 +35,16 @@ import gg.cloaks.javaclient.api.AuthApi;
 import gg.cloaks.javaclient.api.OutfitsApi;
 import gg.cloaks.javaclient.model.UpdateLoreDto;
 import gg.cloaks.javaclient.model.UserConnection;
+import jdk.internal.org.jline.utils.Log;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -59,8 +65,23 @@ public class Cosmetica {
 	public static final State<ImageCosmetic> SELECTED_ICON = new State<>(NametagConfig.NO_ICON);
 	public static final State<Lore> SELECTED_LORE = new State<>(Lore.none(UpdateLoreDto.ColorEnum.WHITE));
 
+	/**
+	 * Cosmetic manager for when the user is offline.
+	 */
+	private static CacheCosmeticManager cacheCosmeticManager;
+
 	public static void init() {
 		Screens.setAllowDebug(true);
+
+		Path cosmeticaConfigDir = CosmeticaCoreExpectPlatform.getConfigDirectory().resolve("cosmetica");
+		Path cosmeticCacheDir = cosmeticaConfigDir.resolve("offlineCache");
+		try {
+			Files.createDirectories(cosmeticCacheDir);
+		} catch (IOException e) {
+			Logging.getInstance().error("Unable to create Cosmetica config directory", e);
+		}
+		cacheCosmeticManager = new CacheCosmeticManager(cosmeticCacheDir);
+		CosmeticManagers.registerCosmeticManager(10, cacheCosmeticManager);
 
 		// register gui accessory attachment
 		GUIPlayer.registerAttachment(AccessoriesAttachment.INSTANCE);
@@ -84,6 +105,10 @@ public class Cosmetica {
 			Lore userLore;
 
 			if (data.isIsUser()) {
+				// save data
+				cacheCosmeticManager.save(data.getUser());
+
+				// load connections
 				connections = data.getUser().getConnections();
 				gg.cloaks.javaclient.model.Lore lore = data.getUser().getLore();
 				userLore = lore == null ? Lore.none(UpdateLoreDto.ColorEnum.WHITE) : new Lore(
