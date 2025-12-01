@@ -22,6 +22,7 @@ import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.core.mixin.PlayerModelAccessor;
+import cc.cosmetica.cosmetica.util.SelfCosmeticsReader;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import com.mojang.math.Quaternion;
@@ -116,16 +117,13 @@ public class AccessoriesAttachment implements GUIPlayer.Attachment<Collection<Ac
 
         // check if self
         if (UUIDTypeAdapter.fromString(Minecraft.getInstance().getUser().getUuid()).equals(uuid)) {
-            Cosmetics cosmetics = SELF_COSMETICS.getCosmetics(null);
+            Cosmetics cosmetics = SelfCosmeticsReader.getCosmetics();
             if (cosmetics == null) return null;
             return cosmetics.getAccessories();
         }
 
         return null;
     }
-
-    // hack to access own cosmetics field
-    private static final CosmeticManager SELF_COSMETICS = new SelfCosmeticManager();
 
     /**
      * Global instance of Accessory Attachment.

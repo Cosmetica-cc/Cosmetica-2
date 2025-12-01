@@ -16,20 +16,26 @@
 
 package cc.cosmetica.cosmetica;
 
-import cc.cosmetica.core.api.CosmeticManager;
-import cc.cosmetica.core.api.Cosmetics;
-import cc.cosmetica.core.api.PlayerCosmetics;
+import cc.cosmetica.core.api.*;
+import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
+import cc.cosmetica.core.impl.BlockModelManager;
+import cc.cosmetica.core.impl.ImageCacheManager;
 import cc.cosmetica.core.impl.Logging;
+import cc.cosmetica.cosmetica.gui.player.AccessoriesAttachment;
+import cc.cosmetica.cosmetica.util.SelfCosmeticsReader;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gg.cloaks.javaclient.model.CosmeticaUser;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -76,6 +82,9 @@ public class CacheCosmeticManager implements CosmeticManager {
     }
 
     public void save(CosmeticaUser response) {
+        // assume SelfCosmeticManager publishes the event
+        Cosmetics loaded = SelfCosmeticsReader.getCosmetics();
+
         this.executor.submit(() -> {
             try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(this.cacheFile))) {
                 CosmeticaUser user = new CosmeticaUser();
@@ -94,6 +103,30 @@ public class CacheCosmeticManager implements CosmeticManager {
             } catch (IOException e) {
                 Logging.getInstance().error("Failed to cache player cosmetics", e);
             }
+
+            // keep images loaded in cache
+            List<ResourceLocation> cachedImages = new ArrayList<>();
+            loaded.getCloak().ifPresent(ic -> {
+                cachedImages.add(ic.getImage().location);
+                cachedImages.add(BlockModelManager.getLocation("thumbs-c/" + ic.getId()));
+            });
+            loaded.getElytra().ifPresent(ic -> {
+                cachedImages.add(ic.getImage().location);
+                cachedImages.add(BlockModelManager.getLocation("thumbs-c/" + ic.getId()));
+            });
+            loaded.getLore().ifPresent(ic -> {
+                if (ic.getIcon() != NametagConfig.NO_ICON) {
+                    cachedImages.add(ic.getIcon().getImage().location);
+                    cachedImages.add(BlockModelManager.getLocation("thumbs-c/" + ic.getIcon().getId()));
+                }
+            });
+            for (Accessory accessory : loaded.getAccessories()) {
+                cachedImages.add(BlockModelManager.getLocation("accessory/" + accessory.getId()));
+                cachedImages.add(BlockModelManager.getLocation("thumbs-c/" + accessory.getId()));
+            }
+            BlockModelManager.preserveImages(cachedImages);
+
+            // TODO cache models
         });
     }
 }
