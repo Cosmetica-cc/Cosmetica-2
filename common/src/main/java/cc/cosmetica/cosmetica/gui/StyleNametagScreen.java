@@ -25,6 +25,7 @@ import cc.cosmetica.cosmetica.gui.widget.IconSelector;
 import cc.cosmetica.cosmetica.gui.widget.LoreSelector;
 import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
 import cc.cosmetica.cosmetica.gui.widget.RotatableGUIPlayer;
+import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.cosmetica.util.Lore;
 import cc.cosmetica.kupe.api.*;
 import cc.cosmetica.kupe.api.gui.*;
@@ -61,7 +62,7 @@ public class StyleNametagScreen extends Screen implements AnimatedTextureScreen 
                     for (Icon icon : icons) {
                         newAvailableIcons.add(ImageCosmetic.fromIcon(icon));
                     }
-                    Logging.getInstance().debug("loaded {} available icons", newAvailableIcons.size());
+                    Logging.getInstance().debug(CosmeticaLogCategory.GUI, "loaded {} available icons", newAvailableIcons.size());
                     availableIcons.set(newAvailableIcons);
                 }, Minecraft.getInstance());
     }
@@ -145,7 +146,7 @@ public class StyleNametagScreen extends Screen implements AnimatedTextureScreen 
         // icon is set
         if (this.iconDirty.compareAndSet(true, false)) {
             ImageCosmetic selectedIcon = Cosmetica.SELECTED_ICON.peek();
-            Logging.getInstance().debug("Updating Icon to {}", selectedIcon.getName());
+            Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Updating Icon to {}", selectedIcon.getName());
             CosmeticaAPI.icons().requestAsync(api -> api.equip(selectedIcon.getId()))
                     .exceptionally(e -> {
                         // TODO is there a race condition
@@ -161,10 +162,10 @@ public class StyleNametagScreen extends Screen implements AnimatedTextureScreen 
 
     private Function<LoreApi, ?> updateLoreFunction(Lore newLore) {
         if (newLore.isNoLore()) {
-            Logging.getInstance().debug("Removing lore");
+            Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Removing lore");
             return LoreApi::removeLore;
         } else {
-            Logging.getInstance().debug("Updating Lore to {}", newLore.value);
+            Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Updating Lore to {}", newLore.value);
             UpdateLoreDto update = new UpdateLoreDto();
             update.content(newLore.value);
             update.color(newLore.colour);

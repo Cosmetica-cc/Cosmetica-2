@@ -21,6 +21,7 @@ import cc.cosmetica.core.api.ImageCosmetic;
 import cc.cosmetica.core.api.NametagConfig;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
+import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.State;
@@ -141,7 +142,7 @@ public class IconSelector extends Div {
         public void mouseClicked(Element target, double x, double y, int button) {
             if (button == GLFW.GLFW_MOUSE_BUTTON_1) {
                 if (this.cosmetic != Cosmetica.SELECTED_ICON.peek()) {
-                    Logging.getInstance().debug("Setting icon " + cosmetic);
+                    Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Setting icon " + cosmetic);
 
                     IconSelector.this.iconDirty.set(true);
                     Cosmetica.SELECTED_ICON.set(this.cosmetic);

@@ -21,6 +21,7 @@ import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.gui.HomeScreen;
 import cc.cosmetica.cosmetica.gui.OutfitWheelScreen;
 import cc.cosmetica.cosmetica.gui.SnipeScreen;
+import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.cosmetica.util.Sniper;
 import cc.cosmetica.kupe.api.Screens;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -112,7 +113,7 @@ public class Keybinds {
         if (screen == null) rightShiftMenu = false;
 
         if (Keybinds.CUSTOMISE.isDown()) {
-            Logging.getInstance().debug("rsm = " + rightShiftMenu + ", consumed click = " + set);
+            Logging.getInstance().debug(CosmeticaLogCategory.KEYBINDS, "rsm = " + rightShiftMenu + ", consumed click = " + set);
         }
 
 

@@ -26,6 +26,7 @@ import cc.cosmetica.cosmetica.Keybinds;
 import cc.cosmetica.cosmetica.Setting;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
 import cc.cosmetica.cosmetica.mixin.keybinds.KeyMappingAccessor;
+import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.cosmetica.util.Division;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.PolyBuilder;
@@ -570,7 +571,7 @@ public class OutfitWheelScreen extends Screen {
             Cosmetica.SELECTED_OUTFIT_ID.set(Optional.of(this.id));
 
             CosmeticaAPI.outfits().requestAsync(api -> api.equip(this.id))
-                    .thenAccept(user -> Logging.getInstance().debug("Equip Success!"))
+                    .thenAccept(user -> Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Equip Success!"))
                     .exceptionally(except -> {
                         new RuntimeException("Outfits Controller Equip", except).printStackTrace();
                         return null;

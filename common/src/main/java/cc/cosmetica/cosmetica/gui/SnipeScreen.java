@@ -28,6 +28,7 @@ import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticsList;
 import cc.cosmetica.cosmetica.gui.widget.RotatableGUIPlayer;
 import cc.cosmetica.cosmetica.gui.widget.SlideToggle;
+import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.kupe.api.*;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
@@ -113,7 +114,7 @@ public class SnipeScreen extends Screen implements AnimatedTextureScreen {
                                 this.isSettingOrUnauthenticated.set(true);
                                 CosmeticaAPI.outfits().requestAsync(OutfitsApi::unequip)
                                         .thenAccept(__ -> {
-                                            Logging.getInstance().debug("Cleared Cosmetics by Steal-their-look.");
+                                            Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Cleared Cosmetics by Steal-their-look.");
                                             Minecraft.getInstance().tell(Screens::closeCurrentScreen);
                                         })
                                         .exceptionally(err -> {
@@ -133,7 +134,7 @@ public class SnipeScreen extends Screen implements AnimatedTextureScreen {
                                 // can set cosmetics immediately
                                 CosmeticaAPI.outfits().requestAsync(api->api.equip(ownedOutfit))
                                         .thenAccept(__ -> {
-                                            Logging.getInstance().debug("Set Cosmetics by Steal-their-look.");
+                                            Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Set Cosmetics by Steal-their-look.");
                                             Minecraft.getInstance().tell(Screens::closeCurrentScreen);
                                         })
                                         .exceptionally(err -> {
@@ -196,7 +197,7 @@ public class SnipeScreen extends Screen implements AnimatedTextureScreen {
                 Accessory accessory1 = accessoriesIterator.next();
 
                 if (accessory1.getId().equals(accessory.getAccessory().getId())) {
-                    Logging.getInstance().debug("Matching ID found. Checking offsets..");
+                    Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Matching ID found. Checking offsets..");
                     // compare offsets
                     Vec3 offset1 = accessory1.getOffset();
                     if (offset.equals(offset1)) {

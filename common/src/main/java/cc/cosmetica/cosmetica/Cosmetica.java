@@ -16,13 +16,13 @@
 
 package cc.cosmetica.cosmetica;
 
-import cc.cosmetica.core.CosmeticaCore;
 import cc.cosmetica.core.CosmeticaCoreExpectPlatform;
 import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.api.texture.CosmeticaTexture;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.gui.*;
 import cc.cosmetica.cosmetica.gui.player.AccessoriesAttachment;
+import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.cosmetica.util.Lore;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.State;
@@ -35,7 +35,6 @@ import gg.cloaks.javaclient.api.AuthApi;
 import gg.cloaks.javaclient.api.OutfitsApi;
 import gg.cloaks.javaclient.model.UpdateLoreDto;
 import gg.cloaks.javaclient.model.UserConnection;
-import jdk.internal.org.jline.utils.Log;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
@@ -96,7 +95,7 @@ public class Cosmetica {
 		});
 		// updates to cosmetic stuff
 		Cosmetics.registerUserDataFetchCallback((data, cosmetics) -> {
-			Logging.getInstance().debug("Received own cosmetics");
+			Logging.getInstance().debug(CosmeticaLogCategory.EVENTS, "Received own cosmetics");
 
 			fetchOutfits();
 
