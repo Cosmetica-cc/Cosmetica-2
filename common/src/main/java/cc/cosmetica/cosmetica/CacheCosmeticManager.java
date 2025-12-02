@@ -77,10 +77,12 @@ public class CacheCosmeticManager implements CosmeticManager {
     private void load() {
         this.executor.submit(() -> {
             try (InputStream is = new BufferedInputStream(Files.newInputStream(this.outfitCache))) {
+                Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "Reading offline cache outfit json");
                 ObjectMapper mapper = new ObjectMapper();
                 CosmeticaUser user = mapper.readValue(is, CosmeticaUser.class);
 
                 Minecraft.getInstance().execute(() -> {
+                    Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "Transforming offline outfit json to outfit");
                     @Nullable Outfit outfit = user.getOutfit();
                     @Nullable Icon icon = user.getIcon();
                     @Nullable Lore lore = user.getLore();
@@ -105,7 +107,7 @@ public class CacheCosmeticManager implements CosmeticManager {
                     @Nullable ImageCosmetic cloak = null;
                     @Nullable ImageCosmetic elytra = null;
 
-                    if (outfit == null) {
+                    if (outfit != null) {
                         outfitName = outfit.getName();
                         outfitId = outfit.getId();
 
@@ -121,12 +123,11 @@ public class CacheCosmeticManager implements CosmeticManager {
 
                         // equip acessories
                         for (OutfitAccessory accessory : outfit.getAccessories()) {
-                            // TODO replace getModel with new source
                             // See: Accessory.fromOutfitAccessory
                             CosmeticaModel model = CosmeticaModel.getOrCreateModel(
                                     "accessory",
                                     accessory.getAccessory().getId(),
-                                    accessory.getAccessory().getModel(),
+                                    () -> Files.newInputStream(this.directory.resolve(accessory.getAccessory().getId() + ".json")),
                                     accessory.getAccessory().getTexture(),
                                     accessory.getAccessory().getTicksPerFrame().intValue(),
                                     accessory.getAccessory().getFrames().intValue()
@@ -184,7 +185,7 @@ public class CacheCosmeticManager implements CosmeticManager {
                 user.setOutfit(response.getOutfit());
 
                 ObjectMapper mapper = new ObjectMapper();
-                mapper.writeValue(os, mapper);
+                mapper.writeValue(os, user);
                 Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "Cached player cosmetics");
             } catch (IOException e) {
                 Logging.getInstance().error("Failed to cache player cosmetics", e);
@@ -221,7 +222,7 @@ public class CacheCosmeticManager implements CosmeticManager {
 
                     CosmeticaAPI.downloadAsync(modelURL).thenAcceptAsync(model -> {
                         try {
-                            Files.write(output, modelURL.getBytes(StandardCharsets.UTF_8));
+                            Files.write(output, model.getBytes(StandardCharsets.UTF_8));
                         } catch (IOException e) {
                             Logging.getInstance().error("Failed to cache model from {}", e, modelURL);
                         }
