@@ -25,6 +25,7 @@ import com.google.gson.JsonParser;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -32,41 +33,115 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Handles authentication.
  */
 public final class Authentication {
     private static final ResourceLocation SESSIONS = new ResourceLocation("cosmetica", ".sessions");
+    private static final ScheduledExecutorService LOGIN_SCHEDULER = Executors.newScheduledThreadPool(1, new ThreadFactory() {
+        private int counter = 1;
+
+        @Override
+        public Thread newThread(@NotNull Runnable r) {
+            Thread t = new Thread();
+            t.setName("Cosmetica Login Worker " + (counter++));
+            return t;
+        }
+    });
+    private static boolean authenticating = false;
+    private static final AtomicInteger RETRIES = new AtomicInteger(0);
 
     static void authenticate() {
+        // download current settings and update settings on authentication change
+        CosmeticaAPI.addAuthenticationChangeCallback(() -> {
+            Minecraft.getInstance().execute(Setting::syncSettings);
+
+            // Try re-login when deauthenticated, and clear self cosmetics if cannot reauthenticate
+            if (!authenticating && !CosmeticaAPI.isAuthenticated()) {
+                authenticating = true;
+                startAuthentication();
+            } else {
+                RETRIES.set(0);
+                authenticating = false;
+            }
+        });
+        // If already authenticated (from cosmetica.token?) sync settings now
+        if (CosmeticaAPI.isAuthenticated()) {
+            Setting.syncSettings();
+        }
+
         // cosmetica.token is used by core as for testing. we want to keep this behaviour for our testing.
         if (!System.getProperties().containsKey("cosmetica.token")) {
-            // log in
-            try {
-                startAuthentication();
-            } catch (IOException e) {
-                Logging.getInstance().error("Failed to log into Cosmetica", e);
-            }
+            startAuthentication();
         }
     }
 
     /**
      * Start authenticating the mod with Cosmetica. Preferably uses the cached token for the current user.
-     * @throws IOException if an IOException occurs while trying to access the session info.
      */
-    private static void startAuthentication() throws IOException {
+    private static void startAuthentication() {
         // check for cached token
         Path sessionsInfo = BlockModelManager.getCacheFile(SESSIONS, null);
         Properties properties = new Properties();
 
-        if (Files.isRegularFile(sessionsInfo)) {
-            try (BufferedInputStream b = new BufferedInputStream(Files.newInputStream(sessionsInfo))) {
-                properties.load(b);
+        boolean login = false;
+        try {
+            login = logInFromCache(sessionsInfo, properties);
+        } catch (IOException e) {
+            Logging.getInstance().error("Failed to log into Cosmetica via cache", e);
+        }
+
+        if (!login) {
+            LOGIN_SCHEDULER.schedule(
+                    () -> Authentication.repeatLogInFromApi(sessionsInfo, properties),
+                    0,
+                    TimeUnit.SECONDS
+            );
+        }
+    }
+
+    private static void repeatLogInFromApi(Path sessionsInfo, Properties properties) {
+        if (!Authentication.logInFromApi(sessionsInfo, properties)) {
+            final int[] retryCounts = new int[]{0, 2, 5, 10, 30};
+
+            int retries = RETRIES.getAndIncrement();
+            if (retries >= retryCounts.length) {
+                LOGIN_SCHEDULER.schedule(
+                        () -> Authentication.repeatLogInFromApi(sessionsInfo, properties),
+                        retryCounts[retryCounts.length - 1],
+                        TimeUnit.SECONDS
+                );
+            } else {
+                LOGIN_SCHEDULER.schedule(
+                        () -> Authentication.repeatLogInFromApi(sessionsInfo, properties),
+                        retryCounts[retries],
+                        TimeUnit.SECONDS
+                );
+            }
+        }
+    }
+
+    /**
+     * Try authenticating the mod using the cached token for the current user.
+     * @param sessionInfoPath the path to the cache file.
+     * @param sessionInfo the properties file to load into.
+     * @return whether the login was successful.
+     * @throws IOException if an IOException occurs while trying to access the session info.
+     */
+    private static boolean logInFromCache(Path sessionInfoPath, Properties sessionInfo) throws IOException {
+        if (Files.isRegularFile(sessionInfoPath)) {
+            try (BufferedInputStream b = new BufferedInputStream(Files.newInputStream(sessionInfoPath))) {
+                sessionInfo.load(b);
             }
 
             User user = Minecraft.getInstance().getUser();
-            String token = properties.getProperty("jwt-" + user.getUuid());
+            String token = sessionInfo.getProperty("jwt-" + user.getUuid());
 
             if (token != null) {
                 // parse jwt to check if expired
@@ -79,27 +154,29 @@ public final class Authentication {
                     if (Long.parseLong(exp) - Instant.now().getEpochSecond() > 0) {
                         // use cached jwt
                         CosmeticaAPI.authenticate(token);
-                        return;
+                        return true;
                     }
                 } catch (JsonParseException | IndexOutOfBoundsException e) {
                     throw new RuntimeException("Malformed JWT", e);
                 }
             }
         } else {
-            Files.createFile(sessionsInfo);
+            Files.createFile(sessionInfoPath);
         }
 
-        // Log in
-        // TODO switch to an executor?
-        Thread t = new Thread(() -> Authentication.logIn(sessionsInfo, properties));
-        t.setName("Cosmetica Login Worker");
-        t.start();
+        return false;
     }
 
-    private static void logIn(Path sessionInfoPath, Properties sessionInfo) {
+    /**
+     * Try log in with the api.
+     * @param sessionInfoPath the path to the file to store session info in.
+     * @param sessionInfo the properties data in which to store session info.
+     * @return whether the current login was a success.
+     */
+    private static boolean logInFromApi(Path sessionInfoPath, Properties sessionInfo) {
         try {
             if (CosmeticaAPI.login().isSuccess()) {
-                String token = CosmeticaAPI.getSessionToken();
+                String token = CosmeticaAPI.getSessionToken(); // will only be empty if someone deauthenticated in between
                 User user = Minecraft.getInstance().getUser();
 
                 // Cache Token
@@ -110,9 +187,13 @@ public final class Authentication {
                         sessionInfo.store(b, "Cosmetica Session Info");
                     }
                 }
+
+                return true;
             }
         } catch (IOException e) {
             Logging.getInstance().error("Failed to log in", e);
         }
+
+        return false;
     }
 }

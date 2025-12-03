@@ -16,6 +16,7 @@
 
 package cc.cosmetica.cosmetica;
 
+import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
 import com.google.common.collect.ImmutableList;
 
@@ -53,5 +54,13 @@ public class Setting<T> {
 
     public static final Setting<Boolean> TOGGLE_OUTFIT_WHEEL = new Setting<>("setting.cosmetica.wheel", false);
 
-    public static final List<Setting<?>> SETTINGS = ImmutableList.of(TOGGLE_OUTFIT_WHEEL);
+    public static final List<Setting<?>> CLIENT_SETTINGS = ImmutableList.of(TOGGLE_OUTFIT_WHEEL);
+    public static final State<List<Setting<?>>> SETTINGS = new State<>(CLIENT_SETTINGS);
+
+    /**
+     * Synchronise the current server settings to the {@link Setting#SETTINGS} state.
+     */
+    public static void syncSettings() {
+
+    }
 }

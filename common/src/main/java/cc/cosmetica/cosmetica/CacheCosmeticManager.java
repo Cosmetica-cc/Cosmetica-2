@@ -20,16 +20,17 @@ import cc.cosmetica.core.api.Accessory;
 import cc.cosmetica.core.api.Cosmetic;
 import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.api.texture.CosmeticaTexture;
+import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
 import cc.cosmetica.core.impl.BlockModelManager;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
-import cc.cosmetica.cosmetica.util.SelfCosmeticsReader;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gg.cloaks.javaclient.model.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.io.*;
@@ -168,7 +169,7 @@ public class CacheCosmeticManager implements CosmeticManager {
 
     public void save(CosmeticaUser response) {
         // assume SelfCosmeticManager publishes the event
-        Cosmetics loaded = SelfCosmeticsReader.getCosmetics();
+        @NotNull Cosmetics loaded = SelfCosmeticManager.getCosmetics().orElse(NoneCosmetics.NONE);
 
         this.executor.submit(() -> {
             Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "Caching player cosmetics for offline use");

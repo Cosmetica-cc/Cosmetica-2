@@ -17,6 +17,7 @@
 package cc.cosmetica.cosmetica.gui;
 
 import cc.cosmetica.cosmetica.Setting;
+import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.State;
@@ -38,21 +39,25 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
  * An unregistered screen for showing a list of settings.
  */
 public class CosmeticaSettingsScreen extends Screen {
-    public CosmeticaSettingsScreen(ResourceKey titleKey, List<Setting<?>> settings) {
+    public CosmeticaSettingsScreen(ResourceKey titleKey, State<List<Setting<?>>> settings) {
         super(titleKey);
         this.settings = settings;
     }
 
-    private final List<Setting<?>> settings;
+    private final State<List<Setting<?>>> settings;
 
     @Override
     protected Component[] buildScreen() {
-        List<Component> settingComponents = new ArrayList<>();
+        Component[] settings = this.settings.acquire(this).stream()
+                .map(SettingBlock::new)
+                .toArray(Component[]::new);
 
-        // add settings for outfit wheel
-        this.settings.forEach(setting -> settingComponents.add(new SettingBlock(setting)));
-
-        return settingComponents.toArray(new Component[0]);
+        return new Component[] {
+                new Div(
+                       settings
+                ),
+                new MenuEndSelection()
+        };
     }
 
     @Override

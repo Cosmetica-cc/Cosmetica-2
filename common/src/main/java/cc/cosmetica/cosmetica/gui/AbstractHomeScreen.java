@@ -21,7 +21,9 @@ import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.core.api.NametagConfig;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.Setting;
-import cc.cosmetica.cosmetica.gui.widget.*;
+import cc.cosmetica.cosmetica.gui.widget.IconButton;
+import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
+import cc.cosmetica.cosmetica.gui.widget.OutfitPlayer;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.Screens;
@@ -32,8 +34,6 @@ import cc.cosmetica.kupe.api.maths.Axis2D;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
