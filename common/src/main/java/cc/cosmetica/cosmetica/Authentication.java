@@ -112,12 +112,14 @@ public final class Authentication {
 
             int retries = RETRIES.getAndIncrement();
             if (retries >= retryCounts.length) {
+                Logging.getInstance().info("Retrying cosmetica login in {} seconds", retryCounts[retryCounts.length - 1]);
                 LOGIN_SCHEDULER.schedule(
                         () -> Authentication.repeatLogInFromApi(sessionsInfo, properties),
                         retryCounts[retryCounts.length - 1],
                         TimeUnit.SECONDS
                 );
             } else {
+                Logging.getInstance().info("Retrying cosmetica login in {} seconds", retryCounts[retries]);
                 LOGIN_SCHEDULER.schedule(
                         () -> Authentication.repeatLogInFromApi(sessionsInfo, properties),
                         retryCounts[retries],
