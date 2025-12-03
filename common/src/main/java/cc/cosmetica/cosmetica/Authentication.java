@@ -49,7 +49,7 @@ public final class Authentication {
 
         @Override
         public Thread newThread(@NotNull Runnable r) {
-            Thread t = new Thread();
+            Thread t = new Thread(r);
             t.setName("Cosmetica Login Worker " + (counter++));
             return t;
         }
