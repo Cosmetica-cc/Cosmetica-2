@@ -107,6 +107,9 @@ public class Cosmetica {
 				// save data
 				cacheCosmeticManager.save(data.getUser());
 
+				// update settings
+				Setting.updateSettings(data.getUser().getActiveSettings());
+
 				// load connections
 				connections = data.getUser().getConnections();
 				gg.cloaks.javaclient.model.Lore lore = data.getUser().getLore();

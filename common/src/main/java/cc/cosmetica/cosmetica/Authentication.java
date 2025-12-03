@@ -60,7 +60,10 @@ public final class Authentication {
     static void authenticate() {
         // download current settings and update settings on authentication change
         CosmeticaAPI.addAuthenticationChangeCallback(() -> {
-            Minecraft.getInstance().execute(Setting::syncSettings);
+            // clear settings when deauthenticating
+            if (!CosmeticaAPI.isAuthenticated()) {
+                Minecraft.getInstance().execute(Setting::clearSettings);
+            }
 
             // Try re-login when deauthenticated, and clear self cosmetics if cannot reauthenticate
             if (!authenticating && !CosmeticaAPI.isAuthenticated()) {
@@ -71,10 +74,6 @@ public final class Authentication {
                 authenticating = false;
             }
         });
-        // If already authenticated (from cosmetica.token?) sync settings now
-        if (CosmeticaAPI.isAuthenticated()) {
-            Setting.syncSettings();
-        }
 
         // cosmetica.token is used by core as for testing. we want to keep this behaviour for our testing.
         if (!System.getProperties().containsKey("cosmetica.token")) {

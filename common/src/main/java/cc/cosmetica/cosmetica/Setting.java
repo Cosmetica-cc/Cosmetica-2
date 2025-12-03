@@ -19,7 +19,9 @@ package cc.cosmetica.cosmetica;
 import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
 import com.google.common.collect.ImmutableList;
+import gg.cloaks.javaclient.model.Settings;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,24 +45,57 @@ public class Setting<T> {
         return modified;
     }
 
+    /**
+     * Set a new value from the client.
+     */
     public void set(T newValue) {
         this.setting = newValue;
         this.modified = true;
+    }
+
+    /**
+     * Update from API.
+     */
+    private void update(T newValue) {
+        this.setting = newValue;
     }
 
     public void clean() {
         this.modified = false;
     }
 
+    // Client Settings
     public static final Setting<Boolean> TOGGLE_OUTFIT_WHEEL = new Setting<>("setting.cosmetica.wheel", false);
+    // API Settings
+    public static final Setting<Boolean> SHOW_LORE = new Setting<>("setting.cosmetica.showLore", true);
+    public static final Setting<Boolean> SHOW_ACCESSORIES = new Setting<>("setting.cosmetica.showAccessories", true);
+    public static final Setting<Boolean> SHOW_ICONS = new Setting<>("setting.cosmetica.showIcons", true);
+    public static final Setting<Boolean> SHOW_SPECIAL_ICONS = new Setting<>("setting.cosmetica.showSpecialIcons", true);
+    public static final Setting<Boolean> SHOW_OFFLINE_ICONS = new Setting<>("setting.cosmetica.showOfflineIcons", true);
+    public static final Setting<Boolean> SHOW_ONLINE_ACTIVITY = new Setting<>("setting.cosmetica.showOnlineActivity", true);
 
-    public static final List<Setting<?>> CLIENT_SETTINGS = ImmutableList.of(TOGGLE_OUTFIT_WHEEL);
+    private static final List<Setting<?>> CLIENT_SETTINGS = ImmutableList.of(TOGGLE_OUTFIT_WHEEL);
+    private static final List<Setting<?>> API_SETTINGS = ImmutableList.of(TOGGLE_OUTFIT_WHEEL);
+
     public static final State<List<Setting<?>>> SETTINGS = new State<>(CLIENT_SETTINGS);
 
-    /**
-     * Synchronise the current server settings to the {@link Setting#SETTINGS} state.
-     */
-    public static void syncSettings() {
+    public static void clearSettings() {
+        SETTINGS.set(Setting.CLIENT_SETTINGS);
+    }
 
+    public static void updateSettings(Settings settings) {
+        // Update setting values
+        SHOW_LORE.update(settings.isShowLore());
+        SHOW_ACCESSORIES.update(settings.isShowAccessories());
+        SHOW_ICONS.update(settings.isShowIcons());
+        SHOW_SPECIAL_ICONS.update(settings.isShowSpecialIcons());
+        SHOW_OFFLINE_ICONS.update(settings.isShowOfflineIcons());
+        SHOW_ONLINE_ACTIVITY.update(settings.isShowOnlineActivity());
+
+        // Create composite list
+        List<Setting<?>> loggedInSettings = new ArrayList<>(CLIENT_SETTINGS);
+        loggedInSettings.addAll(API_SETTINGS);
+
+        SETTINGS.set(loggedInSettings);
     }
 }

@@ -18,6 +18,7 @@ package cc.cosmetica.cosmetica.gui;
 
 import cc.cosmetica.cosmetica.Setting;
 import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
+import cc.cosmetica.cosmetica.gui.widget.SliderWidget;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.State;
@@ -83,26 +84,72 @@ public class CosmeticaSettingsScreen extends Screen {
         public List<Component> build() {
             Setting<?> value = this.setting.acquire(this);
 
-            // create text
-            Text text = value.name;
-            if (value.isModified()) {
-                text = Text.literal("§l" + text.getDisplayString() + "*");
-            }
-
             // create controller
             Component controller;
             @SuppressWarnings("rawtypes") Class clazz = value.get().getClass();
 
-            if (clazz == Boolean.class) {
-                controller = CycleButton(value, this::cycleBoolean);
-            } else if (Enum.class.isAssignableFrom(clazz)) {
-                controller = CycleButton(value, this::cycleEnum);
-            } else {
-                throw new UnsupportedOperationException("Unsupported setting type: " + clazz);
-            }
+            // Slider Type
+            if (Float.class.isAssignableFrom(clazz)) {
+                State<Float> state = new State<>((float) value.get());
+                return ImmutableList.of(new SliderWidget(state, 0.1f, f -> {
+                    String name = value.name.getDisplayString();
+                    String number = String.format("%.1f", f);
 
-            // return components
-            return ImmutableList.of(new Label(text), controller);
+                    if (value.isModified() || state.peek() != value.get()) {
+                        return Text.literal("§l" + name + "* : " + number);
+                    } else {
+                        return Text.literal(name + ": " + number);
+                    }
+                }) {
+                    @Override
+                    public void mouseReleased(double x, double y, int button) {
+                        if (state.peek() != value.get()) {
+                            // set modified
+                            SettingBlock.this.setting.set(SettingBlock.this.setting.peek());
+                        }
+                    }
+                }.withStyle(Style.create().set(WIDTH, fixedSize(200))));
+            }
+            else if (Integer.class.isAssignableFrom(clazz)) {
+                State<Float> state = new State<>((float) value.get());
+                return ImmutableList.of(new SliderWidget(state, 1.0f, f -> {
+                    String name = value.name.getDisplayString();
+                    String number = String.format("%d", f.intValue());
+
+                    if (value.isModified() || state.peek() != value.get()) {
+                        return Text.literal("§l" + name + "* : " + number);
+                    } else {
+                        return Text.literal(name + ": " + number);
+                    }
+                }) {
+                    @Override
+                    public void mouseReleased(double x, double y, int button) {
+                        if (state.peek() != value.get()) {
+                            // set modified
+                            SettingBlock.this.setting.set(SettingBlock.this.setting.peek());
+                        }
+                    }
+                }.withStyle(Style.create().set(WIDTH, fixedSize(200))));
+            }
+            // Button Types
+            else {
+                // create text
+                Text text = value.name;
+                if (value.isModified()) {
+                    text = Text.literal("§l" + text.getDisplayString() + "*");
+                }
+
+                if (clazz == Boolean.class) {
+                    controller = CycleButton(value, this::cycleBoolean);
+                } else if (Enum.class.isAssignableFrom(clazz)) {
+                    controller = CycleButton(value, this::cycleEnum);
+                } else {
+                    throw new UnsupportedOperationException("Unsupported setting type: " + clazz);
+                }
+
+                // return components
+                return ImmutableList.of(new Label(text), controller);
+            }
         }
 
         public static Component CycleButton(Setting<?> value, Runnable cycle) {
