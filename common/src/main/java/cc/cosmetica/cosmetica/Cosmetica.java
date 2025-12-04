@@ -22,6 +22,7 @@ import cc.cosmetica.core.api.texture.CosmeticaTexture;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.gui.*;
 import cc.cosmetica.cosmetica.gui.player.AccessoriesAttachment;
+import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.cosmetica.util.Lore;
 import cc.cosmetica.kupe.api.Screens;
@@ -108,7 +109,7 @@ public class Cosmetica {
 				cacheCosmeticManager.save(data.getUser());
 
 				// update settings
-				Setting.updateSettings(data.getUser().getActiveSettings());
+				CosmeticaSettings.updateSettings(data.getUser().getActiveSettings());
 
 				// load connections
 				connections = data.getUser().getConnections();

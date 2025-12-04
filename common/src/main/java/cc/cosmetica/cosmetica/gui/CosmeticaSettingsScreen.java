@@ -16,9 +16,8 @@
 
 package cc.cosmetica.cosmetica.gui;
 
-import cc.cosmetica.cosmetica.Setting;
 import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
-import cc.cosmetica.cosmetica.gui.widget.SliderWidget;
+import cc.cosmetica.cosmetica.settings.Setting;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.State;
@@ -30,7 +29,6 @@ import cc.cosmetica.kupe.api.maths.Axis2D;
 import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalInt;
 
@@ -51,12 +49,11 @@ public class CosmeticaSettingsScreen extends Screen {
     protected Component[] buildScreen() {
         Component[] settings = this.settings.acquire(this).stream()
                 .map(SettingBlock::new)
+                .map(c -> c.tag("setting-block"))
                 .toArray(Component[]::new);
 
         return new Component[] {
-                new Div(
-                       settings
-                ),
+                new Div(settings),
                 new MenuEndSelection()
         };
     }
@@ -64,127 +61,57 @@ public class CosmeticaSettingsScreen extends Screen {
     @Override
     public @NotNull Stylesheet getStylesheet() {
         return super.getStylesheet()
-                .component(SettingBlock.class, Style.create()
-                        .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
-                        .set(Div.JUSTIFY_CONTENT, Justify.SPACE_BETWEEN)
+                .tag("setting-block", Style.create()
                         .set(MIN_WIDTH, fixedSize(200))
                         .set(WIDTH, screen(50, 0)));
     }
 
     public static final ResourceKey SETTINGS_SCREEN = new ResourceKey("cosmetica", "settings");
 
-    private static class SettingBlock extends Div {
-        private SettingBlock(Setting<?> setting) {
-            this.setting = new State<>(setting);
+    private static class SettingBlock<T> extends Div {
+        private SettingBlock(Setting<T> setting) {
+            this.setting = setting;
+            this.state = new State<>(this.originalValue = setting.get());
         }
 
-        private final State<Setting<?>> setting;
+        private final Setting<T> setting;
+        private final State<T> state;
+        private final T originalValue;
 
         @Override
         public List<Component> build() {
-            Setting<?> value = this.setting.acquire(this);
-
-            // create controller
-            Component controller;
-            @SuppressWarnings("rawtypes") Class clazz = value.get().getClass();
-
-            // Slider Type
-            if (Float.class.isAssignableFrom(clazz)) {
-                State<Float> state = new State<>((float) value.get());
-                return ImmutableList.of(new SliderWidget(state, 0.1f, f -> {
-                    String name = value.name.getDisplayString();
-                    String number = String.format("%.1f", f);
-
-                    if (value.isModified() || state.peek() != value.get()) {
-                        return Text.literal("§l" + name + "* : " + number);
-                    } else {
-                        return Text.literal(name + ": " + number);
-                    }
-                }) {
-                    @Override
-                    public void mouseReleased(double x, double y, int button) {
-                        if (state.peek() != value.get()) {
-                            // set modified
-                            SettingBlock.this.setting.set(SettingBlock.this.setting.peek());
-                        }
-                    }
-                }.withStyle(Style.create().set(WIDTH, fixedSize(200))));
+            T value = this.state.acquire(this);
+            this.setting.set(value);
+            // mark unmodified
+            if (value == originalValue) {
+                this.setting.clean();
             }
-            else if (Integer.class.isAssignableFrom(clazz)) {
-                State<Float> state = new State<>((float) value.get());
-                return ImmutableList.of(new SliderWidget(state, 1.0f, f -> {
-                    String name = value.name.getDisplayString();
-                    String number = String.format("%d", f.intValue());
 
-                    if (value.isModified() || state.peek() != value.get()) {
-                        return Text.literal("§l" + name + "* : " + number);
-                    } else {
-                        return Text.literal(name + ": " + number);
-                    }
-                }) {
-                    @Override
-                    public void mouseReleased(double x, double y, int button) {
-                        if (state.peek() != value.get()) {
-                            // set modified
-                            SettingBlock.this.setting.set(SettingBlock.this.setting.peek());
-                        }
-                    }
-                }.withStyle(Style.create().set(WIDTH, fixedSize(200))));
+            // create text
+            Text text = this.setting.name;
+            if (this.setting.isModified()) {
+                text = Text.literal("§l" + text.getDisplayString() + "*");
             }
-            // Button Types
-            else {
-                // create text
-                Text text = value.name;
-                if (value.isModified()) {
-                    text = Text.literal("§l" + text.getDisplayString() + "*");
-                }
 
-                if (clazz == Boolean.class) {
-                    controller = CycleButton(value, this::cycleBoolean);
-                } else if (Enum.class.isAssignableFrom(clazz)) {
-                    controller = CycleButton(value, this::cycleEnum);
-                } else {
-                    throw new UnsupportedOperationException("Unsupported setting type: " + clazz);
-                }
-
-                // return components
-                return ImmutableList.of(new Label(text), controller);
-            }
-        }
-
-        public static Component CycleButton(Setting<?> value, Runnable cycle) {
-            return new Button(
-                    Text.translatable(value.name.getString() + "." + value.get()),
-                    cycle
-            ).withStyle(
-                    Style.create().set(WIDTH, fixed(OptionalInt.of(100)))
+            // return components
+            return ImmutableList.of(
+                    new Div(
+                            new Label(text),
+                            this.setting.createController(this.state).tag("controller")
+                    ).tag("setting-display"),
+                    new Label(this.setting.createDescription(value))
             );
         }
 
-        @SuppressWarnings({"rawtypes", "unchecked"})
-        private void cycleEnum() {
-            final Setting<?> setting = this.setting.peek();
-
-            // next enum
-            Enum<? extends Enum> value = (Enum) setting.get();
-            Enum[] values = value.getDeclaringClass().getEnumConstants();
-            value = values[(value.ordinal() + 1) % values.length];
-            ((Setting)setting).set(value);
-
-            // refresh
-            this.setting.set(this.setting.peek());
-        }
-
-        @SuppressWarnings("unchecked")
-        private void cycleBoolean() {
-            final Setting<?> setting = this.setting.peek();
-
-            // flip boolean
-            Boolean b = (Boolean) setting.get();
-            ((Setting<Boolean>)setting).set(!b);
-
-            // refresh
-            this.setting.set(this.setting.peek());
+        @Override
+        public Stylesheet getStylesheet() {
+            return new Stylesheet()
+                    .tag("controller", Style.create().set(WIDTH, fixed(OptionalInt.of(100))))
+                    .tag("setting-display", Style.create()
+                            .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
+                            .set(Div.JUSTIFY_CONTENT, Justify.SPACE_BETWEEN))
+                    .self(Style.create()
+                            .set(Div.ALIGN_ITEMS, Align.STRETCH_CENTRE));
         }
     }
 }

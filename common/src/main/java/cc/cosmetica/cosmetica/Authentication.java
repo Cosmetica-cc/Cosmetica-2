@@ -19,6 +19,7 @@ package cc.cosmetica.cosmetica;
 import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.impl.BlockModelManager;
 import cc.cosmetica.core.impl.Logging;
+import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
@@ -62,7 +63,7 @@ public final class Authentication {
         CosmeticaAPI.addAuthenticationChangeCallback(() -> {
             // clear settings when deauthenticating
             if (!CosmeticaAPI.isAuthenticated()) {
-                Minecraft.getInstance().execute(Setting::clearSettings);
+                Minecraft.getInstance().execute(CosmeticaSettings::clearSettings);
             }
 
             // Try re-login when deauthenticated, and clear self cosmetics if cannot reauthenticate

@@ -21,6 +21,7 @@ import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.gui.HomeScreen;
 import cc.cosmetica.cosmetica.gui.OutfitWheelScreen;
 import cc.cosmetica.cosmetica.gui.SnipeScreen;
+import cc.cosmetica.cosmetica.settings.Setting;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.cosmetica.util.Sniper;
 import cc.cosmetica.kupe.api.Screens;

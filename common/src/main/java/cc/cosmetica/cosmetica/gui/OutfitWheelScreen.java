@@ -23,7 +23,7 @@ import cc.cosmetica.core.api.texture.CosmeticaTexture;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.Keybinds;
-import cc.cosmetica.cosmetica.Setting;
+import cc.cosmetica.cosmetica.settings.Setting;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
 import cc.cosmetica.cosmetica.mixin.keybinds.KeyMappingAccessor;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
@@ -41,7 +41,6 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;

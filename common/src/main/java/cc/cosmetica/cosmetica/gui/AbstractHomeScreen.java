@@ -20,10 +20,10 @@ import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.core.api.NametagConfig;
 import cc.cosmetica.cosmetica.Cosmetica;
-import cc.cosmetica.cosmetica.Setting;
 import cc.cosmetica.cosmetica.gui.widget.IconButton;
 import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
 import cc.cosmetica.cosmetica.gui.widget.OutfitPlayer;
+import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.Screens;
@@ -61,7 +61,7 @@ public abstract class AbstractHomeScreen extends Screen implements AnimatedTextu
                                 new Div(
                                         new IconButton(
                                                 new ResourceKey("cosmetica", "textures/gear.png"),
-                                                () -> Screens.setScreen(new CosmeticaSettingsScreen(CosmeticaSettingsScreen.SETTINGS_SCREEN, Setting.SETTINGS), CosmeticaSettingsScreen.SETTINGS_SCREEN)),
+                                                () -> Screens.setScreen(new CosmeticaSettingsScreen(CosmeticaSettingsScreen.SETTINGS_SCREEN, CosmeticaSettings.SETTINGS), CosmeticaSettingsScreen.SETTINGS_SCREEN)),
                                         new IconButton(
                                                 new ResourceKey("minecraft", "textures/item/name_tag.png"),
                                                 () -> Screens.setScreen(StyleNametagScreen.ID))
