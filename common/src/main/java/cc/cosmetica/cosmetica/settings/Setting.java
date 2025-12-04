@@ -19,11 +19,8 @@ package cc.cosmetica.cosmetica.settings;
 import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Component;
-import com.google.common.collect.ImmutableList;
-import gg.cloaks.javaclient.model.Settings;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.annotation.Nullable;
 
 /**
  * Represents a setting.
@@ -36,10 +33,15 @@ public abstract class Setting<T> {
 
     public final Text name;
     private T setting;
+    private @Nullable T managedValue = null;
     private boolean modified;
 
     public T get() {
-        return this.setting;
+        return managedValue != null && !CosmeticaSettings.USE_CLOUD_SETTINGS.get() ? managedValue : setting;
+    }
+
+    public boolean isManaged() {
+        return managedValue != null && !CosmeticaSettings.USE_CLOUD_SETTINGS.get();
     }
 
     public boolean isModified() {
@@ -59,6 +61,10 @@ public abstract class Setting<T> {
      */
     void update(T newValue) {
         this.setting = newValue;
+    }
+
+    void manage(T managedValue) {
+        this.managedValue = managedValue;
     }
 
     public void clean() {

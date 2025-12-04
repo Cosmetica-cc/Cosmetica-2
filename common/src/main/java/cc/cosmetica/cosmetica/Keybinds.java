@@ -21,7 +21,7 @@ import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.gui.HomeScreen;
 import cc.cosmetica.cosmetica.gui.OutfitWheelScreen;
 import cc.cosmetica.cosmetica.gui.SnipeScreen;
-import cc.cosmetica.cosmetica.settings.Setting;
+import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.cosmetica.util.Sniper;
 import cc.cosmetica.kupe.api.Screens;
@@ -97,7 +97,7 @@ public class Keybinds {
         if (set) {
             if (screen == null) {
                 Minecraft.getInstance().setScreen(new OutfitWheelScreen());
-            } else if (Setting.TOGGLE_OUTFIT_WHEEL.get() && screen instanceof OutfitWheelScreen) {
+            } else if (CosmeticaSettings.TOGGLE_OUTFIT_WHEEL.get() && screen instanceof OutfitWheelScreen) {
                 Minecraft.getInstance().setScreen(null);
             }
         }

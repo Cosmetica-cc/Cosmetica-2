@@ -23,9 +23,9 @@ import cc.cosmetica.core.api.texture.CosmeticaTexture;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.Keybinds;
-import cc.cosmetica.cosmetica.settings.Setting;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
 import cc.cosmetica.cosmetica.mixin.keybinds.KeyMappingAccessor;
+import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.cosmetica.util.Division;
 import cc.cosmetica.kupe.api.Canvas;
@@ -305,7 +305,7 @@ public class OutfitWheelScreen extends Screen {
 
     @Override
     public void tick() {
-        if (!Setting.TOGGLE_OUTFIT_WHEEL.get()) {
+        if (!CosmeticaSettings.TOGGLE_OUTFIT_WHEEL.get()) {
             if (!isDown(Keybinds.SELECT_OUTFIT)) {
                 this.onClose();
             }
@@ -472,7 +472,7 @@ public class OutfitWheelScreen extends Screen {
 
     @Override
     public boolean shouldCloseOnEsc() {
-        return Setting.TOGGLE_OUTFIT_WHEEL.get();
+        return CosmeticaSettings.TOGGLE_OUTFIT_WHEEL.get();
     }
 
     /**
