@@ -17,12 +17,10 @@
 package cc.cosmetica.cosmetica.gui.player;
 
 import cc.cosmetica.core.api.Accessory;
-import cc.cosmetica.core.api.CosmeticManager;
 import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.core.mixin.PlayerModelAccessor;
-import cc.cosmetica.cosmetica.util.SelfCosmeticsReader;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import com.mojang.math.Quaternion;
@@ -117,9 +115,7 @@ public class AccessoriesAttachment implements GUIPlayer.Attachment<Collection<Ac
 
         // check if self
         if (UUIDTypeAdapter.fromString(Minecraft.getInstance().getUser().getUuid()).equals(uuid)) {
-            Cosmetics cosmetics = SelfCosmeticsReader.getCosmetics();
-            if (cosmetics == null) return null;
-            return cosmetics.getAccessories();
+            return SelfCosmeticManager.getCosmetics().map(Cosmetics::getAccessories).orElse(null);
         }
 
         return null;

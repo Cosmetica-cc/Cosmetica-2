@@ -55,8 +55,9 @@ public final class Authentication {
             return t;
         }
     });
-    private static boolean authenticating = false;
+    private static volatile boolean authenticating = false;
     private static final AtomicInteger RETRIES = new AtomicInteger(0);
+    private static final Object lock = new Object();
 
     static void authenticate() {
         // download current settings and update settings on authentication change
@@ -66,18 +67,27 @@ public final class Authentication {
                 Minecraft.getInstance().execute(CosmeticaSettings::clearSettings);
             }
 
-            // Try re-login when deauthenticated, and clear self cosmetics if cannot reauthenticate
-            if (!authenticating && !CosmeticaAPI.isAuthenticated()) {
-                authenticating = true;
+            boolean startAuth = false;
+
+            synchronized (lock) {
+                // Try re-login when deauthenticated, and clear self cosmetics if cannot reauthenticate
+                if (!authenticating && !CosmeticaAPI.isAuthenticated()) {
+                    authenticating = true;
+                    startAuth = true;
+                } else if (CosmeticaAPI.isAuthenticated()) {
+                    RETRIES.set(0);
+                    authenticating = false;
+                }
+            }
+
+            if (startAuth) {
                 startAuthentication();
-            } else {
-                RETRIES.set(0);
-                authenticating = false;
             }
         });
 
         // cosmetica.token is used by core as for testing. we want to keep this behaviour for our testing.
         if (!System.getProperties().containsKey("cosmetica.token")) {
+            authenticating = true;
             startAuthentication();
         }
     }
