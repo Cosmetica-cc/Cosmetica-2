@@ -17,8 +17,10 @@
 package cc.cosmetica.cosmetica;
 
 import cc.cosmetica.core.api.CosmeticaAPI;
+import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
 import cc.cosmetica.core.impl.BlockModelManager;
 import cc.cosmetica.core.impl.Logging;
+import cc.cosmetica.core.impl.LoggingCategory;
 import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -129,6 +131,11 @@ public final class Authentication {
                         TimeUnit.SECONDS
                 );
             } else {
+                if (retries == 3) {
+                    Logging.getInstance().debug(LoggingCategory.COSMETICS, "Clearing cosmetics due to 3 failed retries.");
+                    SelfCosmeticManager.clear();
+                }
+
                 Logging.getInstance().info("Retrying cosmetica login in {} seconds", retryCounts[retries]);
                 LOGIN_SCHEDULER.schedule(
                         () -> Authentication.repeatLogInFromApi(sessionsInfo, properties),
