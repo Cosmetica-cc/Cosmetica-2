@@ -96,6 +96,14 @@ public class Cosmetica {
 		});
 		// updates to cosmetic stuff
 		Cosmetics.registerUserDataFetchCallback((data, cosmetics) -> {
+			if (data == null) {
+				Logging.getInstance().debug(CosmeticaLogCategory.EVENTS, "Own cosmetics cleared");
+				Minecraft.getInstance().execute(() -> {
+					OWN_COSMETICS.set(null);
+				});
+				return;
+			}
+
 			Logging.getInstance().debug(CosmeticaLogCategory.EVENTS, "Received own cosmetics");
 
 			fetchOutfits();

@@ -84,6 +84,7 @@ public final class BooleanSetting extends Setting<Boolean> {
 
     @Override
     public Component createController(State<Boolean> updater) {
+        // TODO make settings update based on dependants (move states to setting somehow?)
         return new CycleButton<>(updater, this::cycleBoolean, defaultText ? null : this.baseKey);
     }
 

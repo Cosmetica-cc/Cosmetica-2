@@ -16,6 +16,8 @@
 
 package cc.cosmetica.cosmetica.gui.widget;
 
+import cc.cosmetica.core.api.CosmeticaAPI;
+import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screens;
@@ -27,6 +29,7 @@ import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,6 +46,9 @@ public class MenuEndSelection extends Div {
     @Override
     public List<Component> build() {
         boolean clicked = this.clicked.acquire(this);
+        // refresh on cosmetics change (auth likely changed)
+        Cosmetica.OWN_COSMETICS.acquire(this);
+        boolean isLoggedIn = CosmeticaAPI.isAuthenticated();
 
         return ImmutableList.of(
                 new Button(Text.GUI_DONE, Screens::closeCurrentScreen).setDisabled(this.disabled),
@@ -53,11 +59,12 @@ public class MenuEndSelection extends Div {
                     if (this.clicked.peek() && !region.contains((int)x, (int)y)) {
                         this.clicked.set(false);
                     }
-                })
+                }).setDisabled(!isLoggedIn)
                 .withStyle(Style.create()
                         .set(TOOLTIP, Optional.of(new Tooltip(
                                 clicked ? Text.translatable("tooltip.cosmetica.copiedURL")
-                                        : Text.translatable("tooltip.cosmetica.openWebPanel")
+                                        : isLoggedIn ? Text.translatable("tooltip.cosmetica.openWebPanel")
+                                                     : Text.translatable("tooltip.cosmetica.offline")
                         )))
                         .set(POINTER_EVENTS, PointerEvents.ALL)
                 )
