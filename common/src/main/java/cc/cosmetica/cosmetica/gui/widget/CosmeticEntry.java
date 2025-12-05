@@ -102,10 +102,7 @@ public class CosmeticEntry extends Component {
 					new Button(Text.literal("-"), () -> {
 						Screens.setScreen(new ConfirmRemoveCosmeticScreen(this.parentOutfit, this.id, this.name, this.mirrored), Text.translatable("screens.cosmetica.confirmDeletion"));
 					}).setDisabled(this.editable == Type.REMOVABLE_OFFLINE)
-					  .withStyle(Style.create().set(TOOLTIP,
-							this.editable == Type.REMOVABLE ? Optional.empty()
-									: Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.offline")))
-					  ))
+					  .withStyle(Cosmetica.authTooltipStyle(this.editable == Type.REMOVABLE))
 					  .tag("button_subtract")
 			);
 		} else if (this.editable.hasEquipButton()) {

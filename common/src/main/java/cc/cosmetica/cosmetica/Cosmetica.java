@@ -181,10 +181,27 @@ public class Cosmetica {
 		}
 	}
 
-	public static Style authTooltip(boolean authenticated) {
+	/*public static Style authTooltip(Component acquirer, boolean authenticated) {
+		Optional<LoginResult> result = Authentication.LOGIN_RESULT.acquire(acquirer);
+
+		return Style.create().set(TOOLTIP, authenticated ?
+				Optional.empty() :
+				Optional.of(new Tooltip(
+                        result.map(loginResult -> Text.translatable("tooltip.cosmetica.offline." + loginResult.getCode().toString().toLowerCase(Locale.ROOT)))
+								.orElseGet(() -> Text.translatable("tooltip.cosmetica.offline.offline"))
+				)));
+	}*/
+
+	public static Style authTooltipStyle(boolean authenticated) {
 		return Style.create().set(TOOLTIP, authenticated ?
 				Optional.empty() :
 				Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.offline"))));
+	}
+
+	public static Optional<Tooltip> authTooltip(boolean authenticated) {
+		return authenticated ?
+				Optional.empty() :
+				Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.offline")));
 	}
 
 	// ============== //

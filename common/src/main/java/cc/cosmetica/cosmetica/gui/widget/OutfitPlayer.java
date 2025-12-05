@@ -27,7 +27,6 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.SkinCustomizationScreen;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -91,7 +90,7 @@ public class OutfitPlayer extends Component {
 							Text.translatable("button.cosmetica.toggleElytra")),
 					new Button(Text.translatable("button.cosmetica.changeOutfit"), () -> Screens.setScreen(OutfitSelectScreen.ID))
 							.setDisabled(!authenticated || disable)// hide tooltip if just disabled
-							.withStyle(Cosmetica.authTooltip(disable||authenticated)),
+							.withStyle(Cosmetica.authTooltipStyle(disable||authenticated)),
 //					new Button(Text.translatable("button.cosmetica.styleNametag"), () -> {
 //						Screens.setScreen(StyleNametagScreen.ID);
 //					}),

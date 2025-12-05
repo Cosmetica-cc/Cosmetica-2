@@ -17,11 +17,13 @@
 package cc.cosmetica.cosmetica;
 
 import cc.cosmetica.core.api.CosmeticaAPI;
+import cc.cosmetica.core.api.LoginResult;
 import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
 import cc.cosmetica.core.impl.BlockModelManager;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.core.impl.LoggingCategory;
 import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
+import cc.cosmetica.kupe.api.State;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
@@ -35,6 +37,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -60,6 +63,7 @@ public final class Authentication {
     private static volatile boolean authenticating = false;
     private static final AtomicInteger RETRIES = new AtomicInteger(0);
     private static final Object lock = new Object();
+    public static final State<Optional<LoginResult>> LOGIN_RESULT = new State<>(Optional.empty());
 
     static void authenticate() {
         // download current settings and update settings on authentication change
@@ -194,7 +198,13 @@ public final class Authentication {
      */
     private static boolean logInFromApi(Path sessionInfoPath, Properties sessionInfo) {
         try {
-            if (CosmeticaAPI.login().isSuccess()) {
+            LoginResult result = CosmeticaAPI.login();
+            Minecraft.getInstance().execute(() -> {
+                if (!LOGIN_RESULT.peek().isPresent() || LOGIN_RESULT.peek().get() != result) {
+                    LOGIN_RESULT.set(Optional.of(result));
+                }
+            });
+            if (result.isSuccess()) {
                 String token = CosmeticaAPI.getSessionToken(); // will only be empty if someone deauthenticated in between
                 User user = Minecraft.getInstance().getUser();
 

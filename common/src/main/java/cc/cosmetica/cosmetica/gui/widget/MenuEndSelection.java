@@ -61,11 +61,13 @@ public class MenuEndSelection extends Div {
                     }
                 }).setDisabled(!isLoggedIn)
                 .withStyle(Style.create()
-                        .set(TOOLTIP, Optional.of(new Tooltip(
-                                clicked ? Text.translatable("tooltip.cosmetica.copiedURL")
-                                        : isLoggedIn ? Text.translatable("tooltip.cosmetica.openWebPanel")
-                                                     : Text.translatable("tooltip.cosmetica.offline")
-                        )))
+                        .set(TOOLTIP, Optional.of(
+                                Cosmetica.authTooltip(isLoggedIn)
+                                        .orElse(new Tooltip(clicked ?
+                                                Text.translatable("tooltip.cosmetica.copiedURL") :
+                                                Text.translatable("tooltip.cosmetica.openWebPanel"))
+                                        )
+                        ))
                         .set(POINTER_EVENTS, PointerEvents.ALL)
                 )
         );
