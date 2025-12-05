@@ -38,15 +38,21 @@ public final class CosmeticaSettings {
      */
     public static final Setting<Boolean> USE_CLOUD_SETTINGS = new BooleanSetting("setting.cosmetica.cloud", false, true);
     // API Settings
-    public static final Setting<Boolean> SHOW_LORE = new BooleanSetting("setting.cosmetica.showLore", true, true);
     public static final Setting<Boolean> SHOW_ACCESSORIES = new BooleanSetting("setting.cosmetica.showAccessories", true, true);
-    public static final Setting<Boolean> SHOW_ICONS = new BooleanSetting("setting.cosmetica.showIcons", true, true);
-    public static final Setting<Boolean> SHOW_SPECIAL_ICONS = new BooleanSetting("setting.cosmetica.showSpecialIcons", true, true);
-    public static final Setting<Boolean> SHOW_OFFLINE_ICONS = new BooleanSetting("setting.cosmetica.showOfflineIcons", true, true);
+    public static final Setting<Boolean> SHOW_LORE = new BooleanSetting("setting.cosmetica.showLore", true, true);
+    public static final BooleanSetting SHOW_ICONS = new BooleanSetting("setting.cosmetica.showIcons", true, true);
+    public static final Setting<Boolean> SHOW_SPECIAL_ICONS = new BooleanSetting("setting.cosmetica.showSpecialIcons", true, true).dependsOn(SHOW_ICONS);
+    public static final Setting<Boolean> SHOW_OFFLINE_ICONS = new BooleanSetting("setting.cosmetica.showOfflineIcons", true, true).dependsOn(SHOW_ICONS);
     public static final Setting<Boolean> SHOW_ONLINE_ACTIVITY = new BooleanSetting("setting.cosmetica.showOnlineActivity", true, true);
 
     private static final List<Setting<?>> CLIENT_SETTINGS = ImmutableList.of(TOGGLE_OUTFIT_WHEEL);
-    private static final List<Setting<?>> API_SETTINGS = ImmutableList.of(TOGGLE_OUTFIT_WHEEL);
+    private static final List<Setting<?>> API_SETTINGS = ImmutableList.of(
+            SHOW_ACCESSORIES,
+            SHOW_LORE,
+            SHOW_ICONS,
+            SHOW_SPECIAL_ICONS,
+            SHOW_OFFLINE_ICONS,
+            SHOW_ONLINE_ACTIVITY);
 
     public static final State<List<Setting<?>>> SETTINGS = new State<>(CLIENT_SETTINGS);
 

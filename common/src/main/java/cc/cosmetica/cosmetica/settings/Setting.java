@@ -40,12 +40,16 @@ public abstract class Setting<T> {
         return managedValue != null && !CosmeticaSettings.USE_CLOUD_SETTINGS.get() ? managedValue : setting;
     }
 
-    public boolean isManaged() {
-        return managedValue != null && !CosmeticaSettings.USE_CLOUD_SETTINGS.get();
+    public Management getManagement() {
+        return managedValue != null && !CosmeticaSettings.USE_CLOUD_SETTINGS.get() ? Management.MODPACK : Management.NONE;
     }
 
     public boolean isModified() {
         return modified;
+    }
+
+    public boolean hasDescription() {
+        return true;
     }
 
     /**
@@ -73,4 +77,14 @@ public abstract class Setting<T> {
 
     abstract public Component createController(State<T> updater);
     abstract public Text createDescription(T value);
+
+    public enum Management {
+        NONE,
+        MODPACK,
+        PARENT_SETTING;
+
+        boolean isManaged() {
+            return this != NONE;
+        }
+    }
 }

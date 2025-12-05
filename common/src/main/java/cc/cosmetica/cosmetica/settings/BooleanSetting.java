@@ -21,6 +21,10 @@ import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Component;
 
+import javax.annotation.Nullable;
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * Setting which can be true or false.
  */
@@ -33,9 +37,49 @@ public final class BooleanSetting extends Setting<Boolean> {
 
     private final boolean defaultText;
     private final String baseKey;
+    private @Nullable BooleanSetting dependency;
+
+    // < Dependencies >
+    public BooleanSetting dependsOn(BooleanSetting other) {
+        this.dependency = other;
+        return this;
+    }
+
+    @Override
+    public Boolean get() {
+        if (this.dependency != null) {
+            return this.dependency.get() && super.get();
+        }
+        return super.get();
+    }
+
+    @Override
+    public Management getManagement() {
+        if (this.dependency != null && !this.dependency.get()) {
+            return Management.PARENT_SETTING;
+        } else {
+            return super.getManagement();
+        }
+    }
+
+    @Override
+    public boolean isModified() {
+        if (this.dependency != null) {
+            return this.dependency.isModified() || super.isModified();
+        }
+
+        return super.isModified();
+    }
+
+    // < /Dependencies >
 
     private boolean cycleBoolean() {
         return !this.get();
+    }
+
+    @Override
+    public boolean hasDescription() {
+        return this.defaultText;
     }
 
     @Override

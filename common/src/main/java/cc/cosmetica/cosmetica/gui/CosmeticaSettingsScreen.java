@@ -94,13 +94,12 @@ public class CosmeticaSettingsScreen extends Screen {
             }
 
             // return components
-            return ImmutableList.of(
-                    new Div(
-                            new Label(text),
-                            this.setting.createController(this.state).tag("controller")
-                    ).tag("setting-display"),
-                    new Label(this.setting.createDescription(value))
-            );
+            Component main = new Div(
+                    new Label(text),
+                    this.setting.createController(this.state).tag("controller")
+            ).tag("setting-display");
+
+            return this.setting.hasDescription() ? ImmutableList.of(main, new Label(this.setting.createDescription(value))) : ImmutableList.of(main);
         }
 
         @Override
