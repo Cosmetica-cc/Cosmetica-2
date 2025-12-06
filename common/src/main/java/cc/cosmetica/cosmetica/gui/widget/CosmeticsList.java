@@ -34,23 +34,22 @@ import java.util.OptionalInt;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 public class CosmeticsList extends Div {
-	public CosmeticsList(Collection<CosmeticEntry> entries, ListType editable) {
+	public CosmeticsList(Collection<CosmeticEntry> entries, ListType listType) {
 		this.entries = entries.toArray(new CosmeticEntry[0]);
-		this.editable = editable;
+		this.listType = listType;
 	}
 
 	protected final CosmeticEntry[] entries;
-	private final ListType editable;
+	private final ListType listType;
 
 	@Override
 	public List<Component> build() {
-		String[] buttonTags = this.editable == ListType.DISABLED ? new String[]{"width-250", "no-outfit-disabled"} : new String[]{"width-250"};
-		return this.editable != ListType.LIST_ONLY ? ImmutableList.of(
+		return this.listType != ListType.LIST_ONLY ? ImmutableList.of(
 				new EntryList.Div(this.entries)
 						.tag("width-250", "contents-wrapper"),
 				new Button(Text.literal("+"), () ->
 					Screens.setScreen(BrowseScreen.ID)
-				).setDisabled(this.editable == ListType.DISABLED).tag(buttonTags)
+				).setDisabled(this.listType == ListType.DISABLED || this.listType == ListType.OFFLINE).tag(this.listType.buttonTags)
 		) : ImmutableList.of(
 				new EntryList.Div(this.entries)
 						.tag("width-250", "contents-wrapper")
@@ -69,21 +68,33 @@ public class CosmeticsList extends Div {
 				.tag("width-250", Style.create()
 						.set(WIDTH, fixed(OptionalInt.of(250))))
 				.tag("no-outfit-disabled", Style.create()
-						.set(TOOLTIP, Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.noOutfitDisabled")))));
+						.set(TOOLTIP, Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.noOutfitDisabled")))))
+				.tag("no-outfit-offline", Style.create()
+						.set(TOOLTIP, Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.offline")))));
 	}
 
 	public enum ListType {
 		/**
 		 * Outfits that are editable by the user.
 		 */
-		EDITABLE,
+		EDITABLE("width-250"),
 		/**
 		 * Outfits that can only be displayed.
 		 */
-		LIST_ONLY,
+		LIST_ONLY("width-250"),
 		/**
 		 * In a context where the list is usually editable, but no outfit is selected and therefore the button should be disabled.
 		 */
-		DISABLED
+		DISABLED("width-250", "no-outfit-disabled"),
+		/**
+		 * In a context where the list is usually editable, but the user is offline and therefore the button should be disabled.
+		 */
+		OFFLINE("width-250", "no-outfit-offline");
+
+		ListType(String... buttonTags) {
+			this.buttonTags = buttonTags;
+		}
+
+		private final String[] buttonTags;
 	}
 }

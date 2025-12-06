@@ -18,8 +18,11 @@ package cc.cosmetica.cosmetica.gui;
 
 import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.Cosmetics;
+import cc.cosmetica.core.api.ImageCosmetic;
 import cc.cosmetica.core.api.NametagConfig;
+import cc.cosmetica.cosmetica.CacheCosmeticManager;
 import cc.cosmetica.cosmetica.Cosmetica;
+import cc.cosmetica.cosmetica.gui.player.AccessoriesAttachment;
 import cc.cosmetica.cosmetica.gui.widget.IconButton;
 import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
 import cc.cosmetica.cosmetica.gui.widget.OutfitPlayer;
@@ -54,6 +57,11 @@ public abstract class AbstractHomeScreen extends Screen implements AnimatedTextu
         Cosmetics cosmetics = Cosmetica.OWN_COSMETICS.acquire(this);
         boolean authenticated = CosmeticaAPI.isAuthenticated();
 
+        // load cache cosmetics
+        if (cosmetics == null && !authenticated) {
+            cosmetics = Cosmetica.getCacheCosmeticManager().getCosmetics(null);
+        }
+
         return new Component[] {
                 new Div(
                         new LayeredSpace(true,
@@ -82,11 +90,19 @@ public abstract class AbstractHomeScreen extends Screen implements AnimatedTextu
     }
 
     protected Component createOutfitPlayer(UUID self, boolean authenticated, Cosmetics cosmetics) {
-        return new OutfitPlayer(self,
+        OutfitPlayer player = new OutfitPlayer(self,
                 authenticated,
                 Optional.ofNullable(cosmetics).flatMap(Cosmetics::getOutfitName).orElse("§7No Outfit"),
                 Optional.ofNullable(cosmetics).flatMap(Cosmetics::getLore).orElse(NametagConfig.EMPTY),
                 Optional.ofNullable(cosmetics).map(Cosmetics::getNametag).orElse(NametagConfig.EMPTY));
+        // add cache cosmetics to outfit player
+        if (!authenticated && cosmetics != null) {
+            player.configureOverrides(p -> p
+                    .configureOverride(AccessoriesAttachment.INSTANCE, cosmetics.getAccessories())
+                    .configureOverride(GUIPlayer.CAPE, cosmetics.getCloak().map(ImageCosmetic::getImage).map(c -> c.location).orElse(null))
+                    .configureOverride(GUIPlayer.ELYTRA, cosmetics.getElytra().map(ImageCosmetic::getImage).map(c -> new GUIPlayer.ElytraProperties(c.location, false, true)).orElse(GUIPlayer.ElytraProperties.DEFAULT)));
+        }
+        return player;
     }
 
     /**

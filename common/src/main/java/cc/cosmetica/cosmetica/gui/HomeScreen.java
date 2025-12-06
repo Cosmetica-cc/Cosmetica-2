@@ -57,17 +57,15 @@ public class HomeScreen extends AbstractHomeScreen {
 				boolean dismissedError = HomeScreen.this.dismissedError.acquire(this);
 				LoginResult result = Authentication.LOGIN_RESULT.acquire(this).orElse(GENERIC);
 
-				if (!authenticated && !dismissedError && dismissed != result) {
+				if (!authenticated && (!dismissedError || dismissed != result)) {
 					return ImmutableList.of(NotLoggedIn(result));
 				}
 
 				List<CosmeticEntry> entries = new ArrayList<>();
-				CosmeticEntry.populateEntryList(entries, authenticated
-						? Cosmetica.getCacheCosmeticManager().getCosmetics(null)
-						: cosmetics, CosmeticEntry.Type.removable(authenticated));
+				CosmeticEntry.populateEntryList(entries, cosmetics, CosmeticEntry.Type.removable(authenticated));
 
 				return ImmutableList.of(
-						new CosmeticsList(entries, cosmetics == null ? CosmeticsList.ListType.DISABLED : CosmeticsList.ListType.EDITABLE)
+						new CosmeticsList(entries, !authenticated ? CosmeticsList.ListType.OFFLINE : cosmetics == null ? CosmeticsList.ListType.DISABLED : CosmeticsList.ListType.EDITABLE)
 				);
 			}
 		};
