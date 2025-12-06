@@ -124,7 +124,7 @@ public final class Authentication {
 
     private static void repeatLogInFromApi(Path sessionsInfo, Properties properties) {
         if (!Authentication.logInFromApi(sessionsInfo, properties)) {
-            final int[] retryCounts = new int[]{0, 2, 5, 10, 30};
+            final int[] retryCounts = new int[]{1, 5, 10, 30, 60};
 
             int retries = RETRIES.getAndIncrement();
             if (retries >= retryCounts.length) {
