@@ -70,6 +70,8 @@ public class Cosmetica {
 	 */
 	private static CacheCosmeticManager cacheCosmeticManager;
 
+	public static CacheCosmeticManager getCacheCosmeticManager() { return cacheCosmeticManager; }
+
 	public static void init() {
 		Screens.setAllowDebug(true);
 

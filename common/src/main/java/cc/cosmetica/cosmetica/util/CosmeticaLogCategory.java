@@ -26,4 +26,5 @@ public interface CosmeticaLogCategory {
     LoggingCategory EVENTS = new LoggingCategory("events");
     LoggingCategory GUI = new LoggingCategory("gui");
     LoggingCategory KEYBINDS = new LoggingCategory("keybinds");
+    LoggingCategory LOGIN = new LoggingCategory("login");
 }

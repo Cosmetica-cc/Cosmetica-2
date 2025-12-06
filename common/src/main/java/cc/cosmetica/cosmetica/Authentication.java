@@ -23,16 +23,19 @@ import cc.cosmetica.core.impl.BlockModelManager;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.core.impl.LoggingCategory;
 import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
+import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.kupe.api.State;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
+import gg.cloaks.javaclient.ApiException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -197,11 +200,24 @@ public final class Authentication {
      * @return whether the current login was a success.
      */
     private static boolean logInFromApi(Path sessionInfoPath, Properties sessionInfo) {
+        Logging.getInstance().debug(CosmeticaLogCategory.LOGIN, "Logging in to Cosmetica...");
+
         try {
             LoginResult result = CosmeticaAPI.login();
+            Logging.getInstance().debug(CosmeticaLogCategory.LOGIN, "LoginResult received");
+
             Minecraft.getInstance().execute(() -> {
-                if (!LOGIN_RESULT.peek().isPresent() || LOGIN_RESULT.peek().get() != result) {
-                    LOGIN_RESULT.set(Optional.of(result));
+                LoginResult message = result;
+                if (result.getException().isPresent() && result.getException().get() instanceof ApiException) {
+                    if (result.getException().get().getCause() instanceof UnknownHostException) {
+                        // internally represent no internet := "success" but success:false
+                        message = new LoginResult(false, LoginResult.Code.SUCCESS, result.getMessage(), (UnknownHostException)result.getException().get().getCause());
+                    }
+                }
+                if (!LOGIN_RESULT.peek().isPresent()
+                        || LOGIN_RESULT.peek().get().getCode() != message.getCode()
+                        || LOGIN_RESULT.peek().get().isSuccess() != message.isSuccess()) {
+                    LOGIN_RESULT.set(Optional.of(message));
                 }
             });
             if (result.isSuccess()) {
@@ -219,6 +235,12 @@ public final class Authentication {
 
                 return true;
             }
+        } catch (UnknownHostException e) {
+            Logging.getInstance().error("Failed to log in", e);
+            Minecraft.getInstance().execute(() -> {
+                // internally represent no internet := "success" but success:false
+                LOGIN_RESULT.set(Optional.of(new LoginResult(false, LoginResult.Code.SUCCESS, e.getMessage(), e)));
+            });
         } catch (IOException e) {
             Logging.getInstance().error("Failed to log in", e);
         }
