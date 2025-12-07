@@ -21,6 +21,7 @@ import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Component;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 /**
  * Represents a setting.
@@ -28,7 +29,7 @@ import javax.annotation.Nullable;
 public abstract class Setting<T> {
     public Setting(String key, T defaultValue) {
         this.name = Text.translatable(key);
-        this.userValue = defaultValue;
+        this.oldUserValue = this.userValue = defaultValue;
         this.actualValue = new State<>(defaultValue);
     }
 
@@ -38,6 +39,7 @@ public abstract class Setting<T> {
     private @Nullable T parentManagedValue = null;
     private @Nullable T packValue = null;
     private T userValue;
+    private T oldUserValue;
     // ...
     private boolean modified;
 
@@ -68,7 +70,7 @@ public abstract class Setting<T> {
      */
     public void set(T newValue) {
         this.update(newValue);
-        this.modified = true;
+        this.modified = !Objects.equals(this.userValue, this.oldUserValue);
     }
 
     /**
@@ -122,6 +124,7 @@ public abstract class Setting<T> {
 
     public void clean() {
         this.modified = false;
+        this.oldUserValue = this.userValue;
     }
 
     abstract public Component createController();

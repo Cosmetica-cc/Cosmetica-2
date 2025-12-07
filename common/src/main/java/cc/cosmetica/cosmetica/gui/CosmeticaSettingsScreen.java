@@ -17,6 +17,7 @@
 package cc.cosmetica.cosmetica.gui;
 
 import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
+import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
 import cc.cosmetica.cosmetica.settings.Setting;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screen;
@@ -28,6 +29,7 @@ import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
+import gg.cloaks.javaclient.model.UpdateSettingsDto;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -78,6 +80,12 @@ public class CosmeticaSettingsScreen extends Screen {
                 .tag("setting-block", Style.create()
                         .set(MIN_WIDTH, fixedSize(200))
                         .set(WIDTH, screen(50, 0)));
+    }
+
+    @Override
+    public void unmount() {
+        // update settings
+        CosmeticaSettings.API_SETTINGS.stream().anyMatch(Setting::isModified);
     }
 
     public static final ResourceKey SETTINGS_SCREEN = new ResourceKey("cosmetica", "settings");

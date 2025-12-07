@@ -54,8 +54,8 @@ public final class CosmeticaSettings {
             .forceWhenOff(SHOW_OFFLINE_ICONS, false);
     public static final Setting<Boolean> SHOW_ONLINE_ACTIVITY = new BooleanSetting("setting.cosmetica.showOnlineActivity", true, true);
 
-    private static final List<Setting<?>> CLIENT_SETTINGS = new ArrayList<>(Arrays.asList(TOGGLE_OUTFIT_WHEEL));
-    private static final List<Setting<?>> API_SETTINGS = ImmutableList.of(
+    public static final List<Setting<?>> CLIENT_SETTINGS = new ArrayList<>(Arrays.asList(TOGGLE_OUTFIT_WHEEL));
+    public static final List<Setting<?>> API_SETTINGS = ImmutableList.of(
             SHOW_ACCESSORIES,
             SHOW_LORE,
             SHOW_ICONS,
