@@ -26,7 +26,6 @@ import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
-import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.NotNull;
@@ -96,7 +95,7 @@ public class CosmeticaSettingsScreen extends Screen {
 
             // create text
             Text text = this.setting.name;
-            if (this.setting.isModified()) {
+            if (this.setting.isModified() && this.setting.getManagement() != Setting.Management.PARENT_SETTING) {
                 text = Text.literal("§l" + text.getDisplayString() + "*");
             }
 
