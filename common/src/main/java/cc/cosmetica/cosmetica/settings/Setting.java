@@ -49,6 +49,10 @@ public abstract class Setting<T> {
         return this.actualValue.peek();
     }
 
+    public final T getUserValue() {
+        return this.userValue;
+    }
+
     public final T acquire(Component component) {
         return this.actualValue.acquire(component);
     }

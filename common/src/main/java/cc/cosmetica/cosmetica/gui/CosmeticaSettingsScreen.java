@@ -16,9 +16,12 @@
 
 package cc.cosmetica.cosmetica.gui;
 
+import cc.cosmetica.core.api.CosmeticaAPI;
+import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
 import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
 import cc.cosmetica.cosmetica.settings.Setting;
+import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.State;
@@ -30,6 +33,7 @@ import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.model.UpdateSettingsDto;
+import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -85,7 +89,44 @@ public class CosmeticaSettingsScreen extends Screen {
     @Override
     public void unmount() {
         // update settings
-        CosmeticaSettings.API_SETTINGS.stream().anyMatch(Setting::isModified);
+        boolean modifiedApi = CosmeticaSettings.API_SETTINGS.stream().anyMatch(Setting::isModified);
+
+        if (modifiedApi) {
+            UpdateSettingsDto dto = new UpdateSettingsDto();
+            if (CosmeticaSettings.SHOW_ACCESSORIES.isModified()) {
+                dto.showAccessories(CosmeticaSettings.SHOW_ACCESSORIES.getUserValue());
+                CosmeticaSettings.SHOW_ACCESSORIES.clean();
+            }
+            if (CosmeticaSettings.SHOW_LORE.isModified()) {
+                dto.showAccessories(CosmeticaSettings.SHOW_LORE.getUserValue());
+                CosmeticaSettings.SHOW_LORE.clean();
+            }
+            if (CosmeticaSettings.SHOW_ICONS.isModified()) {
+                dto.showAccessories(CosmeticaSettings.SHOW_ICONS.getUserValue());
+                CosmeticaSettings.SHOW_ICONS.clean();
+            }
+            if (CosmeticaSettings.SHOW_OFFLINE_ICONS.isModified()) {
+                dto.showAccessories(CosmeticaSettings.SHOW_OFFLINE_ICONS.getUserValue());
+                CosmeticaSettings.SHOW_OFFLINE_ICONS.clean();
+            }
+            if (CosmeticaSettings.SHOW_SPECIAL_ICONS.isModified()) {
+                dto.showAccessories(CosmeticaSettings.SHOW_SPECIAL_ICONS.getUserValue());
+                CosmeticaSettings.SHOW_SPECIAL_ICONS.clean();
+            }
+            if (CosmeticaSettings.SHOW_ONLINE_ACTIVITY.isModified()) {
+                dto.showAccessories(CosmeticaSettings.SHOW_ONLINE_ACTIVITY.getUserValue());
+                CosmeticaSettings.SHOW_ONLINE_ACTIVITY.clean();
+            }
+            //TODO show a popup notice if updating settings fails or retry (have some model of latest in case multiple queue)?
+            CosmeticaAPI.settings().requestAsync(api -> api.setCloud(dto))
+                    .thenAcceptAsync(user -> {
+                        Logging.getInstance().debug(CosmeticaLogCategory.SETTINGS, "Updated settings to /cloud");
+                    }, Minecraft.getInstance())
+                    .exceptionally(e -> {
+                        Logging.getInstance().error("Failed to update settings", e);
+                        return null;
+                    });
+        }
     }
 
     public static final ResourceKey SETTINGS_SCREEN = new ResourceKey("cosmetica", "settings");
