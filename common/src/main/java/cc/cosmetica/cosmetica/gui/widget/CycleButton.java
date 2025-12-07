@@ -17,7 +17,6 @@
 package cc.cosmetica.cosmetica.gui.widget;
 
 import cc.cosmetica.cosmetica.settings.Setting;
-import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Button;
 import cc.cosmetica.kupe.api.gui.Component;
@@ -32,19 +31,19 @@ import java.util.function.Supplier;
  * Button to cycle between setting options.
  */
 public class CycleButton<T> extends Div {
-    public CycleButton(Setting<T> state, Supplier<T> cycle, @Nullable String translationKeyBase) {
-        this.state = state;
+    public CycleButton(Setting<T> setting, Supplier<T> cycle, @Nullable String translationKeyBase) {
+        this.setting = setting;
         this.cycle = cycle;
         this.translationKeyBase = translationKeyBase;
     }
 
-    private final Setting<T> state;
+    private final Setting<T> setting;
     private final Supplier<T> cycle;
     private final @Nullable String translationKeyBase;
 
     @Override
     public List<Component> build() {
-        T value = this.state.acquire(this);
+        T value = this.setting.acquire(this);
 
         Text text;
         if (this.translationKeyBase == null) {
@@ -57,6 +56,7 @@ public class CycleButton<T> extends Div {
             text = Text.translatable(translationKeyBase + "." + value);
         }
 
-        return Collections.singletonList(new Button(text, () -> this.state.set(cycle.get())));
+        return Collections.singletonList(new Button(text, () -> this.setting.set(cycle.get()))
+                .setDisabled(this.setting.getManagement() != Setting.Management.USER));
     }
 }

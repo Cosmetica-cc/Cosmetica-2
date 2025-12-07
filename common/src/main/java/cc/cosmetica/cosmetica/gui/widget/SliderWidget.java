@@ -83,6 +83,11 @@ public class SliderWidget extends MinecraftBuiltinComponent {
         });
     }
 
+    @Override
+    public SliderWidget setDisabled(boolean disabled) {
+        return (SliderWidget) super.setDisabled(disabled);
+    }
+
     private boolean drag = false;
 
     @Override

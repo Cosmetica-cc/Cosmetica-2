@@ -26,6 +26,8 @@ import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
+import cc.cosmetica.kupe.api.maths.Dimensions;
+import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.NotNull;
 
@@ -53,8 +55,21 @@ public class CosmeticaSettingsScreen extends Screen {
                 .toArray(Component[]::new);
 
         return new Component[] {
-                new Div(settings),
-                new MenuEndSelection()
+                new Div(
+                        new Div(settings).withStyle(
+                                Style.create()
+                                        .set(Div.SCROLLBAR_POSITION, AbstractScrollContainer.ScrollbarPosition.OUTSIDE)
+                        ),
+                        new MenuEndSelection()
+                                .withStyle(Style.create()
+                                        .set(FLEX_SHRINK, 0)
+                                        .set(MARGINS, fixed(Margins.NONE))
+                                        .set(MIN_WIDTH, fixedSize(220)))
+                ).withStyle(Style.create()
+                        .set(Div.JUSTIFY_CONTENT, Justify.CENTRE)
+                        .set(MARGINS, fixed(new Margins(5, 0, 0, 0)))
+                        .set(PADDING, fixed(new Margins(20, 0)))
+                        .set(MIN_HEIGHT, screen(0, 100)))
         };
     }
 
@@ -71,7 +86,6 @@ public class CosmeticaSettingsScreen extends Screen {
     private static class SettingBlock<T> extends Div {
         private SettingBlock(Setting<T> setting) {
             this.setting = setting;
-            T originalValue = this.setting.get();
         }
 
         private final Setting<T> setting;
@@ -97,13 +111,19 @@ public class CosmeticaSettingsScreen extends Screen {
 
         @Override
         public Stylesheet getStylesheet() {
+            Style.MutableStyle style = Style.create()
+                    .set(FLEX_SHRINK, 0)
+                    .set(Div.ALIGN_ITEMS, Align.STRETCH_CENTRE);
+            if (this.setting.hasDescription()) {
+                style.set(HEIGHT, fixedSize(50));
+            }
+
             return new Stylesheet()
                     .tag("controller", Style.create().set(WIDTH, fixed(OptionalInt.of(100))))
                     .tag("setting-display", Style.create()
                             .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
                             .set(Div.JUSTIFY_CONTENT, Justify.SPACE_BETWEEN))
-                    .self(Style.create()
-                            .set(Div.ALIGN_ITEMS, Align.STRETCH_CENTRE));
+                    .self(style);
         }
     }
 }

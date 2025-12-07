@@ -46,7 +46,7 @@ public class FloatSetting extends Setting<Float> {
                     FloatSetting.this.set(temp.peek());
                 }
             }
-        };
+        }.setDisabled(this.getManagement() != Management.USER);
     }
 
     @Override

@@ -44,7 +44,7 @@ public class IntSetting extends Setting<Integer> {
                     IntSetting.this.set(temp.peek().intValue());
                 }
             }
-        };
+        }.setDisabled(this.getManagement() != Management.USER);
     }
 
     @Override

@@ -52,7 +52,7 @@ public abstract class Setting<T> {
     }
 
     public final Management getManagement() {
-        return parentManagedValue != null ? Management.PARENT_SETTING : (packValue != null && !CosmeticaSettings.USE_CLOUD_SETTINGS.get()) ? Management.MODPACK : Management.NONE;
+        return parentManagedValue != null ? Management.PARENT_SETTING : (packValue != null && !CosmeticaSettings.USE_CLOUD_SETTINGS.get()) ? Management.MODPACK : Management.USER;
     }
 
     public boolean isModified() {
@@ -128,12 +128,8 @@ public abstract class Setting<T> {
     abstract public Text createDescription(T value);
 
     public enum Management {
-        NONE,
+        USER,
         MODPACK,
-        PARENT_SETTING;
-
-        boolean isManaged() {
-            return this != NONE;
-        }
+        PARENT_SETTING
     }
 }
