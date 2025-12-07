@@ -21,14 +21,13 @@ import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Component;
 
-import javax.annotation.Nullable;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Setting which can be true or false.
  */
-public final class BooleanSetting extends Setting<Boolean> {
+public class BooleanSetting extends Setting<Boolean> {
     public BooleanSetting(String key, Boolean defaultValue, boolean defaultText) {
         super(key, defaultValue);
         this.defaultText = defaultText;
@@ -37,40 +36,22 @@ public final class BooleanSetting extends Setting<Boolean> {
 
     private final boolean defaultText;
     private final String baseKey;
-    private @Nullable BooleanSetting dependency;
+    private final List<ManagedSetting<?>> dependents = new ArrayList<>();
 
     // < Dependencies >
-    public BooleanSetting dependsOn(BooleanSetting other) {
-        this.dependency = other;
+    public <T> BooleanSetting forceWhenOff(Setting<T> other, T value) {
+        this.dependents.add(new ManagedSetting<>(other, value));
         return this;
     }
 
     @Override
-    public Boolean get() {
-        if (this.dependency != null) {
-            return this.dependency.get() && super.get();
-        }
-        return super.get();
-    }
-
-    @Override
-    public Management getManagement() {
-        if (this.dependency != null && !this.dependency.get()) {
-            return Management.PARENT_SETTING;
+    protected void onUpdate() {
+        if (this.get()) {
+            this.dependents.forEach(ManagedSetting::release);
         } else {
-            return super.getManagement();
+            this.dependents.forEach(ManagedSetting::manage);
         }
     }
-
-    @Override
-    public boolean isModified() {
-        if (this.dependency != null) {
-            return this.dependency.isModified() || super.isModified();
-        }
-
-        return super.isModified();
-    }
-
     // < /Dependencies >
 
     private boolean cycleBoolean() {
@@ -83,13 +64,31 @@ public final class BooleanSetting extends Setting<Boolean> {
     }
 
     @Override
-    public Component createController(State<Boolean> updater) {
+    public Component createController() {
         // TODO make settings update based on dependants (move states to setting somehow?)
-        return new CycleButton<>(updater, this::cycleBoolean, defaultText ? null : this.baseKey);
+        return new CycleButton<>(this, this::cycleBoolean, defaultText ? null : this.baseKey);
     }
 
     @Override
     public Text createDescription(Boolean value) {
         return Text.translatable(this.baseKey + "." + value + ".description");
+    }
+
+    private static class ManagedSetting<T> {
+        public ManagedSetting(Setting<T> setting, T value) {
+            this.setting = setting;
+            this.value = value;
+        }
+
+        private final Setting<T> setting;
+        private final T value;
+
+        public void manage() {
+            this.setting.parentManage(this.value);
+        }
+
+        public void release() {
+            this.setting.parentManage(null);
+        }
     }
 }

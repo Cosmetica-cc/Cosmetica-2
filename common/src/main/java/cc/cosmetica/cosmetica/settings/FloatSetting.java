@@ -35,15 +35,15 @@ public class FloatSetting extends Setting<Float> {
     private final Text description;
 
     @Override
-    public Component createController(State<Float> updater) {
-        State<Float> temp = new State<>(updater.peek());
+    public Component createController() {
+        State<Float> temp = new State<>(this.get());
 
         return new SliderWidget(temp, this.precision, f -> Text.literal(String.format("%.1f", f))) {
             @Override
             public void mouseReleased(double x, double y, int button) {
                 if (!Objects.equals(temp.peek(), FloatSetting.this.get())) {
                     // set modified
-                    updater.set(temp.peek());
+                    FloatSetting.this.set(temp.peek());
                 }
             }
         };

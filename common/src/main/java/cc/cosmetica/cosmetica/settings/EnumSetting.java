@@ -40,8 +40,8 @@ public class EnumSetting<T extends Enum<T>> extends Setting<T> {
     }
 
     @Override
-    public Component createController(State<T> updater) {
-        return new CycleButton<>(updater, this::cycleEnum, this.translationKeyBase);
+    public Component createController() {
+        return new CycleButton<>(this, this::cycleEnum, this.translationKeyBase);
     }
 
     @Override

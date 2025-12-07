@@ -71,21 +71,14 @@ public class CosmeticaSettingsScreen extends Screen {
     private static class SettingBlock<T> extends Div {
         private SettingBlock(Setting<T> setting) {
             this.setting = setting;
-            this.state = new State<>(this.originalValue = setting.get());
+            T originalValue = this.setting.get();
         }
 
         private final Setting<T> setting;
-        private final State<T> state;
-        private final T originalValue;
 
         @Override
         public List<Component> build() {
-            T value = this.state.acquire(this);
-            this.setting.set(value);
-            // mark unmodified
-            if (value == originalValue) {
-                this.setting.clean();
-            }
+            T value = this.setting.acquire(this);
 
             // create text
             Text text = this.setting.name;
@@ -96,7 +89,7 @@ public class CosmeticaSettingsScreen extends Screen {
             // return components
             Component main = new Div(
                     new Label(text),
-                    this.setting.createController(this.state).tag("controller")
+                    this.setting.createController().tag("controller")
             ).tag("setting-display");
 
             return this.setting.hasDescription() ? ImmutableList.of(main, new Label(this.setting.createDescription(value))) : ImmutableList.of(main);

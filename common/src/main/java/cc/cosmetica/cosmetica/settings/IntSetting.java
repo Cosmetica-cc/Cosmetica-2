@@ -33,15 +33,15 @@ public class IntSetting extends Setting<Integer> {
     private final Text description;
 
     @Override
-    public Component createController(State<Integer> updater) {
-        State<Float> temp = new State<>((float)updater.peek());
+    public Component createController() {
+        State<Float> temp = new State<>((float)this.get());
 
         return new SliderWidget(temp, 1, i -> Text.literal(String.format("%d", i.intValue()))) {
             @Override
             public void mouseReleased(double x, double y, int button) {
                 if (temp.peek().intValue() == IntSetting.this.get()) {
                     // set modified
-                    updater.set(temp.peek().intValue());
+                    IntSetting.this.set(temp.peek().intValue());
                 }
             }
         };

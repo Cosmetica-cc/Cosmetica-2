@@ -16,6 +16,7 @@
 
 package cc.cosmetica.cosmetica.gui.widget;
 
+import cc.cosmetica.cosmetica.settings.Setting;
 import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Button;
@@ -31,13 +32,13 @@ import java.util.function.Supplier;
  * Button to cycle between setting options.
  */
 public class CycleButton<T> extends Div {
-    public CycleButton(State<T> state, Supplier<T> cycle, @Nullable String translationKeyBase) {
+    public CycleButton(Setting<T> state, Supplier<T> cycle, @Nullable String translationKeyBase) {
         this.state = state;
         this.cycle = cycle;
         this.translationKeyBase = translationKeyBase;
     }
 
-    private final State<T> state;
+    private final Setting<T> state;
     private final Supplier<T> cycle;
     private final @Nullable String translationKeyBase;
 

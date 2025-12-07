@@ -28,20 +28,31 @@ import javax.annotation.Nullable;
 public abstract class Setting<T> {
     public Setting(String key, T defaultValue) {
         this.name = Text.translatable(key);
-        this.setting = defaultValue;
+        this.userValue = defaultValue;
+        this.actualValue = new State<>(defaultValue);
     }
 
     public final Text name;
-    private T setting;
-    private @Nullable T managedValue = null;
+
+    // Priority of Values
+    private @Nullable T parentManagedValue = null;
+    private @Nullable T packValue = null;
+    private T userValue;
+    // ...
     private boolean modified;
 
-    public T get() {
-        return managedValue != null && !CosmeticaSettings.USE_CLOUD_SETTINGS.get() ? managedValue : setting;
+    protected final State<T> actualValue;
+
+    public final T get() {
+        return this.actualValue.peek();
     }
 
-    public Management getManagement() {
-        return managedValue != null && !CosmeticaSettings.USE_CLOUD_SETTINGS.get() ? Management.MODPACK : Management.NONE;
+    public final T acquire(Component component) {
+        return this.actualValue.acquire(component);
+    }
+
+    public final Management getManagement() {
+        return parentManagedValue != null ? Management.PARENT_SETTING : (packValue != null && !CosmeticaSettings.USE_CLOUD_SETTINGS.get()) ? Management.MODPACK : Management.NONE;
     }
 
     public boolean isModified() {
@@ -53,29 +64,67 @@ public abstract class Setting<T> {
     }
 
     /**
-     * Set a new value from the client.
+     * Set a new value from the user, that is, from a GUI, for example.
      */
     public void set(T newValue) {
-        this.setting = newValue;
+        this.update(newValue);
         this.modified = true;
     }
 
     /**
-     * Update from API.
+     * Set the user value.
      */
     void update(T newValue) {
-        this.setting = newValue;
+        this.userValue = newValue;
+        this.updateValue();
     }
 
-    void manage(T managedValue) {
-        this.managedValue = managedValue;
+    /**
+     * Update due to parent setting controlling child setting.
+     * @param managedValue the new parent-managed value.
+     */
+    void parentManage(@Nullable T managedValue) {
+        this.parentManagedValue = managedValue;
+        this.updateValue();
     }
+
+    /**
+     * Update due to mod pack controlling setting (unless user opts for cloud settings).
+     * @param managedValue the new pack-managed value.
+     */
+    void packManage(@Nullable T managedValue) {
+        this.packValue = managedValue;
+        this.updateValue();
+    }
+
+    void updateValue() {
+        // parent managed value takes priority
+        if (this.parentManagedValue != null) {
+            if (this.actualValue.peek() == parentManagedValue) return;
+            this.actualValue.set(parentManagedValue);
+            this.onUpdate();
+        } else {
+            // then pack managed value
+            if (this != CosmeticaSettings.USE_CLOUD_SETTINGS &&
+                    this.packValue != null && !CosmeticaSettings.USE_CLOUD_SETTINGS.get()) {
+                if (this.actualValue.peek() == packValue) return;
+                this.actualValue.set(packValue);
+                this.onUpdate();
+            } else {
+                if (this.actualValue.peek() == userValue) return;
+                this.actualValue.set(userValue);
+                this.onUpdate();
+            }
+        }
+    }
+
+    protected void onUpdate() {}
 
     public void clean() {
         this.modified = false;
     }
 
-    abstract public Component createController(State<T> updater);
+    abstract public Component createController();
     abstract public Text createDescription(T value);
 
     public enum Management {
