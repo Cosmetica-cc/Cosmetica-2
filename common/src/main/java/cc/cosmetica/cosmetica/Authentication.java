@@ -76,21 +76,24 @@ public final class Authentication {
                 Minecraft.getInstance().execute(CosmeticaSettings::clearSettings);
             }
 
-            boolean startAuth = false;
+            // Allow manual token setting for testing
+            if (!System.getProperties().containsKey("cosmetica.token")) {
+                boolean startAuth = false;
 
-            synchronized (lock) {
-                // Try re-login when deauthenticated, and clear self cosmetics if cannot reauthenticate
-                if (!authenticating && !CosmeticaAPI.isAuthenticated()) {
-                    authenticating = true;
-                    startAuth = true;
-                } else if (CosmeticaAPI.isAuthenticated()) {
-                    RETRIES.set(0);
-                    authenticating = false;
+                synchronized (lock) {
+                    // Try re-login when deauthenticated, and clear self cosmetics if cannot reauthenticate
+                    if (!authenticating && !CosmeticaAPI.isAuthenticated()) {
+                        authenticating = true;
+                        startAuth = true;
+                    } else if (CosmeticaAPI.isAuthenticated()) {
+                        RETRIES.set(0);
+                        authenticating = false;
+                    }
                 }
-            }
 
-            if (startAuth) {
-                startAuthentication();
+                if (startAuth) {
+                    startAuthentication();
+                }
             }
         });
 
