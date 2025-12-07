@@ -106,7 +106,7 @@ public class CosmeticaSettingsScreen extends Screen {
                     this.setting.createController().tag("controller")
             ).tag("setting-display");
 
-            return this.setting.hasDescription() ? ImmutableList.of(main, new Label(this.setting.createDescription(value))) : ImmutableList.of(main);
+            return this.setting.hasDescription() ? ImmutableList.of(main, new Label(this.setting.createDescription(value)).tag("setting-description")) : ImmutableList.of(main);
         }
 
         @Override
@@ -123,6 +123,8 @@ public class CosmeticaSettingsScreen extends Screen {
                     .tag("setting-display", Style.create()
                             .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
                             .set(Div.JUSTIFY_CONTENT, Justify.SPACE_BETWEEN))
+                    .tag("setting-description", Style.create()
+                            .set(MARGINS, fixed(new Margins(1, 0, 0, 0))))
                     .self(style);
         }
     }
