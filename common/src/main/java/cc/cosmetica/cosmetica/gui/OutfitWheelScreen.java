@@ -30,17 +30,20 @@ import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.cosmetica.util.Division;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.PolyBuilder;
+import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.impl.PoseCanvas;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import gg.cloaks.javaclient.api.OutfitsApi;
 import gg.cloaks.javaclient.model.Outfit;
 import gg.cloaks.javaclient.model.OutfitAccessory;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
@@ -182,8 +185,26 @@ public class OutfitWheelScreen extends Screen {
             }
         }
 
+        // centre
+        final float x0 = (float) (centreX) - scale /3;
+        final float y0 = (float) (centreY) - scale /3;
+        final float x1 = (float) (centreX) + scale /3;
+        final float y1 = (float) (centreY) + scale /3;
+
+        Minecraft.getInstance().getTextureManager().bind(NO_OUTFIT_LOCATION);
+        canvas.setTransparency(0.8f);
+
+        PolyBuilder builder = canvas.drawQuads(PolyBuilder.Mode.POSITION_TEXTURE);
+        builder.vertex(x0, y1).uv(0, 1).endVertex();
+        builder.vertex(x1, y1).uv(1, 1).endVertex();
+        builder.vertex(x1, y0).uv(1, 0).endVertex();
+        builder.vertex(x0, y0).uv(0, 0).endVertex();
+        builder.build();
+
         canvas.disableTransparency();
     }
+
+    private static final ResourceLocation NO_OUTFIT_LOCATION = new ResourceKey("minecraft", "textures/item/barrier.png").toResourceLocation();
 
     /**
      * Draw the circles (inner button and outer ring) in the GUI.
@@ -372,6 +393,18 @@ public class OutfitWheelScreen extends Screen {
                         // switch outfit
                         outfit.equipAsync();
                     }
+                }
+            } else if (selectedButton == 8) {
+                GuiUtils.playClick();
+                
+                if (Cosmetica.SELECTED_OUTFIT_ID.peek().isPresent()) {
+                    // Equip nothing
+                    CosmeticaAPI.outfits().requestAsync(OutfitsApi::unequip)
+                            .thenAccept(user -> Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Unequipped Outfit successfully"))
+                            .exceptionally(e -> {
+                                new RuntimeException("Outfits Controller Unequip", e).printStackTrace();
+                                return null;
+                            });
                 }
             }
 
