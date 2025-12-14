@@ -18,6 +18,7 @@
     "defaultRequire": 1
   },
   "mixins": [
+    "AbstractScrollContainerAccessor",
     "attach.ArmourStandMixin",
     "attach.PlayerMixin",
     "gui.FakePlayerRendererMixin"

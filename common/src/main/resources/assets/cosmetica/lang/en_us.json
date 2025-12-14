@@ -67,6 +67,7 @@
   "label.lore.noConnections": "You don't have any connections yet!",
   "label.wheel.page": "Page %s/%s",
   "screens.cosmetica.browse":  "Cosmetica",
+  "screens.cosmetica.cape_server_settings": "External Cape Settings",
   "screens.cosmetica.confirmDeletion": "Confirm Deletion",
   "screens.cosmetica.create_new_outfit": "Create New Outfit",
   "screens.cosmetica.home": "Cosmetica",

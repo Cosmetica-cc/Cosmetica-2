@@ -71,6 +71,11 @@ public abstract class AbstractHomeScreen extends Screen implements AnimatedTextu
                                                 new ResourceKey("cosmetica", "textures/gear.png"),
                                                 () -> Screens.setScreen(new CosmeticaSettingsScreen(CosmeticaSettingsScreen.SETTINGS_SCREEN, CosmeticaSettings.SETTINGS), CosmeticaSettingsScreen.SETTINGS_SCREEN)),
                                         new IconButton(
+                                                new ResourceKey("cosmetica", "textures/cape.png"),
+                                                () -> Screens.setScreen(CapeServerSettingsScreen.ID))
+                                                .setDisabled(!authenticated)
+                                                .withStyle(Cosmetica.authTooltipStyle(authenticated)),
+                                        new IconButton(
                                                 new ResourceKey("minecraft", "textures/item/name_tag.png"),
                                                 () -> Screens.setScreen(StyleNametagScreen.ID))
                                                 .setDisabled(!authenticated)
