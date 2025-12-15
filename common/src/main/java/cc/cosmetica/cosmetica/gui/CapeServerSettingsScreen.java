@@ -100,7 +100,7 @@ public class CapeServerSettingsScreen extends Screen {
                         new Image(
                                 "official".equals(capeServerSetting.getService().getValue()) ?
                                 new ResourceKey("minecraft", "textures/block/grass_block_side.png") :
-                                new ResourceKey("cosmetica", "textures/capeserver/" + capeServerSetting.getService().getValue() + ".png")
+                                new ResourceKey("cosmetica", "textures/capeservers/" + capeServerSetting.getService().getValue() + ".png")
                         ).setTransparent(1).tag("padding-right"),
                         new Label(Text.literal(capeServerSetting.getName()))
                 ).tag("inner-wrapper"),
