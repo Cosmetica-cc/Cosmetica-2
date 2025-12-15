@@ -18,6 +18,7 @@ package cc.cosmetica.cosmetica.settings;
 
 import cc.cosmetica.kupe.api.State;
 import com.google.common.collect.ImmutableList;
+import gg.cloaks.javaclient.model.ExternalCapeSetting;
 import gg.cloaks.javaclient.model.Settings;
 
 import javax.annotation.Nullable;
@@ -64,9 +65,11 @@ public final class CosmeticaSettings {
             SHOW_ONLINE_ACTIVITY);
 
     public static final State<List<Setting<?>>> SETTINGS = new State<>(CLIENT_SETTINGS);
+    public static List<ExternalCapeSetting> externalCapeSettings = ImmutableList.of();
 
     public static void clearSettings() {
         SETTINGS.set(CLIENT_SETTINGS);
+        externalCapeSettings = ImmutableList.of();
     }
 
     public static void updateSettings(@Nullable Settings settings) {
@@ -86,6 +89,8 @@ public final class CosmeticaSettings {
             loggedInSettings.addAll(API_SETTINGS);
 
             SETTINGS.set(loggedInSettings);
+
+            externalCapeSettings = settings.getExternalCapes();
         }
     }
 }

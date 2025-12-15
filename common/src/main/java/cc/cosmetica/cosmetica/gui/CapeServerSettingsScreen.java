@@ -22,30 +22,36 @@ import cc.cosmetica.kupe.api.*;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import cc.cosmetica.kupe.impl.MinecraftBuiltinComponent;
 import cc.cosmetica.kupe.impl.StateManagerImpl;
-import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.systems.RenderSystem;
+import gg.cloaks.javaclient.model.ExternalCapeSetting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.language.I18n;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.OptionalInt;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 public class CapeServerSettingsScreen extends Screen {
-    public CapeServerSettingsScreen() {
+    public CapeServerSettingsScreen(List<ExternalCapeSetting> externalCapeSettings) {
+        // TODO make externalCapeSettings a state so this updates from website
         super(ID);
-        this.servers = new State<>(ImmutableList.of(
-                new Div().tag("cape-server"),
-                new Div().tag("cape-server"),
-                new Div().tag("cape-server")
-        ));
+        this.servers = new State<>(externalCapeSettings.stream()
+                .map(CapeServerSettingsScreen::CapeSetting)
+                .collect(Collectors.toList())
+        );
     }
 
     private final State<List<Component>> servers;
@@ -62,15 +68,51 @@ public class CapeServerSettingsScreen extends Screen {
     public @NotNull Stylesheet getStylesheet() {
         return super.getStylesheet()
                 .component(CapeServerList.class, Style.create()
-                        .set(HEIGHT, screen(0, 60)))
+                        .set(AbstractScrollContainer.SCROLLBAR_POSITION, AbstractScrollContainer.ScrollbarPosition.OUTSIDE)
+                        .set(MARGINS, fixed(new Margins(30, 0, 0, 0)))
+                        .set(HEIGHT, screen(0, 72)))
                 .tag("cape-server", Style.create()
+                        .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
+                        .set(Div.JUSTIFY_CONTENT, Justify.SPACE_BETWEEN)
+                        .set(Div.ALIGN_ITEMS, Align.STRETCH_CENTRE)
+                        .set(PADDING, fixed(new Margins(0, 6)))
                         .set(BACKGROUND_COLOUR, OptionalInt.of(GuiUtils.NORMAL_COLOUR))
                         .set(BORDER, GuiUtils.POPOUT_BORDER)
                         .set(HEIGHT, fixedSize(40))
-                        .set(WIDTH, screen(60, 0)));
+                        .set(WIDTH, screen(60, 0)))
+                .tag("inner-wrapper", Style.create().set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X))
+                .tag("cape-server-button", Style.create()
+                        .set(WIDTH, fixedSize(100)))
+                .tag("padding-right", Style.create()
+                        .set(MARGINS, fixed(new Margins(0, 6, 0, 0))))
+                .component(Image.class, Style.create()
+                        .set(HEIGHT, fixedSize(24)));
     }
 
     public static final ResourceKey ID = new ResourceKey("cosmetica", "cape_server_settings");
+
+    private static Component CapeSetting(ExternalCapeSetting capeServerSetting) {
+        boolean useMinecraftText = !Minecraft.getInstance().getLanguageManager().getSelected().getCode().toLowerCase(Locale.ROOT).startsWith("en")
+                && "Enabled".equals(I18n.get("button.cosmetica.enabled"));
+
+        return new Div(
+                new Div(
+                        new Image(
+                                "official".equals(capeServerSetting.getService().getValue()) ?
+                                new ResourceKey("minecraft", "textures/block/grass_block_side.png") :
+                                new ResourceKey("cosmetica", "textures/capeserver/" + capeServerSetting.getService().getValue() + ".png")
+                        ).setTransparent(1).tag("padding-right"),
+                        new Label(Text.literal(capeServerSetting.getName()))
+                ).tag("inner-wrapper"),
+                new Div(
+                        new Button(capeServerSetting.isEnabled() ?
+                                (useMinecraftText ? Text.GUI_YES : Text.translatable("button.cosmetica.enabled"))
+                                : (useMinecraftText ? Text.GUI_NO : Text.translatable("button.cosmetica.disabled")),
+                                () -> {}).tag("cape-server-button", "padding-right"),
+                        new Image(new ResourceKey("cosmetica", "textures/grabbable.png")).setTransparent(1)
+                ).tag("inner-wrapper")
+        ).tag("cape-server");
+    }
 
     // This iteration uses generic component children. Could squeeze more performance by hardcoding
     // child paints so that we don't have to do a resize on drag.
@@ -78,16 +120,18 @@ public class CapeServerSettingsScreen extends Screen {
     private static class CapeServerList extends AbstractScrollContainer {
         CapeServerList(State<List<Component>> children) {
             this.children = children;
+            this.ghost = new Div().withStyle(Style.create()
+                    .set(BACKGROUND_COLOUR, OptionalInt.of(0x363636))
+                    .set(BORDER, Border.create(Border.BorderConfig.split(1, 0x606060, 0x232323))));
         }
 
         private State<List<Component>> children;
+        private final Component ghost;
         private @Nullable Component dragging = null;
         // rootY updated in paint()
         // clickY updated on click
         // draggingOffset updated in both
         private int draggingOffset, clickY, rootY;
-        // ghostRegion updated on click
-        private Region ghostRegion;
         // elementHeight updated on resize
         private int elementHeight;
 
@@ -107,6 +151,9 @@ public class CapeServerSettingsScreen extends Screen {
 
             // find largest size
             for (SizedElement element : children) {
+                // ignore ghost
+                if (element.getComponent() == this.ghost) continue;
+
                 Dimensions dimensions = getDimensions.apply(element);
 
                 if (dimensions.getHeight() > elementHeight) {
@@ -123,31 +170,51 @@ public class CapeServerSettingsScreen extends Screen {
 
         @Override
         protected boolean hasVerticalOverflow() {
-            return false;
+            return this.overflow;
         }
 
         @Override
         public List<Component> build() {
-            return this.children.acquire(this);
+            List<Component> result = new ArrayList<>(this.children.acquire(this));
+            result.add(this.ghost);
+            return result;
         }
 
         @Override
         public void resize(Region contentRegion, SizedElement sizedElement, List<? extends ResizableElement> children, Context context) {
             // determine child region height (must be same)
             int elementHeight = 0;
+            ResizableElement ghostElement = null;
 
-            for (SizedElement element : children) {
+            for (ResizableElement element : children) {
+                // Ignore ghost
+                if (element.getComponent() == ghost) {
+                    ghostElement = element;
+                    continue;
+                }
+
                 Dimensions dimensions = element.getPreferredSize();
 
                 if (dimensions.getHeight() > elementHeight) {
                     elementHeight = dimensions.getHeight();
                 }
             }
+
+            if (ghostElement == null) {
+                throw new IllegalArgumentException("Ghost element cannot be null for cape server list");
+            }
+
             this.elementHeight = elementHeight;
+
+            // default ghost position: not visible
+            ghostElement.setRenderRegion(new Region(0,0,0,0));
 
             // lay out stuff
             int y = contentRegion.getY();
             for (ResizableElement element : children) {
+                // skip ghost (set elsewhere)
+                if (element.getComponent() == ghost) continue;
+
                 final int width = Math.min(
                         Math.max(
                                 Math.min(element.getPreferredSize().getWidth(),
@@ -168,6 +235,8 @@ public class CapeServerSettingsScreen extends Screen {
                 if (element.getComponent() == this.dragging) {
                     // dragging layout
                     element.setRenderRegion(new Region(contentRegion.getX(), Math.min(Math.max(y + this.draggingOffset, contentRegion.getY()), contentRegion.getY() + (this.children.peek().size() - 1) * this.elementHeight), width, height).shrinkMargins(element.getPadding()));
+                    // ghost at normal position
+                    ghostElement.setRenderRegion(new Region(contentRegion.getX(), y, contentRegion.getWidth(), height));
                 } else {
                     // normal layout
                     element.setRenderRegion(new Region(contentRegion.getX(), y, width, height).shrinkMargins(element.getPadding()));
@@ -189,11 +258,6 @@ public class CapeServerSettingsScreen extends Screen {
             this.rootY = region.getY();
 
             if (this.dragging != null) {
-                if (false) {
-                    border = Border.create(Border.BorderConfig.split(2, 0xadadad, 0x5e5e5e)).orElseThrow(IllegalStateException::new);
-                    border.paint(canvas, this.ghostRegion, this.getStyle());
-                }
-
                 int newDraggingOffset = this.getInnerClickY(mouseY) - this.clickY;
 
                 if (newDraggingOffset != this.draggingOffset) {
@@ -225,7 +289,13 @@ public class CapeServerSettingsScreen extends Screen {
             super.paint(canvas, region, mouseX, mouseY);
         }
 
-        private static Border border;
+        @Override
+        public void paintDecorations(Canvas canvas, Region region, int mouseX, int mouseY) {
+            super.paintDecorations(canvas, region, mouseX, mouseY);
+
+            // fixes a rendering bug
+            RenderSystem.color4f(1, 1, 1, 1);
+        }
 
         // drag
         @Override
@@ -242,6 +312,9 @@ public class CapeServerSettingsScreen extends Screen {
                     if (index < this.children.peek().size()) {
                         this.draggingOffset = 0;
                         this.dragging = this.children.peek().get(index);
+                        this.dragging.withStyle(Style.create().set(Z_INDEX, 10));
+                        // need to rebuild
+                        this.children.set(this.children.peek());
                     }
                 }
             }
@@ -256,8 +329,10 @@ public class CapeServerSettingsScreen extends Screen {
             super.mouseReleased(x, y, button);
 
             if (this.dragging != null) {
-                // TODO re-arrange children
+                // clear dragging. children have already been rearranged
+                this.dragging.withStyle(Style.create());
                 this.dragging = null;
+                StateManagerImpl.scheduleResize();
             }
         }
     }
