@@ -28,6 +28,7 @@ import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import cc.cosmetica.kupe.impl.MinecraftBuiltinComponent;
 import cc.cosmetica.kupe.impl.StateManagerImpl;
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import gg.cloaks.javaclient.model.ExternalCapeSetting;
 import net.minecraft.client.Minecraft;
@@ -49,7 +50,7 @@ public class CapeServerSettingsScreen extends Screen {
         // TODO make externalCapeSettings a state so this updates from website
         super(ID);
         this.servers = new State<>(externalCapeSettings.stream()
-                .map(CapeServerSettingsScreen::CapeSetting)
+                .map(CapeSetting::new)
                 .collect(Collectors.toList())
         );
     }
@@ -91,27 +92,41 @@ public class CapeServerSettingsScreen extends Screen {
 
     public static final ResourceKey ID = new ResourceKey("cosmetica", "cape_server_settings");
 
-    private static Component CapeSetting(ExternalCapeSetting capeServerSetting) {
-        boolean useMinecraftText = !Minecraft.getInstance().getLanguageManager().getSelected().getCode().toLowerCase(Locale.ROOT).startsWith("en")
-                && "Enabled".equals(I18n.get("button.cosmetica.enabled"));
+    private static class CapeSetting extends Div {
+        CapeSetting(ExternalCapeSetting capeServerSetting) {
+            this.tag("cape-server");
+            this.setting = capeServerSetting;
+            this.enabled = new State<>(setting.isEnabled());
+        }
 
-        return new Div(
-                new Div(
+        private final ExternalCapeSetting setting;
+        private final State<Boolean> enabled;
+
+        @Override
+        public List<Component> build() {
+            boolean enabled = this.enabled.acquire(this);
+
+            return ImmutableList.of(
+                    new Div(
 //                        new Image(
 //                                "official".equals(capeServerSetting.getService().getValue()) ?
 //                                new ResourceKey("minecraft", "textures/block/grass_block_side.png") :
 //                                new ResourceKey("cosmetica", "textures/capeservers/" + capeServerSetting.getService().getValue() + ".png")
 //                        ).setTransparent(1).tag("padding-right"),
-                        new Label(Text.literal(capeServerSetting.getName()))
-                ).tag("inner-wrapper"),
-                new Div(
-                        new Button(capeServerSetting.isEnabled() ?
-                                (useMinecraftText ? Text.GUI_YES : Text.translatable("button.cosmetica.enabled"))
-                                : (useMinecraftText ? Text.GUI_NO : Text.translatable("button.cosmetica.disabled")),
-                                () -> {}).tag("cape-server-button", "padding-right"),
-                        new Image(new ResourceKey("cosmetica", "textures/grabbable.png")).setTransparent(1)
-                ).tag("inner-wrapper")
-        ).tag("cape-server");
+                            new Label(Text.literal(setting.getName()))
+                    ).tag("inner-wrapper"),
+                    new Div(
+                            new Button(enabled ?
+                                    (useMinecraftText ? Text.GUI_YES : Text.translatable("button.cosmetica.enabled"))
+                                    : (useMinecraftText ? Text.GUI_NO : Text.translatable("button.cosmetica.disabled")),
+                                    () -> this.enabled.set(!enabled)).tag("cape-server-button", "padding-right"),
+                            new Image(new ResourceKey("cosmetica", "textures/grabbable.png")).setTransparent(1)
+                    ).tag("inner-wrapper")
+            );
+        }
+
+        boolean useMinecraftText = !Minecraft.getInstance().getLanguageManager().getSelected().getCode().toLowerCase(Locale.ROOT).startsWith("en")
+                && "Enabled".equals(I18n.get("button.cosmetica.enabled"));
     }
 
     // This iteration uses generic component children. Could squeeze more performance by hardcoding
