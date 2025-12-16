@@ -16,8 +16,11 @@
 
 package cc.cosmetica.cosmetica.gui;
 
+import cc.cosmetica.core.api.CosmeticaAPI;
+import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
 import cc.cosmetica.cosmetica.mixin.AbstractScrollContainerAccessor;
+import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.kupe.api.*;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
@@ -31,6 +34,8 @@ import cc.cosmetica.kupe.impl.StateManagerImpl;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import gg.cloaks.javaclient.model.ExternalCapeSetting;
+import gg.cloaks.javaclient.model.UpdateExternalCapeSettingDto;
+import gg.cloaks.javaclient.model.UpdateSettingsDto;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.language.I18n;
 import org.jetbrains.annotations.NotNull;
@@ -53,8 +58,10 @@ public class CapeServerSettingsScreen extends Screen {
                 .map(CapeSetting::new)
                 .collect(Collectors.toList())
         );
+        this.oldSettings = externalCapeSettings;
     }
 
+    private final List<ExternalCapeSetting> oldSettings;
     private final State<List<Component>> servers;
 
     @Override
@@ -63,6 +70,48 @@ public class CapeServerSettingsScreen extends Screen {
                 new CapeServerList(this.servers),
                 new MenuEndSelection()
         };
+    }
+
+    @Override
+    public void unmount() {
+        // check for changed settings
+        boolean isModified = false;
+        List<Component> newSettings = this.servers.peek();
+
+        for (int i = 0; i < this.oldSettings.size(); i++) {
+            ExternalCapeSetting setting = this.oldSettings.get(i);
+            CapeSetting component = (CapeSetting) newSettings.get(i);
+
+            // Either order is different or toggles are different
+            if (component.setting.getService() != setting.getService() ||
+                    component.enabled.peek() != setting.isEnabled()) {
+                isModified = true;
+                break;
+            }
+        }
+
+        // Update settings
+        if (isModified) {
+            Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Updating external cape settings");
+
+            UpdateSettingsDto dto = new UpdateSettingsDto();
+            List<UpdateExternalCapeSettingDto> newExternalCapes = new ArrayList<>();
+            for (Component component : newSettings) {
+                CapeSetting capeSetting = (CapeSetting) component;
+                UpdateExternalCapeSettingDto dto1 = new UpdateExternalCapeSettingDto();
+                dto1.setEnabled(capeSetting.enabled.peek());
+                dto1.setReplace(capeSetting.setting.isReplace());
+                dto1.setService(capeSetting.setting.getService().getValue());
+            }
+
+            dto.setExternalCapes(newExternalCapes);
+            CosmeticaAPI.settings().requestAsync(api -> api.setCloud(dto))
+                    .thenAccept(user -> Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Updated external cape settings"))
+                    .exceptionally(e -> {
+                        Logging.getInstance().error("Error updating external cape settings: ", e);
+                        return null;
+                    });
+        }
     }
 
     @Override
