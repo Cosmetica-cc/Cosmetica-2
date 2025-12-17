@@ -111,6 +111,7 @@ public class StyleNametagScreen extends Screen implements AnimatedTextureScreen 
         return super.getStylesheet()
                 .tag("preview-player", Style.create()
                         .set(WIDTH, fixed(OptionalInt.of(50)))
+                        .set(Z_INDEX, 10)
                         .set(ALIGN_SELF, Optional.of(Align.CENTRE)))
                 .tag("horizontal", Style.create()
                         .set(WIDTH, percent(100, 0))

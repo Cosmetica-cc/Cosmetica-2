@@ -313,7 +313,6 @@ public class LoreSelector extends Div {
             super(connection.getServiceId() /* Connection lore is set by service id. */);
             this.username = Text.literal(connection.getUsername());
             this.serviceName = Text.literal("§7" + connection.getServiceName());
-            // TODO add these to 'keep'
             this.texture = ThumbnailCache.getOrCreateImage("connections", connection.getServiceId(),
                     new CosmeticaTexture.Builder(System.getProperty("cosmetica.website", "https://cosmetica.cc") + "/connections/" + connection.getServiceId() + ".webp", Cosmetica.LOADING_TEXTURE)
                             .failToLoadTexture(Cosmetica.FALLBACK_TEXTURE), false);
