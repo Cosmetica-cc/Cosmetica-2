@@ -106,18 +106,18 @@ public abstract class Setting<T> {
     void updateValue() {
         // parent managed value takes priority
         if (this.parentManagedValue != null) {
-            if (this.actualValue.peek() == parentManagedValue) return;
+//            if (this.actualValue.peek() == parentManagedValue) return;
             this.actualValue.set(parentManagedValue);
             this.onUpdate();
         } else {
             // then pack managed value
             if (this != CosmeticaSettings.USE_CLOUD_SETTINGS &&
                     this.packValue != null && !CosmeticaSettings.USE_CLOUD_SETTINGS.get()) {
-                if (this.actualValue.peek() == packValue) return;
+//                if (this.actualValue.peek() == packValue) return;
                 this.actualValue.set(packValue);
                 this.onUpdate();
             } else {
-                if (this.actualValue.peek() == userValue) return;
+//                if (this.actualValue.peek() == userValue) return;
                 this.actualValue.set(userValue);
                 this.onUpdate();
             }

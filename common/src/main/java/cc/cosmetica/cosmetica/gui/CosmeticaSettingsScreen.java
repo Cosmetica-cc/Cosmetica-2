@@ -32,12 +32,14 @@ import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
+import gg.cloaks.javaclient.model.UpdateExternalCapeSettingDto;
 import gg.cloaks.javaclient.model.UpdateSettingsDto;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.OptionalInt;
+import java.util.stream.Collectors;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
@@ -63,6 +65,7 @@ public class CosmeticaSettingsScreen extends Screen {
                 new Div(
                         new Div(settings).withStyle(
                                 Style.create()
+                                        .set(MARGINS, fixed(new Margins(5, 0, 2, 0)))
                                         .set(Div.SCROLLBAR_POSITION, AbstractScrollContainer.ScrollbarPosition.OUTSIDE)
                         ),
                         new MenuEndSelection()
@@ -92,34 +95,35 @@ public class CosmeticaSettingsScreen extends Screen {
         boolean modifiedApi = CosmeticaSettings.API_SETTINGS.stream().anyMatch(Setting::isModified);
 
         if (modifiedApi) {
-            UpdateSettingsDto dto = new UpdateSettingsDto();
+            UpdateSettingsDto dto = newDto();
             if (CosmeticaSettings.SHOW_ACCESSORIES.isModified()) {
-                dto.showAccessories(CosmeticaSettings.SHOW_ACCESSORIES.getUserValue());
+                dto.setShowAccessories(CosmeticaSettings.SHOW_ACCESSORIES.getUserValue());
                 CosmeticaSettings.SHOW_ACCESSORIES.clean();
             }
             if (CosmeticaSettings.SHOW_LORE.isModified()) {
-                dto.showAccessories(CosmeticaSettings.SHOW_LORE.getUserValue());
+                dto.setShowLore(CosmeticaSettings.SHOW_LORE.getUserValue());
                 CosmeticaSettings.SHOW_LORE.clean();
             }
             if (CosmeticaSettings.SHOW_ICONS.isModified()) {
-                dto.showAccessories(CosmeticaSettings.SHOW_ICONS.getUserValue());
+                dto.setShowIcons(CosmeticaSettings.SHOW_ICONS.getUserValue());
                 CosmeticaSettings.SHOW_ICONS.clean();
             }
             if (CosmeticaSettings.SHOW_OFFLINE_ICONS.isModified()) {
-                dto.showAccessories(CosmeticaSettings.SHOW_OFFLINE_ICONS.getUserValue());
+                dto.setShowOfflineIcons(CosmeticaSettings.SHOW_OFFLINE_ICONS.getUserValue());
                 CosmeticaSettings.SHOW_OFFLINE_ICONS.clean();
             }
             if (CosmeticaSettings.SHOW_SPECIAL_ICONS.isModified()) {
-                dto.showAccessories(CosmeticaSettings.SHOW_SPECIAL_ICONS.getUserValue());
+                dto.setShowSpecialIcons(CosmeticaSettings.SHOW_SPECIAL_ICONS.getUserValue());
                 CosmeticaSettings.SHOW_SPECIAL_ICONS.clean();
             }
             if (CosmeticaSettings.SHOW_ONLINE_ACTIVITY.isModified()) {
-                dto.showAccessories(CosmeticaSettings.SHOW_ONLINE_ACTIVITY.getUserValue());
+                dto.setShowOnlineActivity(CosmeticaSettings.SHOW_ONLINE_ACTIVITY.getUserValue());
                 CosmeticaSettings.SHOW_ONLINE_ACTIVITY.clean();
             }
             //TODO show a popup notice if updating settings fails or retry (have some model of latest in case multiple queue)?
             CosmeticaAPI.settings().requestAsync(api -> api.setCloud(dto))
                     .thenAcceptAsync(user -> {
+                        CosmeticaSettings.updateSettings(user.getActiveSettings());
                         Logging.getInstance().debug(CosmeticaLogCategory.SETTINGS, "Updated settings to /cloud");
                     }, Minecraft.getInstance())
                     .exceptionally(e -> {
@@ -130,6 +134,28 @@ public class CosmeticaSettingsScreen extends Screen {
     }
 
     public static final ResourceKey SETTINGS_SCREEN = new ResourceKey("cosmetica", "settings");
+
+    public static UpdateSettingsDto newDto() {
+        UpdateSettingsDto dto = new UpdateSettingsDto();
+        dto.setClientName("cosmetica");
+        dto.setDisableRegionalEffectsPrompt(CosmeticaSettings.DISABLE_RSE_PROMPT.get());
+        dto.setExternalCapes(CosmeticaSettings.externalCapeSettings.stream()
+                .map(setting -> {
+                    UpdateExternalCapeSettingDto dto_ = new UpdateExternalCapeSettingDto();
+                    dto_.setService(setting.getService().getValue());
+                    dto_.setReplace(setting.isReplace());
+                    dto_.setEnabled(setting.isEnabled());
+                    return dto_;
+                })
+                .collect(Collectors.toList()));
+        dto.setShowAccessories(CosmeticaSettings.SHOW_ACCESSORIES.get());
+        dto.setShowIcons(CosmeticaSettings.SHOW_ICONS.get());
+        dto.setShowLore(CosmeticaSettings.SHOW_LORE.get());
+        dto.setShowOnlineActivity(CosmeticaSettings.SHOW_ONLINE_ACTIVITY.get());
+        dto.setShowSpecialIcons(CosmeticaSettings.SHOW_SPECIAL_ICONS.get());
+        dto.setShowOfflineIcons(CosmeticaSettings.SHOW_OFFLINE_ICONS.get());
+        return dto;
+    }
 
     private static class SettingBlock<T> extends Div {
         private SettingBlock(Setting<T> setting) {
@@ -144,8 +170,8 @@ public class CosmeticaSettingsScreen extends Screen {
 
             // create text
             Text text = this.setting.name;
-            if (this.setting.isModified() && this.setting.getManagement() != Setting.Management.PARENT_SETTING) {
-                text = Text.literal("§l" + text.getDisplayString() + "*");
+            if (this.setting.isModified()) {
+                text = Text.literal(/*"§l" +*/ text.getDisplayString() + "*");
             }
 
             // return components

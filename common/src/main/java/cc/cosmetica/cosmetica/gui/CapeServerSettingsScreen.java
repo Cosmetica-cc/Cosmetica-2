@@ -20,6 +20,7 @@ import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
 import cc.cosmetica.cosmetica.mixin.AbstractScrollContainerAccessor;
+import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.kupe.api.*;
 import cc.cosmetica.kupe.api.gui.*;
@@ -34,6 +35,7 @@ import cc.cosmetica.kupe.impl.StateManagerImpl;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import gg.cloaks.javaclient.model.ExternalCapeSetting;
+import gg.cloaks.javaclient.model.Settings;
 import gg.cloaks.javaclient.model.UpdateExternalCapeSettingDto;
 import gg.cloaks.javaclient.model.UpdateSettingsDto;
 import net.minecraft.client.Minecraft;
@@ -94,19 +96,24 @@ public class CapeServerSettingsScreen extends Screen {
         if (isModified) {
             Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Updating external cape settings");
 
-            UpdateSettingsDto dto = new UpdateSettingsDto();
+            UpdateSettingsDto dto = CosmeticaSettingsScreen.newDto();
             List<UpdateExternalCapeSettingDto> newExternalCapes = new ArrayList<>();
             for (Component component : newSettings) {
                 CapeSetting capeSetting = (CapeSetting) component;
+                System.out.println(capeSetting.setting.getService());
                 UpdateExternalCapeSettingDto dto1 = new UpdateExternalCapeSettingDto();
                 dto1.setEnabled(capeSetting.enabled.peek());
                 dto1.setReplace(capeSetting.setting.isReplace());
                 dto1.setService(capeSetting.setting.getService().getValue());
+                newExternalCapes.add(dto1);
             }
 
             dto.setExternalCapes(newExternalCapes);
             CosmeticaAPI.settings().requestAsync(api -> api.setCloud(dto))
-                    .thenAccept(user -> Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Updated external cape settings"))
+                    .thenAccept(user -> {
+                        CosmeticaSettings.updateSettings(user.getActiveSettings());
+                        Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Updated external cape settings");
+                    })
                     .exceptionally(e -> {
                         Logging.getInstance().error("Error updating external cape settings: ", e);
                         return null;
@@ -359,6 +366,7 @@ public class CapeServerSettingsScreen extends Screen {
 
             // fixes a rendering bug
             RenderSystem.color4f(1, 1, 1, 1);
+            RenderSystem.enableTexture();
         }
 
         // drag

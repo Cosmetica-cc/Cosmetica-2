@@ -119,7 +119,9 @@ public class Cosmetica {
 				cacheCosmeticManager.save(data.getUser());
 
 				// update settings
-				CosmeticaSettings.updateSettings(data.getUser().getActiveSettings());
+				if (data.getUser().getActiveSettings() != null) {
+					CosmeticaSettings.updateSettings(data.getUser().getActiveSettings());
+				}
 
 				// load connections
 				connections = data.getUser().getConnections();

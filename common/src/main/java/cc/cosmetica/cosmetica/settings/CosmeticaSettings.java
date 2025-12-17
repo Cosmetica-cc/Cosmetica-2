@@ -45,12 +45,15 @@ public final class CosmeticaSettings {
         }
     };
 
+    // Internal settings
+    public static final Setting<Boolean> DISABLE_RSE_PROMPT = new BooleanSetting("setting.cosmetica.disableRSEPrompt", false, true);
+
     // API Settings
     public static final Setting<Boolean> SHOW_ACCESSORIES = new BooleanSetting("setting.cosmetica.showAccessories", true, true);
     public static final Setting<Boolean> SHOW_LORE = new BooleanSetting("setting.cosmetica.showLore", true, true);
     public static final Setting<Boolean> SHOW_SPECIAL_ICONS = new BooleanSetting("setting.cosmetica.showSpecialIcons", true, true);
     public static final Setting<Boolean> SHOW_OFFLINE_ICONS = new BooleanSetting("setting.cosmetica.showOfflineIcons", true, true);
-    public static final BooleanSetting SHOW_ICONS = new BooleanSetting("setting.cosmetica.showIcons", true, true)
+    public static final Setting<Boolean> SHOW_ICONS = new BooleanSetting("setting.cosmetica.showIcons", true, true)
             .forceWhenOff(SHOW_SPECIAL_ICONS, false)
             .forceWhenOff(SHOW_OFFLINE_ICONS, false);
     public static final Setting<Boolean> SHOW_ONLINE_ACTIVITY = new BooleanSetting("setting.cosmetica.showOnlineActivity", true, true);
@@ -83,6 +86,7 @@ public final class CosmeticaSettings {
             SHOW_SPECIAL_ICONS.update(settings.isShowSpecialIcons());
             SHOW_OFFLINE_ICONS.update(settings.isShowOfflineIcons());
             SHOW_ONLINE_ACTIVITY.update(settings.isShowOnlineActivity());
+            DISABLE_RSE_PROMPT.update(settings.isDisableRegionalEffectsPrompt());
 
             // Create composite list
             List<Setting<?>> loggedInSettings = new ArrayList<>(CLIENT_SETTINGS);
