@@ -57,6 +57,7 @@ public class OutfitPlayer extends Component {
 	private UnaryOperator<GUIPlayer> overrides = gp -> gp;
 	private RotatableGUIPlayer guiPlayer;
 	private boolean keepGuiPlayer;
+	private int loreHandle;
 
 	public OutfitPlayer setDisabled(boolean disabled) {
 		this.disable = disabled;
@@ -75,14 +76,23 @@ public class OutfitPlayer extends Component {
 
 	@Override
 	public List<Component> build() {
+		RotatableGUIPlayer guiPlayer;
+		if (this.keepGuiPlayer && this.guiPlayer != null) {
+			guiPlayer = this.guiPlayer;
+			guiPlayer.updateNametag(this.loreHandle, Text.literal(this.lore.getPrefix()), 0.75f);
+		} else {
+			guiPlayer = new RotatableGUIPlayer(player, this.showingElytra);
+			guiPlayer.showNametag(true);
+			this.loreHandle = guiPlayer.createNametag(Text.literal(this.lore.getPrefix()), 0.75f);
+		}
+
+		// set icons
+		guiPlayer.icon(nametag.getIcon().getImage().isLoaded() ? nametag.getIcon().getImage() : null)
+				.loreIcon(lore.getIcon().getImage().isLoaded() ? lore.getIcon().getImage() : null);
+
 		return Arrays.asList(
 				new Div(
-					this.overrides.apply(
-							(this.keepGuiPlayer && this.guiPlayer != null ? guiPlayer : (guiPlayer = new RotatableGUIPlayer(player, this.showingElytra)))
-									.icon(nametag.getIcon().getImage().isLoaded() ? nametag.getIcon().getImage() : null)
-									.loreIcon(lore.getIcon().getImage().isLoaded() ? lore.getIcon().getImage() : null)
-									.showNametag(true).addNametag(Text.literal(this.lore.getPrefix()), 0.75f)
-					).withStyle(Style.create().set(WIDTH, fixed(OptionalInt.of(50)))),
+					this.overrides.apply(guiPlayer).withStyle(Style.create().set(WIDTH, fixed(OptionalInt.of(50)))),
 					new Label(Text.literal(this.outfitName)),
 					new SlideToggle(
 							this.showingElytra,
