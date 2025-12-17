@@ -182,6 +182,7 @@ public final class Authentication {
 
                     if (Long.parseLong(exp) - Instant.now().getEpochSecond() > 0) {
                         // use cached jwt
+                        Logging.getInstance().debug(CosmeticaLogCategory.LOGIN, "Using cached JWT for auth");
                         CosmeticaAPI.authenticate(token);
                         return true;
                     }
