@@ -34,7 +34,6 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.api.AuthApi;
 import gg.cloaks.javaclient.api.OutfitsApi;
-import gg.cloaks.javaclient.api.SettingsApi;
 import gg.cloaks.javaclient.api.UsersApi;
 import gg.cloaks.javaclient.model.UpdateLoreDto;
 import gg.cloaks.javaclient.model.UserConnection;
@@ -227,7 +226,7 @@ public class Cosmetica {
 		// Use persistent screen object to keep state data
 		// - we want to keep track of what the user was last doing
 		Screens.registerScreen(HomeScreen.ID, HomeScreen::new);
-		Screens.registerScreen(BrowseScreen.ID, new BrowseScreen());
+		Screens.registerScreen(BrowseScreen.ID, BrowseScreen::new);
 		Screens.registerScreen(StyleNametagScreen.ID, StyleNametagScreen::new);
 		Screens.registerScreen(OutfitSelectScreen.ID, new OutfitSelectScreen());
 		Screens.registerScreen(CreateNewOutfitScreen.ID, CreateNewOutfitScreen::new);

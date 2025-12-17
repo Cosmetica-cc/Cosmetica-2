@@ -16,9 +16,9 @@
 
 package cc.cosmetica.cosmetica.gui;
 
-import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.api.Accessory;
 import cc.cosmetica.core.api.Cosmetic;
+import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.cosmeticconfig.AccessoryOptions;
@@ -37,13 +37,11 @@ import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Vec3;
-import cc.cosmetica.kupe.impl.fakeplayer.CapeAttachment;
 import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.api.PremiumApi;
 import gg.cloaks.javaclient.model.*;
 import gg.cloaks.javaclient.model.SearchCosmeticsDto.AttachmentsEnum;
 import net.minecraft.client.Minecraft;
-import net.minecraft.server.packs.repository.Pack;
 import org.apache.commons.lang3.tuple.MutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
