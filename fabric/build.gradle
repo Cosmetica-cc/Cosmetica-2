@@ -35,6 +35,8 @@ dependencies {
     include(modImplementation "cc.cosmetica:kupe-fabric:${rootProject.kupe_version}-${rootProject.minecraft_version}")
     // Webp Support
     include(implementation "com.twelvemonkeys.imageio:imageio-webp:${rootProject.imaging_version}")
+    include "com.twelvemonkeys.imageio:imageio-core:${rootProject.imaging_version}"
+    include "com.twelvemonkeys.imageio:imageio-metadata:${rootProject.imaging_version}"
 
     // Mod Menu (for Compat)
     modImplementation "com.terraformersmc:modmenu:1.16.22"
