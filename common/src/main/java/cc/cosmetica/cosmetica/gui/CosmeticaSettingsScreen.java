@@ -139,7 +139,7 @@ public class CosmeticaSettingsScreen extends Screen {
         UpdateSettingsDto dto = new UpdateSettingsDto();
         dto.setClientName("cosmetica");
         dto.setDisableRegionalEffectsPrompt(CosmeticaSettings.DISABLE_RSE_PROMPT.get());
-        dto.setExternalCapes(CosmeticaSettings.externalCapeSettings.stream()
+        dto.setExternalCapes(CosmeticaSettings.externalCapeSettings.peek().stream()
                 .map(setting -> {
                     UpdateExternalCapeSettingDto dto_ = new UpdateExternalCapeSettingDto();
                     dto_.setService(setting.getService().getValue());

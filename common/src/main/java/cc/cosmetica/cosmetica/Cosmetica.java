@@ -34,6 +34,8 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.api.AuthApi;
 import gg.cloaks.javaclient.api.OutfitsApi;
+import gg.cloaks.javaclient.api.SettingsApi;
+import gg.cloaks.javaclient.api.UsersApi;
 import gg.cloaks.javaclient.model.UpdateLoreDto;
 import gg.cloaks.javaclient.model.UserConnection;
 import net.minecraft.Util;
@@ -121,6 +123,12 @@ public class Cosmetica {
 				// update settings
 				if (data.getUser().getActiveSettings() != null) {
 					CosmeticaSettings.updateSettings(data.getUser().getActiveSettings());
+				} else {
+					CosmeticaAPI.users().requestAsync(UsersApi::getSelf).thenAccept(user -> {
+						if (user.getActiveSettings() != null) {
+							CosmeticaSettings.updateSettings(user.getActiveSettings());
+						}
+					});
 				}
 
 				// load connections

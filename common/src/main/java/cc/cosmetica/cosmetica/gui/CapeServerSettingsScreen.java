@@ -35,7 +35,6 @@ import cc.cosmetica.kupe.impl.StateManagerImpl;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import gg.cloaks.javaclient.model.ExternalCapeSetting;
-import gg.cloaks.javaclient.model.Settings;
 import gg.cloaks.javaclient.model.UpdateExternalCapeSettingDto;
 import gg.cloaks.javaclient.model.UpdateSettingsDto;
 import net.minecraft.client.Minecraft;
@@ -53,21 +52,21 @@ import java.util.stream.Collectors;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 public class CapeServerSettingsScreen extends Screen {
-    public CapeServerSettingsScreen(List<ExternalCapeSetting> externalCapeSettings) {
-        // TODO make externalCapeSettings a state so this updates from website
+    public CapeServerSettingsScreen(State<List<ExternalCapeSetting>> externalCapeSettings) {
         super(ID);
-        this.servers = new State<>(externalCapeSettings.stream()
-                .map(CapeSetting::new)
-                .collect(Collectors.toList())
-        );
         this.oldSettings = externalCapeSettings;
     }
 
-    private final List<ExternalCapeSetting> oldSettings;
-    private final State<List<Component>> servers;
+    private final State<List<ExternalCapeSetting>> oldSettings;
+    private final State<List<Component>> servers = new State<>(ImmutableList.of());
 
     @Override
     protected Component[] buildScreen() {
+        List<ExternalCapeSetting> settings = this.oldSettings.acquire(this);
+        this.servers.set(settings.stream()
+                .map(CapeSetting::new)
+                .collect(Collectors.toList()));
+
         return new Component[] {
                 new CapeServerList(this.servers),
                 new MenuEndSelection()
@@ -79,9 +78,10 @@ public class CapeServerSettingsScreen extends Screen {
         // check for changed settings
         boolean isModified = false;
         List<Component> newSettings = this.servers.peek();
+        List<ExternalCapeSetting> oldSettings = this.oldSettings.peek();
 
-        for (int i = 0; i < this.oldSettings.size(); i++) {
-            ExternalCapeSetting setting = this.oldSettings.get(i);
+        for (int i = 0; i < oldSettings.size(); i++) {
+            ExternalCapeSetting setting = oldSettings.get(i);
             CapeSetting component = (CapeSetting) newSettings.get(i);
 
             // Either order is different or toggles are different

@@ -68,11 +68,11 @@ public final class CosmeticaSettings {
             SHOW_ONLINE_ACTIVITY);
 
     public static final State<List<Setting<?>>> SETTINGS = new State<>(CLIENT_SETTINGS);
-    public static List<ExternalCapeSetting> externalCapeSettings = ImmutableList.of();
+    public static State<List<ExternalCapeSetting>> externalCapeSettings = new State<>(ImmutableList.of());
 
     public static void clearSettings() {
         SETTINGS.set(CLIENT_SETTINGS);
-        externalCapeSettings = ImmutableList.of();
+        externalCapeSettings.set(ImmutableList.of());
     }
 
     public static void updateSettings(@Nullable Settings settings) {
@@ -94,7 +94,7 @@ public final class CosmeticaSettings {
 
             SETTINGS.set(loggedInSettings);
 
-            externalCapeSettings = settings.getExternalCapes();
+            externalCapeSettings.set(settings.getExternalCapes());
         }
     }
 }
