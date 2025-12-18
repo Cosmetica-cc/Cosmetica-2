@@ -37,6 +37,9 @@ dependencies {
     include(implementation "com.twelvemonkeys.imageio:imageio-webp:${rootProject.imaging_version}")
     include "com.twelvemonkeys.imageio:imageio-core:${rootProject.imaging_version}"
     include "com.twelvemonkeys.imageio:imageio-metadata:${rootProject.imaging_version}"
+    include "com.twelvemonkeys.common:common-lang:${rootProject.imaging_version}"
+    include "com.twelvemonkeys.common:common-io:${rootProject.imaging_version}"
+    include "com.twelvemonkeys.common:common-image:${rootProject.imaging_version}"
 
     // Mod Menu (for Compat)
     modImplementation "com.terraformersmc:modmenu:1.16.22"
