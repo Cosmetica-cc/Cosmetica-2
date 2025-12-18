@@ -17,6 +17,7 @@ subprojects {
     repositories {
 //        maven { url 'https://maven.cloaks.gg/releases' }
         maven { url 'https://maven.valoeghese.nz/releases' }
+        mavenLocal()
 	}
 
     dependencies {

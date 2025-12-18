@@ -336,6 +336,15 @@ public class OutfitWheelScreen extends Screen {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button != 0) { // left click
+            if (button == 1) {
+                page = (int)page + 1;
+                if (page > this.getLastPage()) {
+                    page = 0;
+                }
+
+                GuiUtils.playClick();
+                return true;
+            }
             return false;
         }
         assert this.minecraft != null; // shut up compiler
