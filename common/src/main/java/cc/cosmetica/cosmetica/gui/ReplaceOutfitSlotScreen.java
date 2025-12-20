@@ -126,12 +126,14 @@ public class ReplaceOutfitSlotScreen extends Component implements AnimatedTextur
                         ).tag("width-50%")
                                 .withStyle(Style.create().set(PADDING, screen(6, 0, (w,h)->new Margins(0,w,0,0)))),
                         new EntryList.Grid(components.toArray(new Component[0]), k->{
-                            for (Component o : components) {
-                                OutfitWheelScreen.OutfitOption op = ((ReplaceableOutfit)o).option;
-                                if (replacing == null && op == null) {
-                                    return o;
-                                } else if (replacing != null && op != null && op.id.equals(replacing.option.id)) {
-                                    return o;
+                            if (replacing != null) {
+                                for (Component o : components) {
+                                    OutfitWheelScreen.OutfitOption op = ((ReplaceableOutfit) o).option;
+                                    if (replacing.option == null && op == null) {
+                                        return o;
+                                    } else if (replacing.option != null && op != null && op.id.equals(replacing.option.id)) {
+                                        return o;
+                                    }
                                 }
                             }
 
