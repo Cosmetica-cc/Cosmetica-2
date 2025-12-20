@@ -183,7 +183,7 @@ public final class Authentication {
                     if (Long.parseLong(exp) - Instant.now().getEpochSecond() > 0) {
                         // use cached jwt
                         Logging.getInstance().debug(CosmeticaLogCategory.LOGIN, "Using cached JWT for auth");
-                        CosmeticaAPI.authenticate(token);
+                        CosmeticaAPI.authenticate(token, "Cosmetica Official Mod", true, null);
                         return true;
                     }
                 } catch (JsonParseException | IndexOutOfBoundsException e) {
@@ -191,6 +191,7 @@ public final class Authentication {
                 }
             }
         } else {
+            Files.createDirectories(sessionInfoPath.getParent());
             Files.createFile(sessionInfoPath);
         }
 
@@ -207,7 +208,8 @@ public final class Authentication {
         Logging.getInstance().debug(CosmeticaLogCategory.LOGIN, "Logging in to Cosmetica...");
 
         try {
-            LoginResult result = CosmeticaAPI.login();
+            // TODO ICON
+            LoginResult result = CosmeticaAPI.login("Cosmetica Official Mod", true, null);
             Logging.getInstance().debug(CosmeticaLogCategory.LOGIN, "LoginResult received");
 
             Minecraft.getInstance().execute(() -> {
