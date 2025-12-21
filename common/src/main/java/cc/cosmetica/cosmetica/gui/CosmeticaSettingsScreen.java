@@ -32,8 +32,9 @@ import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
+import gg.cloaks.javaclient.model.UpdateCloudSettingsDto;
 import gg.cloaks.javaclient.model.UpdateExternalCapeSettingDto;
-import gg.cloaks.javaclient.model.UpdateSettingsDto;
+import gg.cloaks.javaclient.model.UpdateLocalSettingsDto;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
 
@@ -95,7 +96,7 @@ public class CosmeticaSettingsScreen extends Screen {
         boolean modifiedApi = CosmeticaSettings.API_SETTINGS.stream().anyMatch(Setting::isModified);
 
         if (modifiedApi) {
-            UpdateSettingsDto dto = newDto();
+            UpdateCloudSettingsDto dto = new UpdateCloudSettingsDto();
             if (CosmeticaSettings.SHOW_ACCESSORIES.isModified()) {
                 dto.setShowAccessories(CosmeticaSettings.SHOW_ACCESSORIES.getUserValue());
                 CosmeticaSettings.SHOW_ACCESSORIES.clean();
@@ -135,8 +136,8 @@ public class CosmeticaSettingsScreen extends Screen {
 
     public static final ResourceKey SETTINGS_SCREEN = new ResourceKey("cosmetica", "settings");
 
-    public static UpdateSettingsDto newDto() {
-        UpdateSettingsDto dto = new UpdateSettingsDto();
+    public static UpdateLocalSettingsDto newLocalDto() {
+        UpdateLocalSettingsDto dto = new UpdateLocalSettingsDto();
         dto.setClientName("cosmetica");
         dto.setDisableRegionalEffectsPrompt(CosmeticaSettings.DISABLE_RSE_PROMPT.get());
         dto.setExternalCapes(CosmeticaSettings.externalCapeSettings.peek().stream()

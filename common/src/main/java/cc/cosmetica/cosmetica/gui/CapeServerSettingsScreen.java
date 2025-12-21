@@ -35,8 +35,8 @@ import cc.cosmetica.kupe.impl.StateManagerImpl;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import gg.cloaks.javaclient.model.ExternalCapeSetting;
+import gg.cloaks.javaclient.model.UpdateCloudSettingsDto;
 import gg.cloaks.javaclient.model.UpdateExternalCapeSettingDto;
-import gg.cloaks.javaclient.model.UpdateSettingsDto;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.language.I18n;
 import org.jetbrains.annotations.NotNull;
@@ -96,7 +96,7 @@ public class CapeServerSettingsScreen extends Screen {
         if (isModified) {
             Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Updating external cape settings");
 
-            UpdateSettingsDto dto = CosmeticaSettingsScreen.newDto();
+            UpdateCloudSettingsDto dto = new UpdateCloudSettingsDto();
             List<UpdateExternalCapeSettingDto> newExternalCapes = new ArrayList<>();
             for (Component component : newSettings) {
                 CapeSetting capeSetting = (CapeSetting) component;
