@@ -39,6 +39,17 @@ dependencies {
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
+
+    // Shadow core and kupe
+    shadow "cc.cosmetica:cosmetica-core-forge:${rootProject.core_version}-${rootProject.minecraft_version}"
+    shadow "cc.cosmetica:kupe-forge:${rootProject.kupe_version}-${rootProject.minecraft_version}"
+    // Shadow twelvemonkeys
+    shadow "com.twelvemonkeys.imageio:imageio-core:${rootProject.imaging_version}"
+    shadow "com.twelvemonkeys.imageio:imageio-webp:${rootProject.imaging_version}"
+    shadow "com.twelvemonkeys.imageio:imageio-metadata:${rootProject.imaging_version}"
+    shadow "com.twelvemonkeys.common:common-lang:${rootProject.imaging_version}"
+    shadow "com.twelvemonkeys.common:common-io:${rootProject.imaging_version}"
+    shadow "com.twelvemonkeys.common:common-image:${rootProject.imaging_version}"
 }
 
 processResources {
@@ -53,7 +64,20 @@ shadowJar {
     exclude "fabric.mod.json"
     exclude "architectury.common.json"
 
-    configurations = [project.configurations.shadowCommon]
+    relocate 'cc.cosmetica.kupe', 'cc.cosmetica.include.kupe'
+    relocate 'com.twelvemonkeys', 'cc.cosmetica.include.twelvemonkeys'
+    relocate 'com.fasterxml.jackson', 'cc.cosmetica.include.jackson'
+    relocate 'org.openapitools.jackson', 'cc.cosmetica.include.openapitools.jackson'
+    relocate 'org.apache.hc', 'cc.cosmetica.include.apache.hc'
+    relocate 'org.slf4j', 'cc.cosmetica.include.slfj'
+    exclude 'javax/**'
+    exclude 'org/apache/commons/**'
+
+    transform(com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer) {
+        resource = 'META-INF/mods.toml'
+    }
+
+    configurations = [project.configurations.shadowCommon, project.configurations.shadow]
     archiveClassifier = "dev-shadow"
 }
 
