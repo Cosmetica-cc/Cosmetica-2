@@ -24,6 +24,7 @@ import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.Keybinds;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
+import cc.cosmetica.cosmetica.gui.widget.ThumbnailCache;
 import cc.cosmetica.cosmetica.mixin.keybinds.KeyMappingAccessor;
 import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
@@ -582,16 +583,22 @@ public class OutfitWheelScreen extends Screen {
 
     public static class OutfitOption {
         public OutfitOption(Outfit outfit) {
+            String thumbnailId = null;
+            if (outfit.getThumbnail() != null) {
+                final String[] thumbnailParsed = outfit.getThumbnail().split("/");
+                thumbnailId = thumbnailParsed[thumbnailParsed.length - 1];
+            }
+
             this.id = outfit.getId();
             this.name = outfit.getName();
             this.thumbnail = outfit.getThumbnail() == null ? CosmeticEntry.NO_THUMBNAIL :
-                    CosmeticaModel.getOrCreateImage("thumbs-o", // thumbs-outfit
-                            this.id,
+                    ThumbnailCache.getOrCreateImage("thumbs", thumbnailId,
                             new CosmeticaTexture.Builder(outfit.getThumbnail(), Cosmetica.LOADING_TEXTURE)
                                 .frames(8, 1)
                                 .failToLoadTexture(Cosmetica.FALLBACK_TEXTURE)
                                     // todo should we show a live preview? (low priority)
-                                .autoAnimate(CosmeticaTexture.AutoAnimate.NEVER)
+                                .autoAnimate(CosmeticaTexture.AutoAnimate.NEVER),
+                            false
                     );
             this.usable = outfit.isUsable();
             this.accessories = outfit.getAccessories();

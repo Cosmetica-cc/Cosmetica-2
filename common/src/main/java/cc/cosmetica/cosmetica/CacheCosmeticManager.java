@@ -197,21 +197,21 @@ public class CacheCosmeticManager implements CosmeticManager {
             List<ResourceLocation> cachedImages = new ArrayList<>();
             loaded.getCloak().ifPresent(ic -> {
                 cachedImages.add(ic.getImage().location);
-                cachedImages.add(BlockModelManager.getLocation("thumbs-c/" + ic.getId()));
+                cachedImages.add(BlockModelManager.getLocation("thumbs/" + ic.getId()));
             });
             loaded.getElytra().ifPresent(ic -> {
                 cachedImages.add(ic.getImage().location);
-                cachedImages.add(BlockModelManager.getLocation("thumbs-c/" + ic.getId()));
+                cachedImages.add(BlockModelManager.getLocation("thumbs/" + ic.getId()));
             });
             loaded.getLore().ifPresent(ic -> {
                 if (ic.getIcon() != NametagConfig.NO_ICON) {
                     cachedImages.add(ic.getIcon().getImage().location);
-                    cachedImages.add(BlockModelManager.getLocation("thumbs-c/" + ic.getIcon().getId()));
+                    cachedImages.add(BlockModelManager.getLocation("thumbs/" + ic.getIcon().getId()));
                 }
             });
             for (Accessory accessory : loaded.getAccessories()) {
                 cachedImages.add(BlockModelManager.getLocation("accessory/" + accessory.getId()));
-                cachedImages.add(BlockModelManager.getLocation("thumbs-c/" + accessory.getId()));
+                cachedImages.add(BlockModelManager.getLocation("thumbs/" + accessory.getId()));
             }
             BlockModelManager.preserveImages(cachedImages);
 

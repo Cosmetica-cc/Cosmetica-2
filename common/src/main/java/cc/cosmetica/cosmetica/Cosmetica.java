@@ -175,7 +175,7 @@ public class Cosmetica {
 	public static void openWebPanel(String targetPage) {
 		CosmeticaAPI.auth().requestAsync(AuthApi::generateExchangeToken)
 				.thenAccept(token -> {
-					Cosmetica.copyAndOpenURL("https://cosmetica.cc/login?token=" + token + "&state=" + targetPage);
+					Cosmetica.copyAndOpenURL(System.getProperty("cosmetica.website", "https://cosmetica.cc") + "/login?token=" + token + "&state=" + targetPage);
 				})
 				.exceptionally(ex -> {
 					Logging.getInstance().error("Unable to open " + targetPage + " page", ex);
