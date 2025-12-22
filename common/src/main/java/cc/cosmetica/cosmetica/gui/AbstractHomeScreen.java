@@ -20,7 +20,6 @@ import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.core.api.ImageCosmetic;
 import cc.cosmetica.core.api.NametagConfig;
-import cc.cosmetica.cosmetica.CacheCosmeticManager;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.player.AccessoriesAttachment;
 import cc.cosmetica.cosmetica.gui.widget.IconButton;
@@ -69,7 +68,7 @@ public abstract class AbstractHomeScreen extends Screen implements AnimatedTextu
                                 new Div(
                                         new IconButton(
                                                 new ResourceKey("cosmetica", "textures/gear.png"),
-                                                () -> Screens.setScreen(new CosmeticaSettingsScreen(CosmeticaSettingsScreen.SETTINGS_SCREEN, CosmeticaSettings.SETTINGS), CosmeticaSettingsScreen.SETTINGS_SCREEN)),
+                                                () -> Screens.setScreen(new CosmeticaSettingsScreen(CosmeticaSettingsScreen.SETTINGS_SCREEN, CosmeticaSettings.DISPLAY_SETTINGS), CosmeticaSettingsScreen.SETTINGS_SCREEN)),
                                         new IconButton(
                                                 new ResourceKey("cosmetica", "textures/cape.png"),
                                                 () -> Screens.setScreen(new CapeServerSettingsScreen(CosmeticaSettings.externalCapeSettings), CapeServerSettingsScreen.ID))

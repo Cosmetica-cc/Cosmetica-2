@@ -92,6 +92,19 @@ public class CosmeticaSettingsScreen extends Screen {
 
     @Override
     public void unmount() {
+        this.updateLocalSettings();
+        this.updateCloudSettings();
+    }
+
+    private void updateLocalSettings() {
+        boolean modifiedLocal = CosmeticaSettings.CLIENT_SETTINGS.stream().anyMatch(Setting::isModified);
+
+        if (modifiedLocal) {
+            CosmeticaSettings.refreshLocalSettings();
+        }
+    }
+
+    private void updateCloudSettings() {
         // update settings
         boolean modifiedApi = CosmeticaSettings.API_SETTINGS.stream().anyMatch(Setting::isModified);
 

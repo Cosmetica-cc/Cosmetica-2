@@ -89,6 +89,9 @@ public class Cosmetica {
 		// register gui accessory attachment
 		GUIPlayer.registerAttachment(AccessoriesAttachment.INSTANCE);
 
+		// Load config
+		CosmeticaSettings.refreshLocalSettings();
+
 		// cosmetic states
 		Cosmetics.registerCosmeticsChangeCallback((le, cosmetics) -> {
 			if (le instanceof Player) {

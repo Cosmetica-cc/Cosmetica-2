@@ -16,15 +16,24 @@
 
 package cc.cosmetica.cosmetica.settings;
 
+import cc.cosmetica.core.CosmeticaCoreExpectPlatform;
+import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.kupe.api.State;
 import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.model.ExternalCapeSetting;
 import gg.cloaks.javaclient.model.Settings;
 
 import javax.annotation.Nullable;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Settings of the mod and api.
@@ -58,7 +67,7 @@ public final class CosmeticaSettings {
             .forceWhenOff(SHOW_OFFLINE_ICONS, false);
     public static final Setting<Boolean> SHOW_ONLINE_ACTIVITY = new BooleanSetting("setting.cosmetica.showOnlineActivity", true, true);
 
-    public static final List<Setting<?>> CLIENT_SETTINGS = new ArrayList<>(Arrays.asList(TOGGLE_OUTFIT_WHEEL));
+    public static final List<Setting<?>> CLIENT_SETTINGS = new ArrayList<>(Arrays.asList(TOGGLE_OUTFIT_WHEEL, USE_CLOUD_SETTINGS));
     public static final List<Setting<?>> API_SETTINGS = ImmutableList.of(
             SHOW_ACCESSORIES,
             SHOW_LORE,
@@ -67,12 +76,51 @@ public final class CosmeticaSettings {
             SHOW_OFFLINE_ICONS,
             SHOW_ONLINE_ACTIVITY);
 
-    public static final State<List<Setting<?>>> SETTINGS = new State<>(CLIENT_SETTINGS);
+    public static final State<List<Setting<?>>> DISPLAY_SETTINGS = new State<>(CLIENT_SETTINGS);
     public static State<List<ExternalCapeSetting>> externalCapeSettings = new State<>(ImmutableList.of());
 
     public static void clearSettings() {
-        SETTINGS.set(CLIENT_SETTINGS);
+        DISPLAY_SETTINGS.set(CLIENT_SETTINGS);
         externalCapeSettings.set(ImmutableList.of());
+    }
+
+    private static boolean loadedLocal = false;
+    public static void refreshLocalSettings() {
+        Path localDir = CosmeticaCoreExpectPlatform.getConfigDirectory().resolve("cosmetica");
+
+        try {
+            Files.createDirectories(localDir);
+        } catch (IOException e) {
+            Logging.getInstance().error("Error creating cosmetica config directory", e);
+        }
+
+        Path file = localDir.resolve("cosmetica.properties");
+        Properties properties = new Properties();
+
+        // Save properties
+        properties.put("toggle_outfit_wheel", String.valueOf(TOGGLE_OUTFIT_WHEEL.get()));
+        properties.put("use_cloud_settings", String.valueOf(USE_CLOUD_SETTINGS.get()));
+
+        // Overwrite with file properties if loading local
+        if (!loadedLocal) {
+            try (BufferedReader reader = Files.newBufferedReader(file)) {
+                properties.load(reader);
+            } catch (NoSuchFileException e) {
+                Logging.getInstance().info("cosmetica.properties does not exist yet");
+            } catch (IOException e) {
+                Logging.getInstance().error("Error reading cosmetica.properties", e);
+                return; // don't over-write? file system probably restricted somehow
+            }
+
+            loadedLocal = true;
+        }
+
+        // Write properties to file
+        try (BufferedWriter writer = Files.newBufferedWriter(file)) {
+            properties.store(writer, "Per-profile cosmetica settings");
+        } catch (IOException e) {
+            Logging.getInstance().error("Error saving cosmetica.properties", e);
+        }
     }
 
     public static void updateSettings(@Nullable Settings settings) {
@@ -92,7 +140,7 @@ public final class CosmeticaSettings {
             List<Setting<?>> loggedInSettings = new ArrayList<>(CLIENT_SETTINGS);
             loggedInSettings.addAll(API_SETTINGS);
 
-            SETTINGS.set(loggedInSettings);
+            DISPLAY_SETTINGS.set(loggedInSettings);
 
             externalCapeSettings.set(settings.getExternalCapes());
         }
