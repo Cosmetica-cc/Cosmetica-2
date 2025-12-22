@@ -33,14 +33,11 @@ import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.model.UpdateCloudSettingsDto;
-import gg.cloaks.javaclient.model.UpdateExternalCapeSettingDto;
-import gg.cloaks.javaclient.model.UpdateLocalSettingsDto;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.OptionalInt;
-import java.util.stream.Collectors;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
@@ -149,28 +146,6 @@ public class CosmeticaSettingsScreen extends Screen {
     }
 
     public static final ResourceKey SETTINGS_SCREEN = new ResourceKey("cosmetica", "settings");
-
-    public static UpdateLocalSettingsDto newLocalDto() {
-        UpdateLocalSettingsDto dto = new UpdateLocalSettingsDto();
-        dto.setClientName("cosmetica");
-        dto.setDisableRegionalEffectsPrompt(CosmeticaSettings.DISABLE_RSE_PROMPT.get());
-        dto.setExternalCapes(CosmeticaSettings.externalCapeSettings.peek().stream()
-                .map(setting -> {
-                    UpdateExternalCapeSettingDto dto_ = new UpdateExternalCapeSettingDto();
-                    dto_.setService(setting.getService().getValue());
-                    dto_.setReplace(setting.isReplace());
-                    dto_.setEnabled(setting.isEnabled());
-                    return dto_;
-                })
-                .collect(Collectors.toList()));
-        dto.setShowAccessories(CosmeticaSettings.SHOW_ACCESSORIES.get());
-        dto.setShowIcons(CosmeticaSettings.SHOW_ICONS.get());
-        dto.setShowLore(CosmeticaSettings.SHOW_LORE.get());
-        dto.setShowOnlineActivity(CosmeticaSettings.SHOW_ONLINE_ACTIVITY.get());
-        dto.setShowSpecialIcons(CosmeticaSettings.SHOW_SPECIAL_ICONS.get());
-        dto.setShowOfflineIcons(CosmeticaSettings.SHOW_OFFLINE_ICONS.get());
-        return dto;
-    }
 
     private static class SettingBlock<T> extends Div {
         private SettingBlock(Setting<T> setting) {

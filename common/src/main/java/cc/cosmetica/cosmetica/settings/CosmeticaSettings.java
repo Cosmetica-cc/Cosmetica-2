@@ -18,10 +18,17 @@ package cc.cosmetica.cosmetica.settings;
 
 import cc.cosmetica.core.CosmeticaCoreExpectPlatform;
 import cc.cosmetica.core.impl.Logging;
+import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.kupe.api.State;
 import com.google.common.collect.ImmutableList;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import gg.cloaks.javaclient.model.ExternalCapeSetting;
 import gg.cloaks.javaclient.model.Settings;
+import gg.cloaks.javaclient.model.UpdateExternalCapeSettingDto;
+import gg.cloaks.javaclient.model.UpdateLocalSettingsDto;
 
 import javax.annotation.Nullable;
 import java.io.BufferedReader;
@@ -34,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  * Settings of the mod and api.
@@ -131,34 +139,26 @@ public final class CosmeticaSettings {
         }
     }
 
-    private static void packManage(Setting<Boolean> setting, Properties properties, String name) {
-        setting.packManage(Boolean.parseBoolean(properties.getProperty(name)));
+    private static void packManage(Setting<Boolean> setting, JsonObject properties, String name) {
+        setting.packManage(properties.get(name).getAsBoolean());
     }
 
     private static void readModpackSettings(Path parentFolder) {
         // by default, hide cloud settings
         USE_CLOUD_SETTINGS.setHidden(true);
 
-        Properties properties = new Properties();
-        // defaults
-        properties.setProperty("modpack_id", "my_modpack");
-        properties.setProperty("apply_overrides", String.valueOf(false));
-        properties.setProperty("show_accessories", String.valueOf(SHOW_ACCESSORIES.getUserValue()));
-        properties.setProperty("show_lore", String.valueOf(SHOW_LORE.getUserValue()));
-        properties.setProperty("show_icons", String.valueOf(SHOW_ICONS.getUserValue()));
-        properties.setProperty("show_offline_icons", String.valueOf(SHOW_OFFLINE_ICONS.getUserValue()));
-        properties.setProperty("show_special_icons", String.valueOf(SHOW_SPECIAL_ICONS.getUserValue()));
-        properties.setProperty("use_modpack_icons", String.valueOf(USE_MODPACK_ICONS.getUserValue()));
-        properties.setProperty("show_online_activity", String.valueOf(SHOW_ONLINE_ACTIVITY.getUserValue()));
-
         Path modpackSettings = parentFolder.resolve("pack_settings.properties");
         // if file exists
         try (BufferedReader reader = Files.newBufferedReader(modpackSettings)) {
-            properties.load(reader);
-            MODPACK_ID.set(properties.getProperty("modpack_id"));
+            JsonObject properties = new Gson().fromJson(reader, JsonObject.class);
+
+            final String packId = properties.get("modpack_id").getAsString();
+            Logging.getInstance().debug(CosmeticaLogCategory.SETTINGS, "Setting modpack id {}", packId);
+            MODPACK_ID.set(packId);
 
             // apply the settings
-            if (Boolean.parseBoolean(properties.getProperty("apply_overrides"))) {
+            if (properties.get("apply_overrides").getAsBoolean()) {
+                Logging.getInstance().info("Applying modpack overrides for pack {}", MODPACK_ID.peek());
                 USE_CLOUD_SETTINGS.setHidden(false);
 
                 packManage(SHOW_ACCESSORIES,        properties, "show_accessories");
@@ -168,14 +168,64 @@ public final class CosmeticaSettings {
                 packManage(SHOW_SPECIAL_ICONS,      properties, "show_special_icons");
                 packManage(USE_MODPACK_ICONS,       properties, "use_modpack_icons");
                 packManage(SHOW_ONLINE_ACTIVITY,    properties, "show_online_activity");
+
+                // update external capes
+                // TODO allow external capes to be managed
+
+                // Send request
+                Logging.getInstance().debug(CosmeticaLogCategory.SETTINGS, "Pack overrides applied locally. Sending request to server...");
+
+                UpdateLocalSettingsDto dto = new UpdateLocalSettingsDto();
+                dto.setClientName("cosmetica");
+                dto.setDisableRegionalEffectsPrompt(CosmeticaSettings.DISABLE_RSE_PROMPT.get());
+                dto.setExternalCapes(CosmeticaSettings.externalCapeSettings.peek().stream()
+                        .map(setting -> {
+                            UpdateExternalCapeSettingDto dto_ = new UpdateExternalCapeSettingDto();
+                            dto_.setService(setting.getService().getValue());
+                            dto_.setReplace(setting.isReplace());
+                            dto_.setEnabled(setting.isEnabled());
+                            return dto_;
+                        })
+                        .collect(Collectors.toList()));
+                dto.setShowAccessories(CosmeticaSettings.SHOW_ACCESSORIES.get());
+                dto.setShowIcons(CosmeticaSettings.SHOW_ICONS.get());
+                dto.setShowLore(CosmeticaSettings.SHOW_LORE.get());
+                dto.setShowOnlineActivity(CosmeticaSettings.SHOW_ONLINE_ACTIVITY.get());
+                dto.setShowSpecialIcons(CosmeticaSettings.SHOW_SPECIAL_ICONS.get());
+                dto.setShowOfflineIcons(CosmeticaSettings.SHOW_OFFLINE_ICONS.get());
             }
         } catch (NoSuchFileException noSuchFile) {
+            Logging.getInstance().debug(CosmeticaLogCategory.SETTINGS, "Creating/Updating cosmetica pack settings template");
+
+            JsonObject defaults = new JsonObject();
+            // defaults
+            defaults.addProperty("modpack_id", "my_modpack");
+            defaults.addProperty("apply_overrides", false);
+            defaults.addProperty("show_accessories", SHOW_ACCESSORIES.getUserValue());
+            defaults.addProperty("show_lore", SHOW_LORE.getUserValue());
+            defaults.addProperty("show_icons", SHOW_ICONS.getUserValue());
+            defaults.addProperty("show_offline_icons", SHOW_OFFLINE_ICONS.getUserValue());
+            defaults.addProperty("show_special_icons", SHOW_SPECIAL_ICONS.getUserValue());
+            defaults.addProperty("use_modpack_icons", USE_MODPACK_ICONS.getUserValue());
+            defaults.addProperty("show_online_activity", SHOW_ONLINE_ACTIVITY.getUserValue());
+
+            JsonArray arr = new JsonArray();
+            // defaults from website
+            for (ExternalCapeSetting.ServiceEnum service : ExternalCapeSetting.ServiceEnum.values()) {
+                JsonObject serviceObject = new JsonObject();
+                serviceObject.addProperty("service", service.getValue());
+                serviceObject.addProperty("enabled", true);
+                arr.add(serviceObject);
+            }
+            defaults.add("external_capes", arr);
+
             // otherwise create/update a template
             // ".disabled" is a widely used extension to communicate 'remove this extension to activate'
             // so we use this for the template
             Path modpackSettingsTemplate = parentFolder.resolve("pack_settings.properties.disabled");
             try (BufferedWriter writer = Files.newBufferedWriter(modpackSettingsTemplate)) {
-                properties.store(writer, "Cosmetica Modpack Settings");
+                Gson g = new GsonBuilder().setPrettyPrinting().create();
+                g.toJson(defaults, writer);
             } catch (IOException e) {
                 Logging.getInstance().error("Error writing pack settings template", e);
             }
