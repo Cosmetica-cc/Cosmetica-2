@@ -148,7 +148,7 @@ public final class CosmeticaSettings {
         // by default, hide cloud settings
         USE_CLOUD_SETTINGS.setHidden(true);
 
-        Path modpackSettings = parentFolder.resolve("pack_settings.properties");
+        Path modpackSettings = parentFolder.resolve("pack_settings.json");
         // if file exists
         try (BufferedReader reader = Files.newBufferedReader(modpackSettings)) {
             JsonObject properties = new Gson().fromJson(reader, JsonObject.class);
@@ -223,7 +223,7 @@ public final class CosmeticaSettings {
             // otherwise create/update a template
             // ".disabled" is a widely used extension to communicate 'remove this extension to activate'
             // so we use this for the template
-            Path modpackSettingsTemplate = parentFolder.resolve("pack_settings.properties.disabled");
+            Path modpackSettingsTemplate = parentFolder.resolve("pack_settings.json.disabled");
             try (BufferedWriter writer = Files.newBufferedWriter(modpackSettingsTemplate)) {
                 Gson g = new GsonBuilder().setPrettyPrinting().create();
                 g.toJson(defaults, writer);
