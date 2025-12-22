@@ -99,6 +99,7 @@ public class CosmeticaSettingsScreen extends Screen {
 
         if (modifiedLocal) {
             CosmeticaSettings.refreshLocalSettings();
+            CosmeticaSettings.CLIENT_SETTINGS.forEach(Setting::clean);
         }
     }
 

@@ -133,6 +133,7 @@ public final class CosmeticaSettings {
 
         // Write properties to file
         try (BufferedWriter writer = Files.newBufferedWriter(file)) {
+            Logging.getInstance().debug(CosmeticaLogCategory.SETTINGS, "Saving cosmetica.properties");
             properties.store(writer, "Per-profile cosmetica settings");
         } catch (IOException e) {
             Logging.getInstance().error("Error saving cosmetica.properties", e);
