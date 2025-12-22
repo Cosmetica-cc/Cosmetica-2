@@ -82,6 +82,8 @@ shadowJar {
         resource = 'META-INF/mods.toml'
     }
 
+    mergeServiceFiles()
+
     configurations = [project.configurations.shadowCommon, project.configurations.shadow]
     archiveClassifier = "dev-shadow"
 }
