@@ -16,6 +16,10 @@ loom {
 
         mixinConfig "cosmetica-common.mixins.json"
         mixinConfig "cosmetica-forge.mixins.json"
+        mixinConfig "cosmetica-core-common.mixins.json"
+        mixinConfig "cosmetica-core-forge.mixins.json"
+        mixinConfig "kupe-common.mixins.json"
+        mixinConfig "kupe.mixins.json"
     }
 }
 
@@ -64,7 +68,7 @@ shadowJar {
     exclude "fabric.mod.json"
     exclude "architectury.common.json"
 
-    relocate 'cc.cosmetica.kupe', 'cc.cosmetica.include.kupe'
+//    relocate 'cc.cosmetica.kupe', 'cc.cosmetica.include.kupe'
     relocate 'com.twelvemonkeys', 'cc.cosmetica.include.twelvemonkeys'
     // needs to be the same as core
     relocate 'org.apache.hc', 'cc.cosmetica.org.apache.hc'
