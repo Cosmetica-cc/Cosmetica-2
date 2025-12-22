@@ -76,6 +76,10 @@ public class Cosmetica {
 	public static void init() {
 		Screens.setAllowDebug(true);
 
+		// Load config (must be done before auth!)
+		CosmeticaSettings.refreshLocalSettings();
+
+		// Set up offline cosmetics cache
 		Path cosmeticaConfigDir = CosmeticaCoreExpectPlatform.getConfigDirectory().resolve("cosmetica");
 		Path cosmeticCacheDir = cosmeticaConfigDir.resolve("offlineCache");
 		try {
@@ -88,9 +92,6 @@ public class Cosmetica {
 
 		// register gui accessory attachment
 		GUIPlayer.registerAttachment(AccessoriesAttachment.INSTANCE);
-
-		// Load config
-		CosmeticaSettings.refreshLocalSettings();
 
 		// cosmetic states
 		Cosmetics.registerCosmeticsChangeCallback((le, cosmetics) -> {
