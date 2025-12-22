@@ -42,11 +42,20 @@ public abstract class Setting<T> {
     private T oldUserValue;
     // ...
     private boolean modified;
+    private boolean hidden;
 
     protected final State<T> actualValue;
 
     public final T get() {
         return this.actualValue.peek();
+    }
+
+    public final boolean isVisible() {
+        return !this.hidden;
+    }
+
+    void setHidden(boolean hidden) {
+        this.hidden = hidden;
     }
 
     public final T getUserValue() {
@@ -106,18 +115,15 @@ public abstract class Setting<T> {
     void updateValue() {
         // parent managed value takes priority
         if (this.parentManagedValue != null) {
-//            if (this.actualValue.peek() == parentManagedValue) return;
             this.actualValue.set(parentManagedValue);
             this.onUpdate();
         } else {
             // then pack managed value
             if (this != CosmeticaSettings.USE_CLOUD_SETTINGS &&
                     this.packValue != null && !CosmeticaSettings.USE_CLOUD_SETTINGS.get()) {
-//                if (this.actualValue.peek() == packValue) return;
                 this.actualValue.set(packValue);
                 this.onUpdate();
             } else {
-//                if (this.actualValue.peek() == userValue) return;
                 this.actualValue.set(userValue);
                 this.onUpdate();
             }

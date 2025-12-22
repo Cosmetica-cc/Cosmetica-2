@@ -42,7 +42,7 @@ public final class CosmeticaSettings {
     private CosmeticaSettings() {
     }
 
-    // Client Settings
+    // Client profile settings
     public static final Setting<Boolean> TOGGLE_OUTFIT_WHEEL = new BooleanSetting("setting.cosmetica.wheel", false, false);
     /**
      * In a modpack with managed settings, use cloud settings instead.
@@ -55,12 +55,17 @@ public final class CosmeticaSettings {
     };
 
     // Internal settings
+    // - from api
     public static final Setting<Boolean> DISABLE_RSE_PROMPT = new BooleanSetting("setting.cosmetica.disableRSEPrompt", false, true);
+    // - from local settings
+    public static final State<@org.jetbrains.annotations.Nullable String> MODPACK_ID = new State<>(null);
 
     // API Settings
+    public static final Setting<Boolean> USE_MODPACK_ICONS = new BooleanSetting("setting.cosmetica.useModpackIcons", true, true);
     public static final Setting<Boolean> SHOW_ACCESSORIES = new BooleanSetting("setting.cosmetica.showAccessories", true, true);
     public static final Setting<Boolean> SHOW_LORE = new BooleanSetting("setting.cosmetica.showLore", true, true);
-    public static final Setting<Boolean> SHOW_SPECIAL_ICONS = new BooleanSetting("setting.cosmetica.showSpecialIcons", true, true);
+    public static final Setting<Boolean> SHOW_SPECIAL_ICONS = new BooleanSetting("setting.cosmetica.showSpecialIcons", true, true)
+            .forceWhenOff(USE_MODPACK_ICONS, false);
     public static final Setting<Boolean> SHOW_OFFLINE_ICONS = new BooleanSetting("setting.cosmetica.showOfflineIcons", true, true);
     public static final Setting<Boolean> SHOW_ICONS = new BooleanSetting("setting.cosmetica.showIcons", true, true)
             .forceWhenOff(SHOW_SPECIAL_ICONS, false)
@@ -72,8 +77,9 @@ public final class CosmeticaSettings {
             SHOW_ACCESSORIES,
             SHOW_LORE,
             SHOW_ICONS,
-            SHOW_SPECIAL_ICONS,
             SHOW_OFFLINE_ICONS,
+            SHOW_SPECIAL_ICONS,
+            USE_MODPACK_ICONS,
             SHOW_ONLINE_ACTIVITY);
 
     public static final State<List<Setting<?>>> DISPLAY_SETTINGS = new State<>(CLIENT_SETTINGS);
@@ -94,12 +100,14 @@ public final class CosmeticaSettings {
             Logging.getInstance().error("Error creating cosmetica config directory", e);
         }
 
+        readModpackSettings(localDir);
+
         Path file = localDir.resolve("cosmetica.properties");
         Properties properties = new Properties();
 
         // Save properties
-        properties.put("toggle_outfit_wheel", String.valueOf(TOGGLE_OUTFIT_WHEEL.get()));
-        properties.put("use_cloud_settings", String.valueOf(USE_CLOUD_SETTINGS.get()));
+        properties.setProperty("toggle_outfit_wheel", String.valueOf(TOGGLE_OUTFIT_WHEEL.get()));
+        properties.setProperty("use_cloud_settings", String.valueOf(USE_CLOUD_SETTINGS.get()));
 
         // Overwrite with file properties if loading local
         if (!loadedLocal) {
@@ -123,6 +131,59 @@ public final class CosmeticaSettings {
         }
     }
 
+    private static void packManage(Setting<Boolean> setting, Properties properties, String name) {
+        setting.packManage(Boolean.parseBoolean(properties.getProperty(name)));
+    }
+
+    private static void readModpackSettings(Path parentFolder) {
+        // by default, hide cloud settings
+        USE_CLOUD_SETTINGS.setHidden(true);
+
+        Properties properties = new Properties();
+        // defaults
+        properties.setProperty("modpack_id", "my_modpack");
+        properties.setProperty("apply_overrides", String.valueOf(false));
+        properties.setProperty("show_accessories", String.valueOf(SHOW_ACCESSORIES.getUserValue()));
+        properties.setProperty("show_lore", String.valueOf(SHOW_LORE.getUserValue()));
+        properties.setProperty("show_icons", String.valueOf(SHOW_ICONS.getUserValue()));
+        properties.setProperty("show_offline_icons", String.valueOf(SHOW_OFFLINE_ICONS.getUserValue()));
+        properties.setProperty("show_special_icons", String.valueOf(SHOW_SPECIAL_ICONS.getUserValue()));
+        properties.setProperty("use_modpack_icons", String.valueOf(USE_MODPACK_ICONS.getUserValue()));
+        properties.setProperty("show_online_activity", String.valueOf(SHOW_ONLINE_ACTIVITY.getUserValue()));
+
+        Path modpackSettings = parentFolder.resolve("pack_settings.properties");
+        // if file exists
+        try (BufferedReader reader = Files.newBufferedReader(modpackSettings)) {
+            properties.load(reader);
+            MODPACK_ID.set(properties.getProperty("modpack_id"));
+
+            // apply the settings
+            if (Boolean.parseBoolean(properties.getProperty("apply_overrides"))) {
+                USE_CLOUD_SETTINGS.setHidden(false);
+
+                packManage(SHOW_ACCESSORIES,        properties, "show_accessories");
+                packManage(SHOW_LORE,               properties, "show_lore");
+                packManage(SHOW_ICONS,              properties, "show_icons");
+                packManage(SHOW_OFFLINE_ICONS,      properties, "show_offline_icons");
+                packManage(SHOW_SPECIAL_ICONS,      properties, "show_special_icons");
+                packManage(USE_MODPACK_ICONS,       properties, "use_modpack_icons");
+                packManage(SHOW_ONLINE_ACTIVITY,    properties, "show_online_activity");
+            }
+        } catch (NoSuchFileException noSuchFile) {
+            // otherwise create/update a template
+            // ".disabled" is a widely used extension to communicate 'remove this extension to activate'
+            // so we use this for the template
+            Path modpackSettingsTemplate = parentFolder.resolve("pack_settings.properties.disabled");
+            try (BufferedWriter writer = Files.newBufferedWriter(modpackSettingsTemplate)) {
+                properties.store(writer, "Cosmetica Modpack Settings");
+            } catch (IOException e) {
+                Logging.getInstance().error("Error writing pack settings template", e);
+            }
+        } catch (IOException e) {
+            Logging.getInstance().error("Error reading pack settings", e);
+        }
+    }
+
     public static void updateSettings(@Nullable Settings settings) {
         if (settings == null) {
             clearSettings();
@@ -134,6 +195,7 @@ public final class CosmeticaSettings {
             SHOW_SPECIAL_ICONS.update(settings.isShowSpecialIcons());
             SHOW_OFFLINE_ICONS.update(settings.isShowOfflineIcons());
             SHOW_ONLINE_ACTIVITY.update(settings.isShowOnlineActivity());
+            USE_MODPACK_ICONS.update(settings.isUseModpackIcons());
             DISABLE_RSE_PROMPT.update(settings.isDisableRegionalEffectsPrompt());
 
             // Create composite list

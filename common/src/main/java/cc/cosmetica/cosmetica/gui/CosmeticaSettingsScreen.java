@@ -58,6 +58,7 @@ public class CosmeticaSettingsScreen extends Screen {
     @Override
     protected Component[] buildScreen() {
         Component[] settings = this.settings.acquire(this).stream()
+                .filter(Setting::isVisible)
                 .map(SettingBlock::new)
                 .map(c -> c.tag("setting-block"))
                 .toArray(Component[]::new);
