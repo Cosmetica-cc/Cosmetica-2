@@ -17,18 +17,23 @@
 package cc.cosmetica.cosmetica.settings;
 
 import cc.cosmetica.core.CosmeticaCoreExpectPlatform;
+import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.kupe.api.State;
+import cc.cosmetica.kupe.api.Text;
+import cc.cosmetica.kupe.api.gui.Button;
+import cc.cosmetica.kupe.api.gui.Component;
+import cc.cosmetica.kupe.api.gui.Div;
+import cc.cosmetica.kupe.api.gui.Tooltip;
+import cc.cosmetica.kupe.api.gui.style.Style;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import gg.cloaks.javaclient.model.ExternalCapeSetting;
-import gg.cloaks.javaclient.model.Settings;
-import gg.cloaks.javaclient.model.UpdateExternalCapeSettingDto;
-import gg.cloaks.javaclient.model.UpdateLocalSettingsDto;
+import gg.cloaks.javaclient.model.*;
+import net.minecraft.client.Minecraft;
 
 import javax.annotation.Nullable;
 import java.io.BufferedReader;
@@ -37,11 +42,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static cc.cosmetica.kupe.api.gui.style.CommonProperties.TOOLTIP;
 
 /**
  * Settings of the mod and api.
@@ -57,8 +61,48 @@ public final class CosmeticaSettings {
      */
     public static final Setting<Boolean> USE_CLOUD_SETTINGS = new BooleanSetting("setting.cosmetica.cloud", false, true) {
         @Override
-        protected void onUpdate() {
-            API_SETTINGS.forEach(Setting::updateValue);
+        public Component createController() {
+            // Will reload when all settings load so doesn't need to update itself (or any other settings)
+            boolean useCloudSettings = this.get();
+            return new Div() {
+                private State<Boolean> disabled = new State<>(false);
+
+                @Override
+                public List<Component> build() {
+                    boolean isDisabled = disabled.acquire(this);
+
+                    return Collections.singletonList(
+                            new Button(
+                                    useCloudSettings ? Text.GUI_YES : Text.GUI_NO,
+                                    () -> {
+                                        disabled.set(true);
+                                        USE_CLOUD_SETTINGS.set(!useCloudSettings);
+
+                                        if (useCloudSettings) { // was true (-> false)
+                                            // should be pack managed now
+                                            if (updateLocalSettingsDto == null) {
+                                                Logging.getInstance().error("UpdateLocalSettingsDto should not be null if cloud settings is visible!");
+                                            } else {
+                                                // don't let settings update
+                                                API_SETTINGS.forEach(Setting::updateValue);
+                                                CosmeticaAPI.settings().requestAsync(api -> api.setLocal(updateLocalSettingsDto))
+                                                        .thenApply(CosmeticaUser::getActiveSettings)
+                                                        .thenAcceptAsync(CosmeticaSettings::updateSettings, Minecraft.getInstance());
+                                            }
+                                        } else { // was false (-> true)
+                                            CosmeticaAPI.settings().requestAsync(api -> api.setCloud(new UpdateCloudSettingsDto()))
+                                                    .thenApply(CosmeticaUser::getActiveSettings)
+                                                    .thenAcceptAsync(CosmeticaSettings::updateSettings, Minecraft.getInstance());
+                                        }
+                                    }
+                            ).setDisabled(isDisabled)
+                                    .withStyle(Style.create()
+                                            .set(TOOLTIP, !isDisabled ? Optional.empty() : Optional.of(
+                                                    new Tooltip(Text.translatable("tooltip.cosmetica.updatingSettings"))
+                                            )))
+                    );
+                }
+            };
         }
     };
 
@@ -91,6 +135,7 @@ public final class CosmeticaSettings {
             SHOW_ONLINE_ACTIVITY);
 
     public static final State<List<Setting<?>>> DISPLAY_SETTINGS = new State<>(CLIENT_SETTINGS);
+    private static @Nullable UpdateLocalSettingsDto updateLocalSettingsDto;
     public static State<List<ExternalCapeSetting>> externalCapeSettings = new State<>(ImmutableList.of());
 
     public static void clearSettings() {
@@ -108,7 +153,11 @@ public final class CosmeticaSettings {
             Logging.getInstance().error("Error creating cosmetica config directory", e);
         }
 
-        readModpackSettings(localDir);
+        UpdateLocalSettingsDto dto = readModpackSettings(localDir);
+        updateLocalSettingsDto = dto;
+        if (dto != null) {
+
+        }
 
         Path file = localDir.resolve("cosmetica.properties");
         Properties properties = new Properties();
@@ -144,7 +193,8 @@ public final class CosmeticaSettings {
         setting.packManage(properties.get(name).getAsBoolean());
     }
 
-    private static void readModpackSettings(Path parentFolder) {
+    @Nullable
+    private static UpdateLocalSettingsDto readModpackSettings(Path parentFolder) {
         // by default, hide cloud settings
         USE_CLOUD_SETTINGS.setHidden(true);
 
@@ -194,6 +244,7 @@ public final class CosmeticaSettings {
                 dto.setShowOnlineActivity(CosmeticaSettings.SHOW_ONLINE_ACTIVITY.get());
                 dto.setShowSpecialIcons(CosmeticaSettings.SHOW_SPECIAL_ICONS.get());
                 dto.setShowOfflineIcons(CosmeticaSettings.SHOW_OFFLINE_ICONS.get());
+                return dto;
             }
         } catch (NoSuchFileException noSuchFile) {
             Logging.getInstance().debug(CosmeticaLogCategory.SETTINGS, "Creating/Updating cosmetica pack settings template");
@@ -233,6 +284,8 @@ public final class CosmeticaSettings {
         } catch (IOException e) {
             Logging.getInstance().error("Error reading pack settings", e);
         }
+
+        return null;
     }
 
     public static void updateSettings(@Nullable Settings settings) {
