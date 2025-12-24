@@ -202,11 +202,10 @@ public class CosmeticEntry extends Component {
 		if (cosmetics == null)
 			return; // no cosmetics
 
-		// (wip) this should only show API cosmetics and only allow editing if own cosmetics.
-		// some kind of notification if no internet
-		// this also means for local player, even when null, we need to handle backup cosmetics no?
-
 		boolean showSeparateElytra = true;
+		// We only show API cosmetics for now
+		// TODO add external cape
+
 		if (cosmetics.getCloak().isPresent()) {
 			ImageCosmetic cloak = cosmetics.getCloak().get();
 
@@ -219,7 +218,7 @@ public class CosmeticEntry extends Component {
 			entryList.add(new CosmeticEntry(
 					cosmetics,
 					null,
-					getOrCreateThumb(cloak.getThumbnail(), cloak.getImage().getFramePeriod(), false),
+					!cloak.getThumbnail().isPresent() ? NO_THUMBNAIL : getOrCreateThumb(cloak.getThumbnail().get(), cloak.getImage().getFramePeriod(), false),
 					cloak.getId(),
 					cloak.getName(),
 					message, //cloak.getCreator().isPresent() ? cloak.getCreator().get().getName() : "Could not load creator"
@@ -236,7 +235,7 @@ public class CosmeticEntry extends Component {
 			entryList.add(new CosmeticEntry(
 					cosmetics,
 					null,
-					getOrCreateThumb(elytra.getThumbnail(), 3, false), // TODO in core give ticks per frame (expose AnimatedTextureCosmetic)
+					!elytra.getThumbnail().isPresent() ? NO_THUMBNAIL : getOrCreateThumb(elytra.getThumbnail().get(), elytra.getImage().getFramePeriod(), false),
 					elytra.getId(),
 					elytra.getName(),
 					"Elytra", //elytra.getCreator().isPresent() ? elytra.getCreator().get().getName() : "Could not load creator"
@@ -249,7 +248,7 @@ public class CosmeticEntry extends Component {
 
 		for (Accessory accessory : cosmetics.getAccessories()) {
 			// texture for thumbnail
-			CachedImage thumbnail = getOrCreateThumb(accessory.getThumbnail(), accessory.getJsonObject().getTicksPerFrame().intValue(), false);
+			CachedImage thumbnail = getOrCreateThumb(accessory.getThumbnail().orElseThrow(IllegalStateException::new), accessory.getJsonObject().getTicksPerFrame().intValue(), false);
 
 			// n.b. reference to CachedImage needs to be stored on the entry so it doesn't get GC'd
 			entryList.add(new CosmeticEntry(
@@ -349,10 +348,7 @@ public class CosmeticEntry extends Component {
 		if (thumbnail == null) {
 			return NO_THUMBNAIL;
 		} else {
-			final String[] thumbnailParsed = thumbnail.split("/");
-			final String thumbnailId = thumbnailParsed[thumbnailParsed.length - 1];
-
-			return ThumbnailCache.getOrCreateImage("thumbs", thumbnailId,
+			return ThumbnailCache.getOrCreateImage(
 					new CosmeticaTexture.Builder(thumbnail, Cosmetica.LOADING_TEXTURE)
 							.frames(8, ticksPerFrame)
 							.failToLoadTexture(Cosmetica.FALLBACK_TEXTURE)

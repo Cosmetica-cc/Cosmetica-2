@@ -95,7 +95,7 @@ public class CacheCosmeticManager implements CosmeticManager {
                     NametagConfig loreNametag = lore == null ? null : new NametagConfig(
                                 lore.getFormatted().replaceAll("&", "§"), "",
                                 lore.getIconUrl() == null ? NO_ICON : new ImageCosmetic(
-                                        CosmeticaModel.getOrCreateImage("lore", lore.getService(), new CosmeticaTexture.Builder(lore.getIconUrl(), BlockModelManager.FALLBACK_TEXTURE)),
+                                        CosmeticaModel.getOrCreateCosmeticaImage(new CosmeticaTexture.Builder(lore.getIconUrl(), BlockModelManager.FALLBACK_TEXTURE)),
                                         lore.getService(),
                                         lore.getService(), // use service as id as well
                                         null,
@@ -115,20 +115,26 @@ public class CacheCosmeticManager implements CosmeticManager {
 
                         @Nullable AnimatedTextureCosmetic apiCloak = outfit.getCloak();
                         @Nullable AnimatedTextureCosmetic apiElytra = outfit.getElytra();
+                        @Nullable ExternalCape externalCape = user.getExternalCape();
 
                         if (apiCloak != null) {
-                            cloak = ImageCosmetic.fromAPI(apiCloak, "cape");
+                            cloak = ImageCosmetic.fromAPI(apiCloak);
+                        } else if (externalCape != null) {
+                            cloak = ImageCosmetic.fromExternalCape(externalCape);
                         }
                         if (apiElytra != null) {
-                            elytra = ImageCosmetic.fromAPI(apiElytra, "cape");
+                            elytra = ImageCosmetic.fromAPI(apiElytra);
+                        } else if (externalCape != null && externalCape.isHasElytra()) {
+                            elytra = ImageCosmetic.fromExternalCape(externalCape);
                         }
 
                         // equip acessories
                         for (OutfitAccessory accessory : outfit.getAccessories()) {
                             // See: Accessory.fromOutfitAccessory
                             CosmeticaModel model = CosmeticaModel.getOrCreateModel(
-                                    "accessory",
                                     accessory.getAccessory().getId(),
+                                    "textures",
+                                    CosmeticaModel.textureId(accessory.getAccessory().getTexture()),
                                     () -> Files.newInputStream(this.directory.resolve(accessory.getAccessory().getId() + ".json")),
                                     accessory.getAccessory().getTexture(),
                                     accessory.getAccessory().getTicksPerFrame().intValue(),
@@ -149,6 +155,16 @@ public class CacheCosmeticManager implements CosmeticManager {
                                             offset.get(2).doubleValue()
                                     )
                             ));
+                        }
+                    } else {
+                        // this should probably never trigger
+                        @Nullable ExternalCape externalCape = user.getExternalCape();
+
+                        if (externalCape != null) {
+                            cloak = ImageCosmetic.fromExternalCape(externalCape);
+                        }
+                        if (externalCape != null && externalCape.isHasElytra()) {
+                            elytra = ImageCosmetic.fromExternalCape(externalCape);
                         }
                     }
 
@@ -179,7 +195,7 @@ public class CacheCosmeticManager implements CosmeticManager {
                 CosmeticaUser user = new CosmeticaUser();
                 // only extract relevant settings
                 user.setActiveSettings(response.getActiveSettings()); // may be useful to have a known copy of settings
-                user.setExternalCape(response.getExternalCape()); // not used currently
+                user.setExternalCape(response.getExternalCape());
                 user.setIcon(response.getIcon());
                 user.setLore(response.getLore());
                 user.setSkin(response.getSkin()); // not used currently
@@ -197,21 +213,33 @@ public class CacheCosmeticManager implements CosmeticManager {
             List<ResourceLocation> cachedImages = new ArrayList<>();
             loaded.getCloak().ifPresent(ic -> {
                 cachedImages.add(ic.getImage().location);
-                cachedImages.add(BlockModelManager.getLocation("thumbs/" + ic.getId()));
+
+                if (ic.getThumbnail().isPresent()) {
+                    cachedImages.add(BlockModelManager.getLocation("textures/" + CosmeticaModel.textureId(ic.getThumbnail().get())));
+                }
             });
             loaded.getElytra().ifPresent(ic -> {
                 cachedImages.add(ic.getImage().location);
-                cachedImages.add(BlockModelManager.getLocation("thumbs/" + ic.getId()));
+
+                if (ic.getThumbnail().isPresent()) {
+                    cachedImages.add(BlockModelManager.getLocation("textures/" + CosmeticaModel.textureId(ic.getThumbnail().get())));
+                }
             });
             loaded.getLore().ifPresent(ic -> {
                 if (ic.getIcon() != NametagConfig.NO_ICON) {
                     cachedImages.add(ic.getIcon().getImage().location);
-                    cachedImages.add(BlockModelManager.getLocation("thumbs/" + ic.getIcon().getId()));
+
+                    if (ic.getIcon().getThumbnail().isPresent()) {
+                        cachedImages.add(BlockModelManager.getLocation("textures/" + CosmeticaModel.textureId(ic.getIcon().getThumbnail().get())));
+                    }
                 }
             });
             for (Accessory accessory : loaded.getAccessories()) {
-                cachedImages.add(BlockModelManager.getLocation("accessory/" + accessory.getId()));
-                cachedImages.add(BlockModelManager.getLocation("thumbs/" + accessory.getId()));
+                cachedImages.add(BlockModelManager.getLocation("textures/" + CosmeticaModel.textureId(accessory.getJsonObject().getTexture())));
+
+                if (accessory.getThumbnail().isPresent()) {
+                    cachedImages.add(BlockModelManager.getLocation("textures/" + CosmeticaModel.textureId(accessory.getThumbnail().get())));
+                }
             }
             BlockModelManager.preserveImages(cachedImages);
 

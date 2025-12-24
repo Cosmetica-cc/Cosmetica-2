@@ -583,16 +583,10 @@ public class OutfitWheelScreen extends Screen {
 
     public static class OutfitOption {
         public OutfitOption(Outfit outfit) {
-            String thumbnailId = null;
-            if (outfit.getThumbnail() != null) {
-                final String[] thumbnailParsed = outfit.getThumbnail().split("/");
-                thumbnailId = thumbnailParsed[thumbnailParsed.length - 1];
-            }
-
             this.id = outfit.getId();
             this.name = outfit.getName();
             this.thumbnail = outfit.getThumbnail() == null ? CosmeticEntry.NO_THUMBNAIL :
-                    ThumbnailCache.getOrCreateImage("thumbs", thumbnailId,
+                    ThumbnailCache.getOrCreateImage(
                             new CosmeticaTexture.Builder(outfit.getThumbnail(), Cosmetica.LOADING_TEXTURE)
                                 .frames(8, 1)
                                 .failToLoadTexture(Cosmetica.FALLBACK_TEXTURE)

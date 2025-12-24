@@ -358,7 +358,7 @@ public class BrowseScreen extends AbstractHomeScreen {
                                                     break;
                                                 case ANIMATED_TEXTURE_COSMETIC:
                                                     assert envelope.getAnimatedTextureCosmetic() != null; // guaranteed by API
-                                                    BrowseScreen.this.configuringDownloaded.set(ImageCosmetic.fromAPI(envelope.getAnimatedTextureCosmetic(), "cape"));
+                                                    BrowseScreen.this.configuringDownloaded.set(ImageCosmetic.fromAPI(envelope.getAnimatedTextureCosmetic()));
                                                     break;
                                                 case ACCESSORY:
                                                     assert envelope.getAccessory() != null; // guaranteed

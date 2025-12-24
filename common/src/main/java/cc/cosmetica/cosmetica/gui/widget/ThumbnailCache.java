@@ -27,8 +27,8 @@ public final class ThumbnailCache {
     private ThumbnailCache() {
     }
 
-    public static CachedImage getOrCreateImage(String category, String id, CosmeticaTexture.Builder texture, boolean useBrowseCache) {
-        CachedImage image = CosmeticaModel.getOrCreateImage(category, id, texture);
+    public static CachedImage getOrCreateImage(CosmeticaTexture.Builder texture, boolean useBrowseCache) {
+        CachedImage image = CosmeticaModel.getOrCreateCosmeticaImage(texture);
 
         if (useBrowseCache) {
             for (CachedImage i : browseCache) {

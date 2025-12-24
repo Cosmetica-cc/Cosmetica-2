@@ -141,7 +141,7 @@ public class Cosmetica {
 						lore.getContent(),
 						UpdateLoreDto.ColorEnum.fromValue(lore.getColor().getValue()),
 						lore.getIconUrl() == null ? CachedImage.NO_TEXTURE :
-								CosmeticaModel.getOrCreateImage("lore", lore.getService(),
+								CosmeticaModel.getOrCreateCosmeticaImage(
 										new CosmeticaTexture.Builder(lore.getIconUrl(), FALLBACK_TEXTURE).frames(1, 1)),
 						lore.getType() == gg.cloaks.javaclient.model.Lore.TypeEnum.CONNECTION ? lore.getService()
 						: (lore.getType() == gg.cloaks.javaclient.model.Lore.TypeEnum.PRONOUNS ? Lore.PRONOUN_SERVICE : "")
