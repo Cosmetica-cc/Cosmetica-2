@@ -105,6 +105,11 @@ public abstract class AbstractHomeScreen extends Screen implements AnimatedTextu
                     .configureOverride(AccessoriesAttachment.INSTANCE, cosmetics.getAccessories())
                     .configureOverride(GUIPlayer.CAPE, cosmetics.getCloak().map(ImageCosmetic::getImage).map(c -> c.location).orElse(null))
                     .configureOverride(GUIPlayer.ELYTRA, cosmetics.getElytra().map(ImageCosmetic::getImage).map(c -> new GUIPlayer.ElytraProperties(c.location, false, true)).orElse(GUIPlayer.ElytraProperties.DEFAULT)));
+        } else if (cosmetics != null) {
+            // TODO maybe mixin into Kupe to alter the defaults, or add "cape provider" system into it
+            player.configureOverrides(p -> p
+                    .configureOverride(GUIPlayer.CAPE, cosmetics.getCloak().map(ImageCosmetic::getImage).map(c -> c.location).orElse(null))
+                    .configureOverride(GUIPlayer.ELYTRA, cosmetics.getElytra().map(ImageCosmetic::getImage).map(c -> new GUIPlayer.ElytraProperties(c.location, false, true)).orElse(GUIPlayer.ElytraProperties.DEFAULT)));
         }
         return player;
     }
