@@ -70,10 +70,15 @@ public final class Authentication {
 
     static void authenticate() {
         // download current settings and update settings on authentication change
-        CosmeticaAPI.addAuthenticationChangeCallback(() -> {
+        CosmeticaAPI.addAuthenticationChangeCallback(reason -> {
             // clear settings when deauthenticating
             if (!CosmeticaAPI.isAuthenticated()) {
                 Minecraft.getInstance().execute(CosmeticaSettings::clearSettings);
+
+                // delete invalid tokens
+                if (reason == CosmeticaAPI.AuthChangeReason.ERROR_401) {
+                    invalidateToken();
+                }
             }
 
             // Allow manual token setting for testing
@@ -125,6 +130,40 @@ public final class Authentication {
                     0,
                     TimeUnit.SECONDS
             );
+        }
+    }
+
+    private static void invalidateToken() {
+        Logging.getInstance().info("Cosmetica authentication has expired. Will reauthenticate!");
+
+        // Get file location and ensure it's valid
+        Path sessionsInfo = BlockModelManager.getCacheFile(SESSIONS, null);
+        Properties properties = new Properties();
+
+        if (!Files.isRegularFile(sessionsInfo)) {
+            Logging.getInstance().warn("Tried to invalidate token but sessions path doesn't exist");
+            return;
+        }
+
+        // Load file
+        try (BufferedInputStream b = new BufferedInputStream(Files.newInputStream(sessionsInfo))) {
+            properties.load(b);
+        } catch (IOException e) {
+            Logging.getInstance().error("Failed to load cosmetica sessions", e);
+            return;
+        }
+
+        // Remove property
+        User user = Minecraft.getInstance().getUser();
+        String tokenKey = "jwt-" + user.getUuid();
+        properties.remove(tokenKey);
+
+        // Store
+        try (BufferedOutputStream boss = new BufferedOutputStream(Files.newOutputStream(sessionsInfo))) {
+            properties.store(boss, "Cosmetica Session Info");
+            Logging.getInstance().debug(CosmeticaLogCategory.LOGIN, "Invalidated token");
+        } catch (IOException e) {
+            Logging.getInstance().error("Failed to save cosmetica sessions", e);
         }
     }
 
