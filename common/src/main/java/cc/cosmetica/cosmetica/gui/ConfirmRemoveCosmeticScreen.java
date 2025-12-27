@@ -106,7 +106,7 @@ public final class ConfirmRemoveCosmeticScreen extends AbstractConfirmScreen {
                 }, Minecraft.getInstance())
                 .exceptionally(Cosmetica.mainThreadExcept(ex -> {
                     Logging.getInstance().error("Error updating outfit {}", ex, this.outfitId);
-                    this.setting.set(false); //TODO non africa update
+                    this.setting.set(false);
                 }));
     }
 }
