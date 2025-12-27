@@ -117,11 +117,14 @@ public class Cosmetica {
 		CosmeticaAPI.addAuthenticationChangeCallback(reason -> {
 			if (reason == CosmeticaAPI.AuthChangeReason.AUTHENTICATED) {
 				Minecraft.getInstance().execute(Cosmetica::fetchOutfits);
+				// refresh outfit limit too!
+				Minecraft.getInstance().execute(OutfitSelectScreen::fetchOutfitLimit);
 			}
 		});
 		// in dev
 		if (System.getProperty("cosmetica.token") != null && CosmeticaAPI.isAuthenticated()) {
 			Minecraft.getInstance().execute(Cosmetica::fetchOutfits);
+			Minecraft.getInstance().execute(OutfitSelectScreen::fetchOutfitLimit);
 		}
 		// updates to cosmetic stuff
 		Cosmetics.registerUserDataFetchCallback((data, cosmetics) -> {
@@ -260,7 +263,7 @@ public class Cosmetica {
 		Screens.registerScreen(HomeScreen.ID, HomeScreen::new);
 		Screens.registerScreen(BrowseScreen.ID, BrowseScreen::new);
 		Screens.registerScreen(StyleNametagScreen.ID, StyleNametagScreen::new);
-		Screens.registerScreen(OutfitSelectScreen.ID, new OutfitSelectScreen());
+		Screens.registerScreen(OutfitSelectScreen.ID, OutfitSelectScreen::new);
 		Screens.registerScreen(CreateNewOutfitScreen.ID, CreateNewOutfitScreen::new);
 	}
 

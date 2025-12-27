@@ -17,6 +17,7 @@
 package cc.cosmetica.cosmetica.gui;
 
 import cc.cosmetica.core.api.CosmeticaAPI;
+import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.widget.EntryList;
 import cc.cosmetica.cosmetica.gui.widget.OutfitCount;
@@ -44,17 +45,26 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 public class OutfitSelectScreen extends Component implements AnimatedTextureScreen {
     public OutfitSelectScreen() {
         this.title = ID.translationKey("screens");
-        this.outfitLimit = new State<>(-1);
 
-        CosmeticaAPI.premiumApi().requestAsync(PremiumApi::getRestrictions)
-                .thenApply(PlanRestrictions::getMaxOutfits)
-                .thenApply(BigDecimal::intValue)
-                .thenAcceptAsync(this.outfitLimit::set, Minecraft.getInstance());
-//        Cosmetica.fetchOutfits();
+        // Refresh Value on opening this screen
+        // Also fetched upon startup (see Cosmetica.java)
+        // TODO move that code here whilst keeping this behaviour? need mount() implemented in kupe maybe
+        fetchOutfitLimit();
     }
 
     private final Text title;
-    private final State<Integer> outfitLimit;
+    private static final State<Integer> outfitLimit = new State<>(-1);
+
+    public static void fetchOutfitLimit() {
+        CosmeticaAPI.premiumApi().requestAsync(PremiumApi::getRestrictions)
+                .thenApply(PlanRestrictions::getMaxOutfits)
+                .thenApply(BigDecimal::intValue)
+                .thenAcceptAsync(outfitLimit::set, Minecraft.getInstance())
+                .exceptionally(e -> {
+                    Logging.getInstance().error("Error fetching max outfits", e);
+                    return null;
+                });
+    }
 
     @Override
     public List<Component> build() {
