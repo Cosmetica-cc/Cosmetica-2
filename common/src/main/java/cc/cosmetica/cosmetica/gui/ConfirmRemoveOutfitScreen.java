@@ -17,7 +17,9 @@
 package cc.cosmetica.cosmetica.gui;
 
 import cc.cosmetica.core.api.CosmeticaAPI;
+import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.core.impl.Logging;
+import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Label;
@@ -52,7 +54,13 @@ public final class ConfirmRemoveOutfitScreen extends AbstractConfirmScreen {
                     api.delete(outfitId);
                     return (Void)null;
                 })
-                .thenAcceptAsync(none -> Screens.closeCurrentScreen(), Minecraft.getInstance())
+                .thenAcceptAsync(none -> {
+                    // Always update!
+                    Cosmetica.OWN_OUTFITS.peek().removeIf(o -> outfitId.equals(o.id));
+                    Cosmetica.OWN_OUTFITS.set(Cosmetica.OWN_OUTFITS.peek());
+                    // Close screen
+                    Screens.closeCurrentScreen();
+                }, Minecraft.getInstance())
                 .exceptionally(err -> {
                     if (err instanceof ApiException) {
                         int code = ((ApiException) err).getCode();

@@ -19,6 +19,7 @@ package cc.cosmetica.cosmetica.gui;
 import cc.cosmetica.core.api.CachedImage;
 import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.ImageCosmetic;
+import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.widget.IconSelector;
@@ -37,6 +38,7 @@ import gg.cloaks.javaclient.api.IconsApi;
 import gg.cloaks.javaclient.api.LoreApi;
 import gg.cloaks.javaclient.model.Icon;
 import gg.cloaks.javaclient.model.LoreOptions;
+import gg.cloaks.javaclient.model.PlayerResponse;
 import gg.cloaks.javaclient.model.UpdateLoreDto;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
@@ -149,6 +151,10 @@ public class StyleNametagScreen extends Screen implements AnimatedTextureScreen 
             ImageCosmetic selectedIcon = Cosmetica.SELECTED_ICON.peek();
             Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Updating Icon to {}", selectedIcon.getName());
             CosmeticaAPI.icons().requestAsync(api -> api.equip(selectedIcon.getId()))
+                    .thenAcceptAsync(user -> {
+                        SelfCosmeticManager.update(new PlayerResponse().user(user).isUser(true));
+                        Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Equipped icon " + selectedIcon.getId());
+                    }, Minecraft.getInstance())
                     .exceptionally(e -> {
                         // TODO is there a race condition
                         assert Cosmetica.OWN_COSMETICS.peek() != null; // trust me bro

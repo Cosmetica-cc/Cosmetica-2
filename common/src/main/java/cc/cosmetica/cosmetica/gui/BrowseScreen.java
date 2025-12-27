@@ -19,6 +19,7 @@ package cc.cosmetica.cosmetica.gui;
 import cc.cosmetica.core.api.Accessory;
 import cc.cosmetica.core.api.Cosmetic;
 import cc.cosmetica.core.api.*;
+import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.cosmeticconfig.AccessoryOptions;
@@ -39,6 +40,7 @@ import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Vec3;
 import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.api.PremiumApi;
+import gg.cloaks.javaclient.api.UsersApi;
 import gg.cloaks.javaclient.model.*;
 import gg.cloaks.javaclient.model.SearchCosmeticsDto.AttachmentsEnum;
 import net.minecraft.client.Minecraft;
@@ -552,6 +554,10 @@ public class BrowseScreen extends AbstractHomeScreen {
                                         // Go back to search
                                         BrowseScreen.this.configuring.set(Optional.empty());
                                         BrowseScreen.this.configuringDownloaded.set(null);
+
+                                        // In case africa isn't working
+                                        // TODO add some system to force this behaviour everywhere in cosmetica so the logic cannot be forgotten
+                                        Cosmetica.updateOwnCosmetics(newOutfit);
                                     }, Minecraft.getInstance())
                                     .exceptionally(Cosmetica.mainThreadExcept(ex -> {
                                         // Unlock

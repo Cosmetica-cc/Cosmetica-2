@@ -20,6 +20,7 @@ import cc.cosmetica.core.api.CachedImage;
 import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.CosmeticaModel;
 import cc.cosmetica.core.api.texture.CosmeticaTexture;
+import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.Keybinds;
@@ -40,6 +41,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import gg.cloaks.javaclient.api.OutfitsApi;
 import gg.cloaks.javaclient.model.Outfit;
 import gg.cloaks.javaclient.model.OutfitAccessory;
+import gg.cloaks.javaclient.model.PlayerResponse;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -410,7 +412,10 @@ public class OutfitWheelScreen extends Screen {
                 if (Cosmetica.SELECTED_OUTFIT_ID.peek().isPresent()) {
                     // Equip nothing
                     CosmeticaAPI.outfits().requestAsync(OutfitsApi::unequip)
-                            .thenAccept(user -> Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Unequipped Outfit successfully"))
+                            .thenAcceptAsync(user -> {
+                                SelfCosmeticManager.clear();
+                                Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Unequipped Outfit successfully");
+                            }, Minecraft.getInstance())
                             .exceptionally(e -> {
                                 new RuntimeException("Outfits Controller Unequip", e).printStackTrace();
                                 return null;
@@ -613,7 +618,10 @@ public class OutfitWheelScreen extends Screen {
             Cosmetica.SELECTED_OUTFIT_ID.set(Optional.of(this.id));
 
             CosmeticaAPI.outfits().requestAsync(api -> api.equip(this.id))
-                    .thenAccept(user -> Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Equip Success!"))
+                    .thenAcceptAsync(user -> {
+                        SelfCosmeticManager.update(new PlayerResponse().user(user).isUser(true));
+                        Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Equip Success!");
+                    }, Minecraft.getInstance())
                     .exceptionally(except -> {
                         new RuntimeException("Outfits Controller Equip", except).printStackTrace();
                         return null;

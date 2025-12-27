@@ -19,12 +19,15 @@ package cc.cosmetica.cosmetica;
 import cc.cosmetica.core.CosmeticaCoreExpectPlatform;
 import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.api.texture.CosmeticaTexture;
+import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
 import cc.cosmetica.core.impl.Logging;
+import cc.cosmetica.core.impl.UUIDs;
 import cc.cosmetica.cosmetica.gui.*;
 import cc.cosmetica.cosmetica.gui.player.AccessoriesAttachment;
 import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.cosmetica.util.Lore;
+import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
@@ -35,6 +38,8 @@ import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.api.AuthApi;
 import gg.cloaks.javaclient.api.OutfitsApi;
 import gg.cloaks.javaclient.api.UsersApi;
+import gg.cloaks.javaclient.model.Outfit;
+import gg.cloaks.javaclient.model.PlayerResponse;
 import gg.cloaks.javaclient.model.UpdateLoreDto;
 import gg.cloaks.javaclient.model.UserConnection;
 import net.minecraft.Util;
@@ -101,6 +106,13 @@ public class Cosmetica {
 				});
 			}
 		});
+		// fetch outfits when our data refreshes on websocket
+		CosmeticaAPI.subscribe(
+				CosmeticaAPI.SubscriptionEvent.PLAYER,
+				UUIDs.fromString(Minecraft.getInstance().getUser().getUuid()),
+				new ResourceKey("cosmetica", "outfit_refresh").toResourceLocation(),
+				() -> Minecraft.getInstance().execute(Cosmetica::fetchOutfits)
+		);
 		// updates to cosmetic stuff
 		Cosmetics.registerUserDataFetchCallback((data, cosmetics) -> {
 			if (data == null) {
@@ -112,8 +124,6 @@ public class Cosmetica {
 			}
 
 			Logging.getInstance().debug(CosmeticaLogCategory.EVENTS, "Received own cosmetics");
-
-			fetchOutfits();
 
 			// pretty sure we should definitely be a user. is it possible for this code to run on cracked?
 			List<UserConnection> connections;
@@ -166,14 +176,13 @@ public class Cosmetica {
 		registerScreens();
 	}
 
-	// TODO better way to refresh outfits
 	public static void fetchOutfits() {
 		CosmeticaAPI.outfits().requestAsync(OutfitsApi::getOwn)
-				.thenAccept(list -> Minecraft.getInstance().tell(() -> {
+				.thenAcceptAsync(list -> {
 					OWN_OUTFITS.set(list.stream()
 							.map(OutfitWheelScreen.OutfitOption::new)
 							.collect(Collectors.toList()));
-				}));
+				}, Minecraft.getInstance());
 	}
 
 	public static void openWebPanel(String targetPage) {
@@ -193,6 +202,15 @@ public class Cosmetica {
 			Util.getPlatform().openUri(url);
 		} catch (Exception e) {
 			throw new RuntimeException("bruh", e);
+		}
+	}
+
+	public static void updateOwnCosmetics(Outfit o) {
+		if (SelfCosmeticManager.update(o)) { // returns true if we should refresh self
+			CosmeticaAPI.users().requestAsync(UsersApi::getSelf)
+					.thenAcceptAsync(u -> {
+						SelfCosmeticManager.update(new PlayerResponse().user(u).isUser(true));
+					}, Minecraft.getInstance());
 		}
 	}
 

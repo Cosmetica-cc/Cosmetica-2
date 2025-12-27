@@ -91,7 +91,15 @@ public class CreateNewOutfitScreen extends Screen {
                                     .accessories(Collections.emptyList());
                             // if successful close screen. if fail just re-enable buttons
                             CosmeticaAPI.outfits().requestAsync(dapi -> dapi.create(dto))
-                                    .thenAcceptAsync(outfit -> Screens.closeCurrentScreen(), Minecraft.getInstance()) // should receive websocket update
+                                    .thenAcceptAsync(outfit -> {
+                                        // websocket will update in most cases
+                                        if (!CosmeticaAPI.isWebsocketConnected()) {
+                                            // otherwise, refresh manually
+                                            Cosmetica.OWN_OUTFITS.peek().add(new OutfitWheelScreen.OutfitOption(outfit));
+                                            Cosmetica.OWN_OUTFITS.set(Cosmetica.OWN_OUTFITS.peek());
+                                        }
+                                        Screens.closeCurrentScreen();
+                                    }, Minecraft.getInstance())
                                     .exceptionally(Cosmetica.mainThreadExcept(err -> {
                                         Logging.getInstance().error("Error creating new outfit", err);
                                         CreateNewOutfitScreen.this.disabled.set(false);

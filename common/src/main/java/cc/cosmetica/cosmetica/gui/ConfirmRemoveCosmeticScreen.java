@@ -19,6 +19,7 @@ package cc.cosmetica.cosmetica.gui;
 import cc.cosmetica.core.api.Accessory;
 import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.Cosmetics;
+import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.util.EquipUtil;
@@ -26,8 +27,10 @@ import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Label;
 import cc.cosmetica.kupe.api.gui.Tooltip;
+import gg.cloaks.javaclient.api.UsersApi;
 import gg.cloaks.javaclient.model.CreateOutfitAccessoryDto;
 import gg.cloaks.javaclient.model.CreateOutfitDto;
+import gg.cloaks.javaclient.model.PlayerResponse;
 import net.minecraft.client.Minecraft;
 
 import java.util.ArrayList;
@@ -97,10 +100,13 @@ public final class ConfirmRemoveCosmeticScreen extends AbstractConfirmScreen {
 
         this.setting.set(true);
         CosmeticaAPI.outfits().requestAsync(api -> api.modify(this.outfitId, dto))
-                .thenAcceptAsync(o -> Screens.closeCurrentScreen(), Minecraft.getInstance())
+                .thenAcceptAsync(o -> {
+                    Cosmetica.updateOwnCosmetics(o);
+                    Screens.closeCurrentScreen();
+                }, Minecraft.getInstance())
                 .exceptionally(Cosmetica.mainThreadExcept(ex -> {
                     Logging.getInstance().error("Error updating outfit {}", ex, this.outfitId);
-                    this.setting.set(false);
+                    this.setting.set(false); //TODO non africa update
                 }));
     }
 }

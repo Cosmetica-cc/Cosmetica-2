@@ -19,6 +19,7 @@ package cc.cosmetica.cosmetica.gui.widget;
 import cc.cosmetica.core.api.Accessory;
 import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.api.texture.CosmeticaTexture;
+import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.ConfirmRemoveCosmeticScreen;
 import cc.cosmetica.cosmetica.gui.GuiUtils;
@@ -39,6 +40,7 @@ import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.model.*;
+import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,6 +49,8 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
+import static cc.cosmetica.cosmetica.gui.GuiUtils.NORMAL_COLOUR;
+import static cc.cosmetica.cosmetica.gui.GuiUtils.SHADE_COLOUR;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 public class CosmeticEntry extends Component {
@@ -57,7 +61,7 @@ public class CosmeticEntry extends Component {
 		this.id = id;
 		this.name = name;
 		this.owner = owner;
-		this.editable = type;
+		this.type = type;
 		this.category = category;
 		this.cosmetic = cosmetic;
 		this.onEquipButton = onEquipButton;
@@ -81,7 +85,7 @@ public class CosmeticEntry extends Component {
 	private final String name;
 	private final String owner;
 	private final boolean mirrored;
-	private final Type editable;
+	private final Type type;
 	private final Category category;
 	private final @Nullable CosmeticEnvelope cosmetic;
 	private final @Nullable EquipCallback onEquipButton;
@@ -97,15 +101,15 @@ public class CosmeticEntry extends Component {
 		));
 
 		// add remove button if editable
-		if (this.editable.hasRemoveButton()) {
+		if (this.type.hasRemoveButton()) {
 			content.add(
 					new Button(Text.literal("-"), () -> {
 						Screens.setScreen(new ConfirmRemoveCosmeticScreen(this.parentOutfit, this.id, this.name, this.mirrored), Text.translatable("screens.cosmetica.confirmDeletion"));
-					}).setDisabled(this.editable == Type.REMOVABLE_OFFLINE)
-					  .withStyle(Cosmetica.authTooltipStyle(this.editable == Type.REMOVABLE))
+					}).setDisabled(this.type == Type.REMOVABLE_OFFLINE)
+					  .withStyle(Cosmetica.authTooltipStyle(this.type == Type.REMOVABLE))
 					  .tag("button_subtract")
 			);
-		} else if (this.editable.hasEquipButton()) {
+		} else if (this.type.hasEquipButton()) {
 			Button b = (Button) new Button(Text.literal("+"), () -> {
 				// See: Constructor
 				assert this.cosmetic != null;
@@ -135,7 +139,7 @@ public class CosmeticEntry extends Component {
 				});
 			}).tag("button_add");
 
-			if (this.editable == Type.EQUIPPABLE_UNSUPPORTED) {
+			if (this.type == Type.EQUIPPABLE_UNSUPPORTED) {
 				b.setDisabled(true);
 				b.withStyle(Style.create().set(TOOLTIP, Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.outdated")))));
 			}
@@ -143,7 +147,7 @@ public class CosmeticEntry extends Component {
 			content.add(b);
 		}
 
-		return ImmutableList.of(new Div(content.toArray(new Component[content.size()])).tag("centry_root"));
+		return ImmutableList.of(new Div(content.toArray(new Component[content.size()])).tag("centry_root", this.type == Type.EXTERNAL ? "external_colour" : "centry_normal_colour"));
 	}
 
 	@Override
@@ -172,9 +176,13 @@ public class CosmeticEntry extends Component {
 					.set(MARGINS, fixed(new Margins(0,10,0,0))))
 			.tag("centry_root", Style.create()
 					.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
-					.set(Div.ALIGN_ITEMS, Align.CENTRE)
-					.set(BACKGROUND_COLOUR, OptionalInt.of(0x858585))
+					.set(Div.ALIGN_ITEMS, Align.CENTRE))
+			.tag("centry_normal_colour", Style.create()
+					.set(BACKGROUND_COLOUR, OptionalInt.of(NORMAL_COLOUR))
 					.set(BORDER, GuiUtils.POPOUT_BORDER))
+			.tag("external_colour", Style.create()
+					.set(BACKGROUND_COLOUR, OptionalInt.of(SHADE_COLOUR))
+					.set(BORDER, Border.create(Border.BorderConfig.split(1, NORMAL_COLOUR, 0x343434))))
 			.tag("centry_names", Style.create()
 					.set(Div.ALIGN_ITEMS, Align.STRETCH_START)
 					.set(FLEX, 1));
@@ -203,8 +211,9 @@ public class CosmeticEntry extends Component {
 			return; // no cosmetics
 
 		boolean showSeparateElytra = true;
-		// We only show API cosmetics for now
-		// TODO add external cape
+
+		// Shows both API cosmetics and external capes
+		// Distinguish them by changing type!
 
 		if (cosmetics.getCloak().isPresent()) {
 			ImageCosmetic cloak = cosmetics.getCloak().get();
@@ -221,8 +230,8 @@ public class CosmeticEntry extends Component {
 					!cloak.getThumbnail().isPresent() ? NO_THUMBNAIL : getOrCreateThumb(cloak.getThumbnail().get(), cloak.getImage().getFramePeriod(), false),
 					cloak.getId(),
 					cloak.getName(),
-					message, //cloak.getCreator().isPresent() ? cloak.getCreator().get().getName() : "Could not load creator"
-					type,
+					cloak.getCreator().isPresent() ? cloak.getCreator().get().getName() : "Could not load creator",
+					cloak.isExternal() ? Type.EXTERNAL : type,
 					CosmeticEntry.Category.CAPE,
 					null,
 					false
@@ -238,8 +247,8 @@ public class CosmeticEntry extends Component {
 					!elytra.getThumbnail().isPresent() ? NO_THUMBNAIL : getOrCreateThumb(elytra.getThumbnail().get(), elytra.getImage().getFramePeriod(), false),
 					elytra.getId(),
 					elytra.getName(),
-					"Elytra", //elytra.getCreator().isPresent() ? elytra.getCreator().get().getName() : "Could not load creator"
-					type,
+					elytra.getCreator().isPresent() ? elytra.getCreator().get().getName() : "Could not load creator",
+					elytra.isExternal() ? Type.EXTERNAL : type,
 					CosmeticEntry.Category.CAPE,
 					null,
 					false
@@ -361,6 +370,10 @@ public class CosmeticEntry extends Component {
 		 * Lists the item only. No additional widgets.
 		 */
 		LISTED,
+		/**
+		 * Like listed, but different styling to show the item is external.
+		 */
+		EXTERNAL,
 		/**
 		 * Removable item from its outfit.
 		 */
