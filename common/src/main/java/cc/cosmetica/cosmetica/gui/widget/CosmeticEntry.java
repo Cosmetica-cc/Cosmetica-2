@@ -360,6 +360,7 @@ public class CosmeticEntry extends Component {
 			return ThumbnailCache.getOrCreateImage(
 					new CosmeticaTexture.Builder(thumbnail, Cosmetica.LOADING_TEXTURE)
 							.frames(8, ticksPerFrame)
+							.ignoreTilesheet(true)
 							.failToLoadTexture(Cosmetica.FALLBACK_TEXTURE)
 							.autoAnimate(CosmeticaTexture.AutoAnimate.NEVER_TILESHEETS), browseCache);
 		}

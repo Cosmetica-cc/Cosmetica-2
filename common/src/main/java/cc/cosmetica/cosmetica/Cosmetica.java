@@ -113,6 +113,16 @@ public class Cosmetica {
 				new ResourceKey("cosmetica", "outfit_refresh").toResourceLocation(),
 				() -> Minecraft.getInstance().execute(Cosmetica::fetchOutfits)
 		);
+		// Also fetch when we log in
+		CosmeticaAPI.addAuthenticationChangeCallback(reason -> {
+			if (reason == CosmeticaAPI.AuthChangeReason.AUTHENTICATED) {
+				Minecraft.getInstance().execute(Cosmetica::fetchOutfits);
+			}
+		});
+		// in dev
+		if (System.getProperty("cosmetica.token") != null && CosmeticaAPI.isAuthenticated()) {
+			Minecraft.getInstance().execute(Cosmetica::fetchOutfits);
+		}
 		// updates to cosmetic stuff
 		Cosmetics.registerUserDataFetchCallback((data, cosmetics) -> {
 			if (data == null) {

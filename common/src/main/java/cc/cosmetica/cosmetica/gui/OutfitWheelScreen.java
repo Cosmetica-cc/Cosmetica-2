@@ -594,8 +594,8 @@ public class OutfitWheelScreen extends Screen {
                     ThumbnailCache.getOrCreateImage(
                             new CosmeticaTexture.Builder(outfit.getThumbnail(), Cosmetica.LOADING_TEXTURE)
                                 .frames(8, 1)
+                                .ignoreTilesheet(true)
                                 .failToLoadTexture(Cosmetica.FALLBACK_TEXTURE)
-                                    // todo should we show a live preview? (low priority)
                                 .autoAnimate(CosmeticaTexture.AutoAnimate.NEVER),
                             false
                     );
