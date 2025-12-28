@@ -346,7 +346,8 @@ public class CosmeticEntry extends Component {
 			CachedImage thumbnail = getOrCreateThumb(accessory.getThumbnail().orElseThrow(IllegalStateException::new), accessory.getJsonObject().getTicksPerFrame().intValue(), false);
 
 			// n.b. reference to CachedImage needs to be stored on the entry so it doesn't get GC'd
-			entryList.add(new CosmeticEntry(
+			CosmeticEntry entry;
+			entryList.add(entry = new CosmeticEntry(
 					cosmetics,
 					null,
 					thumbnail,
@@ -358,6 +359,16 @@ public class CosmeticEntry extends Component {
 					null,
 					accessory.isMirrored()
 			));
+
+			// add info icons
+			List<ResourceKey> infoIcons = new ArrayList<>();
+			if (accessory.isMirrored()) {
+				infoIcons.add(new ResourceKey("cosmetica", "textures/icon/mirrored.png"));
+			}
+			for (Accessory.Flag flag : accessory.getFlags()) {
+				infoIcons.add(new ResourceKey("cosmetica", "textures/icon/" + flag.toString().toLowerCase(Locale.ROOT) + ".png"));
+			}
+			entry.setInfoIcons(infoIcons);
 		}
 	}
 
