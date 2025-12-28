@@ -224,11 +224,19 @@ public class Cosmetica {
 	}
 
 	public static void updateOwnCosmetics(Outfit o) {
+		Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Updating own cosmetics from Outfit");
+
 		if (SelfCosmeticManager.update(o)) { // returns true if we should refresh self
+			Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Refreshing self to refresh external capes on outfit");
+
 			CosmeticaAPI.users().requestAsync(UsersApi::getSelf)
 					.thenAcceptAsync(u -> {
 						SelfCosmeticManager.update(new PlayerResponse().user(u).isUser(true));
-					}, Minecraft.getInstance());
+					}, Minecraft.getInstance())
+					.exceptionally(ex -> {
+						Logging.getInstance().error("Updating own cosmetics", ex);
+						return null;
+					});
 		}
 	}
 

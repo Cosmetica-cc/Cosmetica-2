@@ -21,10 +21,14 @@ import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Button;
 import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.Div;
+import cc.cosmetica.kupe.api.gui.Tooltip;
+import cc.cosmetica.kupe.api.gui.style.CommonProperties;
+import cc.cosmetica.kupe.api.gui.style.Style;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -57,6 +61,11 @@ public class CycleButton<T> extends Div {
         }
 
         return Collections.singletonList(new Button(text, () -> this.setting.set(cycle.get()))
-                .setDisabled(this.setting.getManagement() != Setting.Management.USER));
+                .setDisabled(this.setting.getManagement() != Setting.Management.USER)
+                .withStyle(
+                        Style.create().set(CommonProperties.TOOLTIP, this.setting.getManagement() == Setting.Management.MODPACK ?
+                                Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.modpack_managed"))) :
+                                Optional.empty())
+                ));
     }
 }

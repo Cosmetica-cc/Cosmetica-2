@@ -130,6 +130,7 @@
   "tooltip.cosmetica.icons.hide_with_leggings": "Hide with Leggings",
   "tooltip.cosmetica.icons.hide_with_parrot": "Hide with Parrot",
   "tooltip.cosmetica.icons.mirrored": "Mirrored",
+  "tooltip.cosmetica.modpack_managed": "This setting is currently being managed by your modpack",
   "tooltip.cosmetica.noOutfitDisabled": "No Outfit Equipped",
   "tooltip.cosmetica.openWebPanel": "Open Web Panel",
   "tooltip.cosmetica.outfitAlreadySelected": "Already wearing this outfit!",

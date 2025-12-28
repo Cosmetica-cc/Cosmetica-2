@@ -51,4 +51,5 @@ public class GuiUtils {
 
     public static final Optional<Border> POPOUT_BORDER = Border.create(Border.BorderConfig.split(1, HIGHLIGHT_COLOUR, SHADE_COLOUR));
     public static final Optional<Border> POP_IN_BORDER = Border.create(Border.BorderConfig.split(1, SHADE_COLOUR, HIGHLIGHT_COLOUR));
+    public static final Optional<Border> SHADE_POPOUT_BORDER = Border.create(Border.BorderConfig.split(1, NORMAL_COLOUR, 0x343434));
 }

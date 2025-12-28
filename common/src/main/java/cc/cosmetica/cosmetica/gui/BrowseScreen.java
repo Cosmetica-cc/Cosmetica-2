@@ -464,8 +464,10 @@ public class BrowseScreen extends AbstractHomeScreen {
                             children.add(
                                     new Label(Text.literal(triple.getLeft().getName())));
                             children.add(
-                                    new Label(Text.literal("§7§o" + Text.translatable("label.cosmetica.creator", triple.getLeft().getCreator().get()).getDisplayString() ))
-                                            .withStyle(Style.create().set(MARGINS, fixed(new Margins(0,0,6,0)))));
+                                    new Label(Text.literal("§o" + Text.translatable("label.cosmetica.creator", triple.getLeft().getCreator().get()).getDisplayString() ))
+                                            .withStyle(Style.create()
+                                                    .set(Label.TEXT_COLOUR, 0xdddddd)
+                                                    .set(MARGINS, fixed(new Margins(0,0,6,0)))));
                         } else {
                             children.add(
                                     new Label(Text.literal(triple.getLeft().getName()))
@@ -513,7 +515,7 @@ public class BrowseScreen extends AbstractHomeScreen {
                             }
                         }
                         // space
-                        children.add(new Div().tag("flex-1"));
+                        children.add(new Div().withStyle(Style.create().set(MARGINS, fixed(new Margins(2, 0)))));
                         // submit
                         final Button submitButton = new Button(Text.translatable("button.cosmetica.equip"), () -> {
                             // Create the outfit changes

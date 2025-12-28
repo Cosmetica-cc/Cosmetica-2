@@ -21,6 +21,7 @@ import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
 import cc.cosmetica.cosmetica.mixin.AbstractScrollContainerAccessor;
 import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
+import cc.cosmetica.cosmetica.settings.Setting;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.kupe.api.*;
 import cc.cosmetica.kupe.api.gui.*;
@@ -42,29 +43,26 @@ import net.minecraft.client.resources.language.I18n;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.OptionalInt;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
-public class CapeServerSettingsScreen extends Screen {
-    public CapeServerSettingsScreen(State<List<ExternalCapeSetting>> externalCapeSettings) {
+public class ExternalCapesScreen extends Screen {
+    public ExternalCapesScreen(Setting<List<ExternalCapeSetting>> externalCapeSettings) {
         super(ID);
         this.oldSettings = externalCapeSettings;
     }
 
-    private final State<List<ExternalCapeSetting>> oldSettings;
+    private final Setting<List<ExternalCapeSetting>> oldSettings;
     private final State<List<Component>> servers = new State<>(ImmutableList.of());
 
     @Override
     protected Component[] buildScreen() {
         List<ExternalCapeSetting> settings = this.oldSettings.acquire(this);
         this.servers.set(settings.stream()
-                .map(CapeSetting::new)
+                .map(setting -> new CapeSetting(setting, this.oldSettings.getManagement() == Setting.Management.USER))
                 .collect(Collectors.toList()));
 
         return new Component[] {
@@ -78,7 +76,7 @@ public class CapeServerSettingsScreen extends Screen {
         // check for changed settings
         boolean isModified = false;
         List<Component> newSettings = this.servers.peek();
-        List<ExternalCapeSetting> oldSettings = this.oldSettings.peek();
+        List<ExternalCapeSetting> oldSettings = this.oldSettings.get();
 
         for (int i = 0; i < oldSettings.size(); i++) {
             ExternalCapeSetting setting = oldSettings.get(i);
@@ -133,10 +131,15 @@ public class CapeServerSettingsScreen extends Screen {
                         .set(Div.JUSTIFY_CONTENT, Justify.SPACE_BETWEEN)
                         .set(Div.ALIGN_ITEMS, Align.STRETCH_CENTRE)
                         .set(PADDING, fixed(new Margins(0, 6)))
-                        .set(BACKGROUND_COLOUR, OptionalInt.of(GuiUtils.NORMAL_COLOUR))
-                        .set(BORDER, GuiUtils.POPOUT_BORDER)
                         .set(HEIGHT, fixedSize(40))
                         .set(WIDTH, screen(60, 0)))
+                .tag("cape-server-editable", Style.create()
+                        .set(BACKGROUND_COLOUR, OptionalInt.of(GuiUtils.NORMAL_COLOUR))
+                        .set(BORDER, GuiUtils.POPOUT_BORDER))
+                .tag("cape-server-disabled", Style.create()
+                        .set(BACKGROUND_COLOUR, OptionalInt.of(GuiUtils.SHADE_COLOUR))
+                        .set(BORDER, GuiUtils.SHADE_POPOUT_BORDER)
+                        .set(TOOLTIP, Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.modpack_managed")))))
                 .tag("inner-wrapper", Style.create().set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X))
                 .tag("cape-server-button", Style.create()
                         .set(WIDTH, fixedSize(100)))
@@ -149,14 +152,16 @@ public class CapeServerSettingsScreen extends Screen {
     public static final ResourceKey ID = new ResourceKey("cosmetica", "cape_server_settings");
 
     private static class CapeSetting extends Div {
-        CapeSetting(ExternalCapeSetting capeServerSetting) {
-            this.tag("cape-server");
+        CapeSetting(ExternalCapeSetting capeServerSetting, boolean editable) {
+            this.tag("cape-server", editable ? "cape-server-editable" : "cape-server-disabled");
             this.setting = capeServerSetting;
             this.enabled = new State<>(setting.isEnabled());
+            this.editable = editable;
         }
 
         private final ExternalCapeSetting setting;
         private final State<Boolean> enabled;
+        private final boolean editable;
 
         @Override
         public List<Component> build() {

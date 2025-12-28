@@ -71,7 +71,7 @@ public abstract class AbstractHomeScreen extends Screen implements AnimatedTextu
                                                 () -> Screens.setScreen(new CosmeticaSettingsScreen(CosmeticaSettingsScreen.SETTINGS_SCREEN, CosmeticaSettings.DISPLAY_SETTINGS), CosmeticaSettingsScreen.SETTINGS_SCREEN)),
                                         new IconButton(
                                                 new ResourceKey("cosmetica", "textures/cape.png"),
-                                                () -> Screens.setScreen(new CapeServerSettingsScreen(CosmeticaSettings.externalCapeSettings), CapeServerSettingsScreen.ID))
+                                                () -> Screens.setScreen(new ExternalCapesScreen(CosmeticaSettings.externalCapeSettings), ExternalCapesScreen.ID))
                                                 .setDisabled(!authenticated)
                                                 .withStyle(Cosmetica.authTooltipStyle(authenticated)),
                                         new IconButton(

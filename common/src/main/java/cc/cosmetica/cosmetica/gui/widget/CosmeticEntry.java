@@ -117,7 +117,7 @@ public class CosmeticEntry extends Component {
 								.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
 								.set(MAXIMUM_SIZE, (vw, vh, pw, ph) -> new Dimensions(pw, Integer.MAX_VALUE))),
 						this.type == Type.EXTERNAL ?
-								new Div(attachmentIcon, new Label(Text.literal(this.owner))).tag("info_icons") :
+								new Div(attachmentIcon, new Label(Text.literal("§7" + this.owner))).tag("info_icons") :
 								new Div(merge(attachmentIcon, infoIcons).toArray(new Component[0])).tag("info_icons")
 				).tag("centry_names")
 		));
@@ -175,39 +175,41 @@ public class CosmeticEntry extends Component {
 
 	@Override
 	public Stylesheet getStylesheet() {
-		return new Stylesheet()
-				.component(Button.class, Style.create()
-						.set(MAXIMUM_SIZE, fixed(new Dimensions(20, 20))))
-				.tag("centry_main_icon", Style.create()
-						.set(PADDING, fixed(new Margins(2)))
-						.set(WIDTH, fixedSize(38))
-						.set(HEIGHT, fixedSize(38))
-						.set(MIN_WIDTH, fixedSize(38))
-						.set(MIN_HEIGHT, fixedSize(38)))
-				.tag("button_subtract", Style.create()
-						.set(ALIGN_SELF, Optional.of(Align.START))
-						.set(MAXIMUM_SIZE, fixed(new Dimensions(20, 20))))
-				.tag("button_add", Style.create()
-						.set(MARGINS, fixed(new Margins(0,10,0,0))))
-				.tag("centry_root", Style.create()
-						.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
-						.set(Div.ALIGN_ITEMS, Align.CENTRE))
-				.tag("centry_normal_colour", Style.create()
-						.set(BACKGROUND_COLOUR, OptionalInt.of(NORMAL_COLOUR))
-						.set(BORDER, GuiUtils.POPOUT_BORDER))
-				.tag("external_colour", Style.create()
-						.set(BACKGROUND_COLOUR, OptionalInt.of(SHADE_COLOUR))
-						.set(BORDER, Border.create(Border.BorderConfig.split(1, NORMAL_COLOUR, 0x343434))))
-				.tag("centry_names", Style.create()
-						.set(Div.ALIGN_ITEMS, Align.STRETCH_START)
-						.set(FLEX, 1))
-				.tag("centry_info_icon", Style.create()
-						.set(WIDTH, fixedSize(14))
-						.set(HEIGHT, fixedSize(14)))
-				.tag("info_icons", Style.create()
-						.set(MARGINS, fixed(new Margins(2, 0, 0, 0)))
-						.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X));
+		return STYLESHEET;
 	}
+
+	private static final Stylesheet STYLESHEET = new Stylesheet()
+			.component(Button.class, Style.create()
+					.set(MAXIMUM_SIZE, fixed(new Dimensions(20, 20))))
+			.tag("centry_main_icon", Style.create()
+					.set(PADDING, fixed(new Margins(2)))
+					.set(WIDTH, fixedSize(38))
+					.set(HEIGHT, fixedSize(38))
+					.set(MIN_WIDTH, fixedSize(38))
+					.set(MIN_HEIGHT, fixedSize(38)))
+			.tag("button_subtract", Style.create()
+					.set(ALIGN_SELF, Optional.of(Align.START))
+					.set(MAXIMUM_SIZE, fixed(new Dimensions(20, 20))))
+			.tag("button_add", Style.create()
+					.set(MARGINS, fixed(new Margins(0,10,0,0))))
+			.tag("centry_root", Style.create()
+					.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
+					.set(Div.ALIGN_ITEMS, Align.CENTRE))
+			.tag("centry_normal_colour", Style.create()
+					.set(BACKGROUND_COLOUR, OptionalInt.of(NORMAL_COLOUR))
+					.set(BORDER, GuiUtils.POPOUT_BORDER))
+			.tag("external_colour", Style.create()
+					.set(BACKGROUND_COLOUR, OptionalInt.of(SHADE_COLOUR))
+					.set(BORDER, GuiUtils.SHADE_POPOUT_BORDER))
+			.tag("centry_names", Style.create()
+					.set(Div.ALIGN_ITEMS, Align.STRETCH_START)
+					.set(FLEX, 1))
+			.tag("centry_info_icon", Style.create()
+					.set(WIDTH, fixedSize(14))
+					.set(HEIGHT, fixedSize(14)))
+			.tag("info_icons", Style.create()
+					.set(MARGINS, fixed(new Margins(2, 0, 0, 0)))
+					.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X));
 
 	static {
 		RootStylesheet.setDefaultOverrides(CosmeticEntry.class, Style.create()

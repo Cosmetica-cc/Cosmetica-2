@@ -135,7 +135,18 @@ public final class CosmeticaSettings {
 
     public static final State<List<Setting<?>>> DISPLAY_SETTINGS = new State<>(CLIENT_SETTINGS);
     private static @Nullable UpdateLocalSettingsDto modpackSettings;
-    public static State<List<ExternalCapeSetting>> externalCapeSettings = new State<>(ImmutableList.of());
+    public static Setting<List<ExternalCapeSetting>> externalCapeSettings = new Setting<List<ExternalCapeSetting>>("", ImmutableList.of()) {
+        @Override
+        public Component createController() {
+            // - could make ExternalCapesScreen use this and move the control code here
+            throw new UnsupportedOperationException("Cannot directly create controller for external cape settings");
+        }
+
+        @Override
+        public Text createDescription(List<ExternalCapeSetting> value) {
+            throw new UnsupportedOperationException("Cannot directly create description for external cape settings");
+        }
+    };
 
     public static void clearSettings() {
         DISPLAY_SETTINGS.set(CLIENT_SETTINGS);
@@ -243,7 +254,7 @@ public final class CosmeticaSettings {
                 // update external capes
                 // TODO allow external capes to be managed
                 dto.setDisableRegionalEffectsPrompt(CosmeticaSettings.DISABLE_RSE_PROMPT.get());
-                dto.setExternalCapes(CosmeticaSettings.externalCapeSettings.peek().stream()
+                dto.setExternalCapes(CosmeticaSettings.externalCapeSettings.get().stream()
                         .map(setting -> {
                             UpdateExternalCapeSettingDto dto_ = new UpdateExternalCapeSettingDto();
                             dto_.setService(setting.getService().getValue());
@@ -316,7 +327,7 @@ public final class CosmeticaSettings {
 
             DISPLAY_SETTINGS.set(loggedInSettings);
 
-            externalCapeSettings.set(settings.getExternalCapes());
+            externalCapeSettings.apiUpdate(settings.getExternalCapes(), settings.getType());
         }
     }
 }
