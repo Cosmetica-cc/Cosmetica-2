@@ -218,7 +218,7 @@ public final class CosmeticaSettings {
             JsonObject properties = new Gson().fromJson(reader, JsonObject.class);
 
             final String packId = properties.get("modpack_id").getAsString();
-            final String packName = !properties.has("modpack_name") ? "Unnamed Modpack" : properties.get("modpack_name").getAsString();
+            final String packName = properties.get("modpack_name").getAsString();
             Logging.getInstance().debug(CosmeticaLogCategory.SETTINGS, "Setting modpack id {}", packId);
             MODPACK_ID.set(packId);
 

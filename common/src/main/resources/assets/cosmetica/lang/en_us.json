@@ -28,6 +28,7 @@
   "label.cosmetica.confirmDelete": "Are you sure you would like to delete '%s'? This cannot be undone!",
   "label.cosmetica.confirmRemove": "Are you sure you would like to remove %s from %s?",
   "label.cosmetica.create": "Create",
+  "label.cosmetica.creator": "by %s",
   "label.cosmetica.loading": "Loading...",
   "label.cosmetica.newOutfit": "New Outfit",
   "label.cosmetica.offline": "You're currently offline!",

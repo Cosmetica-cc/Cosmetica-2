@@ -157,7 +157,7 @@ public class CosmeticEntry extends Component {
 						throw new IllegalArgumentException("Unknown type for " + this.name + " (" + this.id + "), cannot equip!");
                 }
 				// Give feedback
-				this.onEquipButton.accept(new CosmeticData(this.name, this.id, this.image), options, this.cosmetic, dto -> {
+				this.onEquipButton.accept(new CosmeticData(this.name, this.owner, this.id, this.image), options, this.cosmetic, dto -> {
 					return CosmeticaAPI.outfits().requestAsync(api -> api.modify(this.parentOutfit.getOutfitId().orElseThrow(IllegalStateException::new), dto));
 				});
 			}).tag("button_add");
@@ -537,18 +537,24 @@ public class CosmeticEntry extends Component {
 	 * Basic parsed cosmetic data pojo. Less data than the usual cosmetic data objects.
 	 */
 	public static class CosmeticData {
-        public CosmeticData(String name, String id, CachedImage thumbnail) {
+        public CosmeticData(String name, @NotNull String creator, String id, CachedImage thumbnail) {
             this.name = name;
+			this.creator = creator;
 			this.id = id;
             this.thumbnail = thumbnail;
         }
 
 		private final String name;
+		private final String creator;
 		private final String id;
 		private final CachedImage thumbnail;
 
 		public String getName() {
 			return this.name;
+		}
+
+		public Optional<String> getCreator() {
+			return this.creator.isEmpty() ? Optional.empty() : Optional.of(this.creator);
 		}
 
 		public String getId() {

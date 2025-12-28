@@ -460,9 +460,17 @@ public class BrowseScreen extends AbstractHomeScreen {
                                 new Image(new ResourceKey(triple.getLeft().getThumbnail().location))
                                         .setTransparent(1.0f));
                         // name
-                        children.add(
-                                new Label(Text.literal(triple.getLeft().getName()))
-                                        .withStyle(Style.create().set(MARGINS, fixed(new Margins(0,0,6,0)))));
+                        if (triple.getLeft().getCreator().isPresent()) {
+                            children.add(
+                                    new Label(Text.literal(triple.getLeft().getName())));
+                            children.add(
+                                    new Label(Text.literal("§7§o" + Text.translatable("label.cosmetica.creator", triple.getLeft().getCreator().get()).getDisplayString() ))
+                                            .withStyle(Style.create().set(MARGINS, fixed(new Margins(0,0,6,0)))));
+                        } else {
+                            children.add(
+                                    new Label(Text.literal(triple.getLeft().getName()))
+                                            .withStyle(Style.create().set(MARGINS, fixed(new Margins(0,0,6,0)))));
+                        }
                         // settings
                         CosmeticOptions options = triple.getMiddle();
                         boolean mirrored; // move scope to outer block
@@ -618,6 +626,8 @@ public class BrowseScreen extends AbstractHomeScreen {
                                 ).withStyle(Style.create()
                                         .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X))
                         );
+                        // space
+                        children.add(new Div().tag("flex-1"));
 
                         return children;
                     }
