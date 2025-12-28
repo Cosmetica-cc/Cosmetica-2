@@ -19,14 +19,12 @@ package cc.cosmetica.cosmetica.gui.widget;
 import cc.cosmetica.core.api.Accessory;
 import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.api.texture.CosmeticaTexture;
-import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.ConfirmRemoveCosmeticScreen;
 import cc.cosmetica.cosmetica.gui.GuiUtils;
 import cc.cosmetica.cosmetica.gui.cosmeticconfig.AccessoryOptions;
 import cc.cosmetica.cosmetica.gui.cosmeticconfig.CapeOptions;
 import cc.cosmetica.cosmetica.gui.cosmeticconfig.CosmeticOptions;
-import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
@@ -37,10 +35,8 @@ import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
-import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.model.*;
-import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,13 +44,14 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static cc.cosmetica.cosmetica.gui.GuiUtils.NORMAL_COLOUR;
 import static cc.cosmetica.cosmetica.gui.GuiUtils.SHADE_COLOUR;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 public class CosmeticEntry extends Component {
-	public CosmeticEntry(Cosmetics cosmetics, @Nullable CosmeticEnvelope cosmetic, CachedImage image, String id, String name, String owner, Type type, Category category, @Nullable CosmeticEntry.EquipCallback onEquipButton, boolean mirrored) {
+	public CosmeticEntry(Cosmetics cosmetics, @Nullable CosmeticEnvelope cosmetic, CachedImage image, String id, String name, String owner, Type type, Attachment attachment, @Nullable CosmeticEntry.EquipCallback onEquipButton, boolean mirrored) {
 		this.parentOutfit = cosmetics;
 		this.image = image;
 		this.icon = new ResourceKey(image.location);
@@ -62,7 +59,7 @@ public class CosmeticEntry extends Component {
 		this.name = name;
 		this.owner = owner;
 		this.type = type;
-		this.category = category;
+		this.attachment = attachment;
 		this.cosmetic = cosmetic;
 		this.onEquipButton = onEquipButton;
 		// Only important for modifiable lists (own cosmetics)
@@ -86,17 +83,39 @@ public class CosmeticEntry extends Component {
 	private final String owner;
 	private final boolean mirrored;
 	private final Type type;
-	private final Category category;
+	private final Attachment attachment;
+	private List<ResourceKey> infoIcons = new ArrayList<>();
 	private final @Nullable CosmeticEnvelope cosmetic;
 	private final @Nullable EquipCallback onEquipButton;
 
+	private CosmeticEntry setInfoIcons(List<ResourceKey> infoIcons) {
+		this.infoIcons = infoIcons;
+		return this;
+	}
+
 	@Override
 	public List<Component> build() {
+		Component attachmentIcon = new Image(this.attachment.icon).setTransparent(1.0f).tag("centry_info_icon")
+				.withStyle(Style.create()
+						.set(TOOLTIP, Optional.of(new Tooltip(this.attachment.tooltip())))
+						.set(MARGINS, fixed(new Margins(0, 4, 0, 0))));
+
+		List<Component> infoIcons = this.infoIcons.stream()
+				.map(i -> new Image(i).setTransparent(1.0f).tag("centry_info_icon").withStyle(
+						Style.create().set(TOOLTIP, Optional.of(new Tooltip(iconTooltip(i))))
+				))
+				.collect(Collectors.toList());
+
 		List<Component> content = new ArrayList<>(Arrays.asList(
-				new Image(this.icon).setTransparent(1.0f),
+				new Image(this.icon).setTransparent(1.0f).tag("centry_main_icon"),
 				new Div(
-						new Label(Text.literal(this.name)),
-						new Label(Text.literal(this.owner))
+						new Div(
+								new Label(Text.literal(this.name))
+										.withStyle(Style.create().set(Label.TEXT_WRAP, fixed(OptionalInt.empty())))
+						).withStyle(Style.create().set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)),
+						this.type == Type.EXTERNAL ?
+								new Div(attachmentIcon, new Label(Text.literal(this.owner))).tag("info_icons") :
+								new Div(merge(attachmentIcon, infoIcons).toArray(new Component[0])).tag("info_icons")
 				).tag("centry_names")
 		));
 
@@ -116,7 +135,7 @@ public class CosmeticEntry extends Component {
 				assert this.onEquipButton != null;
 				// Create cosmetic options
 				CosmeticOptions options;
-				switch (this.category) {
+				switch (this.attachment.category()) {
 					case ACCESSORY:
 						List<BigDecimal> offset = Objects.requireNonNull(this.cosmetic.getAccessory()).getOffset();
 						options = new AccessoryOptions(
@@ -127,7 +146,7 @@ public class CosmeticEntry extends Component {
 						break;
 					case CAPE:
 						int flags = Objects.requireNonNull(this.cosmetic.getAnimatedTextureCosmetic()).getFlags().intValue();
-						options = new CapeOptions((flags & 1) != 0, (flags & 2) != 0);
+						options = new CapeOptions(flags);
 						break;
 					case UNKNOWN: // Should never get here, as we disable the button for unknown types in {@link populateBrowseList}
 					default:
@@ -151,25 +170,19 @@ public class CosmeticEntry extends Component {
 	}
 
 	@Override
-	protected void paintBackground(Canvas canvas, Region region, Margins padding) {
-//		RenderSystem.disableAlphaTest();
-		super.paintBackground(canvas, region, padding);
-	}
-
-	@Override
 	public Stylesheet getStylesheet() {
 		return STYLE;
 	}
 
 	private static final Stylesheet STYLE = new Stylesheet()
-			.component(Image.class, Style.create()
+			.component(Button.class, Style.create()
+					.set(MAXIMUM_SIZE, fixed(new Dimensions(20, 20))))
+			.tag("centry_main_icon", Style.create()
 					.set(PADDING, fixed(new Margins(2)))
-					.set(WIDTH, fixedSize(38))// debug: see images while loading texture is not yet added
+					.set(WIDTH, fixedSize(38))
 					.set(HEIGHT, fixedSize(38))
 					.set(MIN_WIDTH, fixedSize(38))
 					.set(MIN_HEIGHT, fixedSize(38)))
-			.component(Button.class, Style.create()
-					.set(MAXIMUM_SIZE, fixed(new Dimensions(20, 20))))
 			.tag("button_subtract", Style.create()
 					.set(ALIGN_SELF, Optional.of(Align.START)))
 			.tag("button_add", Style.create()
@@ -185,17 +198,92 @@ public class CosmeticEntry extends Component {
 					.set(BORDER, Border.create(Border.BorderConfig.split(1, NORMAL_COLOUR, 0x343434))))
 			.tag("centry_names", Style.create()
 					.set(Div.ALIGN_ITEMS, Align.STRETCH_START)
-					.set(FLEX, 1));
+					.set(FLEX, 1))
+			.tag("centry_info_icon", Style.create()
+					.set(WIDTH, fixedSize(14))
+					.set(HEIGHT, fixedSize(14)))
+			.tag("info_icons", Style.create()
+					.set(MARGINS, fixed(new Margins(2, 0, 0, 0)))
+					.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X));
 
 	static {
 		RootStylesheet.setDefaultOverrides(CosmeticEntry.class, Style.create()
 				.set(MAXIMUM_SIZE, fixed(new Dimensions(Integer.MAX_VALUE, 40))));
 	}
 
+	private static <T> List<T> merge(T a, List<T> b) {
+		ArrayList<T> result = new ArrayList<>();
+		result.add(a);
+		result.addAll(b);
+		return result;
+	}
+
+	private static Text iconTooltip(ResourceKey infoIcon) {
+		String[] path = infoIcon.getPath().split("/");
+		return Text.translatable("tooltip.cosmetica.icons." + path[path.length - 1].substring(0, path[path.length - 1].length() - 4));
+	}
+
 	public enum Category {
 		ACCESSORY,
 		CAPE,
 		UNKNOWN
+	}
+
+	public enum Attachment {
+		HEAD_ACCESSORY(Category.ACCESSORY, new ResourceKey("cosmetica", "textures/icon/accessory_head.png")),
+		TORSO_ACCESSORY(Category.ACCESSORY, new ResourceKey("cosmetica", "textures/icon/accessory_body.png")),
+		LEFT_ARM_ACCESSORY(Category.ACCESSORY, new ResourceKey("cosmetica", "textures/icon/accessory_left_arm.png")),
+		RIGHT_ARM_ACCESSORY(Category.ACCESSORY, new ResourceKey("cosmetica", "textures/icon/accessory_right_arm.png")),
+		LEFT_LEG_ACCESSORY(Category.ACCESSORY, new ResourceKey("cosmetica", "textures/icon/accessory_left_leg.png")),
+		RIGHT_LEG_ACCESSORY(Category.ACCESSORY, new ResourceKey("cosmetica", "textures/icon/accessory_right_leg.png")),
+		CLOAK(Category.CAPE, new ResourceKey("cosmetica", "textures/icon/cape_cloak.png")),
+		ELYTRA(Category.CAPE, new ResourceKey("cosmetica", "textures/icon/cape_elytra.png")),
+		CLOAK_ELYTRA(Category.CAPE, new ResourceKey("cosmetica", "textures/icon/cape_cape.png")),
+		UNKNOWN(Category.UNKNOWN, new ResourceKey("cosmetica", "icon.png"));
+
+		Attachment(Category metaCategory, ResourceKey icon) {
+			this.category = metaCategory;
+			this.icon = icon;
+		}
+
+		private final Category category;
+		private final ResourceKey icon;
+
+		public Category category() {
+			return this.category;
+		}
+
+		public Text tooltip() {
+			return CosmeticEntry.iconTooltip(this.icon);
+		}
+
+		public static Attachment accessory(gg.cloaks.javaclient.model.Accessory.AttachmentEnum attachmentEnum) {
+			switch (attachmentEnum) {
+			case HEAD:
+				return HEAD_ACCESSORY;
+			case BODY:
+				return TORSO_ACCESSORY;
+			case LEFT_ARM:
+				return LEFT_ARM_ACCESSORY;
+			case RIGHT_ARM:
+				return RIGHT_ARM_ACCESSORY;
+			case LEFT_LEG:
+				return LEFT_LEG_ACCESSORY;
+			case RIGHT_LEG:
+				return RIGHT_LEG_ACCESSORY;
+			case UNKNOWN_DEFAULT_OPEN_API:
+			default:
+				return UNKNOWN;
+            }
+		}
+
+		public static Attachment cape(CapeOptions options) {
+			if (options.isElytra()) {
+				return options.isCloak() ? CLOAK_ELYTRA : ELYTRA;
+			} else {
+				return options.isCloak() ? CLOAK : UNKNOWN;
+			}
+		}
 	}
 
 	public static final CachedImage NO_THUMBNAIL = new CachedImage(Cosmetica.FALLBACK_TEXTURE, 0);
@@ -218,9 +306,7 @@ public class CosmeticEntry extends Component {
 		if (cosmetics.getCloak().isPresent()) {
 			ImageCosmetic cloak = cosmetics.getCloak().get();
 
-			String message = "Cloak";
 			if (cloak.getId().equals(cosmetics.getElytra().map(ImageCosmetic::getId).orElse(null))) {
-				message = "Cloak + Elytra";
 				showSeparateElytra = false;
 			}
 
@@ -232,7 +318,7 @@ public class CosmeticEntry extends Component {
 					cloak.getName(),
 					cloak.getCreator().isPresent() ? cloak.getCreator().get().getName() : "Could not load creator",
 					cloak.isExternal() ? Type.EXTERNAL : type,
-					CosmeticEntry.Category.CAPE,
+					showSeparateElytra ? Attachment.CLOAK : Attachment.CLOAK_ELYTRA,
 					null,
 					false
 			));
@@ -249,7 +335,7 @@ public class CosmeticEntry extends Component {
 					elytra.getName(),
 					elytra.getCreator().isPresent() ? elytra.getCreator().get().getName() : "Could not load creator",
 					elytra.isExternal() ? Type.EXTERNAL : type,
-					CosmeticEntry.Category.CAPE,
+					Attachment.ELYTRA,
 					null,
 					false
 			));
@@ -268,7 +354,7 @@ public class CosmeticEntry extends Component {
 					accessory.getName(),
 					accessory.getCreator().isPresent() ? accessory.getCreator().get().getName() : "Could not load creator",
 					type,
-					CosmeticEntry.Category.ACCESSORY,
+					Attachment.accessory(accessory.getAttachment()),
 					null,
 					accessory.isMirrored()
 			));
@@ -298,7 +384,7 @@ public class CosmeticEntry extends Component {
 						cosmetic.getName(),
 						cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
 						Type.EQUIPPABLE_UNSUPPORTED,
-						Category.UNKNOWN,
+						Attachment.UNKNOWN,
 						equipCallback,
 						false
 				));
@@ -313,13 +399,13 @@ public class CosmeticEntry extends Component {
 						cosmetic.getName(),
 						cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
 						Type.EQUIPPABLE_UNSUPPORTED,
-						Category.UNKNOWN,
+						Attachment.UNKNOWN,
 						equipCallback,
 						false
 				));
 			} else if (envelope.getAnimatedTextureCosmetic() != null) {
 				AnimatedTextureCosmetic cosmetic = envelope.getAnimatedTextureCosmetic();
-				Category category = "cape".equals(cosmetic.getType()) ? Category.CAPE : Category.UNKNOWN;
+				Attachment attachment = "cape".equals(cosmetic.getType()) ? Attachment.cape(new CapeOptions(cosmetic.getFlags().intValue())) : Attachment.UNKNOWN;
 
 				entryList.add(new CosmeticEntry(
 						equipOntoOutfit, // TODO handle null lol
@@ -328,27 +414,40 @@ public class CosmeticEntry extends Component {
 						cosmetic.getId(),
 						cosmetic.getName(),
 						cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
-						category == Category.UNKNOWN ? Type.EQUIPPABLE_UNSUPPORTED : Type.EQUIPPABLE,
-						category,
+						attachment.category() == Category.UNKNOWN ? Type.EQUIPPABLE_UNSUPPORTED : Type.EQUIPPABLE,
+						attachment,
 						equipCallback,
 						false
 				));
 			} else if (envelope.getAccessory() != null) {
 				gg.cloaks.javaclient.model.Accessory cosmetic = envelope.getAccessory();
-				Category category = "accessory".equals(cosmetic.getType()) ? Category.ACCESSORY : Category.UNKNOWN;
+				Attachment attachment = "accessory".equals(cosmetic.getType()) ? Attachment.accessory(cosmetic.getAttachment()) : Attachment.UNKNOWN;
 
-				entryList.add(new CosmeticEntry(
+				CosmeticEntry entry;
+				entryList.add(entry = new CosmeticEntry(
 						equipOntoOutfit, // TODO handle null lol
 						envelope,
 						getOrCreateThumb(cosmetic.getThumbnail(), cosmetic.getTicksPerFrame().intValue(), true),
 						cosmetic.getId(),
 						cosmetic.getName(),
 						cosmetic.getCreator() == null ? "Could not load creator" : cosmetic.getCreator().getUsername(),
-						category == Category.UNKNOWN ? Type.EQUIPPABLE_UNSUPPORTED : Type.EQUIPPABLE,
-						category,
+						attachment.category() == Category.UNKNOWN ? Type.EQUIPPABLE_UNSUPPORTED : Type.EQUIPPABLE,
+						attachment,
 						equipCallback,
 						false
 				));
+
+				if (attachment.category() == Category.ACCESSORY) {
+					// add info icons
+					List<ResourceKey> infoIcons = new ArrayList<>();
+					int flags = cosmetic.getFlags().intValue();
+					for (Accessory.Flag flag : Accessory.Flag.values()) {
+						if (flag.isSet(flags)) {
+							infoIcons.add(new ResourceKey("cosmetica", "textures/icon/" + flag.toString().toLowerCase(Locale.ROOT) + ".png"));
+						}
+					}
+					entry.setInfoIcons(infoIcons);
+				}
 			}
 		}
 	}

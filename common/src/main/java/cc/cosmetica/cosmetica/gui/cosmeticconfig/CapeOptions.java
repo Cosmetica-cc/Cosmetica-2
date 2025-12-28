@@ -22,6 +22,10 @@ public final class CapeOptions extends CosmeticOptions {
         this.elytra = elytra;
     }
 
+    public CapeOptions(int flags) {
+        this((flags & 1) != 0, (flags & 2) != 0);
+    }
+
     private final boolean cloak;
     private final boolean elytra;
 
