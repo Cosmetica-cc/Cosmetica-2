@@ -88,7 +88,7 @@ public class ClickableImage extends Image {
 
     @Override
     public void mouseClicked(Element target, double x, double y, int button) {
-        if (target.getComponent() == this) {
+        if (target.getComponent() == this && !this.disabled) {
             this.onClick.run();
         }
     }
