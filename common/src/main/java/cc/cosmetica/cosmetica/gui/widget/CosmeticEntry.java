@@ -107,7 +107,7 @@ public class CosmeticEntry extends Component {
 				.collect(Collectors.toList());
 
 		List<Component> content = new ArrayList<>(Arrays.asList(
-				new Image(this.icon).setTransparent(1.0f).tag("centry_main_icon"),
+				new Image(this.icon).crop(0, this.type == Type.EXTERNAL ? 0.5f : 0, 0, 0).setTransparent(1.0f).tag("centry_main_icon"),
 				new Div(
 						new Div(
 								new Label(Text.literal(this.name)).withStyle(Style.create()
@@ -318,7 +318,8 @@ public class CosmeticEntry extends Component {
 			entryList.add(new CosmeticEntry(
 					cosmetics,
 					null,
-					!cloak.getThumbnail().isPresent() ? NO_THUMBNAIL : getOrCreateThumb(cloak.getThumbnail().get(), cloak.getImage().getFramePeriod(), false),
+					cloak.isExternal() ? cloak.getImage() :
+						(!cloak.getThumbnail().isPresent() ? NO_THUMBNAIL : getOrCreateThumb(cloak.getThumbnail().get(), cloak.getImage().getFramePeriod(), false)),
 					cloak.getId(),
 					cloak.getName(),
 					cloak.getCreator().isPresent() ? cloak.getCreator().get().getName() : "Could not load creator",
@@ -335,7 +336,8 @@ public class CosmeticEntry extends Component {
 			entryList.add(new CosmeticEntry(
 					cosmetics,
 					null,
-					!elytra.getThumbnail().isPresent() ? NO_THUMBNAIL : getOrCreateThumb(elytra.getThumbnail().get(), elytra.getImage().getFramePeriod(), false),
+					elytra.isExternal() ? elytra.getImage() :
+						(!elytra.getThumbnail().isPresent() ? NO_THUMBNAIL : getOrCreateThumb(elytra.getThumbnail().get(), elytra.getImage().getFramePeriod(), false)),
 					elytra.getId(),
 					elytra.getName(),
 					elytra.getCreator().isPresent() ? elytra.getCreator().get().getName() : "Could not load creator",

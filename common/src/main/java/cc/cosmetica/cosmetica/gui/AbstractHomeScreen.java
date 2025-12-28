@@ -20,12 +20,14 @@ import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.core.api.ImageCosmetic;
 import cc.cosmetica.core.api.NametagConfig;
+import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.player.AccessoriesAttachment;
 import cc.cosmetica.cosmetica.gui.widget.IconButton;
 import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
 import cc.cosmetica.cosmetica.gui.widget.OutfitPlayer;
 import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
+import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.Screens;
@@ -60,6 +62,7 @@ public abstract class AbstractHomeScreen extends Screen implements AnimatedTextu
         if (cosmetics == null && !authenticated) {
             cosmetics = Cosmetica.getCacheCosmeticManager().getCosmetics(null);
         }
+        Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Loaded cosmetics for screen: " + cosmetics + " with " + (cosmetics == null ? 0 : cosmetics.getAccessories().size()) + " accessories");
 
         return new Component[] {
                 new Div(

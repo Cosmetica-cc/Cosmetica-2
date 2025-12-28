@@ -39,6 +39,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import gg.cloaks.javaclient.api.OutfitsApi;
+import gg.cloaks.javaclient.api.UsersApi;
 import gg.cloaks.javaclient.model.Outfit;
 import gg.cloaks.javaclient.model.OutfitAccessory;
 import gg.cloaks.javaclient.model.PlayerResponse;
@@ -619,7 +620,18 @@ public class OutfitWheelScreen extends Screen {
 
             CosmeticaAPI.outfits().requestAsync(api -> api.equip(this.id))
                     .thenAcceptAsync(user -> {
-                        SelfCosmeticManager.update(new PlayerResponse().user(user).isUser(true));
+                        if (this.capeId.isEmpty() || this.elytraId.isEmpty()) {
+                            // refresh external capes
+                            CosmeticaAPI.users().requestAsync(UsersApi::getSelf)
+                                    .thenAcceptAsync(user_ -> {
+                                        SelfCosmeticManager.update(new PlayerResponse().user(user_).isUser(true));
+                                    }, Minecraft.getInstance())
+                                    .exceptionally(ex -> {
+                                        return null;
+                                    });
+                        } else {
+                            SelfCosmeticManager.update(new PlayerResponse().user(user).isUser(true));
+                        }
                         Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Equip Success!");
                     }, Minecraft.getInstance())
                     .exceptionally(except -> {

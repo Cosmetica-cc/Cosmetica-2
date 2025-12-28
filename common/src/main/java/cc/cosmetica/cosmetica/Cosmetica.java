@@ -134,10 +134,23 @@ public class Cosmetica {
 		// updates to cosmetic stuff
 		Cosmetics.registerUserDataFetchCallback((data, cosmetics) -> {
 			if (data == null) {
-				Logging.getInstance().debug(CosmeticaLogCategory.EVENTS, "Own cosmetics cleared");
-				Minecraft.getInstance().execute(() -> {
-					OWN_COSMETICS.set(null);
-				});
+				if (!cosmetics.getOutfitId().isPresent()) {
+					Logging.getInstance().debug(CosmeticaLogCategory.EVENTS, "Own cosmetics cleared");
+					Minecraft.getInstance().execute(() -> {
+						OWN_COSMETICS.set(null);
+					});
+				} else {
+					Logging.getInstance().debug(CosmeticaLogCategory.EVENTS, "Received own outfit update");
+
+					Minecraft.getInstance().execute(() -> {
+						OWN_COSMETICS.set(cosmetics);
+//						OWN_CONNECTIONS.set(connections); (no data)
+						// can be updated by screens too.
+						SELECTED_OUTFIT_ID.set(cosmetics.getOutfitId());
+						SELECTED_ICON.set(cosmetics.getNametag().getIcon());
+//						SELECTED_LORE.set(userLore); (outfit doesn't control lore)
+					});
+				}
 				return;
 			}
 
@@ -179,7 +192,7 @@ public class Cosmetica {
 				userLore = Lore.none(UpdateLoreDto.ColorEnum.WHITE);
 			}
 
-			Minecraft.getInstance().tell(() -> {
+			Minecraft.getInstance().execute(() -> {
 				OWN_COSMETICS.set(cosmetics);
 				OWN_CONNECTIONS.set(connections);
 				// can be updated by screens too.

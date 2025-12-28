@@ -66,7 +66,7 @@ public class ExternalCapesScreen extends Screen {
                 .collect(Collectors.toList()));
 
         return new Component[] {
-                new CapeServerList(this.servers),
+                new CapeServerList(this.servers, this.oldSettings.getManagement() == Setting.Management.USER),
                 new MenuEndSelection()
         };
     }
@@ -194,15 +194,17 @@ public class ExternalCapesScreen extends Screen {
     // child paints so that we don't have to do a resize on drag.
     // Only allows moving items vertically.
     private static class CapeServerList extends AbstractScrollContainer {
-        CapeServerList(State<List<Component>> children) {
+        CapeServerList(State<List<Component>> children, boolean editable) {
             this.children = children;
             this.ghost = new Div().withStyle(Style.create()
                     .set(BACKGROUND_COLOUR, OptionalInt.of(0x363636))
                     .set(BORDER, Border.create(Border.BorderConfig.split(1, 0x606060, 0x232323))));
+            this.editable = editable;
         }
 
         private State<List<Component>> children;
         private final Component ghost;
+        private boolean editable;
         private @Nullable Component dragging = null;
         // rootY updated in paint()
         // clickY updated on click
@@ -379,7 +381,7 @@ public class ExternalCapesScreen extends Screen {
         public void mouseClicked(Element target, double x, double y, int button) {
             super.mouseClicked(target, x, y, button);
 
-            if (!this.grabbed && !(target.getComponent() instanceof MinecraftBuiltinComponent)) {
+            if (this.editable && !this.grabbed && !(target.getComponent() instanceof MinecraftBuiltinComponent)) {
                 this.clickY = getInnerClickY((int)y);
 
                 // click clicking a component inside
