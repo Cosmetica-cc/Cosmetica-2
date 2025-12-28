@@ -19,6 +19,7 @@ package cc.cosmetica.cosmetica.gui;
 import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
+import cc.cosmetica.cosmetica.gui.widget.ClickableImage;
 import cc.cosmetica.cosmetica.gui.widget.EntryList;
 import cc.cosmetica.cosmetica.gui.widget.OutfitCount;
 import cc.cosmetica.kupe.api.*;
@@ -148,45 +149,22 @@ public class OutfitSelectScreen extends Component implements AnimatedTextureScre
                     new Image(new ResourceKey(option.thumbnail.location))
                             .crop(0, 0.1667f, 0, 0.1667f)
                             .setTransparent(option.usable ? 1.0f : 0.5f),
-                    (this.icon = new Image(deleteTexture) {
+                    (this.icon = new ClickableImage(deleteTexture, () -> {
+                        // delete outfit confirm
+                        // can't delete current outfit
+                        if (SelectableOutfit.this.option.id.equals(Cosmetica.SELECTED_OUTFIT_ID.peek().orElse(""))) return;
+                        // play click sound
+                        GuiUtils.playClick();
+                        // delete
+                        Screens.setScreen(new ConfirmRemoveOutfitScreen(
+                                SelectableOutfit.this.option.id,
+                                SelectableOutfit.this.option.name
+                        ), Text.translatable("screens.cosmetica.confirmDeletion"));
+                    }) {
                         @Override
-                        public void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
-                            if (region.contains(mouseX, mouseY)) {
-                                boolean selected = SelectableOutfit.this.option.id.equals(Cosmetica.SELECTED_OUTFIT_ID.peek().orElse(""));
-                                // don't draw icon on selected item
-                                if (!selected) {
-                                    canvas.setTransparency(1.0f);
-                                    canvas.setTexture(deleteTexture);
-
-                                    PolyBuilder builder = canvas.drawQuads(PolyBuilder.Mode.POSITION_COLOUR_TEXTURE);
-
-                                    // anticlockwise
-                                    builder.vertex(region.getX(), region.getEndY(), 0).colour(1.0f, 0.2f, 0.2f, 0.8f).uv(0, 1).endVertex();
-                                    builder.vertex(region.getEndX(), region.getEndY(), 0).colour(1.0f, 0.2f, 0.2f, 0.8f).uv(1, 1).endVertex();
-                                    builder.vertex(region.getEndX(), region.getY(), 0).colour(1.0f, 0.2f, 0.2f, 0.8f).uv(1, 0).endVertex();
-                                    builder.vertex(region.getX(), region.getY(), 0).colour(1.0f, 0.2f, 0.2f, 0.8f).uv(0, 0).endVertex();
-
-                                    builder.build();
-                                }
-                            } else {
-                                super.paint(canvas, region, mouseX, mouseY);
-                            }
-                        }
-
-                        @Override
-                        public void mouseClicked(Element target, double x, double y, int button) {
-                            if (target.getComponent() == this) {
-                                // delete outfit confirm
-                                // can't delete current outfit
-                                if (SelectableOutfit.this.option.id.equals(Cosmetica.SELECTED_OUTFIT_ID.peek().orElse(""))) return;
-                                // play click sound
-                                GuiUtils.playClick();
-                                // delete
-                                Screens.setScreen(new ConfirmRemoveOutfitScreen(
-                                        SelectableOutfit.this.option.id,
-                                        SelectableOutfit.this.option.name
-                                ), Text.translatable("screens.cosmetica.confirmDeletion"));
-                            }
+                        protected boolean canDrawDelete() {
+                            // don't draw icon on selected item
+                            return !SelectableOutfit.this.option.id.equals(Cosmetica.SELECTED_OUTFIT_ID.peek().orElse(""));
                         }
                     }).withStyle(Style.create().set(MARGINS, fixed(new Margins(0, 0, 69-deleteButtonSize, 69*2/3 - deleteButtonSize))))
             );

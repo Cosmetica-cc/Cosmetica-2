@@ -110,9 +110,12 @@ public class CosmeticEntry extends Component {
 				new Image(this.icon).setTransparent(1.0f).tag("centry_main_icon"),
 				new Div(
 						new Div(
-								new Label(Text.literal(this.name))
-										.withStyle(Style.create().set(Label.TEXT_WRAP, fixed(OptionalInt.empty())))
-						).withStyle(Style.create().set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)),
+								new Label(Text.literal(this.name)).withStyle(Style.create()
+										.set(FLEX_SHRINK, 0)
+										.set(Label.TEXT_WRAP, fixed(OptionalInt.empty())))
+						).withStyle(Style.create()
+								.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
+								.set(MAXIMUM_SIZE, (vw, vh, pw, ph) -> new Dimensions(pw, Integer.MAX_VALUE))),
 						this.type == Type.EXTERNAL ?
 								new Div(attachmentIcon, new Label(Text.literal(this.owner))).tag("info_icons") :
 								new Div(merge(attachmentIcon, infoIcons).toArray(new Component[0])).tag("info_icons")
@@ -122,11 +125,12 @@ public class CosmeticEntry extends Component {
 		// add remove button if editable
 		if (this.type.hasRemoveButton()) {
 			content.add(
-					new Button(Text.literal("-"), () -> {
+					new ClickableImage(new ResourceKey("cosmetica", "textures/remove_cross.png"), () -> {
 						Screens.setScreen(new ConfirmRemoveCosmeticScreen(this.parentOutfit, this.id, this.name, this.mirrored), Text.translatable("screens.cosmetica.confirmDeletion"));
 					}).setDisabled(this.type == Type.REMOVABLE_OFFLINE)
-					  .withStyle(Cosmetica.authTooltipStyle(this.type == Type.REMOVABLE))
-					  .tag("button_subtract")
+							.setTransparent(1.0f)
+							.withStyle(Cosmetica.authTooltipStyle(this.type == Type.REMOVABLE))
+							.tag("button_subtract")
 			);
 		} else if (this.type.hasEquipButton()) {
 			Button b = (Button) new Button(Text.literal("+"), () -> {
@@ -171,40 +175,39 @@ public class CosmeticEntry extends Component {
 
 	@Override
 	public Stylesheet getStylesheet() {
-		return STYLE;
+		return new Stylesheet()
+				.component(Button.class, Style.create()
+						.set(MAXIMUM_SIZE, fixed(new Dimensions(20, 20))))
+				.tag("centry_main_icon", Style.create()
+						.set(PADDING, fixed(new Margins(2)))
+						.set(WIDTH, fixedSize(38))
+						.set(HEIGHT, fixedSize(38))
+						.set(MIN_WIDTH, fixedSize(38))
+						.set(MIN_HEIGHT, fixedSize(38)))
+				.tag("button_subtract", Style.create()
+						.set(ALIGN_SELF, Optional.of(Align.START))
+						.set(MAXIMUM_SIZE, fixed(new Dimensions(20, 20))))
+				.tag("button_add", Style.create()
+						.set(MARGINS, fixed(new Margins(0,10,0,0))))
+				.tag("centry_root", Style.create()
+						.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
+						.set(Div.ALIGN_ITEMS, Align.CENTRE))
+				.tag("centry_normal_colour", Style.create()
+						.set(BACKGROUND_COLOUR, OptionalInt.of(NORMAL_COLOUR))
+						.set(BORDER, GuiUtils.POPOUT_BORDER))
+				.tag("external_colour", Style.create()
+						.set(BACKGROUND_COLOUR, OptionalInt.of(SHADE_COLOUR))
+						.set(BORDER, Border.create(Border.BorderConfig.split(1, NORMAL_COLOUR, 0x343434))))
+				.tag("centry_names", Style.create()
+						.set(Div.ALIGN_ITEMS, Align.STRETCH_START)
+						.set(FLEX, 1))
+				.tag("centry_info_icon", Style.create()
+						.set(WIDTH, fixedSize(12))
+						.set(HEIGHT, fixedSize(12)))
+				.tag("info_icons", Style.create()
+						.set(MARGINS, fixed(new Margins(2, 0, 0, 0)))
+						.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X));
 	}
-
-	private static final Stylesheet STYLE = new Stylesheet()
-			.component(Button.class, Style.create()
-					.set(MAXIMUM_SIZE, fixed(new Dimensions(20, 20))))
-			.tag("centry_main_icon", Style.create()
-					.set(PADDING, fixed(new Margins(2)))
-					.set(WIDTH, fixedSize(38))
-					.set(HEIGHT, fixedSize(38))
-					.set(MIN_WIDTH, fixedSize(38))
-					.set(MIN_HEIGHT, fixedSize(38)))
-			.tag("button_subtract", Style.create()
-					.set(ALIGN_SELF, Optional.of(Align.START)))
-			.tag("button_add", Style.create()
-					.set(MARGINS, fixed(new Margins(0,10,0,0))))
-			.tag("centry_root", Style.create()
-					.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
-					.set(Div.ALIGN_ITEMS, Align.CENTRE))
-			.tag("centry_normal_colour", Style.create()
-					.set(BACKGROUND_COLOUR, OptionalInt.of(NORMAL_COLOUR))
-					.set(BORDER, GuiUtils.POPOUT_BORDER))
-			.tag("external_colour", Style.create()
-					.set(BACKGROUND_COLOUR, OptionalInt.of(SHADE_COLOUR))
-					.set(BORDER, Border.create(Border.BorderConfig.split(1, NORMAL_COLOUR, 0x343434))))
-			.tag("centry_names", Style.create()
-					.set(Div.ALIGN_ITEMS, Align.STRETCH_START)
-					.set(FLEX, 1))
-			.tag("centry_info_icon", Style.create()
-					.set(WIDTH, fixedSize(14))
-					.set(HEIGHT, fixedSize(14)))
-			.tag("info_icons", Style.create()
-					.set(MARGINS, fixed(new Margins(2, 0, 0, 0)))
-					.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X));
 
 	static {
 		RootStylesheet.setDefaultOverrides(CosmeticEntry.class, Style.create()

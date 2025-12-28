@@ -238,7 +238,7 @@ public class Cosmetica {
 				)));
 	}*/
 
-	public static Style authTooltipStyle(boolean authenticated) {
+	public static Style.MutableStyle authTooltipStyle(boolean authenticated) {
 		return Style.create().set(TOOLTIP, authenticated ?
 				Optional.empty() :
 				Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.offline"))));
