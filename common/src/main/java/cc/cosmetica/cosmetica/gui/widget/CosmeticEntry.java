@@ -202,8 +202,8 @@ public class CosmeticEntry extends Component {
 						.set(Div.ALIGN_ITEMS, Align.STRETCH_START)
 						.set(FLEX, 1))
 				.tag("centry_info_icon", Style.create()
-						.set(WIDTH, fixedSize(12))
-						.set(HEIGHT, fixedSize(12)))
+						.set(WIDTH, fixedSize(14))
+						.set(HEIGHT, fixedSize(14)))
 				.tag("info_icons", Style.create()
 						.set(MARGINS, fixed(new Margins(2, 0, 0, 0)))
 						.set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X));
