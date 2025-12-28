@@ -83,6 +83,11 @@ public class Cosmetica {
 
 		// Load config (must be done before auth!)
 		CosmeticaSettings.refreshLocalSettings();
+		CosmeticaAPI.addAuthenticationChangeCallback(reason -> {
+			if (reason == CosmeticaAPI.AuthChangeReason.AUTHENTICATED) {
+				Minecraft.getInstance().execute(CosmeticaSettings::applyLocalSettings);
+			}
+		});
 
 		// Set up offline cosmetics cache
 		Path cosmeticaConfigDir = CosmeticaCoreExpectPlatform.getConfigDirectory().resolve("cosmetica");

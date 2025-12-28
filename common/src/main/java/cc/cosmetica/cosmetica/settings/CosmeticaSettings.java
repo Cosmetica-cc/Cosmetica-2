@@ -43,6 +43,7 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.TOOLTIP;
@@ -80,14 +81,12 @@ public final class CosmeticaSettings {
 
                                         if (useCloudSettings) { // was true (-> false)
                                             // should be pack managed now
-                                            if (updateLocalSettingsDto == null) {
-                                                Logging.getInstance().error("UpdateLocalSettingsDto should not be null if cloud settings is visible!");
+                                            if (modpackSettings == null) {
+                                                Logging.getInstance().error("Modpack settings should not be null if cloud settings button is visible!");
                                             } else {
-                                                // don't let settings update
-                                                API_SETTINGS.forEach(Setting::updateValue);
-                                                CosmeticaAPI.settings().requestAsync(api -> api.setLocal(updateLocalSettingsDto))
-                                                        .thenApply(CosmeticaUser::getActiveSettings)
-                                                        .thenAcceptAsync(CosmeticaSettings::updateSettings, Minecraft.getInstance());
+                                                // don't let settings update (TODO: we no longer apply packValue locally so this can be removed and code simplified perhaps)
+//                                                API_SETTINGS.forEach(Setting::updateValue);
+                                                applyLocalSettings();
                                             }
                                         } else { // was false (-> true)
                                             CosmeticaAPI.settings().requestAsync(api -> api.setCloud(new UpdateCloudSettingsDto()))
@@ -135,7 +134,7 @@ public final class CosmeticaSettings {
             SHOW_ONLINE_ACTIVITY);
 
     public static final State<List<Setting<?>>> DISPLAY_SETTINGS = new State<>(CLIENT_SETTINGS);
-    private static @Nullable UpdateLocalSettingsDto updateLocalSettingsDto;
+    private static @Nullable UpdateLocalSettingsDto modpackSettings;
     public static State<List<ExternalCapeSetting>> externalCapeSettings = new State<>(ImmutableList.of());
 
     public static void clearSettings() {
@@ -144,6 +143,20 @@ public final class CosmeticaSettings {
     }
 
     private static boolean loadedLocal = false;
+
+    /**
+     * Called on authentication and when cloud settings are re-applied.
+     */
+    public static void applyLocalSettings() {
+        if (!USE_CLOUD_SETTINGS.get() && modpackSettings != null) {
+            Logging.getInstance().info( "Applying pack overrides...");
+
+            CosmeticaAPI.settings().requestAsync(api -> api.setLocal(modpackSettings))
+                    .thenApply(CosmeticaUser::getActiveSettings)
+                    .thenAcceptAsync(CosmeticaSettings::updateSettings, Minecraft.getInstance());
+        }
+    }
+
     public static void refreshLocalSettings() {
         Path localDir = CosmeticaCoreExpectPlatform.getConfigDirectory().resolve("cosmetica");
 
@@ -153,10 +166,11 @@ public final class CosmeticaSettings {
             Logging.getInstance().error("Error creating cosmetica config directory", e);
         }
 
-        UpdateLocalSettingsDto dto = readModpackSettings(localDir);
-        updateLocalSettingsDto = dto;
-        if (dto != null) {
-
+        UpdateLocalSettingsDto newModpackSettings = readModpackSettings(localDir);
+        // cannot remove ability to use modpack settings from an instance once loaded (prevent race condition with button)]
+        // can simplify in future if hide/show updates a relevant State
+        if (newModpackSettings != null) {
+            modpackSettings = newModpackSettings;
         }
 
         Path file = localDir.resolve("cosmetica.properties");
@@ -189,8 +203,8 @@ public final class CosmeticaSettings {
         }
     }
 
-    private static void packManage(Setting<Boolean> setting, JsonObject properties, String name) {
-        setting.packManage(properties.get(name).getAsBoolean());
+    private static void packManage(UpdateLocalSettingsDto dto, BiConsumer<UpdateLocalSettingsDto, Boolean> updater, JsonObject properties, String name) {
+        updater.accept(dto, properties.get(name).getAsBoolean());
     }
 
     @Nullable
@@ -204,30 +218,30 @@ public final class CosmeticaSettings {
             JsonObject properties = new Gson().fromJson(reader, JsonObject.class);
 
             final String packId = properties.get("modpack_id").getAsString();
+            final String packName = !properties.has("modpack_name") ? "Unnamed Modpack" : properties.get("modpack_name").getAsString();
             Logging.getInstance().debug(CosmeticaLogCategory.SETTINGS, "Setting modpack id {}", packId);
             MODPACK_ID.set(packId);
 
             // apply the settings
             if (properties.get("apply_overrides").getAsBoolean()) {
-                Logging.getInstance().info("Applying modpack overrides for pack {}", MODPACK_ID.peek());
                 USE_CLOUD_SETTINGS.setHidden(false);
 
-                packManage(SHOW_ACCESSORIES,        properties, "show_accessories");
-                packManage(SHOW_LORE,               properties, "show_lore");
-                packManage(SHOW_ICONS,              properties, "show_icons");
-                packManage(SHOW_OFFLINE_ICONS,      properties, "show_offline_icons");
-                packManage(SHOW_SPECIAL_ICONS,      properties, "show_special_icons");
-                packManage(USE_MODPACK_ICONS,       properties, "use_modpack_icons");
-                packManage(SHOW_ONLINE_ACTIVITY,    properties, "show_online_activity");
+                Logging.getInstance().info("Loading modpack overrides for pack {}", MODPACK_ID.peek());
+
+                // Create request object
+                UpdateLocalSettingsDto dto = new UpdateLocalSettingsDto();
+
+                dto.setClientName(packName);
+                packManage(dto, UpdateLocalSettingsDto::setShowAccessories,    properties, "show_accessories");
+                packManage(dto, UpdateLocalSettingsDto::setShowLore,           properties, "show_lore");
+                packManage(dto, UpdateLocalSettingsDto::setShowIcons,          properties, "show_icons");
+                packManage(dto, UpdateLocalSettingsDto::setShowOfflineIcons,   properties, "show_offline_icons");
+                packManage(dto, UpdateLocalSettingsDto::setShowSpecialIcons,   properties, "show_special_icons");
+                packManage(dto, UpdateLocalSettingsDto::setUseModpackIcons,    properties, "use_modpack_icons");
+                packManage(dto, UpdateLocalSettingsDto::setShowOnlineActivity, properties, "show_online_activity");
 
                 // update external capes
                 // TODO allow external capes to be managed
-
-                // Send request
-                Logging.getInstance().debug(CosmeticaLogCategory.SETTINGS, "Pack overrides applied locally. Sending request to server...");
-
-                UpdateLocalSettingsDto dto = new UpdateLocalSettingsDto();
-                dto.setClientName("cosmetica");
                 dto.setDisableRegionalEffectsPrompt(CosmeticaSettings.DISABLE_RSE_PROMPT.get());
                 dto.setExternalCapes(CosmeticaSettings.externalCapeSettings.peek().stream()
                         .map(setting -> {
@@ -237,14 +251,7 @@ public final class CosmeticaSettings {
                             dto_.setEnabled(setting.isEnabled());
                             return dto_;
                         })
-                        .collect(Collectors.toList()));
-                dto.setShowAccessories(CosmeticaSettings.SHOW_ACCESSORIES.get());
-                dto.setShowIcons(CosmeticaSettings.SHOW_ICONS.get());
-                dto.setShowLore(CosmeticaSettings.SHOW_LORE.get());
-                dto.setShowOnlineActivity(CosmeticaSettings.SHOW_ONLINE_ACTIVITY.get());
-                dto.setShowSpecialIcons(CosmeticaSettings.SHOW_SPECIAL_ICONS.get());
-                dto.setShowOfflineIcons(CosmeticaSettings.SHOW_OFFLINE_ICONS.get());
-                return dto;
+                            .collect(Collectors.toList()));
             }
         } catch (NoSuchFileException noSuchFile) {
             Logging.getInstance().debug(CosmeticaLogCategory.SETTINGS, "Creating/Updating cosmetica pack settings template");
@@ -252,6 +259,7 @@ public final class CosmeticaSettings {
             JsonObject defaults = new JsonObject();
             // defaults
             defaults.addProperty("modpack_id", "my_modpack");
+            defaults.addProperty("modpack_name", "My Modpack");
             defaults.addProperty("apply_overrides", false);
             defaults.addProperty("show_accessories", SHOW_ACCESSORIES.getUserValue());
             defaults.addProperty("show_lore", SHOW_LORE.getUserValue());
@@ -293,14 +301,14 @@ public final class CosmeticaSettings {
             clearSettings();
         } else {
             // Update setting values
-            SHOW_LORE.update(settings.isShowLore());
-            SHOW_ACCESSORIES.update(settings.isShowAccessories());
-            SHOW_ICONS.update(settings.isShowIcons());
-            SHOW_SPECIAL_ICONS.update(settings.isShowSpecialIcons());
-            SHOW_OFFLINE_ICONS.update(settings.isShowOfflineIcons());
-            SHOW_ONLINE_ACTIVITY.update(settings.isShowOnlineActivity());
-            USE_MODPACK_ICONS.update(settings.isUseModpackIcons());
-            DISABLE_RSE_PROMPT.update(settings.isDisableRegionalEffectsPrompt());
+            SHOW_LORE.apiUpdate(settings.isShowLore(), settings.getType());
+            SHOW_ACCESSORIES.apiUpdate(settings.isShowAccessories(), settings.getType());
+            SHOW_ICONS.apiUpdate(settings.isShowIcons(), settings.getType());
+            SHOW_SPECIAL_ICONS.apiUpdate(settings.isShowSpecialIcons(), settings.getType());
+            SHOW_OFFLINE_ICONS.apiUpdate(settings.isShowOfflineIcons(), settings.getType());
+            SHOW_ONLINE_ACTIVITY.apiUpdate(settings.isShowOnlineActivity(), settings.getType());
+            USE_MODPACK_ICONS.apiUpdate(settings.isUseModpackIcons(), settings.getType());
+            DISABLE_RSE_PROMPT.apiUpdate(settings.isDisableRegionalEffectsPrompt(), settings.getType());
 
             // Create composite list
             List<Setting<?>> loggedInSettings = new ArrayList<>(CLIENT_SETTINGS);

@@ -19,6 +19,7 @@ package cc.cosmetica.cosmetica.settings;
 import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Component;
+import gg.cloaks.javaclient.model.Settings;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -87,9 +88,27 @@ public abstract class Setting<T> {
     }
 
     /**
-     * Set the user value.
+     * Set the user value from the api.
      */
-    void update(T newValue) {
+    public void apiUpdate(T newValue, Settings.TypeEnum typeEnum) {
+        if (typeEnum == Settings.TypeEnum.CLOUD) {
+            this.packValue = null; // user is using cloud settings
+            this.oldUserValue = newValue;
+
+            // if user has modified it
+            if (!this.isModified()) {
+                this.modified = false;
+                this.update(newValue);
+            } else if (newValue == this.userValue) {
+                this.modified = false;
+            }
+        } else {
+            this.packValue = newValue;
+            this.updateValue();
+        }
+    }
+
+    private void update(T newValue) {
         this.userValue = newValue;
         this.updateValue();
     }
@@ -100,15 +119,6 @@ public abstract class Setting<T> {
      */
     void parentManage(@Nullable T managedValue) {
         this.parentManagedValue = managedValue;
-        this.updateValue();
-    }
-
-    /**
-     * Update due to mod pack controlling setting (unless user opts for cloud settings).
-     * @param managedValue the new pack-managed value.
-     */
-    void packManage(@Nullable T managedValue) {
-        this.packValue = managedValue;
         this.updateValue();
     }
 
