@@ -59,10 +59,11 @@ public class ClickableImage extends Image {
             PolyBuilder builder = canvas.drawQuads(PolyBuilder.Mode.POSITION_COLOUR_TEXTURE);
 
             // anticlockwise
-            builder.vertex(region.getX(), region.getEndY(), 0).colour(0.6f, 0.6f, 0.6f, this.opacity).uv(0, 1).endVertex();
-            builder.vertex(region.getEndX(), region.getEndY(), 0).colour(0.6f, 0.6f, 0.6f, this.opacity).uv(1, 1).endVertex();
-            builder.vertex(region.getEndX(), region.getY(), 0).colour(0.6f, 0.6f, 0.6f, this.opacity).uv(1, 0).endVertex();
-            builder.vertex(region.getX(), region.getY(), 0).colour(0.6f, 0.6f, 0.6f, this.opacity).uv(0, 0).endVertex();
+            final float shade = 0.4f;
+            builder.vertex(region.getX(), region.getEndY(), 0).colour(shade, shade, shade, this.opacity).uv(0, 1).endVertex();
+            builder.vertex(region.getEndX(), region.getEndY(), 0).colour(shade, shade, shade, this.opacity).uv(1, 1).endVertex();
+            builder.vertex(region.getEndX(), region.getY(), 0).colour(shade, shade, shade, this.opacity).uv(1, 0).endVertex();
+            builder.vertex(region.getX(), region.getY(), 0).colour(shade, shade, shade, this.opacity).uv(0, 0).endVertex();
 
             builder.build();
         } else if (region.contains(mouseX, mouseY)) {
