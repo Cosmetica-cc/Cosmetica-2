@@ -24,7 +24,7 @@ import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
 import cc.cosmetica.core.impl.BlockModelManager;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import gg.cloaks.javaclient.model.Icon;
 import gg.cloaks.javaclient.model.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -45,6 +45,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -146,6 +147,7 @@ public class CacheCosmeticManager implements CosmeticManager {
                             accessories.add(new Accessory(
                                     accessory.getAccessory(),
                                     Cosmetic.gameProfileOf(accessory.getAccessory().getCreator()),
+                                    accessory.getFlags().intValue() == -1 ? OptionalInt.empty() : OptionalInt.of(accessory.getFlags().intValue()),
                                     accessory.isMirrored(),
                                     model,
                                     Accessory.attachmentTransform(

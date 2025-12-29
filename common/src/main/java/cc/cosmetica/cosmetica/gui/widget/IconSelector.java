@@ -32,6 +32,7 @@ import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
+import gg.cloaks.javaclient.model.Icon;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -62,11 +63,11 @@ public class IconSelector extends Div {
     public List<Component> build() {
         List<IconOption> iconOptions = new ArrayList<>(this.availableIcons.acquire(this));
 
-        // yes it won't refresh if selected icon is changed by another modpack, but that's fine I think
-        boolean managed = Cosmetica.SELECTED_ICON.extract(this, ic -> ic.isManaged());
+        // refresh if modpack id changes
+        Optional<String> management = Cosmetica.SELECTED_ICON.extract(this, ic -> ic instanceof cc.cosmetica.core.api.Icon ? ((cc.cosmetica.core.api.Icon)ic).getModpackId() : Optional.empty());
 
         // add modpack icon
-        if (managed) {
+        if (management.isPresent()) {
             ImageCosmetic icon = Cosmetica.SELECTED_ICON.peek();
             if (iconOptions.stream().noneMatch(option -> icon.getId().equals(option.cosmetic.getId()))) {
                 iconOptions.add(0, new IconOption(icon, false));
@@ -74,7 +75,7 @@ public class IconSelector extends Div {
         }
 
         SelectableIcon[] icons = iconOptions.stream()
-                .map(icon -> new SelectableIcon(icon, managed))
+                .map(icon -> new SelectableIcon(icon, management.isPresent()))
                 .toArray(SelectableIcon[]::new);
 
         // load selected state

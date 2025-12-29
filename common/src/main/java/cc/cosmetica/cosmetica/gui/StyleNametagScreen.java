@@ -68,9 +68,7 @@ public class StyleNametagScreen extends Screen implements AnimatedTextureScreen 
                 .thenAcceptAsync(icons -> {
                     List<IconSelector.IconOption> newAvailableIcons = new ArrayList<>();
                     for (Icon icon : icons) {
-                        if (icon.isUnlocked()) {
-                            newAvailableIcons.add(new IconSelector.IconOption(ImageCosmetic.fromIcon(icon), icon.isUnlocked()));
-                        }
+                        newAvailableIcons.add(new IconSelector.IconOption(ImageCosmetic.fromIcon(icon), icon.isUnlocked()));
                     }
                     Logging.getInstance().debug(CosmeticaLogCategory.GUI, "loaded {} available icons", newAvailableIcons.size());
                     availableIcons.set(newAvailableIcons);
