@@ -36,7 +36,9 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
@@ -48,20 +50,31 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
  * The widget for selecting a new icon.
  */
 public class IconSelector extends Div {
-    public IconSelector(AtomicBoolean iconDirty, State<List<ImageCosmetic>> availableIcons) {
+    public IconSelector(AtomicBoolean iconDirty, State<List<IconOption>> availableIcons) {
         this.iconDirty = iconDirty;
         this.availableIcons = availableIcons;
     }
 
     private final AtomicBoolean iconDirty;
-    private final State<List<ImageCosmetic>> availableIcons;
+    private final State<List<IconOption>> availableIcons;
 
     @Override
     public List<Component> build() {
-        List<ImageCosmetic> iconOptions = this.availableIcons.acquire(this);
+        List<IconOption> iconOptions = new ArrayList<>(this.availableIcons.acquire(this));
+
+        // yes it won't refresh if selected icon is changed by another modpack, but that's fine I think
+        boolean managed = Cosmetica.SELECTED_ICON.extract(this, ic -> ic.isManaged());
+
+        // add modpack icon
+        if (managed) {
+            ImageCosmetic icon = Cosmetica.SELECTED_ICON.peek();
+            if (iconOptions.stream().noneMatch(option -> icon.getId().equals(option.cosmetic.getId()))) {
+                iconOptions.add(0, new IconOption(icon, false));
+            }
+        }
 
         SelectableIcon[] icons = iconOptions.stream()
-                .map(SelectableIcon::new)
+                .map(icon -> new SelectableIcon(icon, managed))
                 .toArray(SelectableIcon[]::new);
 
         // load selected state
@@ -130,17 +143,22 @@ public class IconSelector extends Div {
     }
 
     private class SelectableIcon extends Image {
-        public SelectableIcon(ImageCosmetic cosmetic) {
-            super(new ResourceKey(cosmetic.getImage().location));
-            this.cosmetic = cosmetic;
-            this.setTransparent(1);
+        public SelectableIcon(IconOption option, boolean managed) {
+            super(new ResourceKey(option.cosmetic.getImage().location));
+            this.cosmetic = option.cosmetic;
+            this.disabled = !option.unlocked || managed;
+            this.tooltip = managed ? Text.translatable("tooltip.cosmetica.icon.managed")
+                    : !option.unlocked ? Text.translatable("tooltip.cosmetica.icon.notUnlocked") : null;
+            this.setTransparent(!option.unlocked ? 0.8f : 1);
         }
 
         private final ImageCosmetic cosmetic;
+        private final boolean disabled;
+        private final @Nullable Text tooltip;
 
         @Override
         public void mouseClicked(Element target, double x, double y, int button) {
-            if (button == GLFW.GLFW_MOUSE_BUTTON_1) {
+            if (button == GLFW.GLFW_MOUSE_BUTTON_1 && !this.disabled) {
                 if (this.cosmetic != Cosmetica.SELECTED_ICON.peek()) {
                     Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Setting icon " + cosmetic);
 
@@ -151,12 +169,32 @@ public class IconSelector extends Div {
         }
 
         @Override
+        public Stylesheet getStylesheet() {
+            if (this.tooltip != null) {
+                return new Stylesheet()
+                        .self(Style.create().set(TOOLTIP, Optional.of(new Tooltip(this.tooltip))));
+            } else {
+                return null;
+            }
+        }
+
+        @Override
         public void render(Canvas canvas, Region region, Margins padding, int mouseX, int mouseY) {
             // hover effect
-            if (region.contains(mouseX, mouseY) && !this.getStyle().get(BORDER).isPresent()) {
+            if (region.contains(mouseX, mouseY) && !this.getStyle().get(BORDER).isPresent() && !this.disabled) {
                 canvas.drawRect(region, 0x707070);
             }
             super.render(canvas, region, padding, mouseX, mouseY);
         }
+    }
+
+    public static class IconOption {
+        public IconOption(ImageCosmetic cosmetic, boolean unlocked) {
+            this.cosmetic = cosmetic;
+            this.unlocked = unlocked;
+        }
+
+        private final ImageCosmetic cosmetic;
+        private final boolean unlocked;
     }
 }

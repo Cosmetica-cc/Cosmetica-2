@@ -28,8 +28,14 @@ import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
 import cc.cosmetica.cosmetica.gui.widget.RotatableGUIPlayer;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.cosmetica.util.Lore;
-import cc.cosmetica.kupe.api.*;
-import cc.cosmetica.kupe.api.gui.*;
+import cc.cosmetica.kupe.api.ResourceKey;
+import cc.cosmetica.kupe.api.Screen;
+import cc.cosmetica.kupe.api.State;
+import cc.cosmetica.kupe.api.Text;
+import cc.cosmetica.kupe.api.gui.Align;
+import cc.cosmetica.kupe.api.gui.Component;
+import cc.cosmetica.kupe.api.gui.Div;
+import cc.cosmetica.kupe.api.gui.Justify;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
@@ -60,9 +66,11 @@ public class StyleNametagScreen extends Screen implements AnimatedTextureScreen 
         // refresh available icons
         CosmeticaAPI.icons().requestAsync(IconsApi::get)
                 .thenAcceptAsync(icons -> {
-                    List<ImageCosmetic> newAvailableIcons = new ArrayList<>();
+                    List<IconSelector.IconOption> newAvailableIcons = new ArrayList<>();
                     for (Icon icon : icons) {
-                        newAvailableIcons.add(ImageCosmetic.fromIcon(icon));
+                        if (icon.isUnlocked()) {
+                            newAvailableIcons.add(new IconSelector.IconOption(ImageCosmetic.fromIcon(icon), icon.isUnlocked()));
+                        }
                     }
                     Logging.getInstance().debug(CosmeticaLogCategory.GUI, "loaded {} available icons", newAvailableIcons.size());
                     availableIcons.set(newAvailableIcons);
@@ -187,5 +195,5 @@ public class StyleNametagScreen extends Screen implements AnimatedTextureScreen 
     private static final LoreOptions UNLOADED = new LoreOptions();
     // preserve available lores/icons list. don't load it every time the page is opened (but do refresh it)
     private static State<LoreOptions> availableLores = new State<>(UNLOADED);
-    private static State<List<ImageCosmetic>> availableIcons = new State<>(ImmutableList.of());
+    private static State<List<IconSelector.IconOption>> availableIcons = new State<>(ImmutableList.of());
 }
