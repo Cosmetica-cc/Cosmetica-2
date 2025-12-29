@@ -33,7 +33,6 @@ import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
-import javax.swing.plaf.nimbus.State;
 import java.io.*;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
@@ -52,13 +51,15 @@ import java.util.concurrent.Executors;
 import static cc.cosmetica.core.api.NametagConfig.NO_ICON;
 
 public class CacheCosmeticManager implements CosmeticManager {
-    public CacheCosmeticManager(Path directory) {
+    public CacheCosmeticManager(Path directory, UserIO userIO) {
         this.directory = directory;
         this.outfitCache = directory.resolve("outfit.json");
+        this.userIO = userIO;
         this.load();
     }
 
     private final Path directory, outfitCache;
+    private final UserIO userIO;
     private final ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(r);
         t.setName("Cache Cosmetic Manager");
@@ -80,8 +81,7 @@ public class CacheCosmeticManager implements CosmeticManager {
         this.executor.submit(() -> {
             try (InputStream is = new BufferedInputStream(Files.newInputStream(this.outfitCache))) {
                 Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "Reading offline cache outfit json");
-                ObjectMapper mapper = new ObjectMapper();
-                CosmeticaUser user = mapper.readValue(is, CosmeticaUser.class);
+                CosmeticaUser user = this.userIO.read(is);
 
                 Minecraft.getInstance().execute(() -> {
                     Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "Transforming offline outfit json to outfit");
@@ -202,8 +202,7 @@ public class CacheCosmeticManager implements CosmeticManager {
                 user.setUuid(response.getUuid());
                 user.setOutfit(response.getOutfit());
 
-                ObjectMapper mapper = new ObjectMapper();
-                mapper.writeValue(os, user);
+                this.userIO.write(user, os);
                 Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "Cached player cosmetics");
             } catch (IOException e) {
                 Logging.getInstance().error("Failed to cache player cosmetics", e);
@@ -282,5 +281,15 @@ public class CacheCosmeticManager implements CosmeticManager {
                 Logging.getInstance().error("Error clearing old cached models", e);
             }
         });
+    }
+
+    /**
+     * Read/write cosmetic user to a stream.
+     * Since dependencies are remapped in core's shadow, but only for fabric/forge,
+     * we need this for ObjectMapper to work in dev.
+     */
+    public interface UserIO {
+        CosmeticaUser read(InputStream is) throws IOException;
+        void write(CosmeticaUser user, OutputStream os) throws IOException;
     }
 }

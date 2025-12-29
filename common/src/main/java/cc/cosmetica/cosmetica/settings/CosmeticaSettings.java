@@ -252,7 +252,6 @@ public final class CosmeticaSettings {
                 packManage(dto, UpdateLocalSettingsDto::setShowOnlineActivity, properties, "show_online_activity");
 
                 // update external capes
-                // TODO allow external capes to be managed
                 dto.setDisableRegionalEffectsPrompt(CosmeticaSettings.DISABLE_RSE_PROMPT.get());
                 dto.setExternalCapes(CosmeticaSettings.externalCapeSettings.get().stream()
                         .map(setting -> {
@@ -283,10 +282,12 @@ public final class CosmeticaSettings {
             JsonArray arr = new JsonArray();
             // defaults from website
             for (ExternalCapeSetting.ServiceEnum service : ExternalCapeSetting.ServiceEnum.values()) {
-                JsonObject serviceObject = new JsonObject();
-                serviceObject.addProperty("service", service.getValue());
-                serviceObject.addProperty("enabled", true);
-                arr.add(serviceObject);
+                if (service != ExternalCapeSetting.ServiceEnum.UNKNOWN_DEFAULT_OPEN_API) {
+                    JsonObject serviceObject = new JsonObject();
+                    serviceObject.addProperty("service", service.getValue());
+                    serviceObject.addProperty("enabled", true);
+                    arr.add(serviceObject);
+                }
             }
             defaults.add("external_capes", arr);
 
