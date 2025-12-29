@@ -167,10 +167,11 @@ public class ExternalCapesScreen extends Screen {
 
         @Override
         public List<Component> build() {
-            boolean enabled = this.enabled.acquire(this);
+            boolean settingEnabled = this.enabled.acquire(this);
 
             return ImmutableList.of(
                     new Div(
+                            // Add in later update if we add service icons
 //                        new Image(
 //                                "official".equals(capeServerSetting.getService().getValue()) ?
 //                                new ResourceKey("minecraft", "textures/block/grass_block_side.png") :
@@ -179,10 +180,10 @@ public class ExternalCapesScreen extends Screen {
                             new Label(Text.literal(setting.getName()))
                     ).tag("inner-wrapper"),
                     new Div(
-                            new Button(enabled ?
+                            new Button(settingEnabled ?
                                     (useMinecraftText ? Text.GUI_YES : Text.translatable("button.cosmetica.enabled"))
                                     : (useMinecraftText ? Text.GUI_NO : Text.translatable("button.cosmetica.disabled")),
-                                    () -> this.enabled.set(!enabled)).tag("cape-server-button", "padding-right"),
+                                    () -> this.enabled.set(!settingEnabled)).setDisabled(!this.editable).tag("cape-server-button", "padding-right"),
                             new Image(new ResourceKey("cosmetica", "textures/grabbable.png")).setTransparent(1)
                     ).tag("inner-wrapper")
             );
@@ -370,8 +371,8 @@ public class ExternalCapesScreen extends Screen {
         }
 
         @Override
-        public void paintDecorations(Canvas canvas, Region region, int mouseX, int mouseY) {
-            super.paintDecorations(canvas, region, mouseX, mouseY);
+        public void paintDecorations(Canvas canvas, Region region, Region scissorRegion, int mouseX, int mouseY) {
+            super.paintDecorations(canvas, region, scissorRegion, mouseX, mouseY);
 
             // fixes a rendering bug
             RenderSystem.color4f(1, 1, 1, 1);

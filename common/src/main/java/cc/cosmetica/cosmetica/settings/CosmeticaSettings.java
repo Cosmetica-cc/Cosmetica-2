@@ -28,10 +28,7 @@ import cc.cosmetica.kupe.api.gui.Div;
 import cc.cosmetica.kupe.api.gui.Tooltip;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import com.google.common.collect.ImmutableList;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import gg.cloaks.javaclient.model.*;
 import net.minecraft.client.Minecraft;
 
@@ -44,7 +41,6 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.TOOLTIP;
 
@@ -60,7 +56,7 @@ public final class CosmeticaSettings {
     /**
      * In a modpack with managed settings, use cloud settings instead.
      */
-    public static final Setting<Boolean> USE_CLOUD_SETTINGS = new BooleanSetting("setting.cosmetica.cloud", false, true) {
+    public static final Setting<Boolean> USE_CLOUD_SETTINGS = new BooleanSetting("setting.cosmetica.useCloudSettings", false, true) {
         @Override
         public Component createController() {
             // Will reload when all settings load so doesn't need to update itself (or any other settings)
@@ -159,13 +155,25 @@ public final class CosmeticaSettings {
      * Called on authentication and when cloud settings are re-applied.
      */
     public static void applyLocalSettings() {
-        if (!USE_CLOUD_SETTINGS.get() && modpackSettings != null) {
+        if (willApplyLocalSettings()) {
             Logging.getInstance().info( "Applying pack overrides...");
 
             CosmeticaAPI.settings().requestAsync(api -> api.setLocal(modpackSettings))
                     .thenApply(CosmeticaUser::getActiveSettings)
-                    .thenAcceptAsync(CosmeticaSettings::updateSettings, Minecraft.getInstance());
+                    .thenAcceptAsync(CosmeticaSettings::updateSettings, Minecraft.getInstance())
+                    .exceptionally(ex -> {
+                        Logging.getInstance().error("Failed to apply modpack settings", ex);
+                        return null;
+                    });
+        } else if (modpackSettings == null) {
+            Logging.getInstance().debug(CosmeticaLogCategory.SETTINGS, "Cannot apply pack overrides (modpack settings is null)");
+        } else {
+            Logging.getInstance().debug(CosmeticaLogCategory.SETTINGS, "Cannot apply pack overrides (cloud settings is enabled)");
         }
+    }
+
+    public static boolean willApplyLocalSettings() {
+        return !USE_CLOUD_SETTINGS.get() && modpackSettings != null;
     }
 
     public static void refreshLocalSettings() {
@@ -252,16 +260,25 @@ public final class CosmeticaSettings {
                 packManage(dto, UpdateLocalSettingsDto::setShowOnlineActivity, properties, "show_online_activity");
 
                 // update external capes
+                List<UpdateExternalCapeSettingDto> externalCapeUpdates = new ArrayList<>();
+                for (JsonElement element : properties.get("external_capes").getAsJsonArray()) {
+                    if (element.isJsonObject()) {
+                        JsonObject externalCapeSetting = element.getAsJsonObject();
+
+                        UpdateExternalCapeSettingDto dto_ = new UpdateExternalCapeSettingDto();
+                        dto_.setService(externalCapeSetting.get("service").getAsString());
+                        dto_.setEnabled(externalCapeSetting.get("enabled").getAsBoolean());
+                        dto_.setReplace(false);
+
+                        externalCapeUpdates.add(dto_);
+                    }
+                }
+                dto.setExternalCapes(externalCapeUpdates);
+
+                // not configured by modpack settings
                 dto.setDisableRegionalEffectsPrompt(CosmeticaSettings.DISABLE_RSE_PROMPT.get());
-                dto.setExternalCapes(CosmeticaSettings.externalCapeSettings.get().stream()
-                        .map(setting -> {
-                            UpdateExternalCapeSettingDto dto_ = new UpdateExternalCapeSettingDto();
-                            dto_.setService(setting.getService().getValue());
-                            dto_.setReplace(setting.isReplace());
-                            dto_.setEnabled(setting.isEnabled());
-                            return dto_;
-                        })
-                            .collect(Collectors.toList()));
+
+                return dto;
             }
         } catch (NoSuchFileException noSuchFile) {
             Logging.getInstance().debug(CosmeticaLogCategory.SETTINGS, "Creating/Updating cosmetica pack settings template");

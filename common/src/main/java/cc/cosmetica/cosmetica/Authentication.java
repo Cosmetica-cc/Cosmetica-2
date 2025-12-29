@@ -48,6 +48,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static cc.cosmetica.cosmetica.settings.CosmeticaSettings.willApplyLocalSettings;
+
 /**
  * Handles authentication.
  */
@@ -222,7 +224,7 @@ public final class Authentication {
                     if (Long.parseLong(exp) - Instant.now().getEpochSecond() > 0) {
                         // use cached jwt
                         Logging.getInstance().debug(CosmeticaLogCategory.LOGIN, "Using cached JWT for auth");
-                        CosmeticaAPI.authenticate(token, "Cosmetica Official Mod", true, CosmeticaSettings.MODPACK_ID.peek());
+                        CosmeticaAPI.authenticate(token, "Cosmetica Official Mod", !willApplyLocalSettings(), CosmeticaSettings.MODPACK_ID.peek());
                         return true;
                     }
                 } catch (JsonParseException | IndexOutOfBoundsException e) {
@@ -247,7 +249,7 @@ public final class Authentication {
         Logging.getInstance().debug(CosmeticaLogCategory.LOGIN, "Logging in to Cosmetica...");
 
         try {
-            LoginResult result = CosmeticaAPI.login("Cosmetica Official Mod", true, CosmeticaSettings.MODPACK_ID.peek());
+            LoginResult result = CosmeticaAPI.login("Cosmetica Official Mod", !willApplyLocalSettings(), CosmeticaSettings.MODPACK_ID.peek());
             Logging.getInstance().debug(CosmeticaLogCategory.LOGIN, "LoginResult received");
 
             Minecraft.getInstance().execute(() -> {

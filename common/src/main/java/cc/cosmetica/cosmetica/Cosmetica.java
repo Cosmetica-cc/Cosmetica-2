@@ -89,6 +89,10 @@ public class Cosmetica {
 				Minecraft.getInstance().execute(CosmeticaSettings::applyLocalSettings);
 			}
 		});
+		// make sure it's loaded in dev
+		if (System.getProperty("cosmetica.token") != null && CosmeticaAPI.isAuthenticated()) {
+			CosmeticaSettings.applyLocalSettings();
+		}
 
 		// Add cape provider
 		GUIPlayer.addCapeProvider(new CosmeticaCapeProvider());
