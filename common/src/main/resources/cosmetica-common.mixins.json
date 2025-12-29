@@ -21,6 +21,10 @@
     "AbstractScrollContainerAccessor",
     "attach.ArmourStandMixin",
     "attach.PlayerMixin",
-    "gui.FakePlayerRendererMixin"
+    "gui.FakePlayerRendererMixin",
+    "textures.AnimationFrameDevAccessor",
+    "textures.AnimationFrameProdAccessor",
+    "textures.WebpMetadataProviderDevMixin",
+    "textures.WebpMetadataProviderProdMixin"
   ]
 }
