@@ -195,7 +195,7 @@ public final class CosmeticaSettings {
         Path file = localDir.resolve("cosmetica.properties");
         Properties properties = new Properties();
 
-        // Save properties
+        // Default properties
         properties.setProperty("toggle_outfit_wheel", String.valueOf(TOGGLE_OUTFIT_WHEEL.get()));
         properties.setProperty("use_cloud_settings", String.valueOf(USE_CLOUD_SETTINGS.get()));
 
@@ -209,6 +209,9 @@ public final class CosmeticaSettings {
                 Logging.getInstance().error("Error reading cosmetica.properties", e);
                 return; // don't over-write? file system probably restricted somehow
             }
+
+            TOGGLE_OUTFIT_WHEEL.apiUpdate(Boolean.parseBoolean(properties.getProperty("toggle_outfit_wheel", "false")), Settings.TypeEnum.CLOUD);
+            USE_CLOUD_SETTINGS.apiUpdate(Boolean.parseBoolean(properties.getProperty("use_cloud_settings", "false")), Settings.TypeEnum.CLOUD);
 
             loadedLocal = true;
         }
