@@ -111,21 +111,7 @@ public class ExternalCapesScreen extends Screen {
             dto.setExternalCapes(newExternalCapes);
             CosmeticaAPI.settings().requestAsync(api -> api.setCloud(dto))
                     .thenAcceptAsync(user -> {
-                        if (user.getOutfit() == null || user.getOutfit().getElytra() == null || user.getOutfit().getCloak() == null) {
-                            CosmeticaSettings.updateSettings(user.getActiveSettings());
-                            // refresh external capes
-                            CosmeticaAPI.users().requestAsync(UsersApi::getSelf)
-                                    .thenAcceptAsync(user_ -> {
-                                        SelfCosmeticManager.update(new PlayerResponse().user(user).isUser(true));
-                                    }, Minecraft.getInstance())
-                                    .exceptionally(ex -> {
-                                        Logging.getInstance().error("Error fetching own cosmetics", ex);
-                                        return null;
-                                    });
-                        } else {
-                            SelfCosmeticManager.update(new PlayerResponse().user(user).isUser(true));
-                        }
-
+                        CosmeticaSettingsScreen.updateCosmeticsAndSettings(user);
                         Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Updated external cape settings");
                     }, Minecraft.getInstance())
                     .exceptionally(e -> {

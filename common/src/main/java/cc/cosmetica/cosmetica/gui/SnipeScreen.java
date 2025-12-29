@@ -87,7 +87,7 @@ public class SnipeScreen extends Screen implements AnimatedTextureScreen {
             // specify outfit cosmetics to show
             guiPlayer.configureOverride(AccessoriesAttachment.INSTANCE, outfit.getAccessories());
         }
-        guiPlayer.configureOverride(GUIPlayer.CAPE, outfit.getCloak().map(ImageCosmetic::getImage).map(ci -> ci.location).orElse(null));
+        guiPlayer.configureOverride(GUIPlayer.CAPE, outfit.getCloak().map(ImageCosmetic::getImage).map(ci -> ci.location).map(GUIPlayer.CapeProperties::new).orElse(new GUIPlayer.CapeProperties((ResourceKey) null)));
 
         return new Component[] {
                 new Div(

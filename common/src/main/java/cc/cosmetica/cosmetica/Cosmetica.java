@@ -24,6 +24,7 @@ import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.core.impl.UUIDs;
 import cc.cosmetica.cosmetica.gui.*;
 import cc.cosmetica.cosmetica.gui.player.AccessoriesAttachment;
+import cc.cosmetica.cosmetica.gui.player.CosmeticaCapeProvider;
 import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.cosmetica.util.Lore;
@@ -88,6 +89,9 @@ public class Cosmetica {
 				Minecraft.getInstance().execute(CosmeticaSettings::applyLocalSettings);
 			}
 		});
+
+		// Add cape provider
+		GUIPlayer.addCapeProvider(new CosmeticaCapeProvider());
 
 		// Set up offline cosmetics cache
 		Path cosmeticaConfigDir = CosmeticaCoreExpectPlatform.getConfigDirectory().resolve("cosmetica");

@@ -36,6 +36,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.UUID;
 
 public class AccessoriesAttachment implements GUIPlayer.Attachment<Collection<Accessory>> {
@@ -52,10 +53,11 @@ public class AccessoriesAttachment implements GUIPlayer.Attachment<Collection<Ac
                 break;
             }
         }
+        GUIPlayer.CapeProperties cape = component.getConfiguration(GUIPlayer.CAPE);
 
         for (Accessory accessory : configuration) {
             if (Minecraft.getInstance().screen instanceof KupeScreen) {
-                if (component.getConfiguration(GUIPlayer.CAPE) != null && accessory.getFlags().contains(Accessory.Flag.HIDE_WITH_CLOAK)) {
+                if (cape != null && cape.getTexture().isPresent() && accessory.getFlags().contains(Accessory.Flag.HIDE_WITH_CLOAK)) {
                     continue;
                 }
                 if (elytra && accessory.getFlags().contains(Accessory.Flag.HIDE_WITH_ELYTRA)) {
@@ -127,19 +129,9 @@ public class AccessoriesAttachment implements GUIPlayer.Attachment<Collection<Ac
 
     @Override
     public Collection<Accessory> getDynamicConfiguration(UUID uuid) {
-        if (Minecraft.getInstance().level != null) {
-            Player player = Minecraft.getInstance().level.getPlayerByUUID(uuid);
-            if (player != null) {
-                return Cosmetics.getCosmetics(player).map(Cosmetics::getAccessories).orElse(null);
-            }
-        }
+        Optional<Cosmetics> cosmetics = CosmeticaCapeProvider.getCosmetics(uuid);
 
-        // check if self
-        if (UUIDTypeAdapter.fromString(Minecraft.getInstance().getUser().getUuid()).equals(uuid)) {
-            return SelfCosmeticManager.getCosmetics().map(Cosmetics::getAccessories).orElse(null);
-        }
-
-        return null;
+        return cosmetics.map(Cosmetics::getAccessories).orElse(null);
     }
 
     /**

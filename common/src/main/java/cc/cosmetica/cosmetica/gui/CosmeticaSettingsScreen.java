@@ -33,6 +33,8 @@ import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
+import gg.cloaks.javaclient.api.UsersApi;
+import gg.cloaks.javaclient.model.CosmeticaUser;
 import gg.cloaks.javaclient.model.PlayerResponse;
 import gg.cloaks.javaclient.model.UpdateCloudSettingsDto;
 import net.minecraft.client.Minecraft;
@@ -138,7 +140,7 @@ public class CosmeticaSettingsScreen extends Screen {
             //TODO show a popup notice if updating settings fails or retry (have some model of latest in case multiple queue)?
             CosmeticaAPI.settings().requestAsync(api -> api.setCloud(dto))
                     .thenAcceptAsync(user -> {
-                        SelfCosmeticManager.update(new PlayerResponse().user(user).isUser(true));
+                        updateCosmeticsAndSettings(user);
                         Logging.getInstance().debug(CosmeticaLogCategory.SETTINGS, "Updated settings to /cloud");
                     }, Minecraft.getInstance())
                     .exceptionally(e -> {
@@ -149,6 +151,24 @@ public class CosmeticaSettingsScreen extends Screen {
     }
 
     public static final ResourceKey SETTINGS_SCREEN = new ResourceKey("cosmetica", "settings");
+
+    static void updateCosmeticsAndSettings(CosmeticaUser user) {
+        if (user.getExternalCape() == null && (user.getOutfit() == null || user.getOutfit().getElytra() == null || user.getOutfit().getCloak() == null)) {
+            CosmeticaSettings.updateSettings(user.getActiveSettings());
+            // refresh external capes
+            CosmeticaAPI.users().requestAsync(UsersApi::getSelf)
+                    .thenAcceptAsync(user_ -> {
+                        SelfCosmeticManager.update(new PlayerResponse().user(user_).isUser(true));
+                        Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Updated own external capes");
+                    }, Minecraft.getInstance())
+                    .exceptionally(ex -> {
+                        Logging.getInstance().error("Error fetching own cosmetics", ex);
+                        return null;
+                    });
+        } else {
+            SelfCosmeticManager.update(new PlayerResponse().user(user).isUser(true));
+        }
+    }
 
     private static class SettingBlock<T> extends Div {
         private SettingBlock(Setting<T> setting) {

@@ -49,6 +49,7 @@ public class CreateNewOutfitScreen extends Screen {
         boolean outfitPublic = this.outfitPublic.acquire(this);
         boolean disabled = this.disabled.acquire(this);
 
+        // TODO pop up if too many outfits
         return new Component[] {
                 new TextBox(Text.translatable("label.create_new_outfit.outfitName"), this.outfitName, true, 64)
                         .setDisabled(disabled),

@@ -155,7 +155,7 @@ public class BrowseScreen extends AbstractHomeScreen {
                                     // that exists as of this release of Cosmetica
                                     if (options.getMiddle()) {
                                         // cloak toggle
-                                        guiPlayer.configureOverride(GUIPlayer.CAPE, ((ImageCosmetic) downloaded).getImage().location);
+                                        guiPlayer.configureOverride(GUIPlayer.CAPE, new GUIPlayer.CapeProperties(((ImageCosmetic) downloaded).getImage().location));
                                     }
                                     if (options.getRight()) {
                                         // elytra toggle

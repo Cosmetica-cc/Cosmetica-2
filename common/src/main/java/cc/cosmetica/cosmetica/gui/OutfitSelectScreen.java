@@ -78,7 +78,7 @@ public class OutfitSelectScreen extends Component implements AnimatedTextureScre
         return Arrays.asList(
                 new Div(
                         new Label(this.title),
-                        new OutfitCount(this.outfitLimit)
+                        new OutfitCount(outfitLimit)
                 ).tag("title"),
                 new Div(
                         new EntryList.Grid(
@@ -91,7 +91,15 @@ public class OutfitSelectScreen extends Component implements AnimatedTextureScre
                                 .set(EntryList.Grid.COLUMN_GAP, 2)
                                 .set(EntryList.Grid.ROW_GAP, 2)
                                 .set(BACKGROUND_COLOUR, OptionalInt.empty())),
-                        new Button(Text.translatable("label.cosmetica.newOutfit"), ()->Screens.setScreen(CreateNewOutfitScreen.ID)),
+                        new Button(Text.translatable("label.cosmetica.newOutfit"), ()->Screens.setScreen(CreateNewOutfitScreen.ID)) {
+                            @Override
+                            public List<Component> build() {
+                                int limit = outfitLimit.acquire(this);
+                                int count = Cosmetica.OWN_OUTFITS.extract(this, List::size);
+                                setDisabled(count >= limit);
+                                return super.build();
+                            }
+                        },
                         new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
                 ).tag("body")
         );
