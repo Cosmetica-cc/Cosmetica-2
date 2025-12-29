@@ -28,6 +28,7 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
+import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.api.PremiumApi;
 import gg.cloaks.javaclient.model.PlanRestrictions;
 import net.minecraft.client.Minecraft;
@@ -85,6 +86,7 @@ public class OutfitSelectScreen extends Component implements AnimatedTextureScre
                                 components,
                                 grid -> Cosmetica.SELECTED_OUTFIT_ID.extract(grid, id -> find(components, id.orElse("")))
                         ).withStyle(Style.create()
+                                .set(MARGINS, fixed(new Margins(3, 0, 0, 0)))
                                 .set(WIDTH, screen(75, 0))
                                 .set(MIN_WIDTH, screen(75, 0))
                                 .set(MIN_HEIGHT, screen(0, 60))
@@ -95,9 +97,25 @@ public class OutfitSelectScreen extends Component implements AnimatedTextureScre
                             @Override
                             public List<Component> build() {
                                 int limit = outfitLimit.acquire(this);
-                                int count = Cosmetica.OWN_OUTFITS.extract(this, List::size);
+                                int count = options.size();
                                 setDisabled(count >= limit);
-                                return super.build();
+                                return ImmutableList.of();
+                            }
+                        },
+                        new Button(Text.translatable("label.cosmetica.clearOutfit"), OutfitWheelScreen::clearOutfit) {
+                            @Override
+                            public List<Component> build() {
+                                boolean equippedOutfit = Cosmetica.SELECTED_OUTFIT_ID.extract(this, id -> id.isPresent());
+                                setDisabled(!equippedOutfit);
+                                return ImmutableList.of();
+                            }
+
+                            @Override
+                            public void mouseClicked(Element target, double x, double y, int button) {
+                                super.mouseClicked(target, x, y, button);
+                                if (target.getComponent() == this) {
+                                    setDisabled(true);
+                                }
                             }
                         },
                         new Button(Text.GUI_DONE, Screens::closeCurrentScreen)

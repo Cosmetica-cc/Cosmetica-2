@@ -409,19 +409,7 @@ public class OutfitWheelScreen extends Screen {
                 }
             } else if (selectedButton == 8) {
                 GuiUtils.playClick();
-                
-                if (Cosmetica.SELECTED_OUTFIT_ID.peek().isPresent()) {
-                    // Equip nothing
-                    CosmeticaAPI.outfits().requestAsync(OutfitsApi::unequip)
-                            .thenAcceptAsync(user -> {
-                                SelfCosmeticManager.clear();
-                                Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Unequipped Outfit successfully");
-                            }, Minecraft.getInstance())
-                            .exceptionally(e -> {
-                                new RuntimeException("Outfits Controller Unequip", e).printStackTrace();
-                                return null;
-                            });
-                }
+                clearOutfit();
             }
 
             return true;
@@ -545,6 +533,21 @@ public class OutfitWheelScreen extends Screen {
             .addSection(2 * Math.PI * (1.0/6.0), 3)
             .addSection(2 * Math.PI * (2.0/6.0), 4)
             .addSection(2 * Math.PI * (3.0/6.0), 5);
+
+    static void clearOutfit() {
+        if (Cosmetica.SELECTED_OUTFIT_ID.peek().isPresent()) {
+            // Equip nothing
+            CosmeticaAPI.outfits().requestAsync(OutfitsApi::unequip)
+                    .thenAcceptAsync(user -> {
+                        SelfCosmeticManager.clear();
+                        Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Unequipped Outfit successfully");
+                    }, Minecraft.getInstance())
+                    .exceptionally(e -> {
+                        new RuntimeException("Outfits Controller Unequip", e).printStackTrace();
+                        return null;
+                    });
+        }
+    }
 
     /**
      * Check if the given key for the key mapping is down. This is preferred over .isDown() due to isDown only working is this.minecraft.screen == null.

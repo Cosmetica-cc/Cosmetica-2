@@ -47,6 +47,7 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -69,7 +70,7 @@ public class Cosmetica {
 	// to show visual updates faster than the C->S->C ping time.
 	// These are prefixed with SELECTED_ to highlight this.
 	public static final State<Optional<String>> SELECTED_OUTFIT_ID = new State<>(Optional.empty());
-	public static final State<ImageCosmetic> SELECTED_ICON = new State<>(NametagConfig.NO_ICON);
+	public static final State<@NotNull ImageCosmetic> SELECTED_ICON = new State<>(NametagConfig.NO_ICON);
 	public static final State<Lore> SELECTED_LORE = new State<>(Lore.none(UpdateLoreDto.ColorEnum.WHITE));
 
 	/**
@@ -146,6 +147,8 @@ public class Cosmetica {
 					Logging.getInstance().debug(CosmeticaLogCategory.EVENTS, "Own cosmetics cleared");
 					Minecraft.getInstance().execute(() -> {
 						OWN_COSMETICS.set(null);
+						SELECTED_OUTFIT_ID.set(Optional.empty());
+						SELECTED_ICON.set(NametagConfig.NO_ICON);
 					});
 				} else {
 					Logging.getInstance().debug(CosmeticaLogCategory.EVENTS, "Received own outfit update");
@@ -155,7 +158,7 @@ public class Cosmetica {
 //						OWN_CONNECTIONS.set(connections); (no data)
 						// can be updated by screens too.
 						SELECTED_OUTFIT_ID.set(cosmetics.getOutfitId());
-						SELECTED_ICON.set(cosmetics.getNametag().getIcon());
+						SELECTED_ICON.set(cosmetics.getNametag().getIcon()); // outfit doesn't control icon, but enough data should be present
 //						SELECTED_LORE.set(userLore); (outfit doesn't control lore)
 					});
 				}
