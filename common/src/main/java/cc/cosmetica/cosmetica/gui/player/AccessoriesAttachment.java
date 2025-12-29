@@ -21,8 +21,10 @@ import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.core.mixin.PlayerModelAccessor;
+import cc.cosmetica.cosmetica.gui.AbstractHomeScreen;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
+import cc.cosmetica.kupe.impl.KupeScreen;
 import com.mojang.math.Quaternion;
 import com.mojang.util.UUIDTypeAdapter;
 import net.minecraft.client.Minecraft;
@@ -33,6 +35,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.UUID;
 
 public class AccessoriesAttachment implements GUIPlayer.Attachment<Collection<Accessory>> {
@@ -40,8 +43,26 @@ public class AccessoriesAttachment implements GUIPlayer.Attachment<Collection<Ac
     }
 
     @Override
-    public void render(PlayerModel playerModel, GUIPlayer.Posture posture, Canvas canvas, Collection<Accessory> configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
+    public void render(GUIPlayer component, PlayerModel playerModel, GUIPlayer.Posture posture, Canvas canvas, Collection<Accessory> configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
+        boolean elytra = false;
+        for (Iterator<GUIPlayer.Attachment<?>> attachments = component.getRenderingAttachments();
+             attachments.hasNext(); ) {
+            if (attachments.next() == GUIPlayer.ELYTRA) {
+                elytra = true;
+                break;
+            }
+        }
+
         for (Accessory accessory : configuration) {
+            if (Minecraft.getInstance().screen instanceof KupeScreen) {
+                if (component.getConfiguration(GUIPlayer.CAPE) != null && accessory.getFlags().contains(Accessory.Flag.HIDE_WITH_CLOAK)) {
+                    continue;
+                }
+                if (elytra && accessory.getFlags().contains(Accessory.Flag.HIDE_WITH_ELYTRA)) {
+                    continue;
+                }
+            }
+
             ModelPart part = null;
 
             // additional shifting for slim/thick arms

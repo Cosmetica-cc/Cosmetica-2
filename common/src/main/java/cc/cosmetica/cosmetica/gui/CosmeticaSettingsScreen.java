@@ -17,6 +17,7 @@
 package cc.cosmetica.cosmetica.gui;
 
 import cc.cosmetica.core.api.CosmeticaAPI;
+import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
 import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
@@ -32,6 +33,7 @@ import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
+import gg.cloaks.javaclient.model.PlayerResponse;
 import gg.cloaks.javaclient.model.UpdateCloudSettingsDto;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
@@ -136,7 +138,7 @@ public class CosmeticaSettingsScreen extends Screen {
             //TODO show a popup notice if updating settings fails or retry (have some model of latest in case multiple queue)?
             CosmeticaAPI.settings().requestAsync(api -> api.setCloud(dto))
                     .thenAcceptAsync(user -> {
-                        CosmeticaSettings.updateSettings(user.getActiveSettings());
+                        SelfCosmeticManager.update(new PlayerResponse().user(user).isUser(true));
                         Logging.getInstance().debug(CosmeticaLogCategory.SETTINGS, "Updated settings to /cloud");
                     }, Minecraft.getInstance())
                     .exceptionally(e -> {
