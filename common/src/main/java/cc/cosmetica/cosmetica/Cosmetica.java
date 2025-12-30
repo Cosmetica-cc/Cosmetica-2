@@ -51,6 +51,9 @@ import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -73,6 +76,9 @@ public class Cosmetica {
 	public static final State<Optional<String>> SELECTED_OUTFIT_ID = new State<>(Optional.empty());
 	public static final State<@NotNull ImageCosmetic> SELECTED_ICON = new State<>(NametagConfig.NO_ICON);
 	public static final State<Lore> SELECTED_LORE = new State<>(Lore.none(UpdateLoreDto.ColorEnum.WHITE));
+//
+//	public static final BufferedImage cosmetica$debugimage;
+
 
 	/**
 	 * Cosmetic manager for when the user is offline.
