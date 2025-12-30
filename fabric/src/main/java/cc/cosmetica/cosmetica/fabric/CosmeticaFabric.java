@@ -16,31 +16,12 @@
 
 package cc.cosmetica.cosmetica.fabric;
 
-import cc.cosmetica.com.fasterxml.jackson.databind.ObjectMapper;
-import cc.cosmetica.cosmetica.CacheCosmeticManager;
 import cc.cosmetica.cosmetica.Cosmetica;
-import gg.cloaks.javaclient.model.CosmeticaUser;
 import net.fabricmc.api.ClientModInitializer;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-public class CosmeticaFabric implements ClientModInitializer, CacheCosmeticManager.UserIO {
+public class CosmeticaFabric implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
-		Cosmetica.init(this);
-	}
-
-	@Override
-	public CosmeticaUser read(InputStream is) throws IOException {
-		ObjectMapper mapper = new ObjectMapper();
-		return mapper.readValue(is, CosmeticaUser.class);
-	}
-
-	@Override
-	public void write(CosmeticaUser user, OutputStream os) throws IOException {
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.writeValue(os, user);
+		Cosmetica.init();
 	}
 }

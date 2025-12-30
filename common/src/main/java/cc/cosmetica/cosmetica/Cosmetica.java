@@ -20,6 +20,7 @@ import cc.cosmetica.core.CosmeticaCoreExpectPlatform;
 import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.api.texture.CosmeticaTexture;
 import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
+import cc.cosmetica.core.impl.BlockModelManager;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.core.impl.UUIDs;
 import cc.cosmetica.cosmetica.gui.*;
@@ -80,7 +81,7 @@ public class Cosmetica {
 
 	public static CacheCosmeticManager getCacheCosmeticManager() { return cacheCosmeticManager; }
 
-	public static void init(CacheCosmeticManager.UserIO userIO) {
+	public static void init() {
 		Screens.setAllowDebug(true);
 
 		// Load config (must be done before auth!)
@@ -99,14 +100,14 @@ public class Cosmetica {
 		GUIPlayer.addCapeProvider(new CosmeticaCapeProvider());
 
 		// Set up offline cosmetics cache
-		Path cosmeticaConfigDir = CosmeticaCoreExpectPlatform.getConfigDirectory().resolve("cosmetica");
-		Path cosmeticCacheDir = cosmeticaConfigDir.resolve("offlineCache");
+		Path cosmeticCacheDir = BlockModelManager.getCacheFile(new ResourceKey("cosmetica", "a").toResourceLocation(), null)
+				.getParent().getParent().resolve("offlineCache");
 		try {
 			Files.createDirectories(cosmeticCacheDir);
 		} catch (IOException e) {
 			Logging.getInstance().error("Unable to create Cosmetica config directory", e);
 		}
-		cacheCosmeticManager = new CacheCosmeticManager(cosmeticCacheDir, userIO);
+		cacheCosmeticManager = new CacheCosmeticManager(cosmeticCacheDir);
 		CosmeticManagers.registerCosmeticManager(10, cacheCosmeticManager);
 
 		// register gui accessory attachment
