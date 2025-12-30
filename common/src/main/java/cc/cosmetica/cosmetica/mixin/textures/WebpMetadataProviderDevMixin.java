@@ -46,7 +46,7 @@ public class WebpMetadataProviderDevMixin implements FrameMetadataHolder {
                     ))
                     .collect(Collectors.toList());
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            Logging.getInstance().error("Error reading webp frame metadata (Dev)", e);
+            Logging.getInstance().error("Error reading webp frame metadata (Dev/Fabric Prod)", e);
             return ImmutableList.of();
         }
     }

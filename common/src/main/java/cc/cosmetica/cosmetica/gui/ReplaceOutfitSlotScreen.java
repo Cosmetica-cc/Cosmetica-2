@@ -151,7 +151,8 @@ public class ReplaceOutfitSlotScreen extends Component implements AnimatedTextur
 
                                 if (oldOutfit.option == null) {
                                     CosmeticaAPI.outfits().requestAsync(api -> api.copy(this.newOutfit.toString(), dto))
-                                            .thenAcceptAsync(outfit1 -> Minecraft.getInstance().setScreen(null), Minecraft.getInstance())
+                                            .thenAcceptAsync(outfit1 -> Minecraft.getInstance().setScreen(null),
+                                                    Minecraft.getInstance())
                                             .exceptionally(mainThreadExcept(err -> {
                                                 Logging.getInstance().error("Error stealing look (new)", err);
                                                 this.setting.set(false);

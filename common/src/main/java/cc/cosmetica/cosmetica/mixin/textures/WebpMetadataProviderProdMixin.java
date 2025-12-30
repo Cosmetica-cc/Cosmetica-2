@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Production forge target shadows rather than JIJ on old versions.
+ */
 @Mixin(targets = "cc.cosmetica.include.twelvemonkeys.imageio.plugins.webp.WebPImageReader", remap = false)
 @Pseudo
 public class WebpMetadataProviderProdMixin implements FrameMetadataHolder {
@@ -46,7 +49,7 @@ public class WebpMetadataProviderProdMixin implements FrameMetadataHolder {
                     ))
                     .collect(Collectors.toList());
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            Logging.getInstance().error("Error reading webp frame metadata (Prod)", e);
+            Logging.getInstance().error("Error reading webp frame metadata (Forge Prod)", e);
             return ImmutableList.of();
         }
     }

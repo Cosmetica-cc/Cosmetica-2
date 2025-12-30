@@ -139,6 +139,7 @@
   "tooltip.cosmetica.outfitAlreadySelected": "Already wearing this outfit!",
   "tooltip.cosmetica.offline": "This feature is unavailable because you are offline",
   "tooltip.cosmetica.outdated": "Unknown Cosmetic Type. Please update your Cosmetica version!",
+  "tooltip.cosmetica.reloadCosmetics": "Reload All Cosmetics",
   "tooltip.cosmetica.updatingOutfit": "Updating Outfit...",
   "tooltip.cosmetica.updatingSettings": "Updating Settings..."
 }

@@ -42,10 +42,8 @@ import cc.cosmetica.kupe.api.maths.Axis2D;
 import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.api.IconsApi;
 import gg.cloaks.javaclient.api.LoreApi;
-import gg.cloaks.javaclient.model.Icon;
-import gg.cloaks.javaclient.model.LoreOptions;
-import gg.cloaks.javaclient.model.PlayerResponse;
-import gg.cloaks.javaclient.model.UpdateLoreDto;
+import gg.cloaks.javaclient.api.UsersApi;
+import gg.cloaks.javaclient.model.*;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -138,6 +136,22 @@ public class StyleNametagScreen extends Screen implements AnimatedTextureScreen 
             Lore selectedLore = Cosmetica.SELECTED_LORE.peek();
 
             CosmeticaAPI.lore().requestAsync(this.updateLoreFunction(selectedLore))
+                    .thenAcceptAsync(object -> {
+                        // presumably external capes aren't refreshed on lore update
+                        if (object instanceof CosmeticaUser) {
+                            // same logic applies here
+                            SelfCosmeticManager.updateLoreAndIcon((CosmeticaUser) object);
+                        } else {
+                            CosmeticaAPI.users().requestAsync(UsersApi::getSelf)
+                                    .thenAcceptAsync(user -> {
+                                        SelfCosmeticManager.update(new PlayerResponse().isUser(true).user(user));
+                                    }, Minecraft.getInstance())
+                                    .exceptionally(ex -> {
+                                        Logging.getInstance().error("Failed to reload own cosmetics");
+                                        return null;
+                                    });
+                        }
+                    }, Minecraft.getInstance())
                     .exceptionally(e -> {
                         // Prevent race condition by resetting on the minecraft thread
                         Minecraft.getInstance().tell(() -> {
@@ -158,7 +172,7 @@ public class StyleNametagScreen extends Screen implements AnimatedTextureScreen 
             Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Updating Icon to {}", selectedIcon.getName());
             CosmeticaAPI.icons().requestAsync(api -> api.equip(selectedIcon.getId()))
                     .thenAcceptAsync(user -> {
-                        SelfCosmeticManager.update(new PlayerResponse().user(user).isUser(true));
+                        SelfCosmeticManager.updateLoreAndIcon(user);
                         Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Equipped icon " + selectedIcon.getId());
                     }, Minecraft.getInstance())
                     .exceptionally(e -> {
