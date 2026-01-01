@@ -56,6 +56,9 @@ public class ClickableImage extends Image {
     @Override
     public void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
         if (this.disabled) {
+            canvas.setTransparency(1.0f);
+            canvas.setTexture(this.texture);
+
             PolyBuilder builder = canvas.drawQuads(PolyBuilder.Mode.POSITION_COLOUR_TEXTURE);
 
             // anticlockwise
