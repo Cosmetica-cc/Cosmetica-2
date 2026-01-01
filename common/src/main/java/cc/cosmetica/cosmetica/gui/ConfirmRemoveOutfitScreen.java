@@ -27,6 +27,8 @@ import cc.cosmetica.kupe.api.gui.Tooltip;
 import gg.cloaks.javaclient.ApiException;
 import net.minecraft.client.Minecraft;
 
+import java.util.concurrent.CompletionException;
+
 public final class ConfirmRemoveOutfitScreen extends AbstractConfirmScreen {
     public ConfirmRemoveOutfitScreen(String outfitId, String outfitName) {
         super(Text.translatable("screens.cosmetica.confirmDeletion"));
@@ -62,6 +64,10 @@ public final class ConfirmRemoveOutfitScreen extends AbstractConfirmScreen {
                     Screens.closeCurrentScreen();
                 }, Minecraft.getInstance())
                 .exceptionally(err -> {
+                    if (err instanceof CompletionException) {
+                        err = err.getCause();
+                    }
+
                     if (err instanceof ApiException) {
                         int code = ((ApiException) err).getCode();
                         // outfit doesn't exist
@@ -75,6 +81,8 @@ public final class ConfirmRemoveOutfitScreen extends AbstractConfirmScreen {
                             Logging.getInstance().error("Error deleting outfit", code);
                             Minecraft.getInstance().execute(() -> setting.set(false));
                         }
+                    } else {
+                        Logging.getInstance().error("Failed to remove outfit", err);
                     }
                     return null;
                 });
