@@ -596,7 +596,7 @@ public class OutfitWheelScreen extends Screen {
             this.name = outfit.getName();
             this.thumbnail = outfit.getThumbnail() == null ? CosmeticEntry.NO_THUMBNAIL :
                     ThumbnailCache.getOrCreateImage(
-                            new CosmeticaTexture.Builder(outfit.getThumbnail(), Cosmetica.LOADING_TEXTURE)
+                            new CosmeticaTexture.Builder(outfit.getThumbnail() + "?width=276", Cosmetica.LOADING_TEXTURE)
                                 .frames(8, 1)
                                 .ignoreTilesheet(true)
                                 .failToLoadTexture(Cosmetica.FALLBACK_TEXTURE)

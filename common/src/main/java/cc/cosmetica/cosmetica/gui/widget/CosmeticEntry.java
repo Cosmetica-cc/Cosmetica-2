@@ -475,7 +475,7 @@ public class CosmeticEntry extends Component {
 			return NO_THUMBNAIL;
 		} else {
 			return ThumbnailCache.getOrCreateImage(
-					new CosmeticaTexture.Builder(thumbnail, Cosmetica.LOADING_TEXTURE)
+					new CosmeticaTexture.Builder(thumbnail + "?width=136", Cosmetica.LOADING_TEXTURE)
 							.frames(8, ticksPerFrame)
 							.ignoreTilesheet(true)
 							.failToLoadTexture(Cosmetica.FALLBACK_TEXTURE)

@@ -314,7 +314,7 @@ public class LoreSelector extends Div {
             this.username = Text.literal(connection.getUsername());
             this.serviceName = Text.literal("§7" + connection.getServiceName());
             this.texture = ThumbnailCache.getOrCreateImage( // should still be ok to store by connection id as if a regular thumb
-                    new CosmeticaTexture.Builder(System.getProperty("cosmetica.website", "https://cosmetica.cc") + "/connections/" + connection.getServiceId() + ".webp", Cosmetica.LOADING_TEXTURE)
+                    new CosmeticaTexture.Builder(connection.getIconUrl(), Cosmetica.LOADING_TEXTURE)
                             .failToLoadTexture(Cosmetica.FALLBACK_TEXTURE), false);
         }
 
