@@ -87,7 +87,7 @@ public class Cosmetica {
 
 	public static CacheCosmeticManager getCacheCosmeticManager() { return cacheCosmeticManager; }
 
-	public static void init() {
+	public static void init(CacheCosmeticManager.UserIO userIO) {
 		Screens.setAllowDebug(true);
 
 		// Load config (must be done before auth!)
@@ -113,7 +113,7 @@ public class Cosmetica {
 		} catch (IOException e) {
 			Logging.getInstance().error("Unable to create Cosmetica config directory", e);
 		}
-		cacheCosmeticManager = new CacheCosmeticManager(cosmeticCacheDir);
+		cacheCosmeticManager = new CacheCosmeticManager(cosmeticCacheDir, userIO);
 		CosmeticManagers.registerCosmeticManager(10, cacheCosmeticManager);
 
 		// register gui accessory attachment

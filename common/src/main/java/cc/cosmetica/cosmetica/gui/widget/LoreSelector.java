@@ -339,10 +339,11 @@ public class LoreSelector extends Div {
                     .component(Image.class, Style.create()
                             .set(WIDTH, fixedSize(24))
                             .set(HEIGHT, fixedSize(24))
-                            .set(PADDING, fixed(new Margins(3, 0)))
+                            .set(MARGINS, fixed(new Margins(3, 5, 3, 0)))
                     )
                     .self(Style.create()
                             .set(PADDING, fixed(new Margins(3)))
+                            .set(Label.ALIGN_TEXT, Align.START)
                             .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X));
         }
 

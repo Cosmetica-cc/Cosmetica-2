@@ -24,9 +24,6 @@ import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
 import cc.cosmetica.core.impl.BlockModelManager;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import gg.cloaks.javaclient.model.Icon;
 import gg.cloaks.javaclient.model.*;
 import net.minecraft.client.Minecraft;
@@ -55,18 +52,15 @@ import java.util.concurrent.Executors;
 import static cc.cosmetica.core.api.NametagConfig.NO_ICON;
 
 public class CacheCosmeticManager implements CosmeticManager {
-    public CacheCosmeticManager(Path directory) {
+    public CacheCosmeticManager(Path directory, UserIO userIO) {
         this.directory = directory;
         this.outfitCache = directory.resolve("outfit.json");
-        this.mapper = JsonMapper.builder()
-                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
-                .build();
-        this.mapper.findAndRegisterModules();
+        this.userIO = userIO;
         this.load();
     }
 
     private final Path directory, outfitCache;
-    private final ObjectMapper mapper;
+    private final UserIO userIO;
     private final ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(r);
         t.setName("Cache Cosmetic Manager");
@@ -89,7 +83,7 @@ public class CacheCosmeticManager implements CosmeticManager {
             try (InputStream is = new BufferedInputStream(Files.newInputStream(this.outfitCache))) {
                 Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "Reading offline cache outfit json");
 
-                CosmeticaUser user = this.mapper.readValue(is, CosmeticaUser.class);
+                CosmeticaUser user = this.userIO.read(is);
 
                 Minecraft.getInstance().execute(() -> {
                     Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "Transforming offline outfit json to outfit");
@@ -211,7 +205,7 @@ public class CacheCosmeticManager implements CosmeticManager {
                 user.setUuid(response.getUuid());
                 user.setOutfit(response.getOutfit());
 
-                mapper.writeValue(os, user);
+                this.userIO.write(user, os);
                 Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "Cached player cosmetics");
             } catch (IOException e) {
                 Logging.getInstance().error("Failed to cache player cosmetics", e);

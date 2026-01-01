@@ -16,12 +16,40 @@
 
 package cc.cosmetica.cosmetica.fabric;
 
+import cc.cosmetica.com.fasterxml.jackson.databind.MapperFeature;
+import cc.cosmetica.com.fasterxml.jackson.databind.ObjectMapper;
+import cc.cosmetica.com.fasterxml.jackson.databind.json.JsonMapper;
+import cc.cosmetica.cosmetica.CacheCosmeticManager;
 import cc.cosmetica.cosmetica.Cosmetica;
+import gg.cloaks.javaclient.model.CosmeticaUser;
 import net.fabricmc.api.ClientModInitializer;
 
-public class CosmeticaFabric implements ClientModInitializer {
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+public class CosmeticaFabric implements ClientModInitializer, CacheCosmeticManager.UserIO {
+	public CosmeticaFabric() {
+		this.mapper = JsonMapper.builder()
+				.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+				.build();
+		this.mapper.findAndRegisterModules();
+	}
+
+	private final ObjectMapper mapper;
+
 	@Override
 	public void onInitializeClient() {
-		Cosmetica.init();
+		Cosmetica.init(this);
+	}
+
+	@Override
+	public CosmeticaUser read(InputStream is) throws IOException {
+		return this.mapper.readValue(is, CosmeticaUser.class);
+	}
+
+	@Override
+	public void write(CosmeticaUser user, OutputStream os) throws IOException {
+		this.mapper.writeValue(os, user);
 	}
 }

@@ -16,18 +16,43 @@
 
 package cc.cosmetica.cosmetica.forge;
 
+import cc.cosmetica.com.fasterxml.jackson.databind.MapperFeature;
+import cc.cosmetica.com.fasterxml.jackson.databind.ObjectMapper;
+import cc.cosmetica.com.fasterxml.jackson.databind.json.JsonMapper;
+import cc.cosmetica.cosmetica.CacheCosmeticManager;
 import cc.cosmetica.cosmetica.Cosmetica;
+import gg.cloaks.javaclient.model.CosmeticaUser;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 @Mod("cosmetica")
-public class CosmeticaForge {
+public class CosmeticaForge implements CacheCosmeticManager.UserIO {
 	public CosmeticaForge() {
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onClientSetup);
+		this.mapper = JsonMapper.builder()
+				.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+				.build();
+		this.mapper.findAndRegisterModules();
 	}
 
+	private final ObjectMapper mapper;
+
 	private void onClientSetup(FMLClientSetupEvent event) {
-		Cosmetica.init();
+		Cosmetica.init(this);
+	}
+
+	@Override
+	public CosmeticaUser read(InputStream is) throws IOException {
+		return this.mapper.readValue(is, CosmeticaUser.class);
+	}
+
+	@Override
+	public void write(CosmeticaUser user, OutputStream os) throws IOException {
+		this.mapper.writeValue(os, user);
 	}
 }
