@@ -146,11 +146,6 @@ public final class CosmeticaSettings {
         }
     };
 
-    public static void clearSettings() {
-        DISPLAY_SETTINGS.set(CLIENT_SETTINGS);
-        externalCapeSettings.set(ImmutableList.of());
-    }
-
     private static boolean loadedLocal = false;
 
     /**
@@ -339,10 +334,22 @@ public final class CosmeticaSettings {
         return null;
     }
 
+    public static void clearSettings() {
+        Logging.getInstance().debug(CosmeticaLogCategory.SETTINGS, "Clearing loaded settings...");
+        DISPLAY_SETTINGS.set(CLIENT_SETTINGS);
+        externalCapeSettings.set(ImmutableList.of());
+    }
+
     public static void updateSettings(@Nullable Settings settings) {
         if (settings == null) {
             clearSettings();
         } else {
+            Logging.getInstance().debug(CosmeticaLogCategory.SETTINGS, "Updating loaded settings for type " + settings.getType());
+//            StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+//            for (StackTraceElement element : stackTrace) {
+//                System.out.println(element);
+//            }
+
             // Update setting values
             SHOW_LORE.apiUpdate(settings.isShowLore(), settings.getType());
             SHOW_ACCESSORIES.apiUpdate(settings.isShowAccessories(), settings.getType());
@@ -354,6 +361,7 @@ public final class CosmeticaSettings {
             DISABLE_RSE_PROMPT.apiUpdate(settings.isDisableRegionalEffectsPrompt(), settings.getType());
             VISIBILITY_OVERRIDES.apiUpdate(settings.isAllowVisibilityOptionOverrides(), settings.getType());
 
+            USE_CLOUD_SETTINGS.setSuperHidden(MODPACK_ID.peek() != null && settings.getClientName() != null && settings.getClientName().equals(MODPACK_ID.peek()));
             // Create composite list
             List<Setting<?>> loggedInSettings = new ArrayList<>(CLIENT_SETTINGS);
             loggedInSettings.addAll(API_SETTINGS);

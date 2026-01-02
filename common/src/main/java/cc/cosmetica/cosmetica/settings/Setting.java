@@ -44,6 +44,7 @@ public abstract class Setting<T> {
     // ...
     private boolean modified;
     private boolean hidden;
+    private boolean superHidden;
 
     protected final State<T> actualValue;
 
@@ -52,11 +53,15 @@ public abstract class Setting<T> {
     }
 
     public final boolean isVisible() {
-        return !this.hidden;
+        return !this.hidden && !this.superHidden;
     }
 
     void setHidden(boolean hidden) {
         this.hidden = hidden;
+    }
+
+    void setSuperHidden(boolean hidden) {
+        this.superHidden = hidden;
     }
 
     public final T getUserValue() {

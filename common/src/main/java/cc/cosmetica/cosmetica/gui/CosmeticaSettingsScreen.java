@@ -69,6 +69,8 @@ public class CosmeticaSettingsScreen extends Screen {
                         new Div(settings).withStyle(
                                 Style.create()
                                         .set(MARGINS, fixed(new Margins(5, 0, 2, 0)))
+                                        .set(FLEX, 1)
+                                        .set(MIN_HEIGHT, fixedSize(0))
                                         .set(Div.SCROLLBAR_POSITION, AbstractScrollContainer.ScrollbarPosition.OUTSIDE)
                         ),
                         new MenuEndSelection()
@@ -206,7 +208,9 @@ public class CosmeticaSettingsScreen extends Screen {
             }
 
             return new Stylesheet()
-                    .tag("controller", Style.create().set(WIDTH, fixed(OptionalInt.of(100))))
+                    .tag("controller", Style.create()
+                            .set(FLEX_SHRINK, 0)
+                            .set(WIDTH, fixed(OptionalInt.of(100))))
                     .tag("setting-display", Style.create()
                             .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X)
                             .set(Div.JUSTIFY_CONTENT, Justify.SPACE_BETWEEN))
