@@ -86,7 +86,6 @@ public final class CosmeticaSettings {
                                             }
                                         } else { // was false (-> true)
                                             CosmeticaAPI.settings().requestAsync(api -> api.setCloud(new UpdateCloudSettingsDto()))
-                                                    .thenApply(CosmeticaUser::getActiveSettings)
                                                     .thenAcceptAsync(CosmeticaSettings::updateSettings, Minecraft.getInstance());
                                         }
                                     }
@@ -156,7 +155,6 @@ public final class CosmeticaSettings {
             Logging.getInstance().info( "Applying pack overrides...");
 
             CosmeticaAPI.settings().requestAsync(api -> api.setLocal(modpackSettings))
-                    .thenApply(CosmeticaUser::getActiveSettings)
                     .thenAcceptAsync(CosmeticaSettings::updateSettings, Minecraft.getInstance())
                     .exceptionally(ex -> {
                         Logging.getInstance().error("Failed to apply modpack settings", ex);
@@ -340,7 +338,9 @@ public final class CosmeticaSettings {
         externalCapeSettings.set(ImmutableList.of());
     }
 
-    public static void updateSettings(@Nullable Settings settings) {
+    public static void updateSettings(CosmeticaUser user) {
+        @Nullable Settings settings = user.getActiveSettings();
+
         if (settings == null) {
             clearSettings();
         } else {
@@ -361,7 +361,7 @@ public final class CosmeticaSettings {
             DISABLE_RSE_PROMPT.apiUpdate(settings.isDisableRegionalEffectsPrompt(), settings.getType());
             VISIBILITY_OVERRIDES.apiUpdate(settings.isAllowVisibilityOptionOverrides(), settings.getType());
 
-            USE_CLOUD_SETTINGS.setSuperHidden(MODPACK_ID.peek() != null && settings.getClientName() != null && settings.getClientName().equals(MODPACK_ID.peek()));
+            USE_CLOUD_SETTINGS.setSuperHidden(MODPACK_ID.peek() != null && user.getModpackId() != null && user.getModpackId().equals(MODPACK_ID.peek()));
             // Create composite list
             List<Setting<?>> loggedInSettings = new ArrayList<>(CLIENT_SETTINGS);
             loggedInSettings.addAll(API_SETTINGS);

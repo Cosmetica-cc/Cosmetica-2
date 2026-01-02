@@ -184,11 +184,11 @@ public class Cosmetica {
 
 				// update settings
 				if (data.getUser().getActiveSettings() != null) {
-					CosmeticaSettings.updateSettings(data.getUser().getActiveSettings());
+					CosmeticaSettings.updateSettings(data.getUser());
 				} else {
 					CosmeticaAPI.users().requestAsync(UsersApi::getSelf).thenAcceptAsync(user -> {
 						if (user.getActiveSettings() != null) {
-							CosmeticaSettings.updateSettings(user.getActiveSettings());
+							CosmeticaSettings.updateSettings(user);
 						}
 					}, Minecraft.getInstance());
 				}

@@ -156,7 +156,7 @@ public class CosmeticaSettingsScreen extends Screen {
 
     static void updateCosmeticsAndSettings(CosmeticaUser user) {
         if (user.getExternalCape() == null && (user.getOutfit() == null || user.getOutfit().getElytra() == null || user.getOutfit().getCloak() == null)) {
-            CosmeticaSettings.updateSettings(user.getActiveSettings());
+            CosmeticaSettings.updateSettings(user);
             // refresh external capes
             CosmeticaAPI.users().requestAsync(UsersApi::getSelf)
                     .thenAcceptAsync(user_ -> {
