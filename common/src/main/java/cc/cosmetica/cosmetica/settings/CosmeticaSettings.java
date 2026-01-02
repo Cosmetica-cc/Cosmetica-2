@@ -361,7 +361,12 @@ public final class CosmeticaSettings {
             DISABLE_RSE_PROMPT.apiUpdate(settings.isDisableRegionalEffectsPrompt(), settings.getType());
             VISIBILITY_OVERRIDES.apiUpdate(settings.isAllowVisibilityOptionOverrides(), settings.getType());
 
-            USE_CLOUD_SETTINGS.setSuperHidden(MODPACK_ID.peek() != null && user.getModpackId() != null && user.getModpackId().equals(MODPACK_ID.peek()));
+            boolean differentModpackId = MODPACK_ID.peek() != null && user.getModpackId() != null && !user.getModpackId().equals(MODPACK_ID.peek());
+            USE_CLOUD_SETTINGS.setSuperHidden(differentModpackId);
+            if (!differentModpackId && MODPACK_ID.peek() != null && settings.getType() == Settings.TypeEnum.CLOUD) {
+                USE_CLOUD_SETTINGS.set(true);
+            }
+
             // Create composite list
             List<Setting<?>> loggedInSettings = new ArrayList<>(CLIENT_SETTINGS);
             loggedInSettings.addAll(API_SETTINGS);
