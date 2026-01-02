@@ -118,6 +118,7 @@ public final class CosmeticaSettings {
             .forceWhenOff(SHOW_SPECIAL_ICONS, false)
             .forceWhenOff(SHOW_OFFLINE_ICONS, false);
     public static final Setting<Boolean> SHOW_ONLINE_ACTIVITY = new BooleanSetting("setting.cosmetica.showOnlineActivity", true, true);
+    public static final Setting<Boolean> VISIBILITY_OVERRIDES = new BooleanSetting("setting.cosmetica.visibilityOverrides", true, true);
 
     public static final List<Setting<?>> CLIENT_SETTINGS = new ArrayList<>(Arrays.asList(TOGGLE_OUTFIT_WHEEL, USE_CLOUD_SETTINGS));
     public static final List<Setting<?>> API_SETTINGS = ImmutableList.of(
@@ -127,7 +128,8 @@ public final class CosmeticaSettings {
             SHOW_OFFLINE_ICONS,
             SHOW_SPECIAL_ICONS,
             USE_MODPACK_ICONS,
-            SHOW_ONLINE_ACTIVITY);
+            SHOW_ONLINE_ACTIVITY,
+            VISIBILITY_OVERRIDES);
 
     public static final State<List<Setting<?>>> DISPLAY_SETTINGS = new State<>(CLIENT_SETTINGS);
     private static @Nullable UpdateLocalSettingsDto modpackSettings;
@@ -226,7 +228,12 @@ public final class CosmeticaSettings {
     }
 
     private static void packManage(UpdateLocalSettingsDto dto, BiConsumer<UpdateLocalSettingsDto, Boolean> updater, JsonObject properties, String name) {
-        updater.accept(dto, properties.get(name).getAsBoolean());
+        if (properties.get(name) != null && properties.get(name) != JsonNull.INSTANCE) {
+            updater.accept(dto, properties.get(name).getAsBoolean());
+        } else {
+            Logging.getInstance().error("Missing boolean property \"" + name + "\" in modpack config! Defaulting to false.");
+            updater.accept(dto, false);
+        }
     }
 
     @Nullable
@@ -261,6 +268,7 @@ public final class CosmeticaSettings {
                 packManage(dto, UpdateLocalSettingsDto::setShowSpecialIcons,   properties, "show_special_icons");
                 packManage(dto, UpdateLocalSettingsDto::setUseModpackIcons,    properties, "use_modpack_icons");
                 packManage(dto, UpdateLocalSettingsDto::setShowOnlineActivity, properties, "show_online_activity");
+                packManage(dto, UpdateLocalSettingsDto::setAllowVisibilityOptionOverrides, properties, "visibility_overrides");
 
                 // update external capes
                 List<UpdateExternalCapeSettingDto> externalCapeUpdates = new ArrayList<>();
@@ -282,6 +290,8 @@ public final class CosmeticaSettings {
                 dto.setDisableRegionalEffectsPrompt(CosmeticaSettings.DISABLE_RSE_PROMPT.get());
 
                 return dto;
+            } else {
+                Logging.getInstance().info("apply_overrides is disabled. Skipping modpack settings");
             }
         } catch (NoSuchFileException noSuchFile) {
             Logging.getInstance().debug(CosmeticaLogCategory.SETTINGS, "Creating/Updating cosmetica pack settings template");
@@ -298,6 +308,7 @@ public final class CosmeticaSettings {
             defaults.addProperty("show_special_icons", SHOW_SPECIAL_ICONS.getUserValue());
             defaults.addProperty("use_modpack_icons", USE_MODPACK_ICONS.getUserValue());
             defaults.addProperty("show_online_activity", SHOW_ONLINE_ACTIVITY.getUserValue());
+            defaults.addProperty("visibility_overrides", VISIBILITY_OVERRIDES.getUserValue());
 
             JsonArray arr = new JsonArray();
             // defaults from website
@@ -341,6 +352,7 @@ public final class CosmeticaSettings {
             SHOW_ONLINE_ACTIVITY.apiUpdate(settings.isShowOnlineActivity(), settings.getType());
             USE_MODPACK_ICONS.apiUpdate(settings.isUseModpackIcons(), settings.getType());
             DISABLE_RSE_PROMPT.apiUpdate(settings.isDisableRegionalEffectsPrompt(), settings.getType());
+            VISIBILITY_OVERRIDES.apiUpdate(settings.isAllowVisibilityOptionOverrides(), settings.getType());
 
             // Create composite list
             List<Setting<?>> loggedInSettings = new ArrayList<>(CLIENT_SETTINGS);
