@@ -19,6 +19,7 @@ package cc.cosmetica.cosmetica.settings;
 import cc.cosmetica.core.CosmeticaCoreExpectPlatform;
 import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.impl.Logging;
+import cc.cosmetica.cosmetica.gui.CosmeticaSettingsScreen;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
@@ -40,6 +41,7 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.TOOLTIP;
@@ -145,6 +147,7 @@ public final class CosmeticaSettings {
         }
     };
 
+    public static final AtomicReference<Runnable> saveLocalSettingsIfNotOnSettingsScreen = new AtomicReference<>(CosmeticaSettingsScreen::saveLocalSettings);
     private static boolean loadedLocal = false;
 
     /**
@@ -365,6 +368,7 @@ public final class CosmeticaSettings {
             USE_CLOUD_SETTINGS.setSuperHidden(differentModpackId);
             if (!differentModpackId && MODPACK_ID.peek() != null && settings.getType() == Settings.TypeEnum.CLOUD) {
                 USE_CLOUD_SETTINGS.set(true);
+                saveLocalSettingsIfNotOnSettingsScreen.get().run();
             }
 
             // Create composite list

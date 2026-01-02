@@ -58,6 +58,8 @@ public class CosmeticaSettingsScreen extends Screen {
 
     @Override
     protected Component[] buildScreen() {
+        CosmeticaSettings.saveLocalSettingsIfNotOnSettingsScreen.set(() -> {});
+
         Component[] settings = this.settings.acquire(this).stream()
                 .filter(Setting::isVisible)
                 .map(SettingBlock::new)
@@ -96,11 +98,12 @@ public class CosmeticaSettingsScreen extends Screen {
 
     @Override
     public void unmount() {
-        this.updateLocalSettings();
+        saveLocalSettings();
+        CosmeticaSettings.saveLocalSettingsIfNotOnSettingsScreen.set(CosmeticaSettingsScreen::saveLocalSettings);
         this.updateCloudSettings();
     }
 
-    private void updateLocalSettings() {
+    public static void saveLocalSettings() {
         boolean modifiedLocal = CosmeticaSettings.CLIENT_SETTINGS.stream().anyMatch(Setting::isModified);
 
         if (modifiedLocal) {
