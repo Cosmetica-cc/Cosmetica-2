@@ -252,7 +252,7 @@ public final class CosmeticaSettings {
             MODPACK_ID.set(packId);
 
             // apply the settings
-            if (properties.get("apply_overrides").getAsBoolean()) {
+            if (properties.get("modpack_settings_enabled").getAsBoolean()) {
                 USE_CLOUD_SETTINGS.setHidden(false);
 
                 Logging.getInstance().info("Loading modpack overrides for pack {}", MODPACK_ID.peek());
@@ -291,7 +291,7 @@ public final class CosmeticaSettings {
 
                 return dto;
             } else {
-                Logging.getInstance().info("apply_overrides is disabled. Skipping modpack settings");
+                Logging.getInstance().info("modpack_settings_enabled=false. Skipping modpack settings");
             }
         } catch (NoSuchFileException noSuchFile) {
             Logging.getInstance().debug(CosmeticaLogCategory.SETTINGS, "Creating/Updating cosmetica pack settings template");
@@ -300,7 +300,7 @@ public final class CosmeticaSettings {
             // defaults
             defaults.addProperty("modpack_id", "my_modpack");
             defaults.addProperty("modpack_name", "My Modpack");
-            defaults.addProperty("apply_overrides", false);
+            defaults.addProperty("modpack_settings_enabled", false);
             defaults.addProperty("show_accessories", SHOW_ACCESSORIES.getUserValue());
             defaults.addProperty("show_lore", SHOW_LORE.getUserValue());
             defaults.addProperty("show_icons", SHOW_ICONS.getUserValue());
