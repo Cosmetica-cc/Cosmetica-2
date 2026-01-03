@@ -329,7 +329,7 @@ public class LoreSelector extends Div {
                     new Div(
                             new Label(this.username),
                             new Label(this.serviceName)
-                    )
+                    ).tag("label-column")
             );
         }
 
@@ -341,6 +341,8 @@ public class LoreSelector extends Div {
                             .set(HEIGHT, fixedSize(24))
                             .set(MARGINS, fixed(new Margins(3, 5, 3, 0)))
                     )
+                    .tag("label-column", Style.create()
+                            .set(ALIGN_ITEMS, Align.STRETCH_START))
                     .self(Style.create()
                             .set(PADDING, fixed(new Margins(3)))
                             .set(Label.ALIGN_TEXT, Align.START)
