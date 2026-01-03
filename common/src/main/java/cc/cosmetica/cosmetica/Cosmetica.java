@@ -111,7 +111,7 @@ public class Cosmetica {
 		try {
 			Files.createDirectories(cosmeticCacheDir);
 		} catch (IOException e) {
-			Logging.getInstance().error("Unable to create Cosmetica config directory", e);
+			Logging.getInstance().error("Unable to create Cosmetic cache directory", e);
 		}
 		cacheCosmeticManager = new CacheCosmeticManager(cosmeticCacheDir, userIO);
 		CosmeticManagers.registerCosmeticManager(10, cacheCosmeticManager);

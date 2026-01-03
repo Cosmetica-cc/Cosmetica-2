@@ -96,7 +96,7 @@ public class OutfitPlayer extends Component {
 					new Label(Text.literal(this.outfitName)),
 					new SlideToggle(
 							this.showingElytra,
-							Text.translatable("button.cosmetica.toggleCape"),
+							Text.translatable("button.cosmetica.toggleCloak"),
 							Text.translatable("button.cosmetica.toggleElytra")),
 					new Button(Text.translatable("button.cosmetica.changeOutfit"), () -> Screens.setScreen(OutfitSelectScreen.ID))
 							.setDisabled(!authenticated || disable)// hide tooltip if just disabled

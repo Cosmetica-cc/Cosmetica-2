@@ -27,13 +27,14 @@ public final class EquipUtil {
 
     public static CreateOutfitAccessoryDto dtoFromAccessory(Accessory accessory) {
         CreateOutfitAccessoryDto caod = new CreateOutfitAccessoryDto();
-        caod.id(accessory.getId());
-        caod.mirrored(accessory.isMirrored());
+        caod.setId(accessory.getId());
+        caod.setMirrored(accessory.isMirrored());
         caod.setOffset(Arrays.asList(
                 BigDecimal.valueOf(accessory.getOffset().x),
                 BigDecimal.valueOf(accessory.getOffset().y),
                 BigDecimal.valueOf(accessory.getOffset().z)
         ));
+        caod.setFlags(-1);
         return caod;
     }
 }

@@ -96,7 +96,7 @@ public class SnipeScreen extends Screen implements AnimatedTextureScreen {
                                     guiPlayer.withStyle(Style.create().set(WIDTH, screen(12, 0))),
                                 new SlideToggle(
                                         this.showingElytra,
-                                        Text.translatable("button.cosmetica.toggleCape"),
+                                        Text.translatable("button.cosmetica.toggleCloak"),
                                         Text.translatable("button.cosmetica.toggleElytra"))
                                         .withStyle(Style.create().set(MARGINS, fixed(new Margins(5,0,0,0))))
                         ).tag("main-section")

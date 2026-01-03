@@ -66,7 +66,7 @@ public class IconButton extends Button {
         // Button
         super.paint(canvas, region, mouseX, mouseY);
         // Image
-        canvas.setTransparency(1.0f);
+        canvas.setTransparency(this.disabled ? 0.8f : 1.0f);
         canvas.drawTexture(
                 region.getX(), region.getY(), region.getWidth(), region.getHeight(),
                 0, this.texture);

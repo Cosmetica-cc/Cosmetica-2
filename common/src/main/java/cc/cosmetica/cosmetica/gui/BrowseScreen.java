@@ -542,7 +542,8 @@ public class BrowseScreen extends AbstractHomeScreen {
                                                 BigDecimal.valueOf(ao.getXRange().clampMap(xOffset.peek())),
                                                 BigDecimal.valueOf(ao.getYRange().clampMap(yOffset.peek())),
                                                 BigDecimal.valueOf(ao.getZRange().clampMap(zOffset.peek()))
-                                        ));
+                                        ))
+                                        .flags(-1);
                                 accessoryDtos.add(newAccessoryDto);
 
                                 dto.setAccessories(accessoryDtos);
