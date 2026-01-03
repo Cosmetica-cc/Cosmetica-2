@@ -21,6 +21,7 @@ import cc.cosmetica.core.api.ImageCosmetic;
 import cc.cosmetica.core.api.NametagConfig;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
+import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.ResourceKey;
@@ -65,6 +66,8 @@ public class IconSelector extends Div {
 
         // refresh if modpack id changes
         Optional<String> management = Cosmetica.SELECTED_ICON.extract(this, ic -> ic instanceof cc.cosmetica.core.api.Icon ? ((cc.cosmetica.core.api.Icon)ic).getModpackId() : Optional.empty());
+        // icons disabled
+        boolean iconsDisabled = CosmeticaSettings.SHOW_ICONS.acquire(this);
 
         // add modpack icon
         if (management.isPresent()) {
@@ -75,7 +78,7 @@ public class IconSelector extends Div {
         }
 
         SelectableIcon[] icons = iconOptions.stream()
-                .map(icon -> new SelectableIcon(icon, management.isPresent()))
+                .map(icon -> new SelectableIcon(icon, management.isPresent(), iconsDisabled))
                 .toArray(SelectableIcon[]::new);
 
         // load selected state
@@ -144,13 +147,14 @@ public class IconSelector extends Div {
     }
 
     private class SelectableIcon extends Image {
-        public SelectableIcon(IconOption option, boolean managed) {
+        public SelectableIcon(IconOption option, boolean managed, boolean disabled) {
             super(new ResourceKey(option.cosmetic.getImage().location));
             this.cosmetic = option.cosmetic;
-            this.disabled = !option.unlocked || managed;
+            this.disabled = !option.unlocked || managed || disabled;
             this.tooltip = managed ? Text.translatable("tooltip.cosmetica.icon.managed")
+                    : disabled ? Text.translatable("tooltip.cosmetica.icon.disabled")
                     : !option.unlocked ? Text.translatable("tooltip.cosmetica.icon.notUnlocked") : null;
-            this.setTransparent(!option.unlocked ? 0.8f : 1);
+            this.setTransparent(!option.unlocked ? 0.6f : 1);
         }
 
         private final ImageCosmetic cosmetic;
