@@ -67,7 +67,7 @@ public class IconSelector extends Div {
         // refresh if modpack id changes
         Optional<String> management = Cosmetica.SELECTED_ICON.extract(this, ic -> ic instanceof cc.cosmetica.core.api.Icon ? ((cc.cosmetica.core.api.Icon)ic).getModpackId() : Optional.empty());
         // icons disabled
-        boolean iconsDisabled = CosmeticaSettings.SHOW_ICONS.acquire(this);
+        boolean iconsDisabled = !CosmeticaSettings.SHOW_ICONS.acquire(this);
 
         // add modpack icon
         if (management.isPresent()) {
@@ -154,7 +154,7 @@ public class IconSelector extends Div {
             this.tooltip = managed ? Text.translatable("tooltip.cosmetica.icon.managed")
                     : disabled ? Text.translatable("tooltip.cosmetica.icon.disabled")
                     : !option.unlocked ? Text.translatable("tooltip.cosmetica.icon.notUnlocked") : null;
-            this.setTransparent(!option.unlocked ? 0.6f : 1);
+            this.setTransparent((disabled || !option.unlocked) ? 0.6f : 1);
         }
 
         private final ImageCosmetic cosmetic;
