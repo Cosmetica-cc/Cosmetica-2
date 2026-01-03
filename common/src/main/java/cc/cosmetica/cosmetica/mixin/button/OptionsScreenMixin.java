@@ -43,16 +43,15 @@ public abstract class OptionsScreenMixin extends Screen {
 
 	@Inject(at=@At("RETURN"), method="init")
 	private void onInit(CallbackInfo info) {
-		for (GuiEventListener element: this.children) {
+		for (GuiEventListener element: this.children()) {
 			if (element instanceof AbstractWidget) {
 				Component message = ((AbstractWidget)element).getMessage();
 
 				if (message instanceof TranslatableComponent) {
 					if (((TranslatableComponent)message).getKey().equals("options.skinCustomisation")) {
-						this.children.remove(element);
-						this.buttons.remove((AbstractWidget) element);
+						this.removeWidget(element);
 
-						this.addButton(new Button(
+						this.addRenderableWidget(new Button(
 								this.width / 2 - 155, this.height / 6 + 48 - 6,
 								150, 20,
 								Text.translatable("button.cosmetica.home").toMinecraftComponent(),

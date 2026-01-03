@@ -176,7 +176,7 @@ public class OutfitWheelScreen extends Screen {
                 final float y1 = y + scale /2;
 
                 OutfitOption outfit = this.options.get(index);
-                Minecraft.getInstance().getTextureManager().bind(outfit.thumbnail.location);
+                canvas.setTexture(new ResourceKey(outfit.thumbnail.location));
 
                 canvas.setTransparency(currentOutfitIndex == index || !outfit.usable ? 0.5f : 0.8f);
 
@@ -195,7 +195,7 @@ public class OutfitWheelScreen extends Screen {
         final float x1 = (float) (centreX) + scale /3;
         final float y1 = (float) (centreY) + scale /3;
 
-        Minecraft.getInstance().getTextureManager().bind(NO_OUTFIT_LOCATION);
+        canvas.setTexture(new ResourceKey(NO_OUTFIT_LOCATION));
         canvas.setTransparency(0.8f);
 
         PolyBuilder builder = canvas.drawQuads(PolyBuilder.Mode.POSITION_TEXTURE);
