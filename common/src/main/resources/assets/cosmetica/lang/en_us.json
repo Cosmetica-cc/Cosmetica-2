@@ -117,6 +117,7 @@
   "tooltip.cosmetica.copiedURL": "Copied URL!",
   "tooltip.cosmetica.deletingOutfit": "Deleting Outfit...",
   "tooltip.cosmetica.equipping": "Equipping...",
+  "tooltip.cosmetica.icon.disabled": "You currently have icons disabled",
   "tooltip.cosmetica.icon.managed": "Your icon is currently being managed by modpack settings",
   "tooltip.cosmetica.icon.notUnlocked": "You haven't unlocked this icon",
   "tooltip.cosmetica.icons.accessory_head": "Head Accessory",

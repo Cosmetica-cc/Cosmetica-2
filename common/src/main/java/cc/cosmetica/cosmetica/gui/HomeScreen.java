@@ -96,7 +96,7 @@ public class HomeScreen extends AbstractHomeScreen {
 						.set(Label.ALIGN_TEXT, Align.CENTRE)
 						.set(MARGINS, fixed(new Margins(20, 0, 4, 0))))
 				.tag("not-logged-in-description", Style.create()
-						.set(HEIGHT, fixedSize(12 * 3))
+						.set(HEIGHT, fixedSize(12 * 5))
 						.set(Label.TEXT_COLOUR, 0xa0a0a0));
 	}
 
