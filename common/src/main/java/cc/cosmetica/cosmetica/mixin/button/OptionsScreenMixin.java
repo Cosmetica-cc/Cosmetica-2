@@ -26,7 +26,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.OptionsScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -47,8 +47,8 @@ public abstract class OptionsScreenMixin extends Screen {
 			if (element instanceof AbstractWidget) {
 				Component message = ((AbstractWidget)element).getMessage();
 
-				if (message instanceof TranslatableComponent) {
-					if (((TranslatableComponent)message).getKey().equals("options.skinCustomisation")) {
+				if (message.getContents() instanceof TranslatableContents tc) {
+					if (tc.getKey().equals("options.skinCustomisation")) {
 						this.removeWidget(element);
 
 						this.addRenderableWidget(new Button(
