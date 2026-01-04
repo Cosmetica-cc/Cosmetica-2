@@ -175,7 +175,7 @@ public class CacheCosmeticManager implements CosmeticManager {
                     this.cosmetics = new PlayerCosmetics(
                             cloak, elytra, accessories,
                             outfitName, outfitId,
-                            nametag, loreNametag
+                            nametag, loreNametag, user.isUpsideDown()
                     );
                 });
             } catch (NoSuchFileException e) {
