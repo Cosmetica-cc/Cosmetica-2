@@ -14,6 +14,10 @@ subprojects {
         silentMojangMappingsLicense()
     }
 
+    base {
+        archivesName = "$rootProject.archives_base_name-$project.name"
+    }
+
     repositories {
         maven { url 'https://maven.cloaks.gg/releases' }
         mavenLocal()
@@ -32,10 +36,6 @@ allprojects {
     apply plugin: "java"
     apply plugin: "architectury-plugin"
     apply plugin: "maven-publish"
-
-    base {
-        archivesName = rootProject.archives_base_name
-    }
 
     version = "${rootProject.mod_version}-${rootProject.minecraft_version}"
     group = rootProject.maven_group
