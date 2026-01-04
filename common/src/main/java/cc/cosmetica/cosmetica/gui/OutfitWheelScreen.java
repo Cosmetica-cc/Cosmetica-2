@@ -119,7 +119,6 @@ public class OutfitWheelScreen extends Screen {
         // Draw circles
         RenderSystem.enableBlend();
         RenderSystem.disableDepthTest();
-        RenderSystem.disableTexture();
         RenderSystem.defaultBlendFunc();
 
         int selectedButton = getSelectedButton(mouseX, mouseY, innerButtonSize, innerEdgeSize, outerEdgeSize);

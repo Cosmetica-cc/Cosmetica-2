@@ -189,7 +189,7 @@ public class ExternalCapesScreen extends Screen {
             );
         }
 
-        boolean useMinecraftText = !Minecraft.getInstance().getLanguageManager().getSelected().getCode().toLowerCase(Locale.ROOT).startsWith("en")
+        boolean useMinecraftText = !Minecraft.getInstance().getLanguageManager().getSelected().toLowerCase(Locale.ROOT).startsWith("en")
                 && "Enabled".equals(I18n.get("button.cosmetica.enabled"));
     }
 
@@ -376,7 +376,6 @@ public class ExternalCapesScreen extends Screen {
 
             // fixes a rendering bug
             RenderSystem.setShaderColor(1, 1, 1, 1);
-            RenderSystem.enableTexture();
         }
 
         // drag

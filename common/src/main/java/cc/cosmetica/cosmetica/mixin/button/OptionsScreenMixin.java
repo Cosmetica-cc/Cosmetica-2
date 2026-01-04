@@ -51,11 +51,12 @@ public abstract class OptionsScreenMixin extends Screen {
 					if (tc.getKey().equals("options.skinCustomisation")) {
 						this.removeWidget(element);
 
-						this.addRenderableWidget(new Button(
-								this.width / 2 - 155, this.height / 6 + 48 - 6,
-								150, 20,
-								Text.translatable("button.cosmetica.home").toMinecraftComponent(),
-								button -> Screens.setScreen(HomeScreen.ID)));
+						this.addRenderableWidget(
+								Button.builder(Text.translatable("button.cosmetica.home").toMinecraftComponent(), button -> Screens.setScreen(HomeScreen.ID))
+										.pos(this.width / 2 - 155, this.height / 6 + 48 - 6)
+										.size(150, 20)
+										.build()
+						);
 						return;
 					}
 				}

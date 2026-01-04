@@ -28,7 +28,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GameRenderer.class)
 public class GameRendererMixin {
-    @Shadow @Final private Minecraft minecraft;
+    @Shadow @Final
+    Minecraft minecraft;
 
     @Inject(at = @At("RETURN"), method = "pick")
     private void onPick(float yawProbably, CallbackInfo info) {

@@ -18,21 +18,17 @@ package cc.cosmetica.cosmetica.gui.player;
 
 import cc.cosmetica.core.api.Accessory;
 import cc.cosmetica.core.api.Cosmetics;
-import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.core.mixin.PlayerModelAccessor;
-import cc.cosmetica.cosmetica.gui.AbstractHomeScreen;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import cc.cosmetica.kupe.impl.KupeScreen;
-import com.mojang.math.Quaternion;
-import com.mojang.util.UUIDTypeAdapter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Quaternionf;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -44,7 +40,7 @@ public class AccessoriesAttachment implements GUIPlayer.Attachment<Collection<Ac
     }
 
     @Override
-    public void render(GUIPlayer component, PlayerModel playerModel, GUIPlayer.Posture posture, Canvas canvas, Collection<Accessory> configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
+    public void render(GUIPlayer component, PlayerModel playerModel, GUIPlayer.Posture posture, Canvas canvas, Collection<Accessory> configuration, Quaternionf cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
         boolean elytra = false;
         for (Iterator<GUIPlayer.Attachment<?>> attachments = component.getRenderingAttachments();
              attachments.hasNext(); ) {
