@@ -262,20 +262,20 @@ public class CosmeticEntry extends Component {
 			return CosmeticEntry.iconTooltip(this.icon);
 		}
 
-		public static Attachment accessory(gg.cloaks.javaclient.model.Accessory.AttachmentEnum attachmentEnum) {
+		public static Attachment accessory(gg.cloaks.javaclient.model.Accessory.AttachmentEnum attachmentEnum, boolean mirrored) {
 			switch (attachmentEnum) {
 			case HEAD:
 				return HEAD_ACCESSORY;
 			case BODY:
 				return TORSO_ACCESSORY;
 			case LEFT_ARM:
-				return LEFT_ARM_ACCESSORY;
+				return mirrored ? RIGHT_ARM_ACCESSORY : LEFT_ARM_ACCESSORY;
 			case RIGHT_ARM:
-				return RIGHT_ARM_ACCESSORY;
+				return mirrored ? LEFT_ARM_ACCESSORY : RIGHT_ARM_ACCESSORY;
 			case LEFT_LEG:
-				return LEFT_LEG_ACCESSORY;
+				return mirrored ? RIGHT_LEG_ACCESSORY : LEFT_LEG_ACCESSORY;
 			case RIGHT_LEG:
-				return RIGHT_LEG_ACCESSORY;
+				return mirrored ? LEFT_LEG_ACCESSORY : RIGHT_LEG_ACCESSORY;
 			case UNKNOWN_DEFAULT_OPEN_API:
 			default:
 				return UNKNOWN;
@@ -362,7 +362,7 @@ public class CosmeticEntry extends Component {
 					accessory.getName(),
 					accessory.getCreator().isPresent() ? accessory.getCreator().get().getName() : "Could not load creator",
 					type,
-					Attachment.accessory(accessory.getAttachment()),
+					Attachment.accessory(accessory.getAttachment(), accessory.isMirrored()),
 					null,
 					accessory.isMirrored()
 			));
@@ -439,7 +439,7 @@ public class CosmeticEntry extends Component {
 				));
 			} else if (envelope.getAccessory() != null) {
 				gg.cloaks.javaclient.model.Accessory cosmetic = envelope.getAccessory();
-				Attachment attachment = "accessory".equals(cosmetic.getType()) ? Attachment.accessory(cosmetic.getAttachment()) : Attachment.UNKNOWN;
+				Attachment attachment = "accessory".equals(cosmetic.getType()) ? Attachment.accessory(cosmetic.getAttachment(), false) : Attachment.UNKNOWN;
 
 				CosmeticEntry entry;
 				entryList.add(entry = new CosmeticEntry(
