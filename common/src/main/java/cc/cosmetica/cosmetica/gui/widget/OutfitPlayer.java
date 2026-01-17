@@ -87,7 +87,7 @@ public class OutfitPlayer extends Component {
 		}
 
 		// set icons
-		guiPlayer.icon(nametag.getIcon().getImage().isLoaded() ? nametag.getIcon().getImage() : null)
+		guiPlayer.icon(nametag.getIcon().getImage().isLoaded() ? nametag.getIcon().getImage() : null, nametag.isTransparentIcon())
 				.loreIcon(lore.getIcon().getImage().isLoaded() ? lore.getIcon().getImage() : null);
 
 		return Arrays.asList(

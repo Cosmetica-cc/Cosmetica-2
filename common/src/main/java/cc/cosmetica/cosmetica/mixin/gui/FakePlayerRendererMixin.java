@@ -41,6 +41,7 @@ public class FakePlayerRendererMixin {
     @Shadow public List<GUIPlayer.Nametag> nametags;
 
     @Unique private @Nullable CachedImage cosmetica$icon0 = null;
+    @Unique private boolean cosmetica$iconTransparent = false;
     @Unique private @Nullable CachedImage cosmetica$icon1 = null;
 
     @Inject(at = @At("HEAD"), method = "drawLivingEntity")
@@ -49,6 +50,7 @@ public class FakePlayerRendererMixin {
         if (player instanceof RotatableGUIPlayer) {
             // don't need to reset to null provided one renderer per gui player.
             this.cosmetica$icon0 = ((RotatableGUIPlayer)player).icon;
+            this.cosmetica$iconTransparent = ((RotatableGUIPlayer) player).hasTransparentIcon();
             this.cosmetica$icon1 = ((RotatableGUIPlayer)player).loreIcon;
         }
     }
@@ -58,11 +60,11 @@ public class FakePlayerRendererMixin {
                                  int packedLight, CallbackInfo ci) {
         if (nametag == nametags.get(0)) {
             if (cosmetica$icon0 != null) {
-                NametagRenderer.prepareIcon(cosmetica$icon0, 2, true);
+                NametagRenderer.prepareIcon(cosmetica$icon0, 2, this.cosmetica$iconTransparent, true);
             }
         } else if (nametags.size() > 1 && nametag == nametags.get(1)) {
             if (cosmetica$icon1 != null) {
-                NametagRenderer.prepareIcon(cosmetica$icon1, 2, true);
+                NametagRenderer.prepareIcon(cosmetica$icon1, 2, false, true);
             }
         }
     }
