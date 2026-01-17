@@ -439,7 +439,7 @@ public class CosmeticEntry extends Component {
 				));
 			} else if (envelope.getAccessory() != null) {
 				gg.cloaks.javaclient.model.Accessory cosmetic = envelope.getAccessory();
-				Attachment attachment = "accessory".equals(cosmetic.getType()) ? Attachment.accessory(cosmetic.getAttachment()) : Attachment.UNKNOWN;
+				Attachment attachment = "accessory".equals(cosmetic.getType()) ? Attachment.accessory(cosmetic.getAttachment(), false) : Attachment.UNKNOWN;
 
 				CosmeticEntry entry;
 				entryList.add(entry = new CosmeticEntry(
