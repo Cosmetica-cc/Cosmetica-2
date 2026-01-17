@@ -94,7 +94,7 @@ public class StyleNametagScreen extends Screen implements AnimatedTextureScreen 
                             public List<Component> build() {
                                 Lore lore = Cosmetica.SELECTED_LORE.acquire(this);
                                 CachedImage icon = Cosmetica.SELECTED_ICON.extract(this, ic -> !ic.getImage().isLoaded() ? null : ic.getImage());
-                                this.icon(icon);
+                                this.icon(icon, false);
                                 this.loreIcon(!lore.icon.isLoaded() ? null : lore.icon);
 
                                 if (nametag == -1) {
