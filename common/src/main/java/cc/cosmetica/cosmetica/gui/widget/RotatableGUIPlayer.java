@@ -47,16 +47,22 @@ public class RotatableGUIPlayer extends GUIPlayer {
     private boolean drag = false;
     private double xStart = 0;
     private float yawStart = 0;
+    private boolean offline = false;
 
     public @Nullable CachedImage loreIcon, icon;
 
-    public RotatableGUIPlayer icon(@Nullable CachedImage icon) {
+    public RotatableGUIPlayer icon(@Nullable CachedImage icon, boolean offlineIcon) {
         this.icon = icon;
+        this.offline = offlineIcon;
         return this;
     }
     public RotatableGUIPlayer loreIcon(@Nullable CachedImage icon) {
         this.loreIcon = icon;
         return this;
+    }
+
+    public boolean hasTransparentIcon() {
+        return this.offline;
     }
 
     @Override
