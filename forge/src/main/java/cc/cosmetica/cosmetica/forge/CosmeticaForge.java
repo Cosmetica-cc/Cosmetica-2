@@ -32,8 +32,8 @@ import java.io.OutputStream;
 
 @Mod("cosmetica")
 public class CosmeticaForge implements CacheCosmeticManager.UserIO {
-	public CosmeticaForge() {
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onClientSetup);
+	public CosmeticaForge(FMLJavaModLoadingContext context) {
+		context.getModEventBus().addListener(this::onClientSetup);
 		this.mapper = JsonMapper.builder()
 				.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
 				.build();
