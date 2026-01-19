@@ -16,18 +16,28 @@
 
 package cc.cosmetica.cosmetica.mixin.textures;
 
+import cc.cosmetica.cosmetica.CosmeticaExpectPlatform;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
  * TODO Compat with essential: animate on title screen.
  */
 @Mixin(TitleScreen.class)
-public class TitleScreenMixin {
-//    @Inject(method = "tick", at = @At("HEAD"))
-//    private void onTick(CallbackInfo ci) {
-//        if (CosmeticaExpectPlatform.isModLoaded("essential")) { // TODO how to check on forge
-//            this.minecraft.getTextureManager().tick();
-//        }
-//    }
+public abstract class TitleScreenMixin extends Screen {
+    protected TitleScreenMixin(Component component) {
+        super(component);
+    }
+
+    @Inject(method = "tick", at = @At("HEAD"))
+    private void onTick(CallbackInfo ci) {
+        if (CosmeticaExpectPlatform.isModLoaded("essential")) {
+            this.minecraft.getTextureManager().tick();
+        }
+    }
 }
