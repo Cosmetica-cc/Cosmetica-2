@@ -76,7 +76,7 @@ public class SnipeScreen extends Screen implements AnimatedTextureScreen {
     @Override
     protected Component[] buildScreen() {
         Cosmetics outfit = this.cosmetics.acquire(this);
-        UUID player = playerUUID == null ? Minecraft.getInstance().getUser().getGameProfile().getId() : playerUUID;
+        UUID player = playerUUID == null ? Minecraft.getInstance().getUser().getProfileId() : playerUUID;
 
         // we can do something similar to home screen.
         List<CosmeticEntry> entryList = new ArrayList<>();

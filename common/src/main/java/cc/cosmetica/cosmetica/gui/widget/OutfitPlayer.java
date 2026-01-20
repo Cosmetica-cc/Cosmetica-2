@@ -26,7 +26,7 @@ import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.SkinCustomizationScreen;
+import net.minecraft.client.gui.screens.options.SkinCustomizationScreen;
 
 import java.util.Arrays;
 import java.util.List;

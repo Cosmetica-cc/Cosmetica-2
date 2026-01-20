@@ -78,7 +78,7 @@ public class StyleNametagScreen extends Screen implements AnimatedTextureScreen 
 
     @Override
     protected Component[] buildScreen() {
-        UUID self = Minecraft.getInstance().getUser().getGameProfile().getId();
+        UUID self = Minecraft.getInstance().getUser().getProfileId();
 
         // subscribe to the *cosmetics change*
         //Cosmetics cosmetics = Cosmetica.OWN_COSMETICS.acquire(this);

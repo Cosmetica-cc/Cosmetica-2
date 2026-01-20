@@ -53,7 +53,7 @@ public abstract class OptionsScreenMixin extends Screen {
 
 						this.addRenderableWidget(
 								Button.builder(Text.translatable("button.cosmetica.home").toMinecraftComponent(), button -> Screens.setScreen(HomeScreen.ID))
-										.pos(this.width / 2 - 155, this.height / 6 + 48 - 6)
+										.pos(((AbstractWidget) element).getX(), ((AbstractWidget) element).getY())
 										.size(150, 20)
 										.build()
 						);

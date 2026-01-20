@@ -433,7 +433,7 @@ public class OutfitWheelScreen extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double delta) {
         int prevPage = this.getPage();
 
         // wrap around

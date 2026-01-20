@@ -67,7 +67,7 @@ public abstract class AbstractHomeScreen extends Screen implements AnimatedTextu
 
     @Override
     protected Component[] buildScreen() {
-        UUID self = Minecraft.getInstance().getUser().getGameProfile().getId();
+        UUID self = Minecraft.getInstance().getUser().getProfileId();
 
         Cosmetics cosmetics = Cosmetica.OWN_COSMETICS.acquire(this);
         boolean authenticated = CosmeticaAPI.isAuthenticated();

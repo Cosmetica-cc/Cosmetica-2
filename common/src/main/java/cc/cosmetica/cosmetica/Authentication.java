@@ -54,7 +54,7 @@ import static cc.cosmetica.cosmetica.settings.CosmeticaSettings.willApplyLocalSe
  * Handles authentication.
  */
 public final class Authentication {
-    private static final ResourceLocation SESSIONS = new ResourceLocation("cosmetica", ".sessions");
+    private static final ResourceLocation SESSIONS = ResourceLocation.fromNamespaceAndPath("cosmetica", ".sessions");
     private static final ScheduledExecutorService LOGIN_SCHEDULER = Executors.newScheduledThreadPool(1, new ThreadFactory() {
         private int counter = 1;
 
@@ -157,7 +157,7 @@ public final class Authentication {
 
         // Remove property
         User user = Minecraft.getInstance().getUser();
-        String tokenKey = "jwt-" + user.getUuid();
+        String tokenKey = "jwt-" + user.getProfileId();
         properties.remove(tokenKey);
 
         // Store
@@ -211,7 +211,7 @@ public final class Authentication {
             }
 
             User user = Minecraft.getInstance().getUser();
-            String token = sessionInfo.getProperty("jwt-" + user.getUuid());
+            String token = sessionInfo.getProperty("jwt-" + user.getProfileId());
 
             if (token != null) {
                 // parse jwt to check if expired
@@ -272,7 +272,7 @@ public final class Authentication {
 
                 // Cache Token
                 if (!token.isEmpty()) { // we are using async code, so near-redundant operation just in case.
-                    sessionInfo.setProperty("jwt-" + user.getUuid(), token);
+                    sessionInfo.setProperty("jwt-" + user.getProfileId(), token);
 
                     try (BufferedOutputStream b = new BufferedOutputStream(Files.newOutputStream(sessionInfoPath))) {
                         sessionInfo.store(b, "Cosmetica Session Info");

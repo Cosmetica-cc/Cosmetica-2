@@ -130,7 +130,7 @@ public class Cosmetica {
 		// fetch outfits when our data refreshes on websocket
 		CosmeticaAPI.subscribe(
 				CosmeticaAPI.SubscriptionEvent.PLAYER,
-				UUIDs.fromString(Minecraft.getInstance().getUser().getUuid()),
+				Minecraft.getInstance().getUser().getProfileId(),
 				new ResourceKey("cosmetica", "outfit_refresh").toResourceLocation(),
 				() -> Minecraft.getInstance().execute(Cosmetica::fetchOutfits)
 		);
@@ -318,6 +318,6 @@ public class Cosmetica {
 		};
 	}
 
-	public static final ResourceLocation FALLBACK_TEXTURE = new ResourceLocation("cosmetica", "icon.png");
-	public static final ResourceLocation LOADING_TEXTURE = new ResourceLocation("cosmetica", "textures/loading.png");
+	public static final ResourceLocation FALLBACK_TEXTURE = new ResourceKey("cosmetica", "icon.png").toResourceLocation();
+	public static final ResourceLocation LOADING_TEXTURE = new ResourceKey("cosmetica", "textures/loading.png").toResourceLocation();
 }

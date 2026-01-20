@@ -110,7 +110,7 @@ public class ReplaceOutfitSlotScreen extends Component implements AnimatedTextur
         if (currentCount < outfitLimit)
             components.add(0, new ReplaceableOutfit());
 
-        final UUID player = Minecraft.getInstance().getUser().getGameProfile().getId();
+        final UUID player = Minecraft.getInstance().getUser().getProfileId();
 
         return Arrays.asList(
                 new Div(

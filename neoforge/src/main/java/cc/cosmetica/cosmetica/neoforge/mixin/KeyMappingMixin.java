@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.cosmetica.forge.mixin;
+package cc.cosmetica.cosmetica.neoforge.mixin;
 
 import cc.cosmetica.cosmetica.Keybinds;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
-import net.minecraftforge.client.settings.KeyMappingLookup;
+import net.neoforged.neoforge.client.settings.KeyMappingLookup;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(KeyMapping.class)
 public class KeyMappingMixin {
-    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraftforge/client/settings/KeyMappingLookup;put(Lcom/mojang/blaze3d/platform/InputConstants$Key;Lnet/minecraft/client/KeyMapping;)V"), method = "resetMapping")
+    @Redirect(at = @At(value = "INVOKE", target = "Lnet/neoforged/neoforge/client/settings/KeyMappingLookup;put(Lcom/mojang/blaze3d/platform/InputConstants$Key;Lnet/minecraft/client/KeyMapping;)V"), method = "resetMapping")
     private static void set(KeyMappingLookup instance, InputConstants.Key keyCode, KeyMapping keyBinding) {
         if (keyBinding == Keybinds.SNIPE) {
             Keybinds.SPECIAL_MAP.put(keyCode, keyBinding);
