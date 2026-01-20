@@ -117,14 +117,14 @@ public class OutfitWheelScreen extends Screen {
 
         }
         // Draw circles
-        RenderSystem.enableBlend();
-        RenderSystem.disableDepthTest();
-        RenderSystem.defaultBlendFunc();
+//        RenderSystem.enableBlend();
+//        RenderSystem.disableDepthTest();
+//        RenderSystem.defaultBlendFunc();
 
         int selectedButton = getSelectedButton(mouseX, mouseY, innerButtonSize, innerEdgeSize, outerEdgeSize);
         this.drawCircles(canvas, centreX, centreY, outerEdgeSize, innerButtonSize, innerEdgeSize, selectedButton);
 
-        RenderSystem.disableBlend();
+//        RenderSystem.disableBlend();
 
         // Draw Icons
         this.drawThumbs(canvas, centreX, centreY, 0.5 * (outerEdgeSize + innerEdgeSize), (float) (0.5 * (outerEdgeSize - innerEdgeSize)));

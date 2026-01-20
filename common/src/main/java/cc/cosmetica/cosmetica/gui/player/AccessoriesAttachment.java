@@ -23,6 +23,7 @@ import cc.cosmetica.core.mixin.PlayerModelAccessor;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import cc.cosmetica.kupe.impl.KupeScreen;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -40,7 +41,7 @@ public class AccessoriesAttachment implements GUIPlayer.Attachment<Collection<Ac
     }
 
     @Override
-    public void render(GUIPlayer component, PlayerModel playerModel, GUIPlayer.Posture posture, Canvas canvas, Collection<Accessory> configuration, Quaternionf cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
+    public void render(GUIPlayer component, PlayerModel playerModel, GUIPlayer.Posture posture, PoseStack var4, Collection<Accessory> configuration, Quaternionf cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
         boolean elytra = false;
         for (Iterator<GUIPlayer.Attachment<?>> attachments = component.getRenderingAttachments();
              attachments.hasNext(); ) {
@@ -115,7 +116,7 @@ public class AccessoriesAttachment implements GUIPlayer.Attachment<Collection<Ac
 
             if (part.visible) {
                 accessory.getModel().renderOnPart(
-                        part, canvas.getStack().getMinecraftStack(), bufferSource, packedLight,
+                        part, var4, bufferSource, packedLight,
                         (float) offset.x + additionalXOffset, (float) offset.y, (float) offset.z,
                         accessory.isMirrored()
                 );

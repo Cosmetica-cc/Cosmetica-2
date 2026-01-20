@@ -375,7 +375,7 @@ public class ExternalCapesScreen extends Screen {
             super.paintDecorations(canvas, region, scissorRegion, mouseX, mouseY);
 
             // fixes a rendering bug
-            RenderSystem.setShaderColor(1, 1, 1, 1);
+//            RenderSystem.setShaderColor(1, 1, 1, 1);
         }
 
         // drag

@@ -56,7 +56,7 @@ public class FakePlayerRendererMixin {
     }
 
     @Inject(at = @At("HEAD"), method = "renderNametag")
-    private void onRenderNametag(GUIPlayer.Nametag nametag, Canvas canvas, MultiBufferSource bufferSource,
+    private void onRenderNametag(GUIPlayer.Nametag nametag, PoseStack stack, MultiBufferSource bufferSource,
                                  int packedLight, CallbackInfo ci) {
         if (nametag == nametags.get(0)) {
             if (cosmetica$icon0 != null) {
