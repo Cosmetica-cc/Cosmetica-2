@@ -29,8 +29,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.Redirect;
+
+import java.util.function.Supplier;
 
 /**
  * Adds the cosmetica button.
@@ -41,28 +42,14 @@ public abstract class OptionsScreenMixin extends Screen {
 		super(component);
 	}
 
-	@Inject(at=@At("RETURN"), method="init")
-	private void onInit(CallbackInfo info) {
-		for (GuiEventListener element: this.children()) {
-			if (element instanceof AbstractWidget) {
-				Component message = ((AbstractWidget)element).getMessage();
-
-				if (message.getContents() instanceof TranslatableContents tc) {
-					if (tc.getKey().equals("options.skinCustomisation")) {
-						this.removeWidget(element);
-
-						this.addRenderableWidget(
-								Button.builder(Text.translatable("button.cosmetica.home").toMinecraftComponent(), button -> Screens.setScreen(HomeScreen.ID))
-										.pos(((AbstractWidget) element).getX(), ((AbstractWidget) element).getY())
-										.size(150, 20)
-										.build()
-						);
-						return;
-					}
-				}
-			}
-		}
-
-		Logging.getInstance().warn("Failed to find skin customisation button. Unable to replace with Cosmetica button.");
+	@Redirect(at = @At(
+			value = "INVOKE",
+			ordinal = 0,
+			target = "Lnet/minecraft/client/gui/screens/options/OptionsScreen;openScreenButton(Lnet/minecraft/network/chat/Component;Ljava/util/function/Supplier;)Lnet/minecraft/client/gui/components/Button;"
+	), method="init")
+	private Button onInit(OptionsScreen instance, Component arg, Supplier<Screen> supplier) {
+		return Button.builder(Text.translatable("button.cosmetica.home").toMinecraftComponent(), button -> Screens.setScreen(HomeScreen.ID))
+				.size(150, 20)
+				.build();
 	}
 }
