@@ -31,7 +31,7 @@ import com.google.gson.JsonParser;
 import gg.cloaks.javaclient.ApiException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.User;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
@@ -54,7 +54,7 @@ import static cc.cosmetica.cosmetica.settings.CosmeticaSettings.willApplyLocalSe
  * Handles authentication.
  */
 public final class Authentication {
-    private static final ResourceLocation SESSIONS = ResourceLocation.fromNamespaceAndPath("cosmetica", ".sessions");
+    private static final Identifier SESSIONS = Identifier.fromNamespaceAndPath("cosmetica", ".sessions");
     private static final ScheduledExecutorService LOGIN_SCHEDULER = Executors.newScheduledThreadPool(1, new ThreadFactory() {
         private int counter = 1;
 

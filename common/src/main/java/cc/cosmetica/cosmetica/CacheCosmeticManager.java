@@ -28,7 +28,7 @@ import gg.cloaks.javaclient.model.Icon;
 import gg.cloaks.javaclient.model.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 
@@ -220,7 +220,7 @@ public class CacheCosmeticManager implements CosmeticManager {
             }
 
             // keep images loaded in cache
-            List<ResourceLocation> cachedImages = new ArrayList<>();
+            List<Identifier> cachedImages = new ArrayList<>();
             loaded.getCloak().ifPresent(ic -> {
                 cachedImages.add(ic.getImage().location);
 

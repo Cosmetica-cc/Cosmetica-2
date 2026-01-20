@@ -44,9 +44,9 @@ import gg.cloaks.javaclient.model.Outfit;
 import gg.cloaks.javaclient.model.PlayerResponse;
 import gg.cloaks.javaclient.model.UpdateLoreDto;
 import gg.cloaks.javaclient.model.UserConnection;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -318,6 +318,6 @@ public class Cosmetica {
 		};
 	}
 
-	public static final ResourceLocation FALLBACK_TEXTURE = new ResourceKey("cosmetica", "icon.png").toResourceLocation();
-	public static final ResourceLocation LOADING_TEXTURE = new ResourceKey("cosmetica", "textures/loading.png").toResourceLocation();
+	public static final Identifier FALLBACK_TEXTURE = new ResourceKey("cosmetica", "icon.png").toResourceLocation();
+	public static final Identifier LOADING_TEXTURE = new ResourceKey("cosmetica", "textures/loading.png").toResourceLocation();
 }

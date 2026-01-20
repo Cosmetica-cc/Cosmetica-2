@@ -17,7 +17,9 @@
 package cc.cosmetica.cosmetica.mixin;
 
 import net.minecraft.client.KeyboardHandler;
+import net.minecraft.client.input.KeyEvent;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -28,11 +30,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * keyboards affected by this bug are able to use the mod.
  */
 @Mixin(KeyboardHandler.class)
-public class KeyboardHandlerMixin {
+public abstract class KeyboardHandlerMixin {
+    @Shadow protected abstract void keyPress(long l, @KeyEvent.Action int j, KeyEvent arg);
+
     @Inject(at = @At("HEAD"), method = "keyPress", cancellable = true)
-    private void onKeyPress(long window, int i, int j, int k, int m, CallbackInfo ci) {
-        if (i == -1 && j == 310) {
-            ((KeyboardHandler)(Object)this).keyPress(window, 344, 54, k, m);
+    private void onKeyPress(long window, int k, KeyEvent event, CallbackInfo ci) {
+        if (event.key() == -1 && event.scancode() == 310) {
+            this.keyPress(window, k, new KeyEvent(344, 54, event.modifiers()));
             ci.cancel();
         }
     }

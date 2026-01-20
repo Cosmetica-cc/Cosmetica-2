@@ -7,7 +7,6 @@
     "KeyboardHandlerMixin",
     "button.OptionsScreenMixin",
     "keybinds.KeyMappingAccessor",
-    "keybinds.KeyMappingMixin",
     "keybinds.LevelRendererTickMixin",
     "keybinds.OptionsMixin",
     "snipe.GameRendererMixin"

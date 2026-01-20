@@ -16,9 +16,7 @@
 
 package cc.cosmetica.cosmetica.gui.widget;
 
-import cc.cosmetica.core.api.CachedImage;
 import cc.cosmetica.core.api.ImageCosmetic;
-import cc.cosmetica.core.api.NametagConfig;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
@@ -33,8 +31,7 @@ import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
-import gg.cloaks.javaclient.model.Icon;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
@@ -44,7 +41,6 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
@@ -134,7 +130,7 @@ public class IconSelector extends Div {
             @Nullable SelectableIcon icon = this.icon.apply(this);
 
             boolean noIcon = icon == null;
-            ResourceLocation location = noIcon ? null : icon.cosmetic.getImage().location;
+            Identifier location = noIcon ? null : icon.cosmetic.getImage().location;
 
             Text displayIcon = noIcon ? Text.translatable("label.icons.noIcon") :
                     Text.translatable("label.icons.icon", icon.cosmetic.getName());

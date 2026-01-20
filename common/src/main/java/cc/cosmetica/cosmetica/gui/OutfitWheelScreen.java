@@ -47,8 +47,10 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
@@ -207,7 +209,7 @@ public class OutfitWheelScreen extends Screen {
         canvas.disableTransparency();
     }
 
-    private static final ResourceLocation NO_OUTFIT_LOCATION = new ResourceKey("minecraft", "textures/item/barrier.png").toResourceLocation();
+    private static final Identifier NO_OUTFIT_LOCATION = new ResourceKey("minecraft", "textures/item/barrier.png").toResourceLocation();
 
     /**
      * Draw the circles (inner button and outer ring) in the GUI.
@@ -337,22 +339,26 @@ public class OutfitWheelScreen extends Screen {
     }
 
     @Override
-    public boolean keyPressed(int key, int scan, int mod) {
-        InputConstants.Key k = InputConstants.getKey(key, scan);
+    public boolean keyPressed(KeyEvent event) {
+        InputConstants.Key k = InputConstants.getKey(event);
         KeyMapping.set(k, true);
         KeyMapping.click(k);
         return true;
     }
 
     @Override
-    public boolean keyReleased(int key, int scan, int mod) {
-        InputConstants.Key k = InputConstants.getKey(key, scan);
+    public boolean keyReleased(KeyEvent event) {
+        InputConstants.Key k = InputConstants.getKey(event);
         KeyMapping.set(k, false);
         return true;
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean repeat) {
+        final int button = event.button();
+        final double mouseY = event.y();
+        final double mouseX = event.x();
+
         if (button != 0) { // left click
             if (button == 1) {
                 page = (int)page + 1;
@@ -574,7 +580,7 @@ public class OutfitWheelScreen extends Screen {
         }
 
         InputConstants.Key key = ((KeyMappingAccessor)mapping).cosmetica$getKey();
-        long window = Minecraft.getInstance().getWindow().getWindow();
+        long window = Minecraft.getInstance().getWindow().handle();
         int value = key.getValue();
 
         if (key.getType() == InputConstants.Type.KEYSYM) {

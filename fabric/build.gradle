@@ -42,7 +42,7 @@ dependencies {
     include "com.twelvemonkeys.common:common-image:${rootProject.imaging_version}"
 
     // Mod Menu (for Compat)
-    modImplementation "com.terraformersmc:modmenu:15.0.1"
+    modImplementation "com.terraformersmc:modmenu:17.0.0-beta.2"
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }

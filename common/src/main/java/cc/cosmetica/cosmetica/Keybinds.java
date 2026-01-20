@@ -24,6 +24,7 @@ import cc.cosmetica.cosmetica.gui.SnipeScreen;
 import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.cosmetica.util.Sniper;
+import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screens;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
@@ -31,26 +32,33 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import org.intellij.lang.annotations.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class Keybinds {
-    public static final String COSMETICA_CATEGORY = "key.categories.cosmetica";
     public static final Map<InputConstants.Key, KeyMapping> SPECIAL_MAP = new HashMap<>();
+    public static final KeyMapping.Category COSMETICA_CATEGORY = KeyMapping.Category.register(new ResourceKey("cosmetica", "cosmetica").toResourceLocation());
 
     public static KeyMapping CUSTOMISE = new KeyMapping(
-                    "key.cosmetica.customise",
-                    InputConstants.Type.KEYSYM,
-                    GLFW.GLFW_KEY_RIGHT_SHIFT,
-                    COSMETICA_CATEGORY
+            "key.cosmetica.customise",
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_RIGHT_SHIFT,
+            COSMETICA_CATEGORY
     );
 
-    public static KeyMapping SNIPE = registerSpecial(
+    public static KeyMapping SNIPE = new KeyMapping(
+            "key.cosmetica.snipe",
+            InputConstants.Type.MOUSE,
+            GLFW.GLFW_MOUSE_BUTTON_MIDDLE,
+            COSMETICA_CATEGORY
+    );
+            /*registerSpecial(
             InputConstants.Type.MOUSE.getOrCreate(GLFW.GLFW_MOUSE_BUTTON_MIDDLE),
             "snipe"
-    );
+    );*/
 
     public static KeyMapping SELECT_OUTFIT = new KeyMapping(
             "key.cosmetica.select_outfit",

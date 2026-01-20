@@ -32,6 +32,8 @@ import cc.cosmetica.kupe.api.maths.Region;
 import cc.cosmetica.kupe.impl.MinecraftBuiltinComponent;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
@@ -112,7 +114,7 @@ public class SliderWidget extends MinecraftBuiltinComponent {
     public void render(Canvas canvas, Region region, Margins padding, int mouseX, int mouseY) {
         super.render(canvas, region, padding, mouseX, mouseY);
         if (this.drag && (mouseX != prevMouseX)) {
-            this.minecraftWidget.mouseDragged(mouseX, mouseY, GLFW.GLFW_MOUSE_BUTTON_1, 0, 0);
+            this.minecraftWidget.mouseDragged(new MouseButtonEvent(mouseX, mouseY, new MouseButtonInfo(GLFW.GLFW_MOUSE_BUTTON_1, 0)), 0, 0);
         }
         prevMouseX = mouseX;
     }
