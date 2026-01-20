@@ -45,6 +45,7 @@ import gg.cloaks.javaclient.model.OutfitAccessory;
 import gg.cloaks.javaclient.model.PlayerResponse;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -61,7 +62,6 @@ public class OutfitWheelScreen extends Screen {
         super(Text.translatable("screens.cosmetica.wheel").toMinecraftComponent());
         // todo maybe implement this as kupe screen so we can update outfit list automatically on outfit change
         this.options = Cosmetica.OWN_OUTFITS.peek();
-        this.passEvents = true;
 
         if (page > this.getLastPage()) {
             page = 0;
@@ -79,8 +79,8 @@ public class OutfitWheelScreen extends Screen {
     private List<OutfitOption> options;
 
     @Override
-    public void render(PoseStack stack, int mouseX, int mouseY, float partialTick) {
-        Canvas canvas = new PoseCanvas(stack, this.minecraft, null, partialTick);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        Canvas canvas = new PoseCanvas(graphics, this.minecraft, null, partialTick);
 
         // Measurements
         final double centreX = this.width / 2.0;
@@ -92,7 +92,7 @@ public class OutfitWheelScreen extends Screen {
         // Draw text
         final int titleHeight = this.getTitleHeight();
         Component title = this.getPageLabel();
-        drawCenteredString(stack, this.font, title, this.width / 2, titleHeight, 0xffffff);
+        graphics.drawCenteredString(this.font, title, this.width / 2, titleHeight, 0xffffff);
 
         {
             int[] pageChangeButton = new int[3];
@@ -112,8 +112,8 @@ public class OutfitWheelScreen extends Screen {
             boolean hoveredPrevPage = hoveredY && mouseX >= left-pcWidth/2 && mouseX <= left+pcWidth/2+1;
             boolean hoveredNextPage = hoveredY && mouseX >= right-pcWidth/2 && mouseX <= right+pcWidth/2+1;
 
-            drawCenteredString(stack, this.font, Text.literal("<").toMinecraftComponent(), left, titleHeight, previousPage ? (hoveredPrevPage ? 0x888888 : 0xffffff) : 0x888888);
-            drawCenteredString(stack, this.font, Text.literal(">").toMinecraftComponent(), right, titleHeight, nextPage ? (hoveredNextPage ? 0x888888 : 0xffffff) : 0x888888);
+            graphics.drawCenteredString(this.font, Text.literal("<").toMinecraftComponent(), left, titleHeight, previousPage ? (hoveredPrevPage ? 0x888888 : 0xffffff) : 0x888888);
+            graphics.drawCenteredString(this.font, Text.literal(">").toMinecraftComponent(), right, titleHeight, nextPage ? (hoveredNextPage ? 0x888888 : 0xffffff) : 0x888888);
 
         }
         // Draw circles
@@ -334,6 +334,21 @@ public class OutfitWheelScreen extends Screen {
                 this.onClose();
             }
         }
+    }
+
+    @Override
+    public boolean keyPressed(int key, int scan, int mod) {
+        InputConstants.Key k = InputConstants.getKey(key, scan);
+        KeyMapping.set(k, true);
+        KeyMapping.click(k);
+        return true;
+    }
+
+    @Override
+    public boolean keyReleased(int key, int scan, int mod) {
+        InputConstants.Key k = InputConstants.getKey(key, scan);
+        KeyMapping.set(k, false);
+        return true;
     }
 
     @Override

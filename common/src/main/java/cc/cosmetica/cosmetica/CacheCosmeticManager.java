@@ -204,6 +204,7 @@ public class CacheCosmeticManager implements CosmeticManager {
                 user.setSkin(response.getSkin()); // not used currently
                 user.setUuid(response.getUuid());
                 user.setOutfit(response.getOutfit());
+                user.setUpsideDown(response.isUpsideDown());
 
                 this.userIO.write(user, os);
                 Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "Cached player cosmetics");
