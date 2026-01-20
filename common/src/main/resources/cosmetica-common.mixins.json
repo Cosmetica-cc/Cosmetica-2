@@ -10,8 +10,7 @@
     "keybinds.KeyMappingMixin",
     "keybinds.LevelRendererTickMixin",
     "keybinds.OptionsMixin",
-    "snipe.GameRendererMixin",
-    "textures.PoseCanvasMixin"
+    "snipe.GameRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1
