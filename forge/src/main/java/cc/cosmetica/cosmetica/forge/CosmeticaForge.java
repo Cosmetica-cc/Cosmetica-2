@@ -22,6 +22,7 @@ import cc.cosmetica.com.fasterxml.jackson.databind.json.JsonMapper;
 import cc.cosmetica.cosmetica.CacheCosmeticManager;
 import cc.cosmetica.cosmetica.Cosmetica;
 import gg.cloaks.javaclient.model.CosmeticaUser;
+import net.minecraftforge.eventbus.api.bus.BusGroup;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -33,7 +34,8 @@ import java.io.OutputStream;
 @Mod("cosmetica")
 public class CosmeticaForge implements CacheCosmeticManager.UserIO {
 	public CosmeticaForge(FMLJavaModLoadingContext context) {
-		context.getModEventBus().addListener(this::onClientSetup);
+		BusGroup modBusGroup = context.getModBusGroup();
+		FMLClientSetupEvent.getBus(modBusGroup).addListener(this::onClientSetup);
 		this.mapper = JsonMapper.builder()
 				.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
 				.build();
