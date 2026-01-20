@@ -1,5 +1,5 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "7.1.2"
+    id "com.github.johnrengelman.shadow" version "8.1.1"
 }
 
 architectury {
@@ -42,7 +42,7 @@ dependencies {
     include "com.twelvemonkeys.common:common-image:${rootProject.imaging_version}"
 
     // Mod Menu (for Compat)
-    modImplementation "com.terraformersmc:modmenu:7.0.1"
+    modImplementation "com.terraformersmc:modmenu:11.0.0-beta.1"
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }

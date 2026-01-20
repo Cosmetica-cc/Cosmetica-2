@@ -14,15 +14,21 @@ Custom Cosmetics for Free, Forever.
 logoFile = "assets/cosmetica/icon.png"
 
 [[dependencies.cosmetica]]
-modId = "forge"
-mandatory = true
-versionRange = "[36,)"
+modId = "neoforge"
+type = "required"
+versionRange = "[1,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.cosmetica]]
 modId = "minecraft"
-mandatory = true
+type = "required"
 versionRange = "[1.21,1.21.4)"
 ordering = "NONE"
 side = "BOTH"
+
+[[mixins]]
+config = "cosmetica-common.mixins.json"
+
+[[mixins]]
+config = "cosmetica-neoforge.mixins.json"

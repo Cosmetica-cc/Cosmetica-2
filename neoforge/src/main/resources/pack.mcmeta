@@ -1,0 +1,6 @@
+{
+  "pack": {
+    "description": "Authenticates users with the Cosmetica servers and shows cool cosmetics on players.",
+    "pack_format": 6
+  }
+}
