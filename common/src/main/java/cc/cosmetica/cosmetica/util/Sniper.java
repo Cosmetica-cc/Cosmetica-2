@@ -17,6 +17,8 @@
 package cc.cosmetica.cosmetica.util;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.profiling.Profiler;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -44,7 +46,7 @@ public class Sniper {
 
         if (camera != null) {
             if (minecraft.level != null) {
-                minecraft.getProfiler().push("snipe");
+                Profiler.get().push("snipe");
 
                 final double maxDist = MAX_SNIPE_DISTANCE;
                 HitResult pickResult = camera.pick(maxDist, yawProbably, false);
@@ -76,7 +78,7 @@ public class Sniper {
                     }
                 }
 
-                minecraft.getProfiler().pop();
+                Profiler.get().pop();
             }
         }
     }

@@ -25,6 +25,8 @@ import cc.cosmetica.kupe.api.gui.SizedElement;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
+import cc.cosmetica.kupe.impl.PoseCanvas;
+import com.mojang.blaze3d.systems.RenderSystem;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;

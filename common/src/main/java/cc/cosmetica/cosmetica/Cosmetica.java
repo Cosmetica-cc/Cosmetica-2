@@ -122,7 +122,7 @@ public class Cosmetica {
 		// cosmetic states
 		Cosmetics.registerCosmeticsChangeCallback((le, cosmetics) -> {
 			if (le instanceof Player) {
-				Minecraft.getInstance().tell(() -> {
+				Minecraft.getInstance().schedule(() -> {
 					((StateHolder) le).cosmetica$setCosmeticState(cosmetics);
 				});
 			}

@@ -115,11 +115,11 @@ public class SnipeScreen extends Screen implements AnimatedTextureScreen {
                                 CosmeticaAPI.outfits().requestAsync(OutfitsApi::unequip)
                                         .thenAccept(__ -> {
                                             Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Cleared Cosmetics by Steal-their-look.");
-                                            Minecraft.getInstance().tell(Screens::closeCurrentScreen);
+                                            Minecraft.getInstance().schedule(Screens::closeCurrentScreen);
                                         })
                                         .exceptionally(err -> {
                                             Logging.getInstance().error("Failed to unequip cosmetics!", err);
-                                            Minecraft.getInstance().tell(()->this.isSettingOrUnauthenticated.set(false));
+                                            Minecraft.getInstance().execute(()->this.isSettingOrUnauthenticated.set(false));
                                             return null;
                                         });
                                 return;
@@ -135,11 +135,11 @@ public class SnipeScreen extends Screen implements AnimatedTextureScreen {
                                 CosmeticaAPI.outfits().requestAsync(api->api.equip(ownedOutfit))
                                         .thenAccept(__ -> {
                                             Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Set Cosmetics by Steal-their-look.");
-                                            Minecraft.getInstance().tell(Screens::closeCurrentScreen);
+                                            Minecraft.getInstance().schedule(Screens::closeCurrentScreen);
                                         })
                                         .exceptionally(err -> {
                                             Logging.getInstance().error("Failed to set cosmetics!", err);
-                                            Minecraft.getInstance().tell(()->this.isSettingOrUnauthenticated.set(false));
+                                            Minecraft.getInstance().execute(()->this.isSettingOrUnauthenticated.set(false));
                                             return null;
                                         });
                             } else {

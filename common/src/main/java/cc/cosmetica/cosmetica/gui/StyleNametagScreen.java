@@ -154,7 +154,7 @@ public class StyleNametagScreen extends Screen implements AnimatedTextureScreen 
                     }, Minecraft.getInstance())
                     .exceptionally(e -> {
                         // Prevent race condition by resetting on the minecraft thread
-                        Minecraft.getInstance().tell(() -> {
+                        Minecraft.getInstance().execute(() -> {
                             @Nullable Lore old = Cosmetica.SELECTED_LORE.peek().old;
 
                             if (old != null) {

@@ -23,7 +23,7 @@ side = "BOTH"
 [[dependencies.cosmetica]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.21,1.21.4)"
+versionRange = "[1.21.4,1.21.7)"
 ordering = "NONE"
 side = "BOTH"
 
