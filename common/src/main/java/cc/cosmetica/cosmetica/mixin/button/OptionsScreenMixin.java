@@ -16,17 +16,13 @@
 
 package cc.cosmetica.cosmetica.mixin.button;
 
-import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.gui.HomeScreen;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.contents.TranslatableContents;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
