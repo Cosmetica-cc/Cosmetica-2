@@ -93,7 +93,11 @@ public class CacheCosmeticManager implements CosmeticManager {
 
                     // nametag and lore
                     ImageCosmetic iconImage = icon == null ? NO_ICON : ImageCosmetic.fromIcon(icon);
-                    NametagConfig nametag = new NametagConfig("", "", iconImage, false);
+                    NametagConfig nametag = new NametagConfig(
+                            user.getPrefix() == null ? "" : user.getPrefix(),
+                            user.getSuffix() == null ? "" : user.getSuffix(),
+                            iconImage,
+                            false);
                     NametagConfig loreNametag = lore == null ? null : new NametagConfig(
                                 lore.getFormatted().replaceAll("&", "§"), "",
                                 lore.getIconUrl() == null ? NO_ICON : new ImageCosmetic(
@@ -205,6 +209,9 @@ public class CacheCosmeticManager implements CosmeticManager {
                 user.setUuid(response.getUuid());
                 user.setOutfit(response.getOutfit());
                 user.setUpsideDown(response.isUpsideDown());
+                user.setModpackId(response.getModpackId());
+                user.setPrefix(response.getPrefix());
+                user.setSuffix(response.getSuffix());
 
                 this.userIO.write(user, os);
                 Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "Cached player cosmetics");
