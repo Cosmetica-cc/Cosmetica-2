@@ -83,6 +83,9 @@ shadowJar {
     transform(com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer) {
         resource = 'META-INF/mods.toml'
     }
+    transform(com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer) {
+        resource = 'META-INF/accesstransformer.cfg'
+    }
 
     mergeServiceFiles()
 
