@@ -75,7 +75,7 @@ shadowJar {
     relocate 'org.slf4j', 'cc.cosmetica.org.slfj'
     relocate 'org.openapitools.jackson', 'cc.cosmetica.org.openapitools.jackson'
     relocate 'com.fasterxml.jackson', 'cc.cosmetica.com.fasterxml.jackson'
-    exclude 'javax/**'
+    exclude 'javax/annotations'
     exclude 'org/apache/commons/**'
 
     transform(com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer) {
