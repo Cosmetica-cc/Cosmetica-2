@@ -70,16 +70,21 @@ shadowJar {
 
 //    relocate 'cc.cosmetica.kupe', 'cc.cosmetica.include.kupe'
     relocate 'com.twelvemonkeys', 'cc.cosmetica.include.twelvemonkeys'
+    relocate 'javax.activation', 'cc.cosmetica.include.javax.activation'
+    relocate 'javax.xml', 'cc.cosmetica.include.javax.xml'
     // needs to be the same as core
     relocate 'org.apache.hc', 'cc.cosmetica.org.apache.hc'
     relocate 'org.slf4j', 'cc.cosmetica.org.slfj'
     relocate 'org.openapitools.jackson', 'cc.cosmetica.org.openapitools.jackson'
     relocate 'com.fasterxml.jackson', 'cc.cosmetica.com.fasterxml.jackson'
-    exclude 'javax/**'
+    exclude 'javax/annotation/**'
     exclude 'org/apache/commons/**'
 
     transform(com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer) {
         resource = 'META-INF/mods.toml'
+    }
+    transform(com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer) {
+        resource = 'META-INF/accesstransformer.cfg'
     }
 
     mergeServiceFiles()
