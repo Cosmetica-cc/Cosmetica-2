@@ -16,7 +16,6 @@
 
 package cc.cosmetica.cosmetica;
 
-import cc.cosmetica.core.CosmeticaCoreExpectPlatform;
 import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.api.texture.CosmeticaTexture;
 import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
@@ -51,9 +50,6 @@ import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -142,6 +138,14 @@ public class Cosmetica {
 				Minecraft.getInstance().execute(OutfitSelectScreen::fetchOutfitLimit);
 			}
 		});
+		if (CosmeticaSettings.VERSION_CHECKER.get()) {
+			CosmeticaAPI.downloads().requestAsync(api -> api.getVersionStatus("2.0.0"))
+					.thenAcceptAsync(e -> {
+						if (e.getMinecraftMessage() != null) {
+							VersionChecker.INSTANCE.setMessage(Text.literal(e.getMinecraftMessage()));
+						}
+					}, Minecraft.getInstance());
+		}
 		// in dev
 		if (System.getProperty("cosmetica.token") != null && CosmeticaAPI.isAuthenticated()) {
 			Minecraft.getInstance().execute(Cosmetica::fetchOutfits);

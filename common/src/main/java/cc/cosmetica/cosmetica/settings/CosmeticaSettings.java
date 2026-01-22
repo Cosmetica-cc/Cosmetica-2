@@ -55,6 +55,7 @@ public final class CosmeticaSettings {
 
     // Client profile settings
     public static final Setting<Boolean> TOGGLE_OUTFIT_WHEEL = new BooleanSetting("setting.cosmetica.wheel", false, false);
+    public static final Setting<Boolean> VERSION_CHECKER = new BooleanSetting("setting.cosmetica.versionChecker", true, true);
     /**
      * In a modpack with managed settings, use cloud settings instead.
      */
@@ -195,6 +196,7 @@ public final class CosmeticaSettings {
 
         // Default properties
         properties.setProperty("toggle_outfit_wheel", String.valueOf(TOGGLE_OUTFIT_WHEEL.get()));
+        properties.setProperty("enable_version_checker", String.valueOf(VERSION_CHECKER.get()));
         properties.setProperty("use_cloud_settings", String.valueOf(USE_CLOUD_SETTINGS.get()));
 
         // Overwrite with file properties if loading local
@@ -210,6 +212,7 @@ public final class CosmeticaSettings {
 
             TOGGLE_OUTFIT_WHEEL.apiUpdate(Boolean.parseBoolean(properties.getProperty("toggle_outfit_wheel", "false")), Settings.TypeEnum.CLOUD);
             USE_CLOUD_SETTINGS.apiUpdate(Boolean.parseBoolean(properties.getProperty("use_cloud_settings", "false")), Settings.TypeEnum.CLOUD);
+            VERSION_CHECKER.apiUpdate(Boolean.parseBoolean(properties.getProperty("enable_version_checker", "true")), Settings.TypeEnum.CLOUD);
 
             loadedLocal = true;
         }
