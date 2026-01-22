@@ -108,7 +108,7 @@
   "setting.cosmetica.visibilityOverrides": "Cosmetic Visibility Overrides",
   "setting.cosmetica.visibilityOverrides.true.description": "§7You can customize accessories' visibility options on individual outfits.",
   "setting.cosmetica.visibilityOverrides.false.description": "§7You'll use the default (combat-safe) accessory visibility options on all outfits.",
-  "setting.cosmetica.wheel": "Outfit Wheel",
+  "setting.cosmetica.versionChecker": "Enable Version Checker",
   "setting.cosmetica.wheel.true": "Toggle",
   "setting.cosmetica.wheel.false": "Hold",
   "tooltip.cosmetica.accessoryLimitReached": "Accessory limit reached: %s/%s",
