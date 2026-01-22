@@ -4,6 +4,7 @@ import cc.cosmetica.cosmetica.VersionChecker;
 import cc.cosmetica.kupe.api.Text;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.screens.ReceivingLevelScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,7 +18,7 @@ public class MinecraftMixin {
     @Shadow @Final public Gui gui;
 
     @Inject(at = @At("HEAD"), method = "setLevel")
-    private void versionChecker(ClientLevel level, CallbackInfo info) {
+    private void versionChecker(ClientLevel clientLevel, ReceivingLevelScreen.Reason reason, CallbackInfo info) {
         Text text = VersionChecker.INSTANCE.getMessage();
 
         // also do the check thing
