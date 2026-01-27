@@ -142,7 +142,7 @@ public class Cosmetica {
 			CosmeticaAPI.downloads().requestAsync(api -> api.getVersionStatus("2.0.0"))
 					.thenAcceptAsync(e -> {
 						if (e.getMinecraftMessage() != null) {
-							VersionChecker.INSTANCE.setMessage(Text.literal(e.getMinecraftMessage().replace('&', '§')));
+							VersionChecker.INSTANCE.setMessage(Text.literal(e.getMinecraftMessage()));
 						}
 					}, Minecraft.getInstance());
 		}
