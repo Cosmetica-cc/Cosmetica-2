@@ -28,6 +28,7 @@ dependencies {
         exclude module: "fabric-loader"
     }
     include(fabricApi.module("fabric-resource-loader-v0", "${project.fabric_api_version}"))
+    include(fabricApi.module("fabric-api-base", "${project.fabric_api_version}"))
 
     // Cosmetica Core
     include(modImplementation "cc.cosmetica:cosmetica-core-fabric:${rootProject.core_version}-${rootProject.minecraft_version}")
