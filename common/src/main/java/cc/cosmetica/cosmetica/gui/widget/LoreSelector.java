@@ -145,7 +145,7 @@ public class LoreSelector extends Div {
         Cosmetica.openWebPanel("discord-connect");
     }
 
-    private static class LoreHeader extends Div {
+    private class LoreHeader extends Div {
         public LoreHeader(Function<Component, Lore> icon, List<String> unlockedColours) {
             this.icon = icon;
             this.unlockedColours = unlockedColours;
@@ -167,16 +167,17 @@ public class LoreSelector extends Div {
             if (this.unlockedColours.size() > 1) {
                 result.add(new IconButton(new ResourceKey("cosmetica", "textures/colour.png"), () -> {}));
             }
-            result.add(new IconButton(new ResourceKey("cosmetica", "textures/remove.png"), LoreHeader::clearLore));
+            result.add(new IconButton(new ResourceKey("cosmetica", "textures/remove.png"), this::clearLore));
 
             return result;
         }
 
-        private static void clearLore() {
+        private void clearLore() {
             Lore current = Cosmetica.SELECTED_LORE.peek();
             Lore next = Lore.none(current.colour);
             next.old = current.old == null ? current : current.old;
             Cosmetica.SELECTED_LORE.set(next);
+            LoreSelector.this.loreModified.set(true);
         }
     }
 
