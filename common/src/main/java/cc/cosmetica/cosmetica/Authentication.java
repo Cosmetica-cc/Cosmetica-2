@@ -69,6 +69,7 @@ public final class Authentication {
     private static final AtomicInteger RETRIES = new AtomicInteger(0);
     private static final Object lock = new Object();
     public static final State<Optional<LoginResult>> LOGIN_RESULT = new State<>(Optional.empty());
+    private static long lastInvalidation = System.currentTimeMillis() - 1000L;
 
     static void authenticate() {
         // download current settings and update settings on authentication change
@@ -79,8 +80,14 @@ public final class Authentication {
 
                 // delete invalid tokens
                 if (reason == CosmeticaAPI.AuthChangeReason.ERROR_401) {
+                    // de-duplicate invalidations for subsequent blind api calls
                     synchronized (lock) {
-                        invalidateToken();
+                        if (System.currentTimeMillis() - lastInvalidation > 1000L) {
+                            invalidateToken();
+                        } else {
+                            Logging.getInstance().debug(CosmeticaLogCategory.LOGIN, "Skipping token invalidation as token already invalidated within last second.");
+                        }
+                        lastInvalidation = System.currentTimeMillis();
                     }
                 }
             }
