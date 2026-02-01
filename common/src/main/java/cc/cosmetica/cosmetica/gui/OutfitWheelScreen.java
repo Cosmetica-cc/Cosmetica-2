@@ -18,7 +18,6 @@ package cc.cosmetica.cosmetica.gui;
 
 import cc.cosmetica.core.api.CachedImage;
 import cc.cosmetica.core.api.CosmeticaAPI;
-import cc.cosmetica.core.api.CosmeticaModel;
 import cc.cosmetica.core.api.texture.CosmeticaTexture;
 import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
 import cc.cosmetica.core.impl.Logging;
@@ -599,7 +598,7 @@ public class OutfitWheelScreen extends Screen {
                             new CosmeticaTexture.Builder(outfit.getThumbnail() + "?width=276", Cosmetica.LOADING_TEXTURE)
                                 .frames(8, 1)
                                 .ignoreTilesheet(true)
-                                .failToLoadTexture(Cosmetica.FALLBACK_TEXTURE)
+                                .failToLoadTexture(Cosmetica.FALLBACK_OUTFIT_TEXTURE)
                                 .autoAnimate(CosmeticaTexture.AutoAnimate.NEVER),
                             false
                     );

@@ -24,6 +24,7 @@ import cc.cosmetica.cosmetica.gui.widget.RotatableGUIPlayer;
 import cc.cosmetica.cosmetica.util.NametagUtil;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Context;
+import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import cc.cosmetica.kupe.impl.fakeplayer.FakePlayerRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -66,7 +67,14 @@ public class FakePlayerRendererMixin {
             method = "drawLivingEntity")
     private void onStartDrawNametag(GUIPlayer player, Context context, float rotation, float delta, PoseStack stack,
                               MultiBufferSource bufferSource, int light, CallbackInfo ci) {
-        NametagUtil.shiftNametags(stack, player);
+        int nametags = this.nametags.size();
+        if (nametags > 1) {
+            Text lore = this.nametags.get(1).text;
+            if (lore.isEmpty()) {
+                nametags--;
+            }
+        }
+        NametagUtil.shiftNametags(stack, player, nametags);
     }
 
     @Inject(at = @At("HEAD"), method = "renderNametag")

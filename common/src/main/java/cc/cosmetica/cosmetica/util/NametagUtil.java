@@ -25,7 +25,7 @@ import java.util.Collection;
 
 public class NametagUtil {
 
-    public static void shiftNametags(PoseStack stack, GUIPlayer player) {
+    public static void shiftNametags(PoseStack stack, GUIPlayer player, int nametags) {
         // shift nametags up
         if (!player.pose.upsideDown) {
             float hatTopY = 0;
@@ -55,7 +55,11 @@ public class NametagUtil {
 
                 double shift = Math.max(hatTopY * lookAngleMultiplier, 0) / 16.0;
 
-                stack.translate(0, Math.min(shift, 0.4), 0);
+                // use the same shift always to give the user feedback as to how the shift works when lore is equipped
+                double cap = 0.275; // avoid nametags going off the screen in the GUI
+                // nametags > 1 ? 0.25 : 0.35
+
+                stack.translate(0, Math.min(shift, cap), 0);
             }
         }
     }
