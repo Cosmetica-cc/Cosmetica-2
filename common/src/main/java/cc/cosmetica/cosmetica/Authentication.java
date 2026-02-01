@@ -79,7 +79,9 @@ public final class Authentication {
 
                 // delete invalid tokens
                 if (reason == CosmeticaAPI.AuthChangeReason.ERROR_401) {
-                    invalidateToken();
+                    synchronized (lock) {
+                        invalidateToken();
+                    }
                 }
             }
 
