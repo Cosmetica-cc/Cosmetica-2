@@ -42,6 +42,7 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
@@ -166,7 +167,7 @@ public final class Authentication {
 
         // Remove property
         User user = Minecraft.getInstance().getUser();
-        String tokenKey = "jwt-" + user.getUuid();
+        String tokenKey = jwtKey(user.getUuid());
         properties.remove(tokenKey);
 
         // Store
@@ -176,6 +177,14 @@ public final class Authentication {
         } catch (IOException e) {
             Logging.getInstance().error("Failed to save cosmetica sessions", e);
         }
+    }
+
+    private static String jwtKey(String uuid) {
+        return "jwt-" + uuid.replace("-", "");
+    }
+
+    private static String jwtKey(UUID uuid) {
+        return "jwt-" + uuid.toString().replace("-", "");
     }
 
     private static void repeatLogInFromApi(Path sessionsInfo, Properties properties) {
@@ -220,7 +229,7 @@ public final class Authentication {
             }
 
             User user = Minecraft.getInstance().getUser();
-            String token = sessionInfo.getProperty("jwt-" + user.getUuid());
+            String token = sessionInfo.getProperty(jwtKey(user.getUuid()));
 
             if (token != null) {
                 // parse jwt to check if expired
@@ -281,7 +290,7 @@ public final class Authentication {
 
                 // Cache Token
                 if (!token.isEmpty()) { // we are using async code, so near-redundant operation just in case.
-                    sessionInfo.setProperty("jwt-" + user.getUuid(), token);
+                    sessionInfo.setProperty(jwtKey(user.getUuid()), token);
 
                     try (BufferedOutputStream b = new BufferedOutputStream(Files.newOutputStream(sessionInfoPath))) {
                         sessionInfo.store(b, "Cosmetica Session Info");
