@@ -576,6 +576,7 @@ public class BrowseScreen extends AbstractHomeScreen {
                                         // Unlock
                                         settingLock.set(false);
                                         // TODO error notification
+                                        Logging.getInstance().error("Error equipping cosmetics", ex);
                                     }));
                         });
 
