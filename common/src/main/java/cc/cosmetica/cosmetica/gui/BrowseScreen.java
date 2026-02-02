@@ -353,6 +353,8 @@ public class BrowseScreen extends AbstractHomeScreen {
                                             ArrayList next = new ArrayList();
                                             CosmeticEntry.populateBrowseList(next, cosmetics.getResults(), outfit, (data, options, envelope, submit) -> {
                                                 BrowseScreen.this.configuring.set(Optional.of(new SelectedCosmeticTriple(data, options, submit)));
+                                                BrowseScreen.this.menu.set(Menu.NONE); // close the menu
+
                                                 // Set up Preview
                                                 switch (envelope.getType()) {
                                                 case COSMETIC:
