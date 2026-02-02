@@ -65,7 +65,7 @@ public class HomeScreen extends AbstractHomeScreen {
 				CosmeticEntry.populateEntryList(entries, cosmetics, CosmeticEntry.Type.removable(authenticated));
 
 				return ImmutableList.of(
-						new CosmeticsList(entries, !authenticated ? CosmeticsList.ListType.OFFLINE : cosmetics == null ? CosmeticsList.ListType.DISABLED : CosmeticsList.ListType.EDITABLE)
+						new CosmeticsList(entries, !authenticated ? CosmeticsList.ListType.OFFLINE : (cosmetics == null || !cosmetics.getOutfitId().isPresent()) ? CosmeticsList.ListType.DISABLED : CosmeticsList.ListType.EDITABLE)
 				);
 			}
 		};

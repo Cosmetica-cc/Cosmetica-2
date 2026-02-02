@@ -330,7 +330,8 @@ public class BrowseScreen extends AbstractHomeScreen {
 
                             @Nullable Cosmetics outfit = Cosmetica.OWN_COSMETICS.acquire(this);
 
-                            // ! Can be removed on website whilst this screen is open
+                            // case: !outfit.getOutfitId().isPresent() -> don't close browsing session maybe
+                            // outfit == null shouldn't actually happen as a Cosmetics object with no outfit will just be created instead.
                             if (outfit == null) {
                                 Screens.closeCurrentScreen();
                             } else {
@@ -452,6 +453,7 @@ public class BrowseScreen extends AbstractHomeScreen {
                         // need to have a reference to original outfit
                         // outfit should usually != null as the screen will be closed by Results.
                         // In such a case, there will likely be one frame in which this is called with outfit == null
+                        // nb this shouldn't happen for any reason because even if outfit is removed a Cosmetics object with no outfit will exist.
                         @Nullable Cosmetics outfit = Cosmetica.OWN_COSMETICS.acquire(this);
 
                         // image
@@ -580,10 +582,13 @@ public class BrowseScreen extends AbstractHomeScreen {
                         boolean isSetting = settingLock.acquire(this);
                         int accessoryLimit = BrowseScreen.this.accessoryLimit.acquire(this);
 
-                        // Handle this rare case!
-                        // Should be closed next frame by Results anyway.
-                        if (outfit == null) {
+                        // Handle this case!
+                        if (outfit == null || !outfit.getOutfitId().isPresent()) {
                             submitButton.setDisabled(true);
+                            submitButton.withStyle(Style.create()
+                                    .set(TOOLTIP, Optional.of(new Tooltip(
+                                            Text.translatable("tooltip.cosmetica.noOutfitDisabled")
+                                    ))));
                         } else if (isSetting) {
                             submitButton.setDisabled(true);
                             submitButton.withStyle(Style.create()
