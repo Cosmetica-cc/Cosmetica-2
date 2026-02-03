@@ -40,6 +40,7 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import com.google.common.collect.ImmutableList;
+import gg.cloaks.javaclient.ApiException;
 import gg.cloaks.javaclient.api.IconsApi;
 import gg.cloaks.javaclient.api.LoreApi;
 import gg.cloaks.javaclient.api.UsersApi;
@@ -54,7 +55,7 @@ import java.util.function.Function;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
-public class StyleNametagScreen extends BaseCosmeticaScreen implements AnimatedTextureScreen {
+public class StyleNametagScreen extends Screen implements AnimatedTextureScreen {
     public StyleNametagScreen() {
         super(ID);
 

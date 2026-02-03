@@ -52,7 +52,7 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
  * Shows the cosmetics of an inspected cosmetics holder.
  * Unregistered. Pass ID as second parameter when setting kupe screen.
  */
-public class SnipeScreen extends BaseCosmeticaScreen implements AnimatedTextureScreen {
+public class SnipeScreen extends Screen implements AnimatedTextureScreen {
     public static final ResourceKey ID = new ResourceKey("cosmetica", "snipe");
 
     public SnipeScreen(LivingEntity entity) {

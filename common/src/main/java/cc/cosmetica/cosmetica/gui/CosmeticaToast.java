@@ -10,14 +10,17 @@ import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector4f;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
+import org.jetbrains.annotations.Nullable;
 
 public class CosmeticaToast implements Toast {
-    public CosmeticaToast(Text text) {
-        this.text = text;
+    public CosmeticaToast(Text text, @Nullable Text description) {
+        this.title = text;
+        this.description = description;
         this.changed = true;
     }
 
-    private final Text text;
+    private final Text title;
+    private final @Nullable Text description;
     private boolean changed;
     private long lastChanged;
 
@@ -41,7 +44,12 @@ public class CosmeticaToast implements Toast {
         Vector4f pos = new Vector4f(18, 12, 0, 0);
         pos.transform(arg);
 
-        canvas.drawText(this.text, (int)pos.x(), (int)pos.y(), -256);
+        if (this.description == null) {
+            canvas.drawText(this.title, (int)pos.x(), (int)pos.y(), -256);
+        } else {
+            canvas.drawText(this.title, (int)pos.x(), (int)pos.y() - 6, -256);
+            canvas.drawText(this.description, (int)pos.x(), (int)pos.y() + 6, -1);
+        }
 
         return l - this.lastChanged < 5000L ? Visibility.SHOW : Visibility.HIDE;
     }

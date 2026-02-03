@@ -275,6 +275,10 @@ public class Cosmetica {
 		}
 	}
 
+	public static void showToast(Text title, @Nullable Text description) {
+		Minecraft.getInstance().getToasts().addToast(new CosmeticaToast(title, description));
+	}
+
 	/*public static Style authTooltip(Component acquirer, boolean authenticated) {
 		Optional<LoginResult> result = Authentication.LOGIN_RESULT.acquire(acquirer);
 

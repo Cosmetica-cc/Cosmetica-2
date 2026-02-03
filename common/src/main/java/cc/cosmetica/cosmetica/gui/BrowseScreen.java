@@ -52,6 +52,7 @@ import org.jetbrains.annotations.Nullable;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.function.Function;
 
 import static cc.cosmetica.kupe.api.gui.Div.*;
@@ -377,7 +378,14 @@ public class BrowseScreen extends AbstractHomeScreen {
                                         }, Minecraft.getInstance())
                                         .exceptionally(ex -> {
                                             Logging.getInstance().error("Error performing search for " + query, ex);
-                                            // TODO show error visually
+
+                                            if (ex instanceof CompletionException) {
+                                                ex = ex.getCause();
+                                            }
+
+                                            Cosmetica.showToast(
+                                                    Text.translatable("toast.cosmetica.searchError"),
+                                                    Text.literal(ex.getMessage().length() > 27 ? ex.getMessage().substring(0, 25) + "..." : ex.getMessage()));
                                             return null;
                                         });
                             }

@@ -33,7 +33,7 @@ import java.util.Optional;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.fixedSize;
 
-public abstract class AbstractConfirmScreen extends BaseCosmeticaScreen {
+public abstract class AbstractConfirmScreen extends Screen {
     protected AbstractConfirmScreen(Text title) {
         super(title);
     }
