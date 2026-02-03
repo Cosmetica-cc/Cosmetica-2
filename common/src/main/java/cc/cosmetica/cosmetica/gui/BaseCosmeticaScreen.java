@@ -25,6 +25,10 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.toasts.Toast;
+import net.minecraft.client.gui.components.toasts.ToastComponent;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
@@ -97,14 +101,15 @@ public abstract class BaseCosmeticaScreen extends Component {
         if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
             Screens.closeCurrentScreen();
         }
+        Minecraft.getInstance().getToasts().addToast( new CosmeticaToast(Text.literal("Failed to perform action")) );
 
         return false;
     }
 
     private static final State<Notification[]> NOTIFICATIONS = new State<>(new Notification[] {
-            new Notification(Text.literal("Test 0"), 0xf4f4f4, 0xef5858),
-            new Notification(Text.literal("Test 0"), 0xf4f4f4, 0x77d5ef),
-            new Notification(Text.literal("Test 0"), 0xf4f4f4, 0xd3d3d3)
+//            new Notification(Text.literal("Test 0"), 0xf4f4f4, 0xef5858),
+//            new Notification(Text.literal("Test 0"), 0xf4f4f4, 0x77d5ef),
+//            new Notification(Text.literal("Test 0"), 0xf4f4f4, 0xd3d3d3)
     });
 
     /**
