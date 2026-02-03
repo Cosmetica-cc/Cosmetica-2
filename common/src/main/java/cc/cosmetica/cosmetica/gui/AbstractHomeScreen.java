@@ -31,7 +31,10 @@ import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
 import cc.cosmetica.cosmetica.gui.widget.OutfitPlayer;
 import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
-import cc.cosmetica.kupe.api.*;
+import cc.cosmetica.kupe.api.ResourceKey;
+import cc.cosmetica.kupe.api.Screens;
+import cc.cosmetica.kupe.api.State;
+import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
@@ -60,7 +63,7 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 /**
  * Base for home-screen-like screens. Screens that are too different (snipe) shouldn't extend this.
  */
-public abstract class AbstractHomeScreen extends Screen implements AnimatedTextureScreen {
+public abstract class AbstractHomeScreen extends BaseCosmeticaScreen implements AnimatedTextureScreen {
     protected AbstractHomeScreen(ResourceKey id) {
         super(id);
     }
