@@ -18,13 +18,11 @@ package cc.cosmetica.cosmetica.gui;
 
 import cc.cosmetica.core.api.CachedImage;
 import cc.cosmetica.core.api.CosmeticaAPI;
-import cc.cosmetica.core.api.CosmeticaModel;
 import cc.cosmetica.core.api.texture.CosmeticaTexture;
 import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.Keybinds;
-import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
 import cc.cosmetica.cosmetica.gui.widget.ThumbnailCache;
 import cc.cosmetica.cosmetica.mixin.keybinds.KeyMappingAccessor;
 import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
@@ -593,12 +591,12 @@ public class OutfitWheelScreen extends Screen {
         public OutfitOption(Outfit outfit) {
             this.id = outfit.getId();
             this.name = outfit.getName();
-            this.thumbnail = outfit.getThumbnail() == null ? CosmeticEntry.NO_THUMBNAIL :
+            this.thumbnail = outfit.getThumbnail() == null ? NO_OUTFIT_THUMBNAIL :
                     ThumbnailCache.getOrCreateImage(
                             new CosmeticaTexture.Builder(outfit.getThumbnail() + "?width=276", Cosmetica.LOADING_TEXTURE)
                                 .frames(8, 1)
                                 .ignoreTilesheet(true)
-                                .failToLoadTexture(Cosmetica.FALLBACK_TEXTURE)
+                                .failToLoadTexture(Cosmetica.FALLBACK_OUTFIT_TEXTURE)
                                 .autoAnimate(CosmeticaTexture.AutoAnimate.NEVER),
                             false
                     );
@@ -641,5 +639,7 @@ public class OutfitWheelScreen extends Screen {
                         return null;
                     });
         }
+
+        public static final CachedImage NO_OUTFIT_THUMBNAIL = new CachedImage(Cosmetica.FALLBACK_OUTFIT_TEXTURE, 0);
     }
 }
