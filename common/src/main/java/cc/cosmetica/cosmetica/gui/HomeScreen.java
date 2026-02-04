@@ -32,6 +32,7 @@ import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,8 +45,8 @@ public class HomeScreen extends AbstractHomeScreen {
 		super(ID);
 
 		if (Boolean.getBoolean("cosmetica.debug")) {
-			if (System.currentTimeMillis() - nextDebugToast > 0) {
-				nextDebugToast = System.currentTimeMillis() + 30_000L;
+			if (!shownDebugToast) {
+				shownDebugToast = true;
 				Cosmetica.showToast(
 						Text.literal("Debug Toast"),
 						Text.literal("You have debug mode on!")
@@ -55,11 +56,25 @@ public class HomeScreen extends AbstractHomeScreen {
 	}
 
 	// debug toast spawn cooldown
-	private static long nextDebugToast = System.currentTimeMillis();
+	private static boolean shownDebugToast = false;
 
 	private final State<Boolean> dismissedError = new State<>(false);
 	private static @Nullable LoginResult dismissed = null;
 	private static final LoginResult GENERIC = new LoginResult(false, LoginResult.Code.SUCCESS, "", null);
+
+	@Override
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+		if (
+				Boolean.getBoolean("cosmetica.debug") &&
+				keyCode == GLFW.GLFW_KEY_RIGHT_CONTROL
+		) {
+			Cosmetica.showToast(
+					Text.literal("Debug Toast"),
+					Text.literal("You hit right control!")
+			);
+		}
+		return super.keyPressed(keyCode, scanCode, modifiers);
+	}
 
 	@Override
 	protected @NotNull Component createRightMenu(Cosmetics cosmetics, boolean authenticated) {
