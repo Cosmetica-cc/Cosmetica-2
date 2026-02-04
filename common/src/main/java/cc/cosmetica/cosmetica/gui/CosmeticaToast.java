@@ -22,11 +22,12 @@ import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.impl.PoseCanvas;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector4f;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
+import org.joml.Vector4f;
 
 /**
  * Toast for Cosmetica errors.
@@ -56,11 +57,11 @@ public class CosmeticaToast implements Toast {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         int i = this.width();
 
-        toastComponent.blit(poseStack, 0, 0, 0, 64, i, this.height());
+        GuiComponent.blit(poseStack, 0, 0, 0, 64, i, this.height());
 
         Matrix4f arg = poseStack.last().pose();
         Vector4f pos = new Vector4f(18, 12, 0, 0);
-        pos.transform(arg);
+        pos.mul(arg);
 
         if (this.description == null) {
             canvas.drawText(this.title, (int)pos.x(), (int)pos.y(), -256);
