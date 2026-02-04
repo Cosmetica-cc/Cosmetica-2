@@ -27,6 +27,7 @@ import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.Label;
 import cc.cosmetica.kupe.api.gui.Tooltip;
+import gg.cloaks.javaclient.ApiException;
 import gg.cloaks.javaclient.api.UsersApi;
 import gg.cloaks.javaclient.model.CreateOutfitAccessoryDto;
 import gg.cloaks.javaclient.model.CreateOutfitDto;
@@ -36,6 +37,7 @@ import net.minecraft.client.Minecraft;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletionException;
 
 public final class ConfirmRemoveCosmeticScreen extends AbstractConfirmScreen {
     public ConfirmRemoveCosmeticScreen(Cosmetics parentOutfit, String itemId, String itemName, boolean mirrored) {
@@ -107,6 +109,22 @@ public final class ConfirmRemoveCosmeticScreen extends AbstractConfirmScreen {
                 .exceptionally(Cosmetica.mainThreadExcept(ex -> {
                     Logging.getInstance().error("Error updating outfit {}", ex, this.outfitId);
                     this.setting.set(false);
+
+                    if (ex instanceof CompletionException) {
+                        ex = ex.getCause();
+                    }
+
+                    if (ex instanceof ApiException) {
+                        Cosmetica.showToast(
+                                Text.translatable("toast.cosmetica.outfitUpdateError"),
+                                Text.literal("Error code " + ((ApiException) ex).getCode())
+                        );
+                    } else {
+                        Cosmetica.showToast(
+                                Text.translatable("toast.cosmetica.outfitUpdateError"),
+                                Text.literal(ex.getClass().getSimpleName())
+                        );
+                    }
                 }));
     }
 }

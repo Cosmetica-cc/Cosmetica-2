@@ -16,12 +16,15 @@
 
 package cc.cosmetica.cosmetica.mixin.gui;
 
+import cc.cosmetica.core.api.Accessory;
 import cc.cosmetica.core.api.CachedImage;
 import cc.cosmetica.core.impl.NametagRenderer;
-import cc.cosmetica.cosmetica.Cosmetica;
+import cc.cosmetica.cosmetica.gui.player.AccessoriesAttachment;
 import cc.cosmetica.cosmetica.gui.widget.RotatableGUIPlayer;
+import cc.cosmetica.cosmetica.util.NametagUtil;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.Context;
+import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import cc.cosmetica.kupe.impl.fakeplayer.FakePlayerRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -34,6 +37,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Collection;
 import java.util.List;
 
 @Mixin(value = FakePlayerRenderer.class, remap = false)
@@ -53,6 +57,24 @@ public class FakePlayerRendererMixin {
             this.cosmetica$iconTransparent = ((RotatableGUIPlayer) player).hasTransparentIcon();
             this.cosmetica$icon1 = ((RotatableGUIPlayer)player).loreIcon;
         }
+    }
+
+    @Inject(at = @At(
+            value = "INVOKE",
+            target = "Lcom/mojang/blaze3d/vertex/PoseStack;pushPose()V",
+            ordinal = 1,
+            shift = At.Shift.AFTER),
+            method = "drawLivingEntity")
+    private void onStartDrawNametag(GUIPlayer player, Context context, float rotation, float delta, PoseStack stack,
+                              MultiBufferSource bufferSource, int light, CallbackInfo ci) {
+        int nametags = this.nametags.size();
+        if (nametags > 1) {
+            Text lore = this.nametags.get(1).text;
+            if (lore.isEmpty()) {
+                nametags--;
+            }
+        }
+        NametagUtil.shiftNametags(stack, player, nametags);
     }
 
     @Inject(at = @At("HEAD"), method = "renderNametag")
