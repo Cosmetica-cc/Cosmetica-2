@@ -50,6 +50,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
@@ -163,7 +164,25 @@ public class StyleNametagScreen extends Screen implements AnimatedTextureScreen 
                             }
                         });
 
-                        Logging.getInstance().error("Could not set lore", e); return null;
+                        Logging.getInstance().error("Could not set lore", e);
+
+                        // toast
+                        if (e instanceof CompletionException) {
+                            e = e.getCause();
+                        }
+                        if (e instanceof ApiException) {
+                            Cosmetica.showToast(
+                                    Text.translatable("toast.cosmetica.loreUpdateError"),
+                                    Text.literal("Error code " + ((ApiException) e).getCode())
+                            );
+                        } else {
+                            Cosmetica.showToast(
+                                    Text.translatable("toast.cosmetica.loreUpdateError"),
+                                    Text.literal(e.getClass().getSimpleName())
+                            );
+                        }
+
+                        return null;
                     });
         }
 

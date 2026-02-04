@@ -28,6 +28,9 @@ import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Toast for Cosmetica errors.
+ */
 public class CosmeticaToast implements Toast {
     public CosmeticaToast(Text text, @Nullable Text description) {
         this.title = text;

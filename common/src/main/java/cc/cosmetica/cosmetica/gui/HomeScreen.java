@@ -42,7 +42,20 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 public class HomeScreen extends AbstractHomeScreen {
 	public HomeScreen() {
 		super(ID);
+
+		if (Boolean.getBoolean("cosmetica.debug")) {
+			if (System.currentTimeMillis() - nextDebugToast > 0) {
+				nextDebugToast = System.currentTimeMillis() + 30_000L;
+				Cosmetica.showToast(
+						Text.literal("Debug Toast"),
+						Text.literal("You have debug mode on!")
+				);
+			}
+		}
 	}
+
+	// debug toast spawn cooldown
+	private static long nextDebugToast = System.currentTimeMillis();
 
 	private final State<Boolean> dismissedError = new State<>(false);
 	private static @Nullable LoginResult dismissed = null;
