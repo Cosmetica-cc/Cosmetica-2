@@ -53,9 +53,8 @@ public class CosmeticaToast implements Toast {
         Canvas canvas = new PoseCanvas(poseStack, toastComponent.getMinecraft(), null, 0);
         canvas.setTexture(new ResourceKey(TEXTURE));
 
-        RenderSystem.color3f(1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         int i = this.width();
-        int j = 12;
 
         toastComponent.blit(poseStack, 0, 0, 0, 64, i, this.height());
 
