@@ -36,17 +36,17 @@ import gg.cloaks.javaclient.model.UpdateLoreDto;
 import gg.cloaks.javaclient.model.UserConnection;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.OptionalInt;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
+import static cc.cosmetica.kupe.api.gui.Div.ALIGN_ITEMS;
+import static cc.cosmetica.kupe.api.gui.Div.JUSTIFY_CONTENT;
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
-public class LoreSelector extends Div {
+public class LoreSelector extends LayeredSpace {
     public LoreSelector(AtomicBoolean loreModified, State<LoreOptions> availableLores) {
+        super(true);
         this.loreModified = loreModified;
         this.availableLores = availableLores;
     }
@@ -56,11 +56,14 @@ public class LoreSelector extends Div {
     private final AtomicBoolean loreModified;
     private final State<LoreOptions> availableLores;
     private State<Integer> lorePage = new State<>(0);
+    private State<Boolean> colourSelectorOpen = new State<>(false);
+    private State<UpdateLoreDto.ColorEnum> colour = new State<>(Cosmetica.SELECTED_LORE.peek().colour);
 
     @Override
     public List<Component> build() {
         LoreOptions loreOptions = this.availableLores.acquire(this);
         int page = lorePage.acquire(this);
+        this.colour.set(Cosmetica.SELECTED_LORE.peek().colour);
 
         SelectableLore[] loreValues;
         switch (page) {
@@ -96,30 +99,73 @@ public class LoreSelector extends Div {
         });
 
         return ImmutableList.of(
-                new LoreHeader(Cosmetica.SELECTED_LORE::acquire, loreOptions.getColors()).tag("horizontal", "header"),
-                (page == 2 && loreValues.length == 0) ? new Div(
-                        new Div().tag("flex-1"),
-                        new Label(Text.translatable("label.lore.noConnections")),
-                        new Button(Text.translatable("button.lore.connectDiscord"), LoreSelector::openConnectDiscord),
-                        new Div().withStyle(Style.create().set(FLEX, 3))
-                ).tag("flex-1", "no-connections") :
-                new EntryList.Div(loreValues, selectedState)
-                        .selected(
-                                Style.create()
-                                        .set(BACKGROUND_COLOUR, OptionalInt.of(0xFFFFFF))
-                                        .set(Label.TEXT_COLOUR, 0x333333)
-                        ).tag("flex-1"),
+                new Div() {
+                    @Override
+                    public List<Component> build() {
+                        boolean open = LoreSelector.this.colourSelectorOpen.acquire(this);
+
+                        if (open) {
+                            return Arrays.asList(
+                                    new DropdownMenu<>(
+                                            LoreSelector.this.colour,
+                                            colour -> Text.literal(new Lore(
+                                                    colour.toString().toLowerCase(Locale.ROOT),
+                                                    colour, CachedImage.NO_TEXTURE, "").formatted()),
+                                            loreOptions.getColors().stream()
+                                                    .map(UpdateLoreDto.ColorEnum::fromValue)
+                                                    .toArray(UpdateLoreDto.ColorEnum[]::new)
+                                    ),
+                                    // Data Forwarder
+                                    new Div() {
+                                        @Override
+                                        public List<Component> build() {
+                                            UpdateLoreDto.ColorEnum colour = LoreSelector.this.colour.acquire(this);
+
+                                            Lore lore = Cosmetica.SELECTED_LORE.peek();
+                                            if (colour != lore.colour) {
+                                                Cosmetica.SELECTED_LORE.set(new Lore(
+                                                        lore.value,
+                                                        lore.displayText,
+                                                        colour,
+                                                        lore.icon,
+                                                        lore.service
+                                                ));
+                                            }
+                                            return super.build();
+                                        }
+                                    }
+                            );
+                        } else {
+                            return super.build();
+                        }
+                    }
+                }.withStyle(Style.create().set(Z_INDEX, 10)),
                 new Div(
-                        new Button(Text.translatable("button.lore.titles"), () -> {
-                            this.lorePage.set(0);
-                        }).setDisabled(page == 0).tag("lore-type"),
-                        new Button(Text.translatable("button.lore.pronouns"), () -> {
-                            this.lorePage.set(1);
-                        }).setDisabled(page == 1).tag("lore-type"),
-                        new Button(Text.translatable("button.lore.connections"), () -> {
-                            this.lorePage.set(2);
-                        }).setDisabled(page == 2).tag("lore-type")
-                ).tag("horizontal", "lore-types")
+                        new LoreHeader(Cosmetica.SELECTED_LORE::acquire, loreOptions.getColors()).tag("horizontal", "header"),
+                        (page == 2 && loreValues.length == 0) ? new Div(
+                                new Div().tag("flex-1"),
+                                new Label(Text.translatable("label.lore.noConnections")),
+                                new Button(Text.translatable("button.lore.connectDiscord"), LoreSelector::openConnectDiscord),
+                                new Div().withStyle(Style.create().set(FLEX, 3))
+                        ).tag("flex-1", "no-connections") :
+                                new EntryList.Div(loreValues, selectedState)
+                                        .selected(
+                                                Style.create()
+                                                        .set(BACKGROUND_COLOUR, OptionalInt.of(0xFFFFFF))
+                                                        .set(Label.TEXT_COLOUR, 0x333333)
+                                        ).tag("flex-1"),
+                        new Div(
+                                new Button(Text.translatable("button.lore.titles"), () -> {
+                                    this.lorePage.set(0);
+                                }).setDisabled(page == 0).tag("lore-type"),
+                                new Button(Text.translatable("button.lore.pronouns"), () -> {
+                                    this.lorePage.set(1);
+                                }).setDisabled(page == 1).tag("lore-type"),
+                                new Button(Text.translatable("button.lore.connections"), () -> {
+                                    this.lorePage.set(2);
+                                }).setDisabled(page == 2).tag("lore-type")
+                        ).tag("horizontal", "lore-types")
+                ).tag("lore-selector-body")
         );
     }
 
@@ -127,7 +173,8 @@ public class LoreSelector extends Div {
     public Stylesheet getStylesheet() {
         return new Stylesheet()
                 .self(Style.create()
-                        .set(MARGINS, fixed(new Margins(30, 10, 12, 10)))
+                        .set(MARGINS, fixed(new Margins(30, 10, 12, 10))))
+                .tag("lore-selector-body", Style.create()
                         .set(ALIGN_ITEMS, Align.STRETCH_START))
                 .tag("header", Style.create()
                         .set(MARGINS, fixed(new Margins(0,0,2,0))))
@@ -145,7 +192,7 @@ public class LoreSelector extends Div {
         Cosmetica.openWebPanel("discord-connect");
     }
 
-    private static class LoreHeader extends Div {
+    private class LoreHeader extends Div {
         public LoreHeader(Function<Component, Lore> icon, List<String> unlockedColours) {
             this.icon = icon;
             this.unlockedColours = unlockedColours;
@@ -165,18 +212,22 @@ public class LoreSelector extends Div {
 
             // only show colouring button if you have multiple unlocked lore colours
             if (this.unlockedColours.size() > 1) {
-                result.add(new IconButton(new ResourceKey("cosmetica", "textures/colour.png"), () -> {}));
+                result.add(new IconButton(new ResourceKey("cosmetica", "textures/colour.png"), () -> {
+                    boolean open = LoreSelector.this.colourSelectorOpen.peek();
+                    LoreSelector.this.colourSelectorOpen.set(!open);
+                }));
             }
-            result.add(new IconButton(new ResourceKey("cosmetica", "textures/remove.png"), LoreHeader::clearLore));
+            result.add(new IconButton(new ResourceKey("cosmetica", "textures/remove.png"), this::clearLore));
 
             return result;
         }
 
-        private static void clearLore() {
+        private void clearLore() {
             Lore current = Cosmetica.SELECTED_LORE.peek();
             Lore next = Lore.none(current.colour);
             next.old = current.old == null ? current : current.old;
             Cosmetica.SELECTED_LORE.set(next);
+            LoreSelector.this.loreModified.set(true);
         }
     }
 
