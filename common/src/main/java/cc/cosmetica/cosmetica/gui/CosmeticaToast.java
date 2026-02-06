@@ -21,10 +21,12 @@ import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.impl.PoseCanvas;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.toasts.Toast;
-import net.minecraft.client.gui.components.toasts.ToastComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.components.toasts.ToastManager;
+import net.minecraft.client.renderer.RenderType;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
@@ -43,21 +45,30 @@ public class CosmeticaToast implements Toast {
     private final @Nullable Text description;
     private boolean changed;
     private long lastChanged;
+    private Visibility wantedVisibility = Visibility.HIDE;
 
     @Override
-    public Visibility render(GuiGraphics graphics, ToastComponent toastComponent, long l) {
+    public Visibility getWantedVisibility() {
+        return this.wantedVisibility;
+    }
+
+    public void update(ToastManager toastManager, long l) {
         if (this.changed) {
             this.changed = false;
             this.lastChanged = l;
         }
+        long displayTime = (long) (5000L * toastManager.getNotificationDisplayTimeMultiplier());
 
+        this.wantedVisibility = l - this.lastChanged < displayTime ? Visibility.SHOW : Visibility.HIDE;
+    }
+
+    @Override
+    public void render(GuiGraphics graphics, Font font, long l) {
         PoseStack poseStack = graphics.pose();
 
-        Canvas canvas = new PoseCanvas(graphics, toastComponent.getMinecraft(), null, 0);
+        Canvas canvas = new PoseCanvas(graphics, Minecraft.getInstance(), null, 0);
 
-        int i = this.width();
-
-        graphics.blitSprite(BACKGROUND_SPRITE.toResourceLocation(), 0, 0, i, this.height());
+        graphics.blitSprite(RenderType::guiTextured, BACKGROUND_SPRITE.toResourceLocation(), 0, 0, this.width(), this.height());
 
         Matrix4f arg = poseStack.last().pose();
         Vector4f pos = new Vector4f(18, 12, 0, 0);
@@ -69,8 +80,7 @@ public class CosmeticaToast implements Toast {
             canvas.drawText(this.title, (int)pos.x(), (int)pos.y() - 6, -256);
             canvas.drawText(this.description, (int)pos.x(), (int)pos.y() + 6, -1);
         }
-
-        return l - this.lastChanged < 5000L ? Visibility.SHOW : Visibility.HIDE;
+        graphics.flush();
     }
 
     private static final ResourceKey BACKGROUND_SPRITE = new ResourceKey("minecraft", "toast/system");
