@@ -52,6 +52,7 @@ import org.jetbrains.annotations.Nullable;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.function.Function;
 
 import static cc.cosmetica.kupe.api.gui.Div.*;
@@ -330,7 +331,8 @@ public class BrowseScreen extends AbstractHomeScreen {
 
                             @Nullable Cosmetics outfit = Cosmetica.OWN_COSMETICS.acquire(this);
 
-                            // ! Can be removed on website whilst this screen is open
+                            // case: !outfit.getOutfitId().isPresent() -> don't close browsing session maybe
+                            // outfit == null shouldn't actually happen as a Cosmetics object with no outfit will just be created instead.
                             if (outfit == null) {
                                 Screens.closeCurrentScreen();
                             } else {
@@ -352,6 +354,8 @@ public class BrowseScreen extends AbstractHomeScreen {
                                             ArrayList next = new ArrayList();
                                             CosmeticEntry.populateBrowseList(next, cosmetics.getResults(), outfit, (data, options, envelope, submit) -> {
                                                 BrowseScreen.this.configuring.set(Optional.of(new SelectedCosmeticTriple(data, options, submit)));
+                                                BrowseScreen.this.menu.set(Menu.NONE); // close the menu
+
                                                 // Set up Preview
                                                 switch (envelope.getType()) {
                                                 case COSMETIC:
@@ -374,7 +378,14 @@ public class BrowseScreen extends AbstractHomeScreen {
                                         }, Minecraft.getInstance())
                                         .exceptionally(ex -> {
                                             Logging.getInstance().error("Error performing search for " + query, ex);
-                                            // TODO show error visually
+
+                                            if (ex instanceof CompletionException) {
+                                                ex = ex.getCause();
+                                            }
+
+                                            Cosmetica.showToast(
+                                                    Text.translatable("toast.cosmetica.searchError"),
+                                                    Text.literal(ex.getMessage().length() > 27 ? ex.getMessage().substring(0, 25) + "..." : ex.getMessage()));
                                             return null;
                                         });
                             }
@@ -452,6 +463,7 @@ public class BrowseScreen extends AbstractHomeScreen {
                         // need to have a reference to original outfit
                         // outfit should usually != null as the screen will be closed by Results.
                         // In such a case, there will likely be one frame in which this is called with outfit == null
+                        // nb this shouldn't happen for any reason because even if outfit is removed a Cosmetics object with no outfit will exist.
                         @Nullable Cosmetics outfit = Cosmetica.OWN_COSMETICS.acquire(this);
 
                         // image
@@ -574,16 +586,20 @@ public class BrowseScreen extends AbstractHomeScreen {
                                         // Unlock
                                         settingLock.set(false);
                                         // TODO error notification
+                                        Logging.getInstance().error("Error equipping cosmetics", ex);
                                     }));
                         });
 
                         boolean isSetting = settingLock.acquire(this);
                         int accessoryLimit = BrowseScreen.this.accessoryLimit.acquire(this);
 
-                        // Handle this rare case!
-                        // Should be closed next frame by Results anyway.
-                        if (outfit == null) {
+                        // Handle this case!
+                        if (outfit == null || !outfit.getOutfitId().isPresent()) {
                             submitButton.setDisabled(true);
+                            submitButton.withStyle(Style.create()
+                                    .set(TOOLTIP, Optional.of(new Tooltip(
+                                            Text.translatable("tooltip.cosmetica.noOutfitDisabled")
+                                    ))));
                         } else if (isSetting) {
                             submitButton.setDisabled(true);
                             submitButton.withStyle(Style.create()

@@ -173,6 +173,7 @@ public abstract class AbstractHomeScreen extends Screen implements AnimatedTextu
                 Optional.ofNullable(cosmetics).map(Cosmetics::getNametag).orElse(NametagConfig.EMPTY));
         // add cache cosmetics to outfit player
         if (!authenticated && cosmetics != null) {
+            Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Not authenticated and no outfit. Configuring overrides...");
             player.configureOverrides(p -> p
                     .configureOverride(AccessoriesAttachment.INSTANCE, cosmetics.getAccessories())
                     .configureOverride(GUIPlayer.CAPE, cosmetics.getCloak().map(ImageCosmetic::getImage).map(c -> c.location).map(GUIPlayer.CapeProperties::new).orElse(new GUIPlayer.CapeProperties((ResourceKey) null)))
