@@ -28,7 +28,7 @@
     "cosmetica-fabric.mixins.json"
   ],
   "depends": {
-    "fabric-resource-loader-v0": "*",
+    "fabric-resource-loader-v1": "*",
     "cosmetica-core": "*",
     "kupe": "*",
     "minecraft": ">=1.21.10 <1.22"
