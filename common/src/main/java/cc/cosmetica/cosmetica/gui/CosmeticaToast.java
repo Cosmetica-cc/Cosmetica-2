@@ -20,16 +20,15 @@ import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.impl.PoseCanvas;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastManager;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderPipelines;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
-import org.joml.Vector4f;
+import org.joml.Matrix3x2fStack;
+import org.joml.Vector3f;
 
 /**
  * Toast for Cosmetica errors.
@@ -64,15 +63,14 @@ public class CosmeticaToast implements Toast {
 
     @Override
     public void render(GuiGraphics graphics, Font font, long l) {
-        PoseStack poseStack = graphics.pose();
+        Matrix3x2fStack poseStack = graphics.pose();
 
         Canvas canvas = new PoseCanvas(graphics, Minecraft.getInstance(), null, 0);
 
-        graphics.blitSprite(RenderType::guiTextured, BACKGROUND_SPRITE.toResourceLocation(), 0, 0, this.width(), this.height());
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND_SPRITE.toResourceLocation(), 0, 0, this.width(), this.height());
 
-        Matrix4f arg = poseStack.last().pose();
-        Vector4f pos = new Vector4f(18, 12, 0, 0);
-        pos.mul(arg);
+        Vector3f pos = new Vector3f(18, 12, 0);
+        pos.mul(poseStack);
 
         if (this.description == null) {
             canvas.drawText(this.title, (int)pos.x(), (int)pos.y(), -256);
@@ -80,7 +78,6 @@ public class CosmeticaToast implements Toast {
             canvas.drawText(this.title, (int)pos.x(), (int)pos.y() - 6, -256);
             canvas.drawText(this.description, (int)pos.x(), (int)pos.y() + 6, -1);
         }
-        graphics.flush();
     }
 
     private static final ResourceKey BACKGROUND_SPRITE = new ResourceKey("minecraft", "toast/system");
