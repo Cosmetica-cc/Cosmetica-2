@@ -40,6 +40,7 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import com.google.common.collect.ImmutableList;
+import gg.cloaks.javaclient.ApiException;
 import gg.cloaks.javaclient.api.IconsApi;
 import gg.cloaks.javaclient.api.LoreApi;
 import gg.cloaks.javaclient.api.UsersApi;
@@ -49,6 +50,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
@@ -162,7 +164,25 @@ public class StyleNametagScreen extends Screen implements AnimatedTextureScreen 
                             }
                         });
 
-                        Logging.getInstance().error("Could not set lore", e); return null;
+                        Logging.getInstance().error("Could not set lore", e);
+
+                        // toast
+                        if (e instanceof CompletionException) {
+                            e = e.getCause();
+                        }
+                        if (e instanceof ApiException) {
+                            Cosmetica.showToast(
+                                    Text.translatable("toast.cosmetica.loreUpdateError"),
+                                    Text.literal("Error code " + ((ApiException) e).getCode())
+                            );
+                        } else {
+                            Cosmetica.showToast(
+                                    Text.translatable("toast.cosmetica.loreUpdateError"),
+                                    Text.literal(e.getClass().getSimpleName())
+                            );
+                        }
+
+                        return null;
                     });
         }
 

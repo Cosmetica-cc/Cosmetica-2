@@ -18,10 +18,10 @@ package cc.cosmetica.cosmetica.mixin.gui;
 
 import cc.cosmetica.core.api.CachedImage;
 import cc.cosmetica.core.impl.NametagRenderer;
-import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.widget.RotatableGUIPlayer;
-import cc.cosmetica.kupe.api.Canvas;
+import cc.cosmetica.cosmetica.util.NametagUtil;
 import cc.cosmetica.kupe.api.Context;
+import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import cc.cosmetica.kupe.impl.fakeplayer.FakePlayerRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -36,7 +36,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 
-@Mixin(value = FakePlayerRenderer.class, remap = false)
+@Mixin(value = FakePlayerRenderer.class)
 public class FakePlayerRendererMixin {
     @Shadow public List<GUIPlayer.Nametag> nametags;
 
@@ -44,7 +44,7 @@ public class FakePlayerRendererMixin {
     @Unique private boolean cosmetica$iconTransparent = false;
     @Unique private @Nullable CachedImage cosmetica$icon1 = null;
 
-    @Inject(at = @At("HEAD"), method = "drawLivingEntity")
+    @Inject(at = @At("HEAD"), method = "drawLivingEntity", remap = false)
     private void onDrawLiving(GUIPlayer player, Context context, float rotation, float delta, PoseStack stack,
                               MultiBufferSource bufferSource, int light, CallbackInfo ci) {
         if (player instanceof RotatableGUIPlayer) {
@@ -55,7 +55,25 @@ public class FakePlayerRendererMixin {
         }
     }
 
-    @Inject(at = @At("HEAD"), method = "renderNametag")
+    @Inject(at = @At(
+            value = "INVOKE",
+            target = "Lcom/mojang/blaze3d/vertex/PoseStack;pushPose()V",
+            ordinal = 1,
+            shift = At.Shift.AFTER),
+            method = "drawLivingEntity")
+    private void onStartDrawNametag(GUIPlayer player, Context context, float rotation, float delta, PoseStack stack,
+                              MultiBufferSource bufferSource, int light, CallbackInfo ci) {
+        int nametags = this.nametags.size();
+        if (nametags > 1) {
+            Text lore = this.nametags.get(1).text;
+            if (lore.isEmpty()) {
+                nametags--;
+            }
+        }
+        NametagUtil.shiftNametags(stack, player, nametags);
+    }
+
+    @Inject(at = @At("HEAD"), method = "renderNametag", remap = false)
     private void onRenderNametag(GUIPlayer.Nametag nametag, PoseStack stack, MultiBufferSource bufferSource,
                                  int packedLight, CallbackInfo ci) {
         if (nametag == nametags.get(0)) {

@@ -42,6 +42,7 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
@@ -69,6 +70,7 @@ public final class Authentication {
     private static final AtomicInteger RETRIES = new AtomicInteger(0);
     private static final Object lock = new Object();
     public static final State<Optional<LoginResult>> LOGIN_RESULT = new State<>(Optional.empty());
+    private static long lastInvalidation = System.currentTimeMillis() - 1000L;
 
     static void authenticate() {
         // download current settings and update settings on authentication change
@@ -79,7 +81,15 @@ public final class Authentication {
 
                 // delete invalid tokens
                 if (reason == CosmeticaAPI.AuthChangeReason.ERROR_401) {
-                    invalidateToken();
+                    // de-duplicate invalidations for subsequent blind api calls
+                    synchronized (lock) {
+                        if (System.currentTimeMillis() - lastInvalidation > 1000L) {
+                            invalidateToken();
+                        } else {
+                            Logging.getInstance().debug(CosmeticaLogCategory.LOGIN, "Skipping token invalidation as token already invalidated within last second.");
+                        }
+                        lastInvalidation = System.currentTimeMillis();
+                    }
                 }
             }
 
@@ -157,7 +167,7 @@ public final class Authentication {
 
         // Remove property
         User user = Minecraft.getInstance().getUser();
-        String tokenKey = "jwt-" + user.getProfileId();
+        String tokenKey = jwtKey(user.getProfileId());
         properties.remove(tokenKey);
 
         // Store
@@ -167,6 +177,14 @@ public final class Authentication {
         } catch (IOException e) {
             Logging.getInstance().error("Failed to save cosmetica sessions", e);
         }
+    }
+
+    private static String jwtKey(String uuid) {
+        return "jwt-" + uuid.replace("-", "");
+    }
+
+    private static String jwtKey(UUID uuid) {
+        return "jwt-" + uuid.toString().replace("-", "");
     }
 
     private static void repeatLogInFromApi(Path sessionsInfo, Properties properties) {
@@ -211,7 +229,7 @@ public final class Authentication {
             }
 
             User user = Minecraft.getInstance().getUser();
-            String token = sessionInfo.getProperty("jwt-" + user.getProfileId());
+            String token = sessionInfo.getProperty(jwtKey(user.getProfileId()));
 
             if (token != null) {
                 // parse jwt to check if expired
@@ -272,7 +290,7 @@ public final class Authentication {
 
                 // Cache Token
                 if (!token.isEmpty()) { // we are using async code, so near-redundant operation just in case.
-                    sessionInfo.setProperty("jwt-" + user.getProfileId(), token);
+                    sessionInfo.setProperty(jwtKey(user.getProfileId()), token);
 
                     try (BufferedOutputStream b = new BufferedOutputStream(Files.newOutputStream(sessionInfoPath))) {
                         sessionInfo.store(b, "Cosmetica Session Info");

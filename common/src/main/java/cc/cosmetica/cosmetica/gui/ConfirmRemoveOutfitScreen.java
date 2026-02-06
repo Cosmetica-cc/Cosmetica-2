@@ -72,6 +72,10 @@ public final class ConfirmRemoveOutfitScreen extends AbstractConfirmScreen {
                         int code = ((ApiException) err).getCode();
                         // outfit doesn't exist
                         if (code == 404) {
+                            Cosmetica.showToast(
+                                    Text.translatable("toast.cosmetica.outfit404"),
+                                    null
+                            );
                             Minecraft.getInstance().execute(Screens::closeCurrentScreen);
                         }
                         // no auth
@@ -80,9 +84,19 @@ public final class ConfirmRemoveOutfitScreen extends AbstractConfirmScreen {
                         else {
                             Logging.getInstance().error("Error deleting outfit", code);
                             Minecraft.getInstance().execute(() -> setting.set(false));
+
+                            Cosmetica.showToast(
+                                    Text.translatable("toast.cosmetica.outfitDeleteError"),
+                                    Text.literal("Error code " + code)
+                            );
                         }
                     } else {
                         Logging.getInstance().error("Failed to remove outfit", err);
+
+                        Cosmetica.showToast(
+                                Text.translatable("toast.cosmetica.outfitDeleteError"),
+                                Text.literal(err.getClass().getSimpleName())
+                        );
                     }
                     return null;
                 });
