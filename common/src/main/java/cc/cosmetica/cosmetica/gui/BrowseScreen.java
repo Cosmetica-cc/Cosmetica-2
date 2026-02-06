@@ -19,7 +19,6 @@ package cc.cosmetica.cosmetica.gui;
 import cc.cosmetica.core.api.Accessory;
 import cc.cosmetica.core.api.Cosmetic;
 import cc.cosmetica.core.api.*;
-import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.cosmeticconfig.AccessoryOptions;
@@ -39,8 +38,8 @@ import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Vec3;
 import com.google.common.collect.ImmutableList;
+import gg.cloaks.javaclient.ApiException;
 import gg.cloaks.javaclient.api.PremiumApi;
-import gg.cloaks.javaclient.api.UsersApi;
 import gg.cloaks.javaclient.model.*;
 import gg.cloaks.javaclient.model.SearchCosmeticsDto.AttachmentsEnum;
 import net.minecraft.client.Minecraft;
@@ -383,9 +382,17 @@ public class BrowseScreen extends AbstractHomeScreen {
                                                 ex = ex.getCause();
                                             }
 
-                                            Cosmetica.showToast(
-                                                    Text.translatable("toast.cosmetica.searchError"),
-                                                    Text.literal(ex.getMessage().length() > 27 ? ex.getMessage().substring(0, 25) + "..." : ex.getMessage()));
+                                            if (ex instanceof ApiException) {
+                                                Cosmetica.showToast(
+                                                        Text.translatable("toast.cosmetica.searchError"),
+                                                        Text.literal("Error code " + ((ApiException) ex).getCode())
+                                                );
+                                            } else {
+                                                Cosmetica.showToast(
+                                                        Text.translatable("toast.cosmetica.searchError"),
+                                                        Text.literal(ex.getClass().getSimpleName())
+                                                );
+                                            }
                                             return null;
                                         });
                             }
