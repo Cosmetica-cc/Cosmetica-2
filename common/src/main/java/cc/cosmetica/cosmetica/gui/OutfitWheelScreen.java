@@ -90,7 +90,7 @@ public class OutfitWheelScreen extends Screen {
         // Draw text
         final int titleHeight = this.getTitleHeight();
         Component title = this.getPageLabel();
-        graphics.drawCenteredString(this.font, title, this.width / 2, titleHeight, 0xffffff);
+        graphics.drawCenteredString(this.font, title, this.width / 2, titleHeight, 0xffffffff);
 
         {
             int[] pageChangeButton = new int[3];
@@ -110,8 +110,8 @@ public class OutfitWheelScreen extends Screen {
             boolean hoveredPrevPage = hoveredY && mouseX >= left-pcWidth/2 && mouseX <= left+pcWidth/2+1;
             boolean hoveredNextPage = hoveredY && mouseX >= right-pcWidth/2 && mouseX <= right+pcWidth/2+1;
 
-            graphics.drawCenteredString(this.font, Text.literal("<").toMinecraftComponent(), left, titleHeight, previousPage ? (hoveredPrevPage ? 0x888888 : 0xffffff) : 0x888888);
-            graphics.drawCenteredString(this.font, Text.literal(">").toMinecraftComponent(), right, titleHeight, nextPage ? (hoveredNextPage ? 0x888888 : 0xffffff) : 0x888888);
+            graphics.drawCenteredString(this.font, Text.literal("<").toMinecraftComponent(), left, titleHeight, previousPage ? (hoveredPrevPage ? 0xff888888 : 0xffffffff) : 0xff888888);
+            graphics.drawCenteredString(this.font, Text.literal(">").toMinecraftComponent(), right, titleHeight, nextPage ? (hoveredNextPage ? 0xff888888 : 0xffffffff) : 0xff888888);
 
         }
         // Draw circles
