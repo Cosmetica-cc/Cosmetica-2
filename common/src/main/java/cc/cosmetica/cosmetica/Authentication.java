@@ -167,11 +167,7 @@ public final class Authentication {
 
         // Remove property
         User user = Minecraft.getInstance().getUser();
-<<<<<<< HEAD
-        String tokenKey = "jwt-" + user.getProfileId();
-=======
-        String tokenKey = jwtKey(user.getUuid());
->>>>>>> 1.20.1
+        String tokenKey = jwtKey(user.getProfileId());
         properties.remove(tokenKey);
 
         // Store
@@ -233,11 +229,7 @@ public final class Authentication {
             }
 
             User user = Minecraft.getInstance().getUser();
-<<<<<<< HEAD
-            String token = sessionInfo.getProperty("jwt-" + user.getProfileId());
-=======
-            String token = sessionInfo.getProperty(jwtKey(user.getUuid()));
->>>>>>> 1.20.1
+            String token = sessionInfo.getProperty(jwtKey(user.getProfileId()));
 
             if (token != null) {
                 // parse jwt to check if expired
@@ -298,11 +290,7 @@ public final class Authentication {
 
                 // Cache Token
                 if (!token.isEmpty()) { // we are using async code, so near-redundant operation just in case.
-<<<<<<< HEAD
-                    sessionInfo.setProperty("jwt-" + user.getProfileId(), token);
-=======
-                    sessionInfo.setProperty(jwtKey(user.getUuid()), token);
->>>>>>> 1.20.1
+                    sessionInfo.setProperty(jwtKey(user.getProfileId()), token);
 
                     try (BufferedOutputStream b = new BufferedOutputStream(Files.newOutputStream(sessionInfoPath))) {
                         sessionInfo.store(b, "Cosmetica Session Info");

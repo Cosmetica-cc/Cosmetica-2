@@ -17,12 +17,14 @@
 package cc.cosmetica.cosmetica.gui;
 
 import cc.cosmetica.kupe.api.Canvas;
+import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.impl.PoseCanvas;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
@@ -55,7 +57,7 @@ public class CosmeticaToast implements Toast {
 
         int i = this.width();
 
-        graphics.blit(TEXTURE, 0, 0, 0, 64, i, this.height());
+        graphics.blitSprite(BACKGROUND_SPRITE.toResourceLocation(), 0, 0, i, this.height());
 
         Matrix4f arg = poseStack.last().pose();
         Vector4f pos = new Vector4f(18, 12, 0, 0);
@@ -70,4 +72,6 @@ public class CosmeticaToast implements Toast {
 
         return l - this.lastChanged < 5000L ? Visibility.SHOW : Visibility.HIDE;
     }
+
+    private static final ResourceKey BACKGROUND_SPRITE = new ResourceKey("minecraft", "toast/system");
 }

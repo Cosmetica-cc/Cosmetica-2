@@ -68,7 +68,7 @@ public class CosmeticaCapeProvider implements GUIPlayer.CapeProvider {
      */
     static Optional<Cosmetics> getCosmetics(UUID uuid) {
         // check if self
-        if (UUIDTypeAdapter.fromString(Minecraft.getInstance().getUser().getUuid()).equals(uuid)) {
+        if (Minecraft.getInstance().getUser().getProfileId().equals(uuid)) {
             return SelfCosmeticManager.getCosmetics();
         }
 
@@ -79,14 +79,6 @@ public class CosmeticaCapeProvider implements GUIPlayer.CapeProvider {
             }
         }
 
-<<<<<<< HEAD
-        // check if self
-        if (Minecraft.getInstance().getUser().getProfileId().equals(uuid)) {
-            return SelfCosmeticManager.getCosmetics();
-        }
-
-=======
->>>>>>> 1.20.1
         return Optional.empty();
     }
 }
