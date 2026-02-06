@@ -32,6 +32,7 @@ import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,11 +43,38 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 public class HomeScreen extends AbstractHomeScreen {
 	public HomeScreen() {
 		super(ID);
+
+		if (Boolean.getBoolean("cosmetica.debug")) {
+			if (!shownDebugToast) {
+				shownDebugToast = true;
+				Cosmetica.showToast(
+						Text.literal("Debug Toast"),
+						Text.literal("You have debug mode on!")
+				);
+			}
+		}
 	}
+
+	// debug toast spawn cooldown
+	private static boolean shownDebugToast = false;
 
 	private final State<Boolean> dismissedError = new State<>(false);
 	private static @Nullable LoginResult dismissed = null;
 	private static final LoginResult GENERIC = new LoginResult(false, LoginResult.Code.SUCCESS, "", null);
+
+	@Override
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+		if (
+				Boolean.getBoolean("cosmetica.debug") &&
+				keyCode == GLFW.GLFW_KEY_RIGHT_CONTROL
+		) {
+			Cosmetica.showToast(
+					Text.literal("Debug Toast"),
+					Text.literal("You hit right control!")
+			);
+		}
+		return super.keyPressed(keyCode, scanCode, modifiers);
+	}
 
 	@Override
 	protected @NotNull Component createRightMenu(Cosmetics cosmetics, boolean authenticated) {
@@ -65,7 +93,7 @@ public class HomeScreen extends AbstractHomeScreen {
 				CosmeticEntry.populateEntryList(entries, cosmetics, CosmeticEntry.Type.removable(authenticated));
 
 				return ImmutableList.of(
-						new CosmeticsList(entries, !authenticated ? CosmeticsList.ListType.OFFLINE : cosmetics == null ? CosmeticsList.ListType.DISABLED : CosmeticsList.ListType.EDITABLE)
+						new CosmeticsList(entries, !authenticated ? CosmeticsList.ListType.OFFLINE : (cosmetics == null || !cosmetics.getOutfitId().isPresent()) ? CosmeticsList.ListType.DISABLED : CosmeticsList.ListType.EDITABLE)
 				);
 			}
 		};
