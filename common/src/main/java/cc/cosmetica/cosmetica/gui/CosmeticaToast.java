@@ -17,12 +17,10 @@
 package cc.cosmetica.cosmetica.gui;
 
 import cc.cosmetica.kupe.api.Canvas;
-import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.impl.PoseCanvas;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
 import org.jetbrains.annotations.Nullable;
@@ -45,19 +43,19 @@ public class CosmeticaToast implements Toast {
     private long lastChanged;
 
     @Override
-    public Visibility render(PoseStack poseStack, ToastComponent toastComponent, long l) {
+    public Visibility render(GuiGraphics graphics, ToastComponent toastComponent, long l) {
         if (this.changed) {
             this.changed = false;
             this.lastChanged = l;
         }
 
-        Canvas canvas = new PoseCanvas(poseStack, toastComponent.getMinecraft(), null, 0);
-        canvas.setTexture(new ResourceKey(TEXTURE));
+        PoseStack poseStack = graphics.pose();
 
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        Canvas canvas = new PoseCanvas(graphics, toastComponent.getMinecraft(), null, 0);
+
         int i = this.width();
 
-        GuiComponent.blit(poseStack, 0, 0, 0, 64, i, this.height());
+        graphics.blit(TEXTURE, 0, 0, 0, 64, i, this.height());
 
         Matrix4f arg = poseStack.last().pose();
         Vector4f pos = new Vector4f(18, 12, 0, 0);
