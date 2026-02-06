@@ -16,7 +16,9 @@
 
 package cc.cosmetica.cosmetica.gui;
 
+import cc.cosmetica.core.CosmeticaCore;
 import cc.cosmetica.core.api.CosmeticaAPI;
+import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
@@ -100,6 +102,7 @@ public class CosmeticaSettingsScreen extends Screen {
     public void unmount() {
         saveLocalSettings();
         CosmeticaSettings.saveLocalSettingsIfNotOnSettingsScreen.set(CosmeticaSettingsScreen::saveLocalSettings);
+        Cosmetics.configureOwnNametag(CosmeticaSettings.SHOW_OWN_NAMETAG.get(), false);
         this.updateCloudSettings();
     }
 
