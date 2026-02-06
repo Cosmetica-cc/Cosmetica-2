@@ -18,6 +18,7 @@ package cc.cosmetica.cosmetica.settings;
 
 import cc.cosmetica.core.CosmeticaCoreExpectPlatform;
 import cc.cosmetica.core.api.CosmeticaAPI;
+import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.gui.CosmeticaSettingsScreen;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
@@ -56,6 +57,7 @@ public final class CosmeticaSettings {
     // Client profile settings
     public static final Setting<Boolean> TOGGLE_OUTFIT_WHEEL = new BooleanSetting("setting.cosmetica.wheel", false, false);
     public static final Setting<Boolean> VERSION_CHECKER = new BooleanSetting("setting.cosmetica.versionChecker", true, true);
+    public static final Setting<Boolean> SHOW_OWN_NAMETAG = new BooleanSetting("setting.cosmetica.showOwnNametag", true, true);
     /**
      * In a modpack with managed settings, use cloud settings instead.
      */
@@ -122,7 +124,7 @@ public final class CosmeticaSettings {
     public static final Setting<Boolean> SHOW_ONLINE_ACTIVITY = new BooleanSetting("setting.cosmetica.showOnlineActivity", true, true);
     public static final Setting<Boolean> VISIBILITY_OVERRIDES = new BooleanSetting("setting.cosmetica.visibilityOverrides", true, true);
 
-    public static final List<Setting<?>> CLIENT_SETTINGS = new ArrayList<>(Arrays.asList(TOGGLE_OUTFIT_WHEEL, USE_CLOUD_SETTINGS));
+    public static final List<Setting<?>> CLIENT_SETTINGS = new ArrayList<>(Arrays.asList(TOGGLE_OUTFIT_WHEEL, SHOW_OWN_NAMETAG, USE_CLOUD_SETTINGS));
     public static final List<Setting<?>> API_SETTINGS = ImmutableList.of(
             SHOW_ACCESSORIES,
             SHOW_LORE,
@@ -198,6 +200,7 @@ public final class CosmeticaSettings {
         properties.setProperty("toggle_outfit_wheel", String.valueOf(TOGGLE_OUTFIT_WHEEL.get()));
         properties.setProperty("enable_version_checker", String.valueOf(VERSION_CHECKER.get()));
         properties.setProperty("use_cloud_settings", String.valueOf(USE_CLOUD_SETTINGS.get()));
+        properties.setProperty("show_own_nametag", String.valueOf(SHOW_OWN_NAMETAG.get()));
 
         // Overwrite with file properties if loading local
         if (!loadedLocal) {
@@ -213,6 +216,8 @@ public final class CosmeticaSettings {
             TOGGLE_OUTFIT_WHEEL.apiUpdate(Boolean.parseBoolean(properties.getProperty("toggle_outfit_wheel", "false")), Settings.TypeEnum.CLOUD);
             USE_CLOUD_SETTINGS.apiUpdate(Boolean.parseBoolean(properties.getProperty("use_cloud_settings", "false")), Settings.TypeEnum.CLOUD);
             VERSION_CHECKER.apiUpdate(Boolean.parseBoolean(properties.getProperty("enable_version_checker", "true")), Settings.TypeEnum.CLOUD);
+            SHOW_OWN_NAMETAG.apiUpdate(Boolean.parseBoolean(properties.getProperty("show_own_nametag", "true")), Settings.TypeEnum.CLOUD);
+            Cosmetics.configureOwnNametag(CosmeticaSettings.SHOW_OWN_NAMETAG.get(), false);
 
             loadedLocal = true;
         }
