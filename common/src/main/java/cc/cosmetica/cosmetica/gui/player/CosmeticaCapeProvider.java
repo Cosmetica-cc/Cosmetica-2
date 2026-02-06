@@ -65,16 +65,16 @@ public class CosmeticaCapeProvider implements GUIPlayer.CapeProvider {
      * @return the player's cosmetics.
      */
     static Optional<Cosmetics> getCosmetics(UUID uuid) {
+        // check if self
+        if (Minecraft.getInstance().getUser().getProfileId().equals(uuid)) {
+            return SelfCosmeticManager.getCosmetics();
+        }
+
         if (Minecraft.getInstance().level != null) {
             Player player = Minecraft.getInstance().level.getPlayerByUUID(uuid);
             if (player != null) {
                 return Cosmetics.getCosmetics(player);
             }
-        }
-
-        // check if self
-        if (Minecraft.getInstance().getUser().getProfileId().equals(uuid)) {
-            return SelfCosmeticManager.getCosmetics();
         }
 
         return Optional.empty();

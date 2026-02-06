@@ -275,6 +275,10 @@ public class Cosmetica {
 		}
 	}
 
+	public static void showToast(Text title, @Nullable Text description) {
+		Minecraft.getInstance().getToastManager().addToast(new CosmeticaToast(title, description));
+	}
+
 	/*public static Style authTooltip(Component acquirer, boolean authenticated) {
 		Optional<LoginResult> result = Authentication.LOGIN_RESULT.acquire(acquirer);
 
@@ -323,5 +327,6 @@ public class Cosmetica {
 	}
 
 	public static final Identifier FALLBACK_TEXTURE = new ResourceKey("cosmetica", "icon.png").toResourceLocation();
+	public static final Identifier FALLBACK_OUTFIT_TEXTURE = new ResourceKey("cosmetica", "textures/default_outfit.png").toResourceLocation();
 	public static final Identifier LOADING_TEXTURE = new ResourceKey("cosmetica", "textures/loading.png").toResourceLocation();
 }
