@@ -51,6 +51,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -61,7 +62,7 @@ public class OutfitWheelScreen extends Screen {
     public OutfitWheelScreen() {
         super(Text.translatable("screens.cosmetica.wheel").toMinecraftComponent());
         // todo maybe implement this as kupe screen so we can update outfit list automatically on outfit change
-        this.options = Cosmetica.OWN_OUTFITS.peek();
+        this.options = Arrays.asList();
 
         if (page > this.getLastPage()) {
             page = 0;
@@ -189,20 +190,22 @@ public class OutfitWheelScreen extends Screen {
         }
 
         // centre
-        final float x0 = (float) (centreX) - scale /3;
-        final float y0 = (float) (centreY) - scale /3;
-        final float x1 = (float) (centreX) + scale /3;
-        final float y1 = (float) (centreY) + scale /3;
+        if (!this.options.isEmpty()) {
+            final float x0 = (float) (centreX) - scale /3;
+            final float y0 = (float) (centreY) - scale /3;
+            final float x1 = (float) (centreX) + scale /3;
+            final float y1 = (float) (centreY) + scale /3;
 
-        canvas.setTexture(new ResourceKey(NO_OUTFIT_LOCATION));
-        canvas.setTransparency(0.8f);
+            canvas.setTexture(new ResourceKey(NO_OUTFIT_LOCATION));
+            canvas.setTransparency(0.8f);
 
-        PolyBuilder builder = canvas.drawQuads(PolyBuilder.Mode.POSITION_TEXTURE);
-        builder.vertex(x0, y1).uv(0, 1).endVertex();
-        builder.vertex(x1, y1).uv(1, 1).endVertex();
-        builder.vertex(x1, y0).uv(1, 0).endVertex();
-        builder.vertex(x0, y0).uv(0, 0).endVertex();
-        builder.build();
+            PolyBuilder builder = canvas.drawQuads(PolyBuilder.Mode.POSITION_TEXTURE);
+            builder.vertex(x0, y1).uv(0, 1).endVertex();
+            builder.vertex(x1, y1).uv(1, 1).endVertex();
+            builder.vertex(x1, y0).uv(1, 0).endVertex();
+            builder.vertex(x0, y0).uv(0, 0).endVertex();
+            builder.build();
+        }
 
         canvas.disableTransparency();
     }
@@ -329,6 +332,8 @@ public class OutfitWheelScreen extends Screen {
 
     @Override
     public void tick() {
+        this.options = CosmeticaAPI.isAuthenticated() ? Cosmetica.OWN_OUTFITS.peek() : Arrays.asList();
+
         if (!CosmeticaSettings.TOGGLE_OUTFIT_WHEEL.get()) {
             if (!isDown(Keybinds.SELECT_OUTFIT)) {
                 this.onClose();
@@ -426,8 +431,10 @@ public class OutfitWheelScreen extends Screen {
                     }
                 }
             } else if (selectedButton == 8) {
-                GuiUtils.playClick();
-                clearOutfit();
+                if (!this.options.isEmpty()) {
+                    GuiUtils.playClick();
+                    clearOutfit();
+                }
             }
 
             return true;

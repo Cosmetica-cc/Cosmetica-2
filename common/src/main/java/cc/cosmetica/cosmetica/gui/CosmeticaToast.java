@@ -25,7 +25,6 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastManager;
-import net.minecraft.client.renderer.RenderPipelines;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3x2fStack;
 import org.joml.Vector3f;
@@ -67,18 +66,26 @@ public class CosmeticaToast implements Toast {
 
         Canvas canvas = new PoseCanvas(graphics, Minecraft.getInstance(), null, 0);
 
-        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND_SPRITE.toResourceLocation(), 0, 0, this.width(), this.height());
+        int i = this.width();
+
+        canvas.setTransparency(1);
+        graphics.blit(TEXTURE.toResourceLocation(), 0, 0, i, this.height(), 0, 1, 0, 1);
 
         Vector3f pos = new Vector3f(18, 12, 0);
         pos.mul(poseStack);
 
         if (this.description == null) {
-            canvas.drawText(this.title, (int)pos.x(), (int)pos.y(), -256);
+            canvas.drawText(this.title, (int)pos.x() + 17, (int)pos.y(), -256);
         } else {
-            canvas.drawText(this.title, (int)pos.x(), (int)pos.y() - 6, -256);
-            canvas.drawText(this.description, (int)pos.x(), (int)pos.y() + 6, -1);
+            canvas.drawText(this.title, (int)pos.x() + 17, (int)pos.y() - 6, -256);
+            canvas.drawText(this.description, (int)pos.x() + 17, (int)pos.y() + 6, -1);
         }
     }
 
-    private static final ResourceKey BACKGROUND_SPRITE = new ResourceKey("minecraft", "toast/system");
+    @Override
+    public int width() {
+        return 180;
+    }
+
+    private static final ResourceKey TEXTURE = new ResourceKey("cosmetica", "textures/toast.png");
 }
