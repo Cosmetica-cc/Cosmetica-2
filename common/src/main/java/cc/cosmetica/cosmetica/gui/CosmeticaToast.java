@@ -57,21 +57,26 @@ public class CosmeticaToast implements Toast {
 
         int i = this.width();
 
-        graphics.blitSprite(BACKGROUND_SPRITE.toResourceLocation(), 0, 0, i, this.height());
+        graphics.blit(TEXTURE.toResourceLocation(), 0, 0, i, this.height(), 0, 0, 360, 64, 360, 64);
 
         Matrix4f arg = poseStack.last().pose();
         Vector4f pos = new Vector4f(18, 12, 0, 0);
         pos.mul(arg);
 
         if (this.description == null) {
-            canvas.drawText(this.title, (int)pos.x(), (int)pos.y(), -256);
+            canvas.drawText(this.title, (int)pos.x() + 17, (int)pos.y(), -256);
         } else {
-            canvas.drawText(this.title, (int)pos.x(), (int)pos.y() - 6, -256);
-            canvas.drawText(this.description, (int)pos.x(), (int)pos.y() + 6, -1);
+            canvas.drawText(this.title, (int)pos.x() + 17, (int)pos.y() - 6, -256);
+            canvas.drawText(this.description, (int)pos.x() + 17, (int)pos.y() + 6, -1);
         }
 
         return l - this.lastChanged < 5000L ? Visibility.SHOW : Visibility.HIDE;
     }
 
-    private static final ResourceKey BACKGROUND_SPRITE = new ResourceKey("minecraft", "toast/system");
+    @Override
+    public int width() {
+        return 180;
+    }
+
+    private static final ResourceKey TEXTURE = new ResourceKey("cosmetica", "textures/toast.png");
 }
