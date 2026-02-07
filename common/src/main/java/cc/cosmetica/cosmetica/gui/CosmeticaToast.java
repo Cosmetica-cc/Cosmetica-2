@@ -70,7 +70,7 @@ public class CosmeticaToast implements Toast {
 
         int i = this.width();
 
-        graphics.blit(RenderType::guiTextured, TEXTURE.toResourceLocation(), 0, 0, i, this.height(), 0, 0, 360, 64, 360, 64);
+        canvas.drawTexture(0, 0, i, this.height(), 0, TEXTURE);
 
         Matrix4f arg = poseStack.last().pose();
         Vector4f pos = new Vector4f(18, 12, 0, 0);
