@@ -25,6 +25,7 @@ import cc.cosmetica.core.impl.LoggingCategory;
 import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.kupe.api.State;
+import cc.cosmetica.kupe.api.Text;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
@@ -47,6 +48,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static cc.cosmetica.cosmetica.settings.CosmeticaSettings.willApplyLocalSettings;
@@ -71,6 +73,9 @@ public final class Authentication {
     private static final Object lock = new Object();
     public static final State<Optional<LoginResult>> LOGIN_RESULT = new State<>(Optional.empty());
     private static long lastInvalidation = System.currentTimeMillis() - 1000L;
+
+    public static final AtomicBoolean everAuthenticated = new AtomicBoolean(false);
+    public static final AtomicBoolean showedUnauthenticatedToast = new AtomicBoolean(false);
 
     static void authenticate() {
         // download current settings and update settings on authentication change
@@ -105,6 +110,14 @@ public final class Authentication {
                     } else if (CosmeticaAPI.isAuthenticated()) {
                         RETRIES.set(0);
                         authenticating = false;
+                        everAuthenticated.set(true);
+
+                        if (showedUnauthenticatedToast.compareAndSet(true, false)) {
+                            Cosmetica.showToast(
+                                    Text.translatable("toast.cosmetica.reconnected"),
+                                    null
+                            );
+                        }
                     }
                 }
 
@@ -200,8 +213,8 @@ public final class Authentication {
                         TimeUnit.SECONDS
                 );
             } else {
-                if (retries == 3) {
-                    Logging.getInstance().debug(LoggingCategory.COSMETICS, "Clearing cosmetics due to 3 failed retries.");
+                if (retries == 2) {
+                    Logging.getInstance().debug(LoggingCategory.COSMETICS, "Clearing cosmetics due to 2 failed retries.");
                     SelfCosmeticManager.clear();
                 }
 
