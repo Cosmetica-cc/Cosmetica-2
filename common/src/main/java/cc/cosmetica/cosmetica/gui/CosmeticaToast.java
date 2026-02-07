@@ -24,6 +24,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector4f;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
 import org.jetbrains.annotations.Nullable;
@@ -51,25 +52,32 @@ public class CosmeticaToast implements Toast {
         }
 
         Canvas canvas = new PoseCanvas(poseStack, toastComponent.getMinecraft(), null, 0);
-        canvas.setTexture(new ResourceKey(TEXTURE));
+        canvas.setTexture(TEXTURE);
 
         RenderSystem.color3f(1.0F, 1.0F, 1.0F);
         int i = this.width();
         int j = 12;
 
-        toastComponent.blit(poseStack, 0, 0, 0, 64, i, this.height());
+        GuiComponent.blit(poseStack, 0, 0, i, this.height(), 0, 0, 360, 64, 360, 64);
 
         Matrix4f arg = poseStack.last().pose();
         Vector4f pos = new Vector4f(18, 12, 0, 0);
         pos.transform(arg);
 
         if (this.description == null) {
-            canvas.drawText(this.title, (int)pos.x(), (int)pos.y(), -256);
+            canvas.drawText(this.title, (int)pos.x() + 17, (int)pos.y(), -256);
         } else {
-            canvas.drawText(this.title, (int)pos.x(), (int)pos.y() - 6, -256);
-            canvas.drawText(this.description, (int)pos.x(), (int)pos.y() + 6, -1);
+            canvas.drawText(this.title, (int)pos.x() + 17, (int)pos.y() - 6, -256);
+            canvas.drawText(this.description, (int)pos.x() + 17, (int)pos.y() + 6, -1);
         }
 
         return l - this.lastChanged < 5000L ? Visibility.SHOW : Visibility.HIDE;
     }
+
+    @Override
+    public int width() {
+        return 180;
+    }
+
+    private static final ResourceKey TEXTURE = new ResourceKey("cosmetica", "textures/toast.png");
 }

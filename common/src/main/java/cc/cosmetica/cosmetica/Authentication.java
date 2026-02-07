@@ -73,7 +73,9 @@ public final class Authentication {
     private static final Object lock = new Object();
     public static final State<Optional<LoginResult>> LOGIN_RESULT = new State<>(Optional.empty());
     private static long lastInvalidation = System.currentTimeMillis() - 1000L;
-    private static final AtomicBoolean showedUnauthenticatedToast = new AtomicBoolean(false);
+
+    public static final AtomicBoolean everAuthenticated = new AtomicBoolean(false);
+    public static final AtomicBoolean showedUnauthenticatedToast = new AtomicBoolean(false);
 
     static void authenticate() {
         // download current settings and update settings on authentication change
@@ -108,10 +110,11 @@ public final class Authentication {
                     } else if (CosmeticaAPI.isAuthenticated()) {
                         RETRIES.set(0);
                         authenticating = false;
+                        everAuthenticated.set(true);
 
                         if (showedUnauthenticatedToast.compareAndSet(true, false)) {
                             Cosmetica.showToast(
-                                    Text.literal("toast.cosmetica.reconnected"),
+                                    Text.translatable("toast.cosmetica.reconnected"),
                                     null
                             );
                         }
@@ -213,12 +216,6 @@ public final class Authentication {
                 if (retries == 2) {
                     Logging.getInstance().debug(LoggingCategory.COSMETICS, "Clearing cosmetics due to 2 failed retries.");
                     SelfCosmeticManager.clear();
-
-                    Cosmetica.showToast(
-                            Text.literal("toast.cosmetica.disconnected"),
-                            Text.literal("toast.cosmetica.disconnected.message")
-                    );
-                    showedUnauthenticatedToast.set(true);
                 }
 
                 Logging.getInstance().info("Retrying cosmetica login in {} seconds", retryCounts[retries]);
