@@ -25,7 +25,6 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastManager;
-import net.minecraft.client.renderer.RenderPipelines;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3x2fStack;
 import org.joml.Vector3f;
@@ -69,7 +68,8 @@ public class CosmeticaToast implements Toast {
 
         int i = this.width();
 
-        canvas.drawTexture(0, 0, i, this.height(), 0, TEXTURE);
+        canvas.setTransparency(1);
+        graphics.blit(TEXTURE.toResourceLocation(), 0, 0, i, this.height(), 0, 1, 0, 1);
 
         Vector3f pos = new Vector3f(18, 12, 0);
         pos.mul(poseStack);
