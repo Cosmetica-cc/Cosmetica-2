@@ -84,7 +84,17 @@ public class CacheCosmeticManager implements CosmeticManager {
                 Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "Reading offline cache outfit json");
 
                 CosmeticaUser user = this.userIO.read(is);
+                this.loadUser(user);
+            } catch (NoSuchFileException e) {
+                // expected on first launch
+                Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "No cached player cosmetics for self yet.");
+            } catch (IOException e) {
+                Logging.getInstance().error("Failed to read cached player cosmetics", e);
+            }
+        });
+    }
 
+    private void loadUser(CosmeticaUser user) {
                 Minecraft.getInstance().execute(() -> {
                     Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "Transforming offline outfit json to outfit");
                     @Nullable Outfit outfit = user.getOutfit();
@@ -182,13 +192,6 @@ public class CacheCosmeticManager implements CosmeticManager {
                             nametag, loreNametag, user.isUpsideDown()
                     );
                 });
-            } catch (NoSuchFileException e) {
-                // expected on first launch
-                Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "No cached player cosmetics for self yet.");
-            } catch (IOException e) {
-                Logging.getInstance().error("Failed to read cached player cosmetics", e);
-            }
-        });
     }
 
     public void save(CosmeticaUser response) {
@@ -215,6 +218,9 @@ public class CacheCosmeticManager implements CosmeticManager {
 
                 this.userIO.write(user, os);
                 Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "Cached player cosmetics");
+
+                this.loadUser(user);
+                Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "Updated loaded cache cosmetics");
             } catch (IOException e) {
                 Logging.getInstance().error("Failed to cache player cosmetics", e);
             }
