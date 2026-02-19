@@ -69,12 +69,12 @@ public class CacheCosmeticManager implements CosmeticManager {
     private Cosmetics cosmetics;
 
     @Override
-    public boolean canManage(LivingEntity entity) {
-        return entity instanceof LocalPlayer && cosmetics != null;
+    public boolean canManage(Either entity) {
+        return entity.entity instanceof LocalPlayer && cosmetics != null;
     }
 
     @Override
-    public Cosmetics getCosmetics(LivingEntity entity) {
+    public Cosmetics getCosmetics(Either entity) {
         return cosmetics;
     }
 
