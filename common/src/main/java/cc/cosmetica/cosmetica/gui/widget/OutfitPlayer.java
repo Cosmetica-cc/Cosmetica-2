@@ -25,6 +25,7 @@ import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import cc.cosmetica.kupe.api.maths.Dimensions;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.SkinCustomizationScreen;
 
@@ -34,8 +35,7 @@ import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.function.UnaryOperator;
 
-import static cc.cosmetica.kupe.api.gui.style.CommonProperties.WIDTH;
-import static cc.cosmetica.kupe.api.gui.style.CommonProperties.fixed;
+import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 public class OutfitPlayer extends Component {
 	public OutfitPlayer(UUID player, boolean authenticated, String outfitName, NametagConfig lore, NametagConfig nametag) {
@@ -92,7 +92,10 @@ public class OutfitPlayer extends Component {
 
 		return Arrays.asList(
 				new Div(
-					this.overrides.apply(guiPlayer).withStyle(Style.create().set(WIDTH, fixed(OptionalInt.of(50)))),
+					this.overrides.apply(guiPlayer).withStyle(Style.create()
+							.set(MIN_WIDTH, fixedSize(50))
+							.set(MAXIMUM_SIZE, fixed(new Dimensions(90, 1000)))
+							.set(WIDTH, (vw, vh, pw, ph) -> OptionalInt.of(10 + (int)(vw * 0.0625)))),
 					new Label(Text.literal(this.outfitName)),
 					new SlideToggle(
 							this.showingElytra,
