@@ -22,6 +22,7 @@ import cc.cosmetica.cosmetica.Authentication;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticsList;
+import cc.cosmetica.cosmetica.gui.widget.OutfitPlayer;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;

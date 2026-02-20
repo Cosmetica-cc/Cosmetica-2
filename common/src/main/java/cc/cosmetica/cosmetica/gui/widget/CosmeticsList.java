@@ -22,6 +22,8 @@ import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import cc.cosmetica.kupe.api.maths.Axis2D;
+import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.Nullable;
@@ -46,13 +48,15 @@ public class CosmeticsList extends Div {
 	public List<Component> build() {
 		return this.listType != ListType.LIST_ONLY ? ImmutableList.of(
 				new EntryList.Div(this.entries)
-						.tag("width-250", "contents-wrapper"),
-				new Button(Text.literal("+"), () ->
-					Screens.setScreen(BrowseScreen.ID)
-				).setDisabled(this.listType == ListType.DISABLED || this.listType == ListType.OFFLINE).tag(this.listType.buttonTags)
+						.tag("width-45vw", "contents-wrapper"),
+				new Div(
+						new Button(Text.literal("+"), () ->
+								Screens.setScreen(BrowseScreen.ID)
+						).setDisabled(this.listType == ListType.DISABLED || this.listType == ListType.OFFLINE).tag(this.listType.buttonTags)
+				).tag("width-45vw").withStyle(Style.create().set(FLOW_DIRECTION, Axis2D.POSITIVE_Y))
 		) : ImmutableList.of(
 				new EntryList.Div(this.entries)
-						.tag("width-250", "contents-wrapper")
+						.tag("width-45vw", "contents-wrapper")
 		);
 	}
 
@@ -61,12 +65,13 @@ public class CosmeticsList extends Div {
 		return new Stylesheet()
 				.self(Style.create()
 						.set(PADDING, fixed(new Margins(30, 10, 12, 10)))
-						.set(Div.ALIGN_ITEMS, Align.STRETCH_START))
+						.set(Div.ALIGN_ITEMS, Align.START))
 				.tag("contents-wrapper", Style.create()
 						.set(FLEX, 1)
 						.set(SCROLLBAR_POSITION, ScrollbarPosition.OUTSIDE))
-				.tag("width-250", Style.create()
-						.set(WIDTH, fixed(OptionalInt.of(250))))
+				.tag("width-45vw", Style.create()
+						.set(WIDTH, screen(45, 0))
+						.set(MAXIMUM_SIZE, fixed(new Dimensions(396, Integer.MAX_VALUE))))
 				.tag("no-outfit-disabled", Style.create()
 						.set(TOOLTIP, Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.noOutfitDisabled")))))
 				.tag("no-outfit-offline", Style.create()
@@ -77,19 +82,19 @@ public class CosmeticsList extends Div {
 		/**
 		 * Outfits that are editable by the user.
 		 */
-		EDITABLE("width-250"),
+		EDITABLE("width-45vw"),
 		/**
 		 * Outfits that can only be displayed.
 		 */
-		LIST_ONLY("width-250"),
+		LIST_ONLY("width-45vw"),
 		/**
 		 * In a context where the list is usually editable, but no outfit is selected and therefore the button should be disabled.
 		 */
-		DISABLED("width-250", "no-outfit-disabled"),
+		DISABLED("width-45vw", "no-outfit-disabled"),
 		/**
 		 * In a context where the list is usually editable, but the user is offline and therefore the button should be disabled.
 		 */
-		OFFLINE("width-250", "no-outfit-offline");
+		OFFLINE("width-45vw", "no-outfit-offline");
 
 		ListType(String... buttonTags) {
 			this.buttonTags = buttonTags;

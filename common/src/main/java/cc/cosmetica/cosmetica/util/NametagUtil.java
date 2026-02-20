@@ -17,14 +17,19 @@
 package cc.cosmetica.cosmetica.util;
 
 import cc.cosmetica.core.api.Accessory;
+import cc.cosmetica.core.render.HumanoidAccessoriesLayer;
 import cc.cosmetica.cosmetica.gui.player.AccessoriesAttachment;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 public class NametagUtil {
-
     public static void shiftNametags(PoseStack stack, GUIPlayer player, int nametags) {
         // shift nametags up
         if (!player.pose.upsideDown) {
@@ -35,11 +40,31 @@ public class NametagUtil {
                 return;
             }
 
+            Iterator<GUIPlayer.Attachment<?>> iterator = player.getRenderingAttachments();
+            boolean cloak = false;
+            boolean elytra = false;
+
+            while (iterator.hasNext()) {
+                GUIPlayer.Attachment<?> attachment = iterator.next();
+
+                if (attachment == GUIPlayer.ELYTRA) {
+                    elytra = true;
+                }
+                if (attachment == GUIPlayer.CAPE) {
+                    GUIPlayer.CapeProperties properties = player.getConfiguration(GUIPlayer.CAPE);
+                    if (properties != null && properties.getTexture().isPresent()) {
+                        cloak = true;
+                    }
+                }
+            }
+
             for (Accessory accessory : accessories) {
-                if (accessory.getAttachment() == gg.cloaks.javaclient.model.Accessory.AttachmentEnum.HEAD) {
+                if (HumanoidAccessoriesLayer.canRenderAccessory(accessory, new GuiPlayerEquipper(elytra), cloak)) {
+                    if (accessory.getAttachment() == gg.cloaks.javaclient.model.Accessory.AttachmentEnum.HEAD) {
 //                    if (!accessory.getFlags().contains(Accessory.Flag.HIDE_WITH_HELMET) || !wearingHelmet) {
-                    hatTopY = Math.max(hatTopY, (float) accessory.getModel().getBoundingBox().maxY);
+                        hatTopY = Math.max(hatTopY, (float) (accessory.getModel().getBoundingBox().maxY + accessory.getOffset().y*16.0 - 12.0));
 //                    }
+                    }
                 }
             }
 
@@ -61,6 +86,33 @@ public class NametagUtil {
 
                 stack.translate(0, Math.min(shift, cap), 0);
             }
+        }
+    }
+
+    private static final class GuiPlayerEquipper implements HumanoidAccessoriesLayer.ArmourEquipper {
+        public GuiPlayerEquipper(boolean elytra) {
+            this.elytra = elytra;
+        }
+
+        private final boolean elytra;
+
+        @Override
+        public ItemStack getItemBySlot(EquipmentSlot equipmentSlot) {
+            if (equipmentSlot != EquipmentSlot.CHEST) {
+                return ItemStack.EMPTY;
+            }
+
+            return this.elytra ? new ItemStack(Items.ELYTRA) : ItemStack.EMPTY;
+        }
+
+        @Override
+        public boolean hasLeftShoulderEntity() {
+            return false;
+        }
+
+        @Override
+        public boolean hasRightShoulderEntity() {
+            return false;
         }
     }
 }
