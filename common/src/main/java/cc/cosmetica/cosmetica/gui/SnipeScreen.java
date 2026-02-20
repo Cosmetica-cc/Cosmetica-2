@@ -16,10 +16,7 @@
 
 package cc.cosmetica.cosmetica.gui;
 
-import cc.cosmetica.core.api.Accessory;
-import cc.cosmetica.core.api.CosmeticaAPI;
-import cc.cosmetica.core.api.Cosmetics;
-import cc.cosmetica.core.api.ImageCosmetic;
+import cc.cosmetica.core.api.*;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.StateHolder;
@@ -66,12 +63,14 @@ public class SnipeScreen extends Screen implements AnimatedTextureScreen {
         this.playerUUID = entity instanceof Player ? entity.getUUID() : null;
         // TODO use a central state for authenticated in case re-auth. compose states with isSetting
         this.isSettingOrUnauthenticated = new State<>(!CosmeticaAPI.isAuthenticated());
+        this.showNametag = entity instanceof Player;
     }
 
     private final State<Cosmetics> cosmetics;
     private final State<Boolean> isSettingOrUnauthenticated;
     private final State<Boolean> showingElytra = new State<>(false);
     private final @Nullable UUID playerUUID;
+    private final boolean showNametag;
 
     @Override
     protected Component[] buildScreen() {
@@ -80,7 +79,7 @@ public class SnipeScreen extends Screen implements AnimatedTextureScreen {
 
         // we can do something similar to home screen.
         List<CosmeticEntry> entryList = new ArrayList<>();
-        GUIPlayer guiPlayer = new RotatableGUIPlayer(player, this.showingElytra);
+        RotatableGUIPlayer guiPlayer = new RotatableGUIPlayer(player, this.showingElytra);
 
         if (outfit != null) {
             // Cosmetics list
@@ -92,6 +91,25 @@ public class SnipeScreen extends Screen implements AnimatedTextureScreen {
                 guiPlayer.configureOverride(AccessoriesAttachment.INSTANCE, outfit.getAccessories());
             }
             guiPlayer.configureOverride(GUIPlayer.CAPE, outfit.getCloak().map(ImageCosmetic::getImage).map(ci -> ci.location).map(GUIPlayer.CapeProperties::new).orElse(new GUIPlayer.CapeProperties((ResourceKey) null)));
+            guiPlayer.configureOverride(GUIPlayer.ELYTRA, outfit.getElytra().map(ImageCosmetic::getImage).map(ci -> ci.location).map(location -> new GUIPlayer.ElytraProperties(new ResourceKey(location), false, true)).orElse(GUIPlayer.ElytraProperties.DEFAULT));
+
+            if (this.showNametag) {
+                guiPlayer.showNametag(true);
+
+                Optional<NametagConfig> lore = outfit.getLore();
+                NametagConfig icon = outfit.getNametag();
+
+                if (lore.isPresent()) {
+                    guiPlayer.addNametag(Text.literal(lore.get().getPrefix()), 0.75f);
+                    if (lore.get().getIcon().getImage().location != CachedImage.NO_TEXTURE.location) {
+                        guiPlayer.loreIcon(lore.get().getIcon().getImage());
+                    }
+                }
+
+                if (icon.getIcon().getImage().location != CachedImage.NO_TEXTURE.location) {
+                    guiPlayer.icon(icon.getIcon().getImage(), icon.isTransparentIcon());
+                }
+            }
         }
 
         return new Component[] {
