@@ -62,7 +62,7 @@ public class RotatableGUIPlayer extends GUIPlayer {
     }
 
     public void setYaw(float yaw) {
-        this.xStart = -yaw;
+        this.pose.yRotBody = this.pose.yRotHead = yaw;
     }
 
     public boolean hasTransparentIcon() {
