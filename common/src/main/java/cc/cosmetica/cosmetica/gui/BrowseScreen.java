@@ -36,6 +36,7 @@ import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
+import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Vec3;
 import com.google.common.collect.ImmutableList;
@@ -216,7 +217,7 @@ public class BrowseScreen extends AbstractHomeScreen {
                         }
                         return super.build();
                     }
-                }.withStyle(Style.create().set(Z_INDEX, 10)),
+                }.tag("browse-width").withStyle(Style.create().set(Z_INDEX, 10)),
                 new Div( // container of all the browse area
                         // -- global header moved to Results only
                         new LayeredSpace( // container for what can appear in search contents
@@ -239,12 +240,9 @@ public class BrowseScreen extends AbstractHomeScreen {
                                         new Results().tag("results")
                                 ),
                                 new ConfigureCosmetic()
-                        ).tag("results-wrapper")
-                ).withStyle(Style.create()
-                        .set(WIDTH, fixedSize(250))
-                        .set(ALIGN_ITEMS, Align.STRETCH_START))
-        ).withStyle(Style.create()
-                .set(PADDING, fixed(new Margins(30, 10, 12, 10))));
+                        ).tag("browse-width", "results-wrapper")
+                ).withStyle(Style.create().set(ALIGN_ITEMS, Align.STRETCH_START))
+        ).withStyle(Style.create().set(PADDING, fixed(new Margins(30, 10, 12, 10))));
     }
 
     private void open(Menu menu) {
@@ -275,6 +273,9 @@ public class BrowseScreen extends AbstractHomeScreen {
                 .tag("btn-search-adjust", Style.create()
                         .set(HEIGHT, fixedSize(20))
                         .set(WIDTH, fixedSize(20)))
+                .tag("browse-width", Style.create()
+                        .set(WIDTH, screen(45, 0))
+                        .set(MAXIMUM_SIZE, fixed(new Dimensions(396, Integer.MAX_VALUE))))
                 .tag("searchbar", Style.create()
                         .set(WIDTH, (vw, vh, pw, ph) -> OptionalInt.of(pw - 22 * 2)));
     }
@@ -391,7 +392,8 @@ public class BrowseScreen extends AbstractHomeScreen {
                             }
 
                             return ImmutableList.of(
-                                    new EntryList.DynamicDiv(Results.this.pageResults, BrowseScreen.this.selected::acquire),
+                                    new EntryList.DynamicDiv(Results.this.pageResults, BrowseScreen.this.selected::acquire)
+                                            .tag("browse-width"),
                                     new Div() { // Page buttons and page label
                                         @Override
                                         public List<Component> build() {
@@ -408,7 +410,7 @@ public class BrowseScreen extends AbstractHomeScreen {
                                     }.tag("page-turner")
                             );
                         }
-                    }.tag("results-container")
+                    }.tag("results-container", "browse-width")
             );
         }
 
@@ -416,9 +418,7 @@ public class BrowseScreen extends AbstractHomeScreen {
         public Stylesheet getStylesheet() {
             return new Stylesheet()
                     .tag("results-container", Style.create()
-                            .set(HEIGHT, screen(0, 70))
-                            .set(JUSTIFY_CONTENT, Justify.SPACE_BETWEEN)
-                            .set(WIDTH, fixedSize(250)))
+                            .set(JUSTIFY_CONTENT, Justify.SPACE_BETWEEN))
                     .tag("page-turner", Style.create()
                             .set(HEIGHT, fixedSize(12))
                             .set(FLOW_DIRECTION, Axis2D.POSITIVE_X)
@@ -428,7 +428,6 @@ public class BrowseScreen extends AbstractHomeScreen {
                     .tag("page-button", Style.create()
                             .set(WIDTH, fixedSize(30)))
                     .component(EntryList.DynamicDiv.class, Style.create()
-                            .set(WIDTH, fixedSize(250))
                             .set(HEIGHT, (vw, vh, rw, rh) -> OptionalInt.of(rh - 13)));
         }
     }
