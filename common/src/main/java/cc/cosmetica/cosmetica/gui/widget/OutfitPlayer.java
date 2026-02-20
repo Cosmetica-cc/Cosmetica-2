@@ -93,6 +93,8 @@ public class OutfitPlayer extends Component {
 
 		return Arrays.asList(
 				new Div(
+					// balance appearance on small resolutions by shifting everything down slightly
+					new Div().withStyle(Style.create().set(HEIGHT, fixedSize(20))),
 					this.overrides.apply(guiPlayer).withStyle(Style.create()
 							.set(MIN_WIDTH, fixedSize(50))
 							.set(MAXIMUM_SIZE, fixed(new Dimensions(90, 1000)))
@@ -105,10 +107,7 @@ public class OutfitPlayer extends Component {
 					new Button(Text.translatable("button.cosmetica.changeOutfit"), () -> Screens.setScreen(OutfitSelectScreen.ID))
 							.setDisabled(!authenticated || disable)// hide tooltip if just disabled
 							.withStyle(Cosmetica.authTooltipStyle(disable||authenticated)),
-//					new Button(Text.translatable("button.cosmetica.styleNametag"), () -> {
-//						Screens.setScreen(StyleNametagScreen.ID);
-//					}),
-					// *.title ensures no ... for consistency with Cosmetica's buttons
+					// *.title ensures no "..." for consistency with Cosmetica's buttons
 					new Button(Text.translatable("options.skinCustomisation.title"), () -> {
 						Minecraft.getInstance().setScreen(new SkinCustomizationScreen(Minecraft.getInstance().screen, Minecraft.getInstance().options));
 					}).setDisabled(disable)
