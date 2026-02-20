@@ -443,7 +443,7 @@ public class BrowseScreen extends AbstractHomeScreen {
             if (configuring.isPresent()) {
                 SelectedCosmeticTriple triple = configuring.get();
 
-                // TODO handle max number of cosmetics on outfit (also remove original check due to cape replacement)
+                // TODO check if dequipping outfit from website while on this screen is handled sensibly
                 // Because outfit can change whilst browsing.
                 State<Float> xOffset = new State<>(0.5f);
                 State<Float> yOffset = new State<>(0.5f);
@@ -518,16 +518,14 @@ public class BrowseScreen extends AbstractHomeScreen {
 
                             // Control Visibility Overrides
                             if (CosmeticaSettings.VISIBILITY_OVERRIDES.get()) {
-                                // space
-                                children.add(new Div().withStyle(Style.create().set(FLEX_SHRINK, 0).set(MARGINS, fixed(new Margins(4, 0)))));
-
-                                children.add(new Label(Text.translatable("label.configureCosmetic.visibilityOptions")));
+                                children.add(new Label(Text.translatable("label.configureCosmetic.visibilityOptions"))
+                                        .withStyle(Style.create().set(FLEX_SHRINK, 0).set(MARGINS, fixed(new Margins(8, 0, 0, 0)))));
 
                                 children.add(new SlideToggle(
                                         customVisibilityOverrides,
                                         Text.translatable("button.configureCosmetic.visibilityOverrides.false"),
                                         Text.translatable("button.configureCosmetic.visibilityOverrides.true")
-                                ));
+                                ).withStyle(Style.create().set(MARGINS, fixed(new Margins(1, 0, 2, 0)))));
 
                                 children.add(new Div() {
                                     @Override
@@ -701,8 +699,7 @@ public class BrowseScreen extends AbstractHomeScreen {
 
                         return children;
                     }
-                }.withStyle(Style.create())
-                .tag("flex-1", "configure-main"));
+                }.tag("flex-1", "configure-main"));
             } else {
                 return ImmutableList.of();
             }
