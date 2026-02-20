@@ -19,7 +19,6 @@ package cc.cosmetica.cosmetica.gui;
 import cc.cosmetica.core.api.Accessory;
 import cc.cosmetica.core.api.Cosmetic;
 import cc.cosmetica.core.api.*;
-import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.cosmeticconfig.AccessoryOptions;
@@ -27,6 +26,7 @@ import cc.cosmetica.cosmetica.gui.cosmeticconfig.CapeOptions;
 import cc.cosmetica.cosmetica.gui.cosmeticconfig.CosmeticOptions;
 import cc.cosmetica.cosmetica.gui.player.AccessoriesAttachment;
 import cc.cosmetica.cosmetica.gui.widget.*;
+import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
 import cc.cosmetica.cosmetica.util.EquipUtil;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screens;
@@ -41,7 +41,6 @@ import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Vec3;
 import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.api.PremiumApi;
-import gg.cloaks.javaclient.api.UsersApi;
 import gg.cloaks.javaclient.model.*;
 import gg.cloaks.javaclient.model.SearchCosmeticsDto.AttachmentsEnum;
 import net.minecraft.client.Minecraft;
@@ -54,6 +53,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 import static cc.cosmetica.kupe.api.gui.Div.*;
@@ -167,6 +167,9 @@ public class BrowseScreen extends AbstractHomeScreen {
                                                 true
                                         ));
                                     }
+
+                                    // Spin player 180 degrees
+                                    ((RotatableGUIPlayer)guiPlayer).setYaw((float) Math.PI);
                                 }
                             }
                             return guiPlayer;
@@ -449,6 +452,7 @@ public class BrowseScreen extends AbstractHomeScreen {
                 State<Boolean> elytra = new State<>(true);
                 // lock for 'is setting'
                 State<Boolean> settingLock = new State<>(false);
+                State<Boolean> customVisibilityOverrides = new State<>(false);
 
                 return Arrays.asList(
                         DataForwarder.merge(
@@ -492,20 +496,58 @@ public class BrowseScreen extends AbstractHomeScreen {
 
                             // mirrored
                             mirrored = mirroredOrCloak.acquire(this);
-                            children.add(new Button(Text.translatable("button.cosmetica.equip.mirrored", mirrored ? Text.GUI_YES.getDisplayString() : Text.GUI_NO.getDisplayString()), () -> mirroredOrCloak.set(!mirrored)));
+                            children.add(new Button(Text.translatable("button.cosmetica.equip.mirrored", mirrored ? Text.GUI_YES.getDisplayString() : Text.GUI_NO.getDisplayString()), () -> mirroredOrCloak.set(!mirrored))
+                                    .withStyle(Style.create().set(FLEX_SHRINK, 0)));
 
                             // axis positions
                             if (ao.getXRange().getRange() > 0) {
                                 float precision = 0.5f / (float) ao.getXRange().getRange();
-                                children.add(new SliderWidget(xOffset, precision, f_ -> Text.translatable("button.cosmetica.equip.x", String.format("%.1f", ao.getXRange().clampMap(f_)))));
+                                children.add(new SliderWidget(xOffset, precision, f_ -> Text.translatable("button.cosmetica.equip.x", String.format("%.1f", ao.getXRange().clampMap(f_))))
+                                        .withStyle(Style.create().set(FLEX_SHRINK, 0)));
                             }
                             if (ao.getYRange().getRange() > 0) {
                                 float precision = 0.5f / (float) ao.getYRange().getRange();
-                                children.add(new SliderWidget(yOffset, precision, f_ -> Text.translatable("button.cosmetica.equip.y", String.format("%.1f", ao.getYRange().clampMap(f_)))));
+                                children.add(new SliderWidget(yOffset, precision, f_ -> Text.translatable("button.cosmetica.equip.y", String.format("%.1f", ao.getYRange().clampMap(f_))))
+                                        .withStyle(Style.create().set(FLEX_SHRINK, 0)));
                             }
                             if (ao.getZRange().getRange() > 0) {
                                 float precision = 0.5f / (float) ao.getZRange().getRange();
-                                children.add(new SliderWidget(zOffset, precision, f_ -> Text.translatable("button.cosmetica.equip.z", String.format("%.1f", ao.getZRange().clampMap(f_)))));
+                                children.add(new SliderWidget(zOffset, precision, f_ -> Text.translatable("button.cosmetica.equip.z", String.format("%.1f", ao.getZRange().clampMap(f_))))
+                                        .withStyle(Style.create().set(FLEX_SHRINK, 0)));
+                            }
+
+                            // Control Visibility Overrides
+                            if (CosmeticaSettings.VISIBILITY_OVERRIDES.get()) {
+                                // space
+                                children.add(new Div().withStyle(Style.create().set(FLEX_SHRINK, 0).set(MARGINS, fixed(new Margins(4, 0)))));
+
+                                children.add(new Label(Text.translatable("label.configureCosmetic.visibilityOptions")));
+
+                                children.add(new SlideToggle(
+                                        customVisibilityOverrides,
+                                        Text.translatable("button.configureCosmetic.visibilityOverrides.false"),
+                                        Text.translatable("button.configureCosmetic.visibilityOverrides.true")
+                                ));
+
+                                children.add(new Div() {
+                                    @Override
+                                    public List<Component> build() {
+                                        boolean custom = customVisibilityOverrides.acquire(this);
+
+                                        List<Component> components = new ArrayList<>();
+                                        if (custom) {
+                                            ao.forAllVisibilityOptions(option -> components.add(
+                                                    option.createController()
+                                            ));
+                                        } else {
+                                            ao.forAllVisibilityOptions(option -> components.add(
+                                                    new Button(Text.translatable(option.getTranslationKey(), option.getDefaultValue() ? Text.GUI_YES.getDisplayString() : Text.GUI_NO.getDisplayString()), () -> {}).setDisabled(true).tag("visibility-option-default")
+                                            ));
+                                        }
+
+                                        return components;
+                                    }
+                                }.withStyle(Style.create().set(FLEX_SHRINK, 0)));
                             }
                         } else {
                             // to ensure effectively final value in greater scope
@@ -546,6 +588,15 @@ public class BrowseScreen extends AbstractHomeScreen {
                                     accessoryDtos.add(EquipUtil.dtoFromAccessory(accessory));
                                 }
                                 // Add new accessory
+                                int flags;
+                                if (customVisibilityOverrides.peek()) {
+                                    AtomicInteger customFlags = new AtomicInteger();
+                                    ao.forAllVisibilityOptions(option -> option.configureUserValue(customFlags));
+                                    flags = customFlags.get();
+                                } else {
+                                    flags = -1;
+                                }
+
                                 CreateOutfitAccessoryDto newAccessoryDto = new CreateOutfitAccessoryDto()
                                         .id(triple.getLeft().getId())
                                         .mirrored(mirrored)
@@ -554,7 +605,7 @@ public class BrowseScreen extends AbstractHomeScreen {
                                                 BigDecimal.valueOf(ao.getYRange().clampMap(yOffset.peek())),
                                                 BigDecimal.valueOf(ao.getZRange().clampMap(zOffset.peek()))
                                         ))
-                                        .flags(-1);
+                                        .flags(flags);
                                 accessoryDtos.add(newAccessoryDto);
 
                                 dto.setAccessories(accessoryDtos);
@@ -642,6 +693,7 @@ public class BrowseScreen extends AbstractHomeScreen {
                                         BrowseScreen.this.configuringDownloaded.set(null);
                                     }).setDisabled(isSetting).tag("flex-1")
                                 ).withStyle(Style.create()
+                                        .set(FLEX_SHRINK, 0)
                                         .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X))
                         );
                         // space
@@ -666,6 +718,10 @@ public class BrowseScreen extends AbstractHomeScreen {
                             .set(BACKGROUND_COLOUR, OptionalInt.of(0x858585))
                             .set(BORDER, GuiUtils.POPOUT_BORDER)
                             .set(PADDING, fixed(new Margins(1))))
+                    .tag("visibility-option-default", Style.create()
+                            .set(TOOLTIP, Optional.of(new Tooltip(
+                                    Text.translatable("tooltip.cosmetica.defaultVisibilityOptions")
+                            ))))
                     .tag("flex-1", Style.create()
                             .set(FLEX, 1));
         }
