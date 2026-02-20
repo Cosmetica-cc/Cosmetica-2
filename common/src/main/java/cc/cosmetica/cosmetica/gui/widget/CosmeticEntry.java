@@ -141,11 +141,20 @@ public class CosmeticEntry extends Component {
 				CosmeticOptions options;
 				switch (this.attachment.category()) {
 					case ACCESSORY:
-						List<BigDecimal> offset = Objects.requireNonNull(this.cosmetic.getAccessory()).getOffset();
+						gg.cloaks.javaclient.model.Accessory accessory = Objects.requireNonNull(this.cosmetic.getAccessory());
+
+						List<BigDecimal> offset = accessory.getOffset();
 						options = new AccessoryOptions(
 								new double[] { offset.get(0).doubleValue(), offset.get(3).doubleValue() },
 								new double[] { offset.get(1).doubleValue(), offset.get(4).doubleValue() },
-								new double[] { offset.get(2).doubleValue(), offset.get(5).doubleValue() }
+								new double[] { offset.get(2).doubleValue(), offset.get(5).doubleValue() },
+								Accessory.Flag.HIDE_WITH_HELMET.isSet(accessory.getFlags()),
+								Accessory.Flag.HIDE_WITH_CHESTPLATE.isSet(accessory.getFlags()),
+								Accessory.Flag.HIDE_WITH_LEGGINGS.isSet(accessory.getFlags()),
+								Accessory.Flag.HIDE_WITH_BOOTS.isSet(accessory.getFlags()),
+								Accessory.Flag.HIDE_WITH_CLOAK.isSet(accessory.getFlags()),
+								Accessory.Flag.HIDE_WITH_ELYTRA.isSet(accessory.getFlags()),
+								Accessory.Flag.HIDE_WITH_PARROT.isSet(accessory.getFlags())
 						);
 						break;
 					case CAPE:

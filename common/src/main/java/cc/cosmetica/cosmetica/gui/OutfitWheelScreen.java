@@ -18,6 +18,7 @@ package cc.cosmetica.cosmetica.gui;
 
 import cc.cosmetica.core.api.CachedImage;
 import cc.cosmetica.core.api.CosmeticaAPI;
+import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.core.api.texture.CosmeticaTexture;
 import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
 import cc.cosmetica.core.impl.Logging;
@@ -63,16 +64,11 @@ public class OutfitWheelScreen extends Screen {
         super(Text.translatable("screens.cosmetica.wheel").toMinecraftComponent());
         // todo maybe implement this as kupe screen so we can update outfit list automatically on outfit change
         this.options = Arrays.asList();
-
-        if (page > this.getLastPage()) {
-            page = 0;
-        }
     }
 
     // Important!
     // double for scroll wheel reasons. use getPage() to get the actual page.
-    // remember page
-    private static double page = 0;
+    private double page = 0;
 
     // scaling
     private double scaleFactor = 0.05;
@@ -330,9 +326,25 @@ public class OutfitWheelScreen extends Screen {
         return -1;
     }
 
+    private boolean calculatedStartPage = false;
+
     @Override
     public void tick() {
         this.options = CosmeticaAPI.isAuthenticated() ? Cosmetica.OWN_OUTFITS.peek() : Arrays.asList();
+
+        // Start on the page with the selected outfit
+        if (!calculatedStartPage) {
+            calculatedStartPage = true;
+            int page = 0;
+            Cosmetics cosmetics = Cosmetica.OWN_COSMETICS.peek();
+            if (cosmetics != null && cosmetics.getOutfitId().isPresent()) {
+                int index = indexOf(cosmetics.getOutfitId().get());
+                if (index != -1) {
+                    page = index / 6;
+                }
+            }
+            this.page = page;
+        }
 
         if (!CosmeticaSettings.TOGGLE_OUTFIT_WHEEL.get()) {
             if (!isDown(Keybinds.SELECT_OUTFIT)) {
