@@ -59,7 +59,7 @@ public class NametagUtil {
             }
 
             for (Accessory accessory : accessories) {
-                if (HumanoidAccessoriesLayer.canRenderAccessory(accessory, new GuiPlayerEquipper(elytra), cloak)) {
+                if (HumanoidAccessoriesLayer.canRenderAccessory(accessory, new GuiPlayerEquipper(elytra), cloak, elytra)) {
                     if (accessory.getAttachment() == gg.cloaks.javaclient.model.Accessory.AttachmentEnum.HEAD) {
 //                    if (!accessory.getFlags().contains(Accessory.Flag.HIDE_WITH_HELMET) || !wearingHelmet) {
                         hatTopY = Math.max(hatTopY, (float) (accessory.getModel().getBoundingBox().maxY + accessory.getOffset().y*16.0 - 12.0));
