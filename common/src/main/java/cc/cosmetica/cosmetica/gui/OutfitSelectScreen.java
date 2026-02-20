@@ -24,11 +24,8 @@ import cc.cosmetica.cosmetica.gui.widget.EntryList;
 import cc.cosmetica.cosmetica.gui.widget.OutfitCount;
 import cc.cosmetica.kupe.api.*;
 import cc.cosmetica.kupe.api.gui.*;
-import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
-import cc.cosmetica.kupe.api.maths.Axis2D;
-import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
@@ -137,7 +134,7 @@ public class OutfitSelectScreen extends Component implements AnimatedTextureScre
                 .component(SelectableOutfit.class, Style.create()
 //                        .set(POINTER_EVENTS, PointerEvents.ALL)
                         .set(WIDTH, fixed(OptionalInt.of(69 * 2/3)))
-                        .set(HEIGHT, fixed(OptionalInt.of(69 + 9))));
+                        .set(HEIGHT, fixed(OptionalInt.of(69))));
     }
 
     public static final ResourceKey ID = new ResourceKey("cosmetica", "outfit_select");
@@ -175,20 +172,9 @@ public class OutfitSelectScreen extends Component implements AnimatedTextureScre
             final ResourceKey deleteTexture = new ResourceKey("cosmetica", "textures/remove.png");
 
             return Arrays.asList(
-                    new Div(
-                            new Image(new ResourceKey(option.thumbnail.location))
-                                    .crop(0, 0.1667f, 0, 0.1667f)
-                                    .setTransparent(option.usable ? 1.0f : 0.5f)
-                                    .withStyle(Style.create()
-                                            .set(HEIGHT, (vw, vh, pw, ph) -> OptionalInt.of(ph - 9))
-                                            .set(WIDTH, percent(100, 0))),
-                            new Div(
-                                    new Label(Text.literal(option.name)).withStyle(Style.create()
-                                            .set(HEIGHT, fixedSize(9))
-                                            .set(FLEX_SHRINK, 0) // needed to make the div overflow
-                                            .set(Label.TEXT_WRAP, (vw, vh, pw, ph) -> OptionalInt.empty()))
-                            ).withStyle(Style.create().set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X).set(WIDTH, percent(100, 0)))
-                    ),
+                    new Image(new ResourceKey(option.thumbnail.location))
+                            .crop(0, 0.1667f, 0, 0.1667f)
+                            .setTransparent(option.usable ? 1.0f : 0.5f),
                     (this.icon = new ClickableImage(deleteTexture, () -> {
                         // delete outfit confirm
                         // can't delete current outfit
@@ -206,7 +192,7 @@ public class OutfitSelectScreen extends Component implements AnimatedTextureScre
                             // don't draw icon on selected item
                             return !SelectableOutfit.this.option.id.equals(Cosmetica.SELECTED_OUTFIT_ID.peek().orElse(""));
                         }
-                    }).withStyle(Style.create().set(MARGINS, fixed(new Margins(0, 0, 69+9-deleteButtonSize, 69*2/3 - deleteButtonSize))))
+                    }).withStyle(Style.create().set(MARGINS, fixed(new Margins(0, 0, 69-deleteButtonSize, 69*2/3 - deleteButtonSize))))
             );
         }
 
