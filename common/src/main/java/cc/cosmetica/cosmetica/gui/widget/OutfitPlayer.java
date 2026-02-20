@@ -97,7 +97,7 @@ public class OutfitPlayer extends Component {
 					new Div().withStyle(Style.create().set(HEIGHT, fixedSize(20))),
 					this.overrides.apply(guiPlayer).withStyle(Style.create()
 							.set(MIN_WIDTH, fixedSize(50))
-							.set(MIN_HEIGHT, fixedSize(65)) // 1.21.8+ - Fixing nametag clipping
+							.set(MIN_HEIGHT, fixedSize(65))
 							.set(MAXIMUM_SIZE, fixed(new Dimensions(90, 1000)))
 							.set(WIDTH, (vw, vh, pw, ph) -> OptionalInt.of(10 + (int)(vw * 0.0625)))),
 					new Label(Text.literal(this.outfitName)),
