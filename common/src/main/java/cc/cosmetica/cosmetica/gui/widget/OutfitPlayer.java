@@ -25,6 +25,7 @@ import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import cc.cosmetica.kupe.api.maths.Dimensions;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.options.SkinCustomizationScreen;
 
@@ -34,8 +35,7 @@ import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.function.UnaryOperator;
 
-import static cc.cosmetica.kupe.api.gui.style.CommonProperties.WIDTH;
-import static cc.cosmetica.kupe.api.gui.style.CommonProperties.fixed;
+import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 public class OutfitPlayer extends Component {
 	public OutfitPlayer(UUID player, boolean authenticated, String outfitName, NametagConfig lore, NametagConfig nametag) {
@@ -51,7 +51,8 @@ public class OutfitPlayer extends Component {
 	private final String outfitName;
 	private final NametagConfig lore;
 	private final NametagConfig nametag;
-	private final State<Boolean> showingElytra = new State<>(false);
+	// should only be one OutfitPlayer at a time. Share the setting between instances and keep it preserved
+	public static final State<Boolean> showingElytra = new State<>(false);
 
 	private boolean disable = false;
 	private UnaryOperator<GUIPlayer> overrides = gp -> gp;
@@ -81,7 +82,7 @@ public class OutfitPlayer extends Component {
 			guiPlayer = this.guiPlayer;
 			guiPlayer.updateNametag(this.loreHandle, Text.literal(this.lore.getPrefix()), 0.75f);
 		} else {
-			guiPlayer = new RotatableGUIPlayer(player, this.showingElytra);
+			guiPlayer = new RotatableGUIPlayer(player, showingElytra);
 			guiPlayer.showNametag(true);
 			this.loreHandle = guiPlayer.createNametag(Text.literal(this.lore.getPrefix()), 0.75f);
 		}
@@ -92,10 +93,13 @@ public class OutfitPlayer extends Component {
 
 		return Arrays.asList(
 				new Div(
-					this.overrides.apply(guiPlayer).withStyle(Style.create().set(WIDTH, fixed(OptionalInt.of(50)))),
+					this.overrides.apply(guiPlayer).withStyle(Style.create()
+							.set(MIN_WIDTH, fixedSize(50))
+							.set(MAXIMUM_SIZE, fixed(new Dimensions(90, 1000)))
+							.set(WIDTH, (vw, vh, pw, ph) -> OptionalInt.of(10 + (int)(vw * 0.0625)))),
 					new Label(Text.literal(this.outfitName)),
 					new SlideToggle(
-							this.showingElytra,
+							showingElytra,
 							Text.translatable("button.cosmetica.toggleCloak"),
 							Text.translatable("button.cosmetica.toggleElytra")),
 					new Button(Text.translatable("button.cosmetica.changeOutfit"), () -> Screens.setScreen(OutfitSelectScreen.ID))
