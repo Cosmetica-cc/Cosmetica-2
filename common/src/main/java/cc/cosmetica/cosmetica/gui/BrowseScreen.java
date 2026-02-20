@@ -168,8 +168,8 @@ public class BrowseScreen extends AbstractHomeScreen {
                                         ));
                                     }
 
-                                    // Spin player 180 degrees
-                                    ((RotatableGUIPlayer)guiPlayer).setYaw((float) Math.PI);
+                                    // Spin player to show back
+                                    ((RotatableGUIPlayer)guiPlayer).setYaw(220.0f);
                                 }
                             }
                             return guiPlayer;
