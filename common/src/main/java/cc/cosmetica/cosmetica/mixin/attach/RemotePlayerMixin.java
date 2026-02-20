@@ -34,7 +34,7 @@ import org.spongepowered.asm.mixin.Unique;
 @Mixin(RemotePlayer.class)
 public abstract class RemotePlayerMixin extends AbstractClientPlayer implements StateHolder {
     public RemotePlayerMixin(ClientLevel clientLevel, GameProfile gameProfile) {
-        super(clientLevel, gameProfile, null);
+        super(clientLevel, gameProfile);
     }
 
     @Unique
