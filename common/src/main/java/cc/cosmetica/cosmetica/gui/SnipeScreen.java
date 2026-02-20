@@ -75,19 +75,24 @@ public class SnipeScreen extends Screen implements AnimatedTextureScreen {
 
     @Override
     protected Component[] buildScreen() {
-        Cosmetics outfit = this.cosmetics.acquire(this);
+        @Nullable Cosmetics outfit = this.cosmetics.acquire(this);
         UUID player = playerUUID == null ? Minecraft.getInstance().getUser().getProfileId() : playerUUID;
 
         // we can do something similar to home screen.
         List<CosmeticEntry> entryList = new ArrayList<>();
-        CosmeticEntry.populateEntryList(entryList, outfit, CosmeticEntry.Type.LISTED);
-
         GUIPlayer guiPlayer = new RotatableGUIPlayer(player, this.showingElytra);
-        if (playerUUID == null) {
-            // specify outfit cosmetics to show
-            guiPlayer.configureOverride(AccessoriesAttachment.INSTANCE, outfit.getAccessories());
+
+        if (outfit != null) {
+            // Cosmetics list
+            CosmeticEntry.populateEntryList(entryList, outfit, CosmeticEntry.Type.LISTED);
+
+            // GUI player configuration
+            if (playerUUID == null) {
+                // specify outfit cosmetics to show
+                guiPlayer.configureOverride(AccessoriesAttachment.INSTANCE, outfit.getAccessories());
+            }
+            guiPlayer.configureOverride(GUIPlayer.CAPE, outfit.getCloak().map(ImageCosmetic::getImage).map(ci -> ci.location).map(GUIPlayer.CapeProperties::new).orElse(new GUIPlayer.CapeProperties((ResourceKey) null)));
         }
-        guiPlayer.configureOverride(GUIPlayer.CAPE, outfit.getCloak().map(ImageCosmetic::getImage).map(ci -> ci.location).map(GUIPlayer.CapeProperties::new).orElse(new GUIPlayer.CapeProperties((ResourceKey) null)));
 
         return new Component[] {
                 new Div(
@@ -109,7 +114,7 @@ public class SnipeScreen extends Screen implements AnimatedTextureScreen {
                         outfit, this.isSettingOrUnauthenticated,
                         Text.translatable("button.cosmetica.stealHisLook"),
                         () -> {
-                            String outfitId = outfit.getOutfitId().orElse("");
+                            String outfitId = outfit == null ? "" : outfit.getOutfitId().orElse("");
                             if (outfitId.isEmpty()) {
                                 this.isSettingOrUnauthenticated.set(true);
                                 CosmeticaAPI.outfits().requestAsync(OutfitsApi::unequip)
@@ -263,12 +268,12 @@ public class SnipeScreen extends Screen implements AnimatedTextureScreen {
      * Reloads when your own cosmetics change (prevent having to reload whole screen). This might be overkill optimisation.
      */
     private static class StealTheirLookButton extends Button {
-        public StealTheirLookButton(Cosmetics outfit, State<Boolean> disabled, Text text, Runnable onClicked) {
+        public StealTheirLookButton(@Nullable Cosmetics outfit, State<Boolean> disabled, Text text, Runnable onClicked) {
             super(text, onClicked);
             this.outfit = outfit;
             this.disabledState = disabled;
         }
-        private final Cosmetics outfit;
+        private final @Nullable Cosmetics outfit;
         private final State<Boolean> disabledState;
 
         @Override
@@ -276,7 +281,7 @@ public class SnipeScreen extends Screen implements AnimatedTextureScreen {
             @Nullable Cosmetics cosmetics1 = Cosmetica.OWN_COSMETICS.acquire(this);
             boolean overrideDisabled = this.disabledState.acquire(this);
 
-            boolean disabled = overrideDisabled || (cosmetics1 != null && cosmetics1.getOutfitId().equals(outfit.getOutfitId()));
+            boolean disabled = outfit == null ? (overrideDisabled || cosmetics1 == null) : (overrideDisabled || (cosmetics1 != null && cosmetics1.getOutfitId().equals(outfit.getOutfitId())));
             this.setDisabled(disabled);
             this.withStyle(Style.create().set(TOOLTIP, disabled ? Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.outfitAlreadySelected"))) : Optional.empty()));
             return super.build();

@@ -45,7 +45,9 @@ import gg.cloaks.javaclient.model.UpdateLoreDto;
 import gg.cloaks.javaclient.model.UserConnection;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -116,10 +118,14 @@ public class Cosmetica {
 		GUIPlayer.registerAttachment(AccessoriesAttachment.INSTANCE);
 
 		// cosmetic states
-		Cosmetics.registerCosmeticsChangeCallback((le, cosmetics) -> {
-			if (le instanceof Player) {
+		Cosmetics.registerCosmeticsChangeCallback((either, cosmetics) -> {
+			if (either.entity instanceof Player) {
 				Minecraft.getInstance().schedule(() -> {
-					((StateHolder) le).cosmetica$setCosmeticState(cosmetics);
+					((StateHolder) either.entity).cosmetica$setCosmeticState(cosmetics);
+				});
+			} else if (either.remotePlayerInfo != null) {
+				Minecraft.getInstance().schedule(() -> {
+					((StateHolder) either.remotePlayerInfo).cosmetica$setCosmeticState(cosmetics);
 				});
 			}
 		});
@@ -152,7 +158,7 @@ public class Cosmetica {
 			Minecraft.getInstance().execute(OutfitSelectScreen::fetchOutfitLimit);
 		}
 		// updates to cosmetic stuff
-		Cosmetics.registerUserDataFetchCallback((data, cosmetics) -> {
+		Cosmetics.registerSelfDataFetchCallback((data, cosmetics) -> {
 			if (data == null) {
 				if (!cosmetics.getOutfitId().isPresent()) {
 					Logging.getInstance().debug(CosmeticaLogCategory.EVENTS, "Own cosmetics cleared");
