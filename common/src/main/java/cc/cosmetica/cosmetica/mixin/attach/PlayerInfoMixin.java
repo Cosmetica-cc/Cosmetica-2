@@ -19,13 +19,13 @@ package cc.cosmetica.cosmetica.mixin.attach;
 import cc.cosmetica.core.api.Cosmetics;
 import cc.cosmetica.cosmetica.StateHolder;
 import cc.cosmetica.kupe.api.State;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.client.multiplayer.PlayerInfo;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-@Mixin(Player.class)
-public class PlayerMixin implements StateHolder {
+@Mixin(PlayerInfo.class)
+public class PlayerInfoMixin implements StateHolder {
     @Unique
     private final State<@Nullable Cosmetics> cosmetica$cosmeticsState = new State<>(null);
 
@@ -38,6 +38,4 @@ public class PlayerMixin implements StateHolder {
     public void cosmetica$setCosmeticState(@Nullable Cosmetics cosmetics) {
         this.cosmetica$cosmeticsState.set(cosmetics);
     }
-
-
 }

@@ -33,10 +33,12 @@ import gg.cloaks.javaclient.api.PremiumApi;
 import gg.cloaks.javaclient.model.PlanRestrictions;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalInt;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
@@ -132,7 +134,6 @@ public class OutfitSelectScreen extends Component implements AnimatedTextureScre
                         // 15(title margin) + 6(related to text height) + 2(extra gap)
                         .set(MARGINS, fixed(new Margins(15 + 6 + 2, 0, 0, 0))))
                 .component(SelectableOutfit.class, Style.create()
-//                        .set(POINTER_EVENTS, PointerEvents.ALL)
                         .set(WIDTH, fixed(OptionalInt.of(69 * 2/3)))
                         .set(HEIGHT, fixed(OptionalInt.of(69))));
     }
@@ -240,6 +241,14 @@ public class OutfitSelectScreen extends Component implements AnimatedTextureScre
             }
 
             super.render(canvas, region, padding, mouseX, mouseY);
+        }
+
+        @Override
+        public Stylesheet getStylesheet() {
+            return new Stylesheet().self(
+                    Style.create()
+                            .set(TOOLTIP, Optional.of(new Tooltip(Text.literal(this.option.name))))
+            );
         }
     }
 }
