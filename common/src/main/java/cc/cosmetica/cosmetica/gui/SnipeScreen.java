@@ -26,6 +26,7 @@ import cc.cosmetica.cosmetica.gui.widget.CosmeticsList;
 import cc.cosmetica.cosmetica.gui.widget.RotatableGUIPlayer;
 import cc.cosmetica.cosmetica.gui.widget.SlideToggle;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
+import cc.cosmetica.cosmetica.util.NametagUtil;
 import cc.cosmetica.kupe.api.*;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
@@ -74,6 +75,9 @@ public class SnipeScreen extends Screen implements AnimatedTextureScreen {
 
     @Override
     protected Component[] buildScreen() {
+        NametagUtil.isSnipe = true;
+        NametagUtil.extraSpaceTaken = 29;
+
         @Nullable Cosmetics outfit = this.cosmetics.acquire(this);
         UUID player = playerUUID == null ? Minecraft.getInstance().getUser().getProfileId() : playerUUID;
 
