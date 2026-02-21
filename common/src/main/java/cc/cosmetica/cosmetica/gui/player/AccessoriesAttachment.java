@@ -96,7 +96,7 @@ public class AccessoriesAttachment implements GUIPlayer.Attachment<Collection<Ac
 
                     // thin skin: shift
                     if (((PlayerModelAccessor) playerModel).isSlim()) {
-                        additionalXOffset += 0.5f / 16.0f;
+                        additionalXOffset -= 0.5f / 16.0f;
                     }
                     break;
                 case LEFT_LEG:
