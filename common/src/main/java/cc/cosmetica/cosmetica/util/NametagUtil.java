@@ -21,6 +21,7 @@ import cc.cosmetica.core.render.HumanoidAccessoriesLayer;
 import cc.cosmetica.cosmetica.gui.player.AccessoriesAttachment;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -81,8 +82,24 @@ public class NametagUtil {
                 double shift = Math.max(hatTopY * lookAngleMultiplier, 0) / 16.0;
 
                 // use the same shift always to give the user feedback as to how the shift works when lore is equipped
-                double cap = 0.275; // avoid nametags going off the screen in the GUI
-                // nametags > 1 ? 0.25 : 0.35
+                int height = Minecraft.getInstance().getWindow().getGuiScaledHeight();
+                int width = Minecraft.getInstance().getWindow().getGuiScaledWidth();
+
+                int outfitPlayerHeightApprox = 2 * Math.min(90, Math.max(50, 10 + (int)(width * 0.0625)));
+                int assumedExtraSpace = 20*3 + 9;
+
+                int remainingSpace = (height - (outfitPlayerHeightApprox + assumedExtraSpace))/2;
+
+                // avoid nametags going off the screen in the GUI
+
+                // 40 => 0.275
+                // (50 => 0.5) - unused
+                // 65 => 0.74
+
+                final double m = (0.74 - 0.275) / (65 - 40);
+                final double c = 0.275 - m * 40;
+
+                double cap = Math.max(0.275, m * remainingSpace + c);
 
                 stack.translate(0, Math.min(shift, cap), 0);
             }
