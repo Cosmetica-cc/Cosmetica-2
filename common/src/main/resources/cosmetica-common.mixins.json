@@ -6,8 +6,8 @@
   "client": [
     "KeyboardHandlerMixin",
     "MinecraftMixin",
-    "attach.PlayerInfoMixin",
     "attach.LocalPlayerMixin",
+    "attach.PlayerInfoMixin",
     "attach.RemotePlayerMixin",
     "button.OptionsScreenMixin",
     "keybinds.KeyMappingAccessor",
