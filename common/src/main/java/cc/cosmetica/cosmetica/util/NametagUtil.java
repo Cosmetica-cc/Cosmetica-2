@@ -23,7 +23,6 @@ import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -31,6 +30,9 @@ import java.util.Collection;
 import java.util.Iterator;
 
 public class NametagUtil {
+    public static int extraSpaceTaken = 69;
+    public static boolean isSnipe = false;
+
     public static void shiftNametags(PoseStack stack, GUIPlayer player, int nametags) {
         // shift nametags up
         if (!player.pose.upsideDown) {
@@ -81,14 +83,18 @@ public class NametagUtil {
 
                 double shift = Math.max(hatTopY * lookAngleMultiplier, 0) / 16.0;
 
-                // use the same shift always to give the user feedback as to how the shift works when lore is equipped
+                // don't change shift with lore
+                // to give the user visual feedback as to how the shift works when lore is equipped
+
                 int height = Minecraft.getInstance().getWindow().getGuiScaledHeight();
                 int width = Minecraft.getInstance().getWindow().getGuiScaledWidth();
 
-                int outfitPlayerHeightApprox = 2 * Math.min(90, Math.max(50, 10 + (int)(width * 0.0625)));
-                int assumedExtraSpace = 20*3 + 9;
+                int outfitPlayerHeightApprox = 2 * (isSnipe ?
+                        (int)(width * (12.0 / 100)) :
+                        Math.min(90, Math.max(50, 10 + (int)(width * 0.0625)))
+                );
 
-                int remainingSpace = (height - (outfitPlayerHeightApprox + assumedExtraSpace))/2;
+                int remainingSpace = (height - (outfitPlayerHeightApprox + extraSpaceTaken))/2;
 
                 // avoid nametags going off the screen in the GUI
 

@@ -31,6 +31,7 @@ import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
 import cc.cosmetica.cosmetica.gui.widget.OutfitPlayer;
 import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
+import cc.cosmetica.cosmetica.util.NametagUtil;
 import cc.cosmetica.kupe.api.*;
 import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.Style;
@@ -67,6 +68,9 @@ public abstract class AbstractHomeScreen extends Screen implements AnimatedTextu
 
     @Override
     protected Component[] buildScreen() {
+        NametagUtil.isSnipe = false;
+        NametagUtil.extraSpaceTaken = 20*3 + 9;
+
         UUID self = Minecraft.getInstance().getUser().getGameProfile().getId();
 
         Cosmetics cosmetics = Cosmetica.OWN_COSMETICS.acquire(this);

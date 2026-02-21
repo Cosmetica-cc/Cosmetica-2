@@ -28,6 +28,7 @@ import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
 import cc.cosmetica.cosmetica.gui.widget.RotatableGUIPlayer;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.cosmetica.util.Lore;
+import cc.cosmetica.cosmetica.util.NametagUtil;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screen;
 import cc.cosmetica.kupe.api.State;
@@ -80,6 +81,9 @@ public class StyleNametagScreen extends Screen implements AnimatedTextureScreen 
 
     @Override
     protected Component[] buildScreen() {
+        NametagUtil.isSnipe = false;
+        NametagUtil.extraSpaceTaken = 0;
+
         UUID self = Minecraft.getInstance().getUser().getGameProfile().getId();
 
         // subscribe to the *cosmetics change*
