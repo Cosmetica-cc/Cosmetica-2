@@ -46,18 +46,23 @@ public class AccessoriesAttachment implements GUIPlayer.Attachment<Collection<Ac
     @Override
     public void render(GUIPlayer component, PlayerModel playerModel, GUIPlayer.Posture posture, Canvas canvas, Collection<Accessory> configuration, Quaternion cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
         boolean elytra = false;
+        boolean cloak = false;
         for (Iterator<GUIPlayer.Attachment<?>> attachments = component.getRenderingAttachments();
              attachments.hasNext(); ) {
-            if (attachments.next() == GUIPlayer.ELYTRA) {
+            GUIPlayer.Attachment<?> attachment = attachments.next();
+
+            if (attachment == GUIPlayer.ELYTRA) {
                 elytra = true;
-                break;
+            }
+            if (attachment == GUIPlayer.CAPE) {
+                cloak = true;
             }
         }
         GUIPlayer.CapeProperties cape = component.getConfiguration(GUIPlayer.CAPE);
 
         for (Accessory accessory : configuration) {
             if (Minecraft.getInstance().screen instanceof KupeScreen) {
-                if (cape != null && cape.getTexture().isPresent() && accessory.getFlags().contains(Accessory.Flag.HIDE_WITH_CLOAK)) {
+                if (cloak && cape != null && cape.getTexture().isPresent() && accessory.getFlags().contains(Accessory.Flag.HIDE_WITH_CLOAK)) {
                     continue;
                 }
                 if (elytra && accessory.getFlags().contains(Accessory.Flag.HIDE_WITH_ELYTRA)) {
