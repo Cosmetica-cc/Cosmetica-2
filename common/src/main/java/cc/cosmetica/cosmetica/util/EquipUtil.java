@@ -21,6 +21,7 @@ import gg.cloaks.javaclient.model.CreateOutfitAccessoryDto;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collection;
 
 public final class EquipUtil {
     private EquipUtil() {}
@@ -34,7 +35,39 @@ public final class EquipUtil {
                 BigDecimal.valueOf(accessory.getOffset().y),
                 BigDecimal.valueOf(accessory.getOffset().z)
         ));
-        caod.setFlags(-1);
+        // core uses identical collection if no custom override
+        // TODO put other way to check in core
+        caod.setFlags(accessory.getFlags() == accessory.getDefaultFlags() ? -1 : packFlags(accessory.getFlags()));
         return caod;
+    }
+
+    private static int packFlags(Collection<Accessory.Flag> flags) {
+        int response = 0;
+        for (Accessory.Flag flag : flags) {
+            response |= maskOf(flag);
+        }
+        return response;
+    }
+
+    // TODO give access to mask in core
+    private static int maskOf(Accessory.Flag flag) {
+        switch (flag) {
+        case HIDE_WITH_HELMET:
+            return 0x1;
+        case HIDE_WITH_CHESTPLATE:
+            return 0x2;
+        case HIDE_WITH_LEGGINGS:
+            return 0x4;
+        case HIDE_WITH_BOOTS:
+            return 0x8;
+        case HIDE_WITH_CLOAK:
+            return 0x10;
+        case HIDE_WITH_ELYTRA:
+            return 0x20;
+        case HIDE_WITH_PARROT:
+            return 0x40;
+        default:
+            return 0;
+        }
     }
 }
