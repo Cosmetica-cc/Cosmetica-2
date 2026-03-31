@@ -1,5 +1,5 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "8.1.1"
+    id "com.gradleup.shadow" version "9.2.2"
 }
 
 architectury {
@@ -23,17 +23,17 @@ repositories {
 }
 
 dependencies {
-    modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
-    modApi ("net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}") {
+    implementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+    api ("net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}") {
         exclude module: "fabric-loader"
     }
     include(fabricApi.module("fabric-resource-loader-v1", "${project.fabric_api_version}"))
     include(fabricApi.module("fabric-api-base", "${project.fabric_api_version}"))
 
     // Cosmetica Core
-    include(modImplementation "cc.cosmetica:cosmetica-core-fabric:${rootProject.core_version}-${rootProject.minecraft_version}")
+    include(implementation "cc.cosmetica:cosmetica-core-fabric:${rootProject.core_version}-${rootProject.minecraft_version}")
     // Kupe
-    include(modImplementation "cc.cosmetica:kupe-fabric:${rootProject.kupe_version}-${rootProject.minecraft_version}")
+    include(implementation "cc.cosmetica:kupe-fabric:${rootProject.kupe_version}-${rootProject.minecraft_version}")
     // Webp Support
     include(implementation "com.twelvemonkeys.imageio:imageio-webp:${rootProject.imaging_version}")
     include "com.twelvemonkeys.imageio:imageio-core:${rootProject.imaging_version}"
@@ -43,9 +43,9 @@ dependencies {
     include "com.twelvemonkeys.common:common-image:${rootProject.imaging_version}"
 
     // Mod Menu (for Compat)
-    modImplementation "com.terraformersmc:modmenu:17.0.0-beta.2"
+    implementation "com.terraformersmc:modmenu:17.0.0-beta.2"
 
-    common(project(path: ":common", configuration: "namedElements")) { transitive false }
+    common(project(path: ":common")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 }
 
@@ -57,18 +57,26 @@ processResources {
     }
 }
 
+jar {
+    archiveClassifier = "raw"
+}
+
 shadowJar {
+    dependsOn(jar)
+    mainSpec.sourcePaths.clear()       // Remove default source set inclusion
+    from(zipTree(jar.archiveFile))     // Unpack jar output (preserves Loom modifications)
+
     exclude "architectury.common.json"
 
     configurations = [project.configurations.shadowCommon]
-    archiveClassifier = "dev-shadow"
+    archiveClassifier = null           // shadowJar becomes the main artifact
 }
 
-remapJar {
-    injectAccessWidener = true
-    input.set shadowJar.archiveFile
-    dependsOn shadowJar
-}
+//remapJar {
+//    injectAccessWidener = true
+//    input.set shadowJar.archiveFile
+//    dependsOn shadowJar
+//}
 
 sourcesJar {
     def commonSources = project(":common").sourcesJar
@@ -76,9 +84,21 @@ sourcesJar {
     from commonSources.archiveFile.map { zipTree(it) }
 }
 
-components.java {
-    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
-        skip()
+//components.java {
+//    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+//        skip()
+//    }
+//}
+
+// use shadowjar for maven on 26.1
+configurations {
+    apiElements {
+        outgoing.artifacts.clear()
+        outgoing.artifact(shadowJar)
+    }
+    runtimeElements {
+        outgoing.artifacts.clear()
+        outgoing.artifact(shadowJar)
     }
 }
 

@@ -41,7 +41,7 @@ dependencies {
     // Webp Support
     implementation "com.twelvemonkeys.imageio:imageio-webp:${rootProject.imaging_version}"
 
-    common(project(path: ":common", configuration: "namedElements")) { transitive false }
+    common(project(path: ":common")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
 
     // jarJar core and kupe
