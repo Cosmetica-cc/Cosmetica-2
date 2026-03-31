@@ -20,7 +20,6 @@
   },
   "mixins": [
     "AbstractScrollContainerAccessor",
-    "AsyncApiMixin",
     "attach.ArmourStandMixin",
     "gui.FakePlayerRendererMixin",
     "textures.AnimationFrameDevAccessor",

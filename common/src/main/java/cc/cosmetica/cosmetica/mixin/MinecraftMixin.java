@@ -38,7 +38,7 @@ public class MinecraftMixin {
 
         // also do the check thing
         if (text != null) {
-            this.gui.getChat().addMessage(text.toMinecraftComponent());
+            this.gui.getChat().addClientSystemMessage(text.toMinecraftComponent());
         }
     }
 }

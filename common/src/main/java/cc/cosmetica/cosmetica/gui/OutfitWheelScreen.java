@@ -44,7 +44,7 @@ import gg.cloaks.javaclient.model.OutfitAccessory;
 import gg.cloaks.javaclient.model.PlayerResponse;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -76,7 +76,7 @@ public class OutfitWheelScreen extends Screen {
     private List<OutfitOption> options;
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         Canvas canvas = new PoseCanvas(graphics, this.minecraft, null, partialTick);
 
         // Measurements
@@ -89,7 +89,7 @@ public class OutfitWheelScreen extends Screen {
         // Draw text
         final int titleHeight = this.getTitleHeight();
         Component title = this.getPageLabel();
-        graphics.drawCenteredString(this.font, title, this.width / 2, titleHeight, 0xffffffff);
+        graphics.centeredText(this.font, title, this.width / 2, titleHeight, 0xffffffff);
 
         {
             int[] pageChangeButton = new int[3];
@@ -109,8 +109,8 @@ public class OutfitWheelScreen extends Screen {
             boolean hoveredPrevPage = hoveredY && mouseX >= left-pcWidth/2 && mouseX <= left+pcWidth/2+1;
             boolean hoveredNextPage = hoveredY && mouseX >= right-pcWidth/2 && mouseX <= right+pcWidth/2+1;
 
-            graphics.drawCenteredString(this.font, Text.literal("<").toMinecraftComponent(), left, titleHeight, previousPage ? (hoveredPrevPage ? 0xff888888 : 0xffffffff) : 0xff888888);
-            graphics.drawCenteredString(this.font, Text.literal(">").toMinecraftComponent(), right, titleHeight, nextPage ? (hoveredNextPage ? 0xff888888 : 0xffffffff) : 0xff888888);
+            graphics.centeredText(this.font, Text.literal("<").toMinecraftComponent(), left, titleHeight, previousPage ? (hoveredPrevPage ? 0xff888888 : 0xffffffff) : 0xff888888);
+            graphics.centeredText(this.font, Text.literal(">").toMinecraftComponent(), right, titleHeight, nextPage ? (hoveredNextPage ? 0xff888888 : 0xffffffff) : 0xff888888);
 
         }
         // Draw circles

@@ -40,7 +40,7 @@ public class Sniper {
         return target;
     }
 
-    public static void updateTargetPlayer(Minecraft minecraft, float yawProbably) {
+    public static void updateTargetPlayer(Minecraft minecraft, float partialTicks) {
         Entity camera = minecraft.getCameraEntity();
         target = null;
 
@@ -49,8 +49,8 @@ public class Sniper {
                 Profiler.get().push("snipe");
 
                 final double maxDist = MAX_SNIPE_DISTANCE;
-                HitResult pickResult = camera.pick(maxDist, yawProbably, false);
-                Vec3 eyePosition = camera.getEyePosition(yawProbably);
+                HitResult pickResult = camera.pick(maxDist, partialTicks, false);
+                Vec3 eyePosition = camera.getEyePosition(partialTicks);
 
                 double maxDistSqr = maxDist;
                 maxDistSqr *= maxDistSqr;

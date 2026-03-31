@@ -22,7 +22,7 @@ import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.impl.PoseCanvas;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastManager;
 import org.jetbrains.annotations.Nullable;
@@ -61,7 +61,7 @@ public class CosmeticaToast implements Toast {
     }
 
     @Override
-    public void render(GuiGraphics graphics, Font font, long l) {
+    public void extractRenderState(GuiGraphicsExtractor graphics, Font font, long l) {
         Matrix3x2fStack poseStack = graphics.pose();
 
         Canvas canvas = new PoseCanvas(graphics, Minecraft.getInstance(), null, 0);
