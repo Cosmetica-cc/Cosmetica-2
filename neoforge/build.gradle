@@ -89,6 +89,7 @@ shadowJar {
         resource = 'META-INF/neoforge.mods.toml'
     }
 
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
     mergeServiceFiles()
 
     configurations = [project.configurations.shadowCommon, project.configurations.shadow]
