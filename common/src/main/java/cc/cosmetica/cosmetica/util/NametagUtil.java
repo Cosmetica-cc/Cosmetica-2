@@ -16,18 +16,11 @@
 
 package cc.cosmetica.cosmetica.util;
 
-import cc.cosmetica.core.api.Accessory;
 import cc.cosmetica.core.render.HumanoidAccessoriesLayer;
-import cc.cosmetica.cosmetica.gui.player.AccessoriesAttachment;
-import cc.cosmetica.kupe.api.gui.GUIPlayer;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-
-import java.util.Collection;
-import java.util.Iterator;
 
 public class NametagUtil {
     public static int extraSpaceTaken = 69;
