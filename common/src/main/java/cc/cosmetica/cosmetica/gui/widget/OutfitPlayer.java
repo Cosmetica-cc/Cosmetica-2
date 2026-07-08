@@ -19,6 +19,7 @@ package cc.cosmetica.cosmetica.gui.widget;
 import cc.cosmetica.core.api.NametagConfig;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.OutfitSelectScreen;
+import cc.cosmetica.cosmetica.gui.player.NametagConfigAttachment;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
@@ -88,8 +89,8 @@ public class OutfitPlayer extends Component {
 		}
 
 		// set icons
-		guiPlayer.icon(nametag.getIcon().getImage().isLoaded() ? nametag.getIcon().getImage() : null, nametag.isTransparentIcon())
-				.loreIcon(lore.getIcon().getImage().isLoaded() ? lore.getIcon().getImage() : null);
+		guiPlayer.icon(nametag.getIcon().getImage().isLoaded() ? nametag.getIcon() : null, nametag.isTransparentIcon())
+				.configureOverride(NametagConfigAttachment.LORE, lore == null ? NametagConfig.EMPTY : lore);
 
 		return Arrays.asList(
 				new Div(
@@ -110,7 +111,7 @@ public class OutfitPlayer extends Component {
 							.withStyle(Cosmetica.authTooltipStyle(disable||authenticated)),
 					// *.title ensures no "..." for consistency with Cosmetica's buttons
 					new Button(Text.translatable("options.skinCustomisation.title"), () -> {
-						Minecraft.getInstance().setScreen(new SkinCustomizationScreen(Minecraft.getInstance().screen, Minecraft.getInstance().options));
+						Minecraft.getInstance().gui.setScreen(new SkinCustomizationScreen(Minecraft.getInstance().gui.screen(), Minecraft.getInstance().options));
 					}).setDisabled(disable)
 				).withStyle(Style.create()
 						.set(Div.JUSTIFY_CONTENT, Justify.CENTRE)

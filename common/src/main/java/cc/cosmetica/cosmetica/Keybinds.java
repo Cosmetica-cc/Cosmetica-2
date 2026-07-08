@@ -95,7 +95,7 @@ public class Keybinds {
      * Process the Cosmetica Keybinds on client (world) tick.
      */
     public static void processKeybinds() {
-        Screen screen = Minecraft.getInstance().screen;
+        Screen screen = Minecraft.getInstance().gui.screen();
 
         // Outfit Wheel
         boolean set = false;
@@ -104,9 +104,9 @@ public class Keybinds {
 
         if (set) {
             if (screen == null) {
-                Minecraft.getInstance().setScreen(new OutfitWheelScreen());
+                Minecraft.getInstance().gui.setScreen(new OutfitWheelScreen());
             } else if (CosmeticaSettings.TOGGLE_OUTFIT_WHEEL.get() && screen instanceof OutfitWheelScreen) {
-                Minecraft.getInstance().setScreen(null);
+                Minecraft.getInstance().gui.setScreen(null);
             }
         }
 
@@ -132,7 +132,7 @@ public class Keybinds {
                 Screens.setScreen(HomeScreen.ID);
             } else if (rightShiftMenu) {
                 // to-do: make cosmetica menu screens allow right shift, but not other keys
-                Minecraft.getInstance().setScreen(null);
+                Minecraft.getInstance().gui.setScreen(null);
             }
         }
 

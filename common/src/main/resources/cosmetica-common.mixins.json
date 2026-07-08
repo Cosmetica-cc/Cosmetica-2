@@ -11,7 +11,7 @@
     "attach.RemotePlayerMixin",
     "button.OptionsScreenMixin",
     "keybinds.KeyMappingAccessor",
-    "keybinds.LevelRendererTickMixin",
+    "keybinds.MinecraftMixin",
     "keybinds.OptionsMixin",
     "snipe.GameRendererMixin"
   ],
@@ -21,7 +21,7 @@
   "mixins": [
     "AbstractScrollContainerAccessor",
     "attach.ArmourStandMixin",
-    "gui.FakePlayerRendererMixin",
+    "gui.NametagRendererMixin",
     "textures.AnimationFrameDevAccessor",
     "textures.AnimationFrameProdAccessor",
     "textures.WebpMetadataProviderDevMixin",

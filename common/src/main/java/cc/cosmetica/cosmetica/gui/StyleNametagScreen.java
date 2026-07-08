@@ -19,9 +19,11 @@ package cc.cosmetica.cosmetica.gui;
 import cc.cosmetica.core.api.CachedImage;
 import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.ImageCosmetic;
+import cc.cosmetica.core.api.NametagConfig;
 import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
+import cc.cosmetica.cosmetica.gui.player.NametagConfigAttachment;
 import cc.cosmetica.cosmetica.gui.widget.IconSelector;
 import cc.cosmetica.cosmetica.gui.widget.LoreSelector;
 import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
@@ -95,19 +97,19 @@ public class StyleNametagScreen extends Screen implements AnimatedTextureScreen 
                                 .tag("flex-1"),
                         new RotatableGUIPlayer(self, null)
                         {
-                            private int nametag = -1;
                             @Override
                             public List<Component> build() {
                                 Lore lore = Cosmetica.SELECTED_LORE.acquire(this);
-                                CachedImage icon = Cosmetica.SELECTED_ICON.extract(this, ic -> !ic.getImage().isLoaded() ? null : ic.getImage());
+                                ImageCosmetic icon = Cosmetica.SELECTED_ICON.extract(this, ic -> !ic.getImage().isLoaded() ? null : ic);
                                 this.icon(icon, false);
-                                this.loreIcon(!lore.icon.isLoaded() ? null : lore.icon);
-
-                                if (nametag == -1) {
-                                    nametag = this.createNametag(Text.literal(lore.formatted()), 0.75f);
-                                } else {
-                                    this.updateNametag(nametag, Text.literal(lore.formatted()), 0.75f);
-                                }
+                                this.configureOverride(
+                                        NametagConfigAttachment.LORE,
+                                        new NametagConfig(
+                                                lore.formatted(), "",
+                                                // just used for image rendering
+                                                new ImageCosmetic(lore.icon, "", "", null, null, 0),
+                                                false
+                                        ));
                                 return super.build();
                             }
                         }.showNametag(true).tag("preview-player"),

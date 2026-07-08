@@ -21,6 +21,7 @@ import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.StateHolder;
 import cc.cosmetica.cosmetica.gui.player.AccessoriesAttachment;
+import cc.cosmetica.cosmetica.gui.player.NametagConfigAttachment;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticEntry;
 import cc.cosmetica.cosmetica.gui.widget.CosmeticsList;
 import cc.cosmetica.cosmetica.gui.widget.RotatableGUIPlayer;
@@ -103,15 +104,13 @@ public class SnipeScreen extends Screen implements AnimatedTextureScreen {
                 Optional<NametagConfig> lore = outfit.getLore();
                 NametagConfig icon = outfit.getNametag();
 
-                if (lore.isPresent()) {
-                    guiPlayer.addNametag(Text.literal(lore.get().getPrefix()), 0.75f);
-                    if (lore.get().getIcon().getImage().location != CachedImage.NO_TEXTURE.location) {
-                        guiPlayer.loreIcon(lore.get().getIcon().getImage());
-                    }
-                }
+//                if (lore.isPresent()) {
+//                    guiPlayer.addNametag(Text.literal(lore.get().getPrefix()), 0.75f);
+//                }
+                guiPlayer.configureOverride(NametagConfigAttachment.LORE, lore.orElse(NametagConfig.EMPTY));
 
                 if (icon.getIcon().getImage().location != CachedImage.NO_TEXTURE.location) {
-                    guiPlayer.icon(icon.getIcon().getImage(), icon.isTransparentIcon());
+                    guiPlayer.icon(icon.getIcon(), icon.isTransparentIcon());
                 }
             }
         }

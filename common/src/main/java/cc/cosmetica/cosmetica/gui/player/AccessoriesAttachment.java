@@ -18,21 +18,17 @@ package cc.cosmetica.cosmetica.gui.player;
 
 import cc.cosmetica.core.api.Accessory;
 import cc.cosmetica.core.api.Cosmetics;
-import cc.cosmetica.core.impl.Logging;
-import cc.cosmetica.core.mixin.PlayerModelAccessor;
-import cc.cosmetica.kupe.api.Canvas;
+import cc.cosmetica.core.api.ImageCosmetic;
+import cc.cosmetica.core.api.NametagConfig;
+import cc.cosmetica.core.impl.HasCosmeticsRenderState;
 import cc.cosmetica.kupe.api.gui.GUIPlayer;
-import cc.cosmetica.kupe.impl.KupeScreen;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.player.PlayerModel;
-import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.world.phys.Vec3;
+import com.google.common.collect.ImmutableList;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -41,92 +37,9 @@ public class AccessoriesAttachment implements GUIPlayer.Attachment<Collection<Ac
     }
 
     @Override
-    public void render(GUIPlayer component, PlayerModel playerModel, GUIPlayer.Posture posture, PoseStack var4, Collection<Accessory> configuration, Quaternionf cameraOrientation, MultiBufferSource bufferSource, int packedLight) {
-        boolean elytra = false;
-        boolean cloak = false;
-        for (Iterator<GUIPlayer.Attachment<?>> attachments = component.getRenderingAttachments();
-             attachments.hasNext(); ) {
-            GUIPlayer.Attachment<?> attachment = attachments.next();
-
-            if (attachment == GUIPlayer.ELYTRA) {
-                elytra = true;
-            }
-            if (attachment == GUIPlayer.CAPE) {
-                cloak = true;
-            }
-        }
-        GUIPlayer.CapeProperties cape = component.getConfiguration(GUIPlayer.CAPE);
-
-        for (Accessory accessory : configuration) {
-            if (Minecraft.getInstance().screen instanceof KupeScreen) {
-                if (cloak && cape != null && cape.getTexture().isPresent() && accessory.getFlags().contains(Accessory.Flag.HIDE_WITH_CLOAK)) {
-                    continue;
-                }
-                if (elytra && accessory.getFlags().contains(Accessory.Flag.HIDE_WITH_ELYTRA)) {
-                    continue;
-                }
-            }
-
-            ModelPart part = null;
-
-            // additional shifting for slim/thick arms
-            float additionalXOffset = 0;
-
-            switch (accessory.getAttachment()) {
-                case HEAD:
-                    part = playerModel.head;
-                    break;
-                case BODY:
-                    part = playerModel.body;
-                    break;
-                case LEFT_ARM:
-                    part = accessory.isMirrored() ?
-                            playerModel.rightArm :
-                            playerModel.leftArm;
-
-                    // thin skin: shift
-                    if (((PlayerModelAccessor) playerModel).isSlim()) {
-                        additionalXOffset += 0.5f / 16.0f;
-                    }
-                    break;
-                case RIGHT_ARM:
-                    part = accessory.isMirrored() ?
-                            playerModel.leftArm :
-                            playerModel.rightArm;
-
-                    // thin skin: shift
-                    if (((PlayerModelAccessor) playerModel).isSlim()) {
-                        additionalXOffset -= 0.5f / 16.0f;
-                    }
-                    break;
-                case LEFT_LEG:
-                    part = accessory.isMirrored() ?
-                            playerModel.rightLeg :
-                            playerModel.leftLeg;
-                    break;
-                case RIGHT_LEG:
-                    part = accessory.isMirrored() ?
-                            playerModel.leftLeg :
-                            playerModel.rightLeg;
-                    break;
-                case UNKNOWN_DEFAULT_OPEN_API:
-                    Logging.getInstance().warnOnce(
-                            "attachment_unknown_accessory_gui",
-                            "Unknown attachment for accessory (GUI player): {}",
-                            accessory.getName());
-                    continue;
-            }
-
-            Vec3 offset = accessory.getOffset();
-
-            if (part.visible) {
-                accessory.getModel().renderOnPart(
-                        part, var4, bufferSource, packedLight,
-                        (float) offset.x + additionalXOffset, (float) offset.y, (float) offset.z,
-                        accessory.isMirrored()
-                );
-            }
-        }
+    public void submitToRenderState(GUIPlayer guiPlayer, Collection<Accessory> accessories, Quaternionf quaternionf, AvatarRenderState renderState) {
+        MutableCosmetics mc = MutableCosmetics.getOrCreate(renderState);
+        mc.accessories = accessories;
     }
 
     @Override
@@ -140,4 +53,80 @@ public class AccessoriesAttachment implements GUIPlayer.Attachment<Collection<Ac
      * Global instance of Accessory Attachment.
      */
     public static final AccessoriesAttachment INSTANCE = new AccessoriesAttachment();
+
+    public static final class MutableCosmetics implements Cosmetics {
+        public MutableCosmetics() {
+            this.accessories = ImmutableList.of();
+            this.nametagConfig = NametagConfig.EMPTY;
+            this.lore = null;
+        }
+
+        public Collection<Accessory> accessories;
+        private NametagConfig nametagConfig;
+        private @Nullable NametagConfig lore;
+
+        @Override
+        public NametagConfig getNametag() {
+            return this.nametagConfig;
+        }
+
+        @Override
+        public Optional<NametagConfig> getLore() {
+            return Optional.ofNullable(this.lore);
+        }
+
+        @Override
+        public Collection<Accessory> getAccessories() {
+            return this.accessories;
+        }
+
+        public void setNametagConfig(NametagConfig nametagConfig) {
+            this.nametagConfig = nametagConfig;
+        }
+        public void setLore(@NotNull NametagConfig lore) {
+            this.lore = lore.getPrefix().isEmpty() ? NametagConfig.EMPTY : lore;
+        }
+        // Useful
+        public static MutableCosmetics getOrCreate(AvatarRenderState renderState) {
+            HasCosmeticsRenderState state = (HasCosmeticsRenderState) renderState;
+            Optional<Cosmetics> cosmetics = state.cosmeticacore$getCosmetics();
+
+            MutableCosmetics mc;
+            if (cosmetics.isPresent() && cosmetics.get() instanceof MutableCosmetics) {
+                mc = (MutableCosmetics) cosmetics.get();
+            } else {
+                mc = new MutableCosmetics();
+            }
+
+            // TODO make this API in next cosmetica core version for newer minecraft
+            state.cosmeticacore$setCosmetics(mc);
+            return mc;
+        }
+
+        // Unused
+        @Override
+        public Optional<String> getOutfitName() {
+            return Optional.empty();
+        }
+        @Override
+        public Optional<String> getOutfitId() {
+            return Optional.empty();
+        }
+        @Override
+        public Optional<ImageCosmetic> getCloak() {
+            return Optional.empty();
+        }
+        @Override
+        public Optional<ImageCosmetic> getElytra() {
+            return Optional.empty();
+        }
+        @Override
+        public boolean isUpsideDown() {
+            return false;
+        }
+        @Override
+        public void enqueue(Runnable runnable, Runnable onError) {
+            runnable.run();
+        }
+    }
 }

@@ -17,7 +17,9 @@
 package cc.cosmetica.cosmetica.gui.widget;
 
 import cc.cosmetica.core.api.CachedImage;
-import cc.cosmetica.core.api.CosmeticaAPI;
+import cc.cosmetica.core.api.ImageCosmetic;
+import cc.cosmetica.core.api.NametagConfig;
+import cc.cosmetica.cosmetica.gui.player.NametagConfigAttachment;
 import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.Element;
@@ -47,26 +49,16 @@ public class RotatableGUIPlayer extends GUIPlayer {
     private boolean drag = false;
     private double xStart = 0;
     private float yawStart = 0;
-    private boolean offline = false;
 
-    public @Nullable CachedImage loreIcon, icon;
-
-    public RotatableGUIPlayer icon(@Nullable CachedImage icon, boolean offlineIcon) {
-        this.icon = icon;
-        this.offline = offlineIcon;
-        return this;
-    }
-    public RotatableGUIPlayer loreIcon(@Nullable CachedImage icon) {
-        this.loreIcon = icon;
+    public RotatableGUIPlayer icon(@Nullable ImageCosmetic icon, boolean offlineIcon) {
+        this.configureOverride(NametagConfigAttachment.ICON, icon == null ? NametagConfig.EMPTY :
+                new NametagConfig("", "", icon, offlineIcon)
+        );
         return this;
     }
 
     public void setYaw(float yaw) {
         this.pose.yRotBody = this.pose.yRotHead = yaw;
-    }
-
-    public boolean hasTransparentIcon() {
-        return this.offline;
     }
 
     @Override

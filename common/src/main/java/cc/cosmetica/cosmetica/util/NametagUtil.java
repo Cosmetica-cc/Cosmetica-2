@@ -33,83 +33,27 @@ public class NametagUtil {
     public static int extraSpaceTaken = 69;
     public static boolean isSnipe = false;
 
-    public static void shiftNametags(PoseStack stack, GUIPlayer player, int nametags) {
-        // shift nametags up
-        if (!player.pose.upsideDown) {
-            float hatTopY = 0;
+    public static double nametagShiftCap() {
+        int height = Minecraft.getInstance().getWindow().getGuiScaledHeight();
+        int width = Minecraft.getInstance().getWindow().getGuiScaledWidth();
 
-            Collection<Accessory> accessories = player.getConfiguration(AccessoriesAttachment.INSTANCE);
-            if (accessories == null) {
-                return;
-            }
+        int outfitPlayerHeightApprox = 2 * (isSnipe ?
+                (int)(width * (12.0 / 100)) :
+                Math.min(90, Math.max(50, 10 + (int)(width * 0.0625)))
+        );
 
-            Iterator<GUIPlayer.Attachment<?>> iterator = player.getRenderingAttachments();
-            boolean cloak = false;
-            boolean elytra = false;
+        int remainingSpace = (height - (outfitPlayerHeightApprox + extraSpaceTaken))/2;
 
-            while (iterator.hasNext()) {
-                GUIPlayer.Attachment<?> attachment = iterator.next();
+        // avoid nametags going off the screen in the GUI
 
-                if (attachment == GUIPlayer.ELYTRA) {
-                    elytra = true;
-                }
-                if (attachment == GUIPlayer.CAPE) {
-                    GUIPlayer.CapeProperties properties = player.getConfiguration(GUIPlayer.CAPE);
-                    if (properties != null && properties.getTexture().isPresent()) {
-                        cloak = true;
-                    }
-                }
-            }
+        // 40 => 0.275
+        // (50 => 0.5) - unused
+        // 65 => 0.74
 
-            for (Accessory accessory : accessories) {
-                if (HumanoidAccessoriesLayer.canRenderAccessory(accessory, new GuiPlayerEquipper(elytra), cloak, elytra)) {
-                    if (accessory.getAttachment() == gg.cloaks.javaclient.model.Accessory.AttachmentEnum.HEAD) {
-//                    if (!accessory.getFlags().contains(Accessory.Flag.HIDE_WITH_HELMET) || !wearingHelmet) {
-                        hatTopY = Math.max(hatTopY, (float) (accessory.getModel().getBoundingBox().maxY + accessory.getOffset().y*16.0 - 12.0));
-//                    }
-                    }
-                }
-            }
+        final double m = (0.74 - 0.275) / (65 - 40);
+        final double c = 0.275 - m * 40;
 
-            if (hatTopY > 0) {
-                float normalizedAngleMultiplier = (float) -(Math.abs(Math.toRadians(player.pose.xRot)) / 1.57 - 1);
-                float lookAngleMultiplier;
-
-                if (player.pose.sneaking) { // Gliding with elytra, swimming, or crouching
-                    lookAngleMultiplier = 0;
-                } else {
-                    lookAngleMultiplier = normalizedAngleMultiplier;
-                }
-
-                double shift = Math.max(hatTopY * lookAngleMultiplier, 0) / 16.0;
-
-                // don't change shift with lore
-                // to give the user visual feedback as to how the shift works when lore is equipped
-
-                int height = Minecraft.getInstance().getWindow().getGuiScaledHeight();
-                int width = Minecraft.getInstance().getWindow().getGuiScaledWidth();
-
-                int outfitPlayerHeightApprox = 2 * (isSnipe ?
-                        (int)(width * (12.0 / 100)) :
-                        Math.min(90, Math.max(50, 10 + (int)(width * 0.0625)))
-                );
-
-                int remainingSpace = (height - (outfitPlayerHeightApprox + extraSpaceTaken))/2;
-
-                // avoid nametags going off the screen in the GUI
-
-                // 40 => 0.275
-                // (50 => 0.5) - unused
-                // 65 => 0.74
-
-                final double m = (0.74 - 0.275) / (65 - 40);
-                final double c = 0.275 - m * 40;
-
-                double cap = Math.max(0.275, m * remainingSpace + c);
-
-                stack.translate(0, Math.min(shift, cap), 0);
-            }
-        }
+        return Math.max(0.275, m * remainingSpace + c);
     }
 
     private static final class GuiPlayerEquipper implements HumanoidAccessoriesLayer.ArmourEquipper {

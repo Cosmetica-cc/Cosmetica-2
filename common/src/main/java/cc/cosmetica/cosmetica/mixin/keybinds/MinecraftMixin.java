@@ -17,16 +17,16 @@
 package cc.cosmetica.cosmetica.mixin.keybinds;
 
 import cc.cosmetica.cosmetica.Keybinds;
-import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(LevelRenderer.class)
-public class LevelRendererTickMixin {
-    @Inject(at = @At("RETURN"), method = "tick")
-    private void onRenderLevel(CallbackInfo info) {
+@Mixin(Minecraft.class)
+public class MinecraftMixin {
+    @Inject(at = @At("HEAD"), method = "handleKeybinds")
+    private void onHandleKeybinds(CallbackInfo info) {
         Keybinds.processKeybinds();
     }
 }
