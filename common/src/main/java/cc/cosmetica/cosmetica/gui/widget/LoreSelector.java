@@ -274,6 +274,8 @@ public class LoreSelector extends LayeredSpace {
             // hover effect
             if (region.addMargins(padding).shrinkMargins(new Margins(0,6,0,0)).contains(mouseX, mouseY) && !this.getStyle().get(BORDER).isPresent()) {
                 canvas.drawRect(region.addMargins(padding), 0x707070);
+            } else {
+                canvas.drawRect(region.addMargins(padding), 0);
             }
             super.render(canvas, region, padding, mouseX, mouseY);
         }

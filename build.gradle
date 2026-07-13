@@ -23,7 +23,6 @@ subprojects {
         maven {
             url "https://maven.neoforged.net/releases/"
         }
-        mavenLocal()
 	}
 
     dependencies {
