@@ -16,7 +16,6 @@
 
 package cc.cosmetica.cosmetica.gui;
 
-import cc.cosmetica.core.api.CachedImage;
 import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.ImageCosmetic;
 import cc.cosmetica.core.api.NametagConfig;

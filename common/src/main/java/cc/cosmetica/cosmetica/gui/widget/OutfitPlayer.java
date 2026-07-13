@@ -59,7 +59,6 @@ public class OutfitPlayer extends Component {
 	private UnaryOperator<GUIPlayer> overrides = gp -> gp;
 	private RotatableGUIPlayer guiPlayer;
 	private boolean keepGuiPlayer;
-	private int loreHandle;
 
 	public OutfitPlayer setDisabled(boolean disabled) {
 		this.disable = disabled;
@@ -81,16 +80,15 @@ public class OutfitPlayer extends Component {
 		RotatableGUIPlayer guiPlayer;
 		if (this.keepGuiPlayer && this.guiPlayer != null) {
 			guiPlayer = this.guiPlayer;
-			guiPlayer.updateNametag(this.loreHandle, Text.literal(this.lore.getPrefix()), 0.75f);
 		} else {
 			guiPlayer = new RotatableGUIPlayer(player, showingElytra);
-			guiPlayer.showNametag(true);
-			this.loreHandle = guiPlayer.createNametag(Text.literal(this.lore.getPrefix()), 0.75f);
 		}
 
+		guiPlayer.showNametag(true);
+		guiPlayer.configureOverride(NametagConfigAttachment.LORE, this.lore == null ? NametagConfig.EMPTY : this.lore);
+
 		// set icons
-		guiPlayer.icon(nametag.getIcon().getImage().isLoaded() ? nametag.getIcon() : null, nametag.isTransparentIcon())
-				.configureOverride(NametagConfigAttachment.LORE, lore == null ? NametagConfig.EMPTY : lore);
+		guiPlayer.icon(nametag.getIcon().getImage().isLoaded() ? nametag.getIcon() : null, nametag.isTransparentIcon());
 
 		return Arrays.asList(
 				new Div(

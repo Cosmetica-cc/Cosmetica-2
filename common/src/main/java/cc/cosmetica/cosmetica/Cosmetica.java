@@ -24,6 +24,7 @@ import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.gui.*;
 import cc.cosmetica.cosmetica.gui.player.AccessoriesAttachment;
 import cc.cosmetica.cosmetica.gui.player.CosmeticaCapeProvider;
+import cc.cosmetica.cosmetica.gui.player.NametagConfigAttachment;
 import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.cosmetica.util.Lore;
@@ -113,6 +114,8 @@ public class Cosmetica {
 
 		// register gui accessory attachment
 		GUIPlayer.registerAttachment(AccessoriesAttachment.INSTANCE);
+		GUIPlayer.registerAttachment(NametagConfigAttachment.LORE);
+		GUIPlayer.registerAttachment(NametagConfigAttachment.ICON);
 
 		// cosmetic states
 		Cosmetics.registerCosmeticsChangeCallback((either, cosmetics) -> {
