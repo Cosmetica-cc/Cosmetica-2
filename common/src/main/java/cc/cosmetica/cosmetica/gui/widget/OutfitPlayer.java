@@ -80,8 +80,10 @@ public class OutfitPlayer extends Component {
 		RotatableGUIPlayer guiPlayer;
 		if (this.keepGuiPlayer && this.guiPlayer != null) {
 			guiPlayer = this.guiPlayer;
+//			guiPlayer.updateNametag(1, Text.literal("test"), 0.75f);
 		} else {
 			guiPlayer = new RotatableGUIPlayer(player, showingElytra);
+//			guiPlayer.createNametag(Text.literal("test"), 0.75f);
 		}
 
 		guiPlayer.showNametag(true);
