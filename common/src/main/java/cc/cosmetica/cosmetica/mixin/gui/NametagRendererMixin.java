@@ -62,5 +62,7 @@ public class NametagRendererMixin {
         System.out.println("ATTACHMENT capture " + state.nameTagAttachment);
         System.out.println("LORE capture " + lore.getPrefix());
         System.out.println("LIGHT capture " + state.lightCoords);
+        System.out.println("CAMERA capture at " + arg4.pos + " fd " + arg4.depthFar + " smartCull " + arg4.smartCull);
+        System.out.println("MATRIX capture at " + stack.last().pose());
     }
 }
