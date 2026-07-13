@@ -30,10 +30,7 @@ import cc.cosmetica.cosmetica.gui.widget.RotatableGUIPlayer;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.cosmetica.util.Lore;
 import cc.cosmetica.cosmetica.util.NametagUtil;
-import cc.cosmetica.kupe.api.ResourceKey;
-import cc.cosmetica.kupe.api.Screen;
-import cc.cosmetica.kupe.api.State;
-import cc.cosmetica.kupe.api.Text;
+import cc.cosmetica.kupe.api.*;
 import cc.cosmetica.kupe.api.gui.Align;
 import cc.cosmetica.kupe.api.gui.Component;
 import cc.cosmetica.kupe.api.gui.Div;
@@ -41,7 +38,10 @@ import cc.cosmetica.kupe.api.gui.Justify;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
+import cc.cosmetica.kupe.api.maths.Margins;
+import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.platform.Window;
 import gg.cloaks.javaclient.ApiException;
 import gg.cloaks.javaclient.api.IconsApi;
 import gg.cloaks.javaclient.api.LoreApi;
@@ -110,6 +110,21 @@ public class StyleNametagScreen extends Screen implements AnimatedTextureScreen 
                                                 false
                                         ));
                                 return super.build();
+                            }
+
+                            @Override
+                            public void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
+                                final int v = 90, h = 10;
+                                Window window = Minecraft.getInstance().getWindow();
+
+                                int scissorX = Math.max(region.getX() - h, 0);
+                                int scissorX1e = Math.min(region.getEndX() + h, window.getGuiScaledWidth());
+                                int scissorY = Math.max(region.getY() - v, 0);
+                                int scissorY1e = Math.min(region.getEndY() + v, window.getGuiScaledHeight());
+
+                                Region scissor = new Region(scissorX, scissorY, scissorX1e - scissorX, scissorY1e - scissorY);
+                                canvas.useScissor(scissor, true);
+                                super.paint(canvas, region, mouseX, mouseY);
                             }
                         }.showNametag(true).tag("preview-player"),
                         new IconSelector(this.iconDirty, availableIcons)
