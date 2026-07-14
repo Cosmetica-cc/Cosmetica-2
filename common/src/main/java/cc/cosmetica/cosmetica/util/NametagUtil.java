@@ -17,10 +17,17 @@
 package cc.cosmetica.cosmetica.util;
 
 import cc.cosmetica.core.render.HumanoidAccessoriesLayer;
+import com.google.common.collect.ImmutableMap;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.model.EquipmentClientInfo;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class NametagUtil {
     public static int extraSpaceTaken = 69;
@@ -49,30 +56,39 @@ public class NametagUtil {
         return Math.max(0.275, m * remainingSpace + c);
     }
 
-    private static final class GuiPlayerEquipper implements HumanoidAccessoriesLayer.ArmourEquipper {
-        public GuiPlayerEquipper(boolean elytra) {
+    public static final class GuiPlayerEquipper implements HumanoidAccessoriesLayer.ArmourEquipper {
+        public GuiPlayerEquipper(HumanoidAccessoriesLayer.ArmourEquipper parent, boolean elytra) {
             this.elytra = elytra;
+            this.parent = parent;
         }
 
         private final boolean elytra;
+        private final HumanoidAccessoriesLayer.ArmourEquipper parent;
 
         @Override
-        public ItemStack getItemBySlot(EquipmentSlot equipmentSlot) {
-            if (equipmentSlot != EquipmentSlot.CHEST) {
-                return ItemStack.EMPTY;
-            }
+        public boolean hasItemInSlot(EquipmentSlot equipmentSlot) {
+            return (equipmentSlot == EquipmentSlot.CHEST && elytra) || this.parent.hasItemInSlot(equipmentSlot);
+        }
 
-            return this.elytra ? new ItemStack(Items.ELYTRA) : ItemStack.EMPTY;
+        @Override
+        public Map<EquipmentClientInfo.LayerType, List<EquipmentClientInfo.Layer>> getLayers(EquipmentSlot equipmentSlot) {
+            var map = this.parent.getLayers(equipmentSlot);
+            if (equipmentSlot == EquipmentSlot.CHEST) {
+                map = new HashMap<>(map);
+                map.computeIfAbsent(EquipmentClientInfo.LayerType.WINGS, _ -> new ArrayList<>())
+                        .add(null); // make size > 0 to trick it
+            }
+            return map;
         }
 
         @Override
         public boolean hasLeftShoulderEntity() {
-            return false;
+            return this.parent.hasLeftShoulderEntity();
         }
 
         @Override
         public boolean hasRightShoulderEntity() {
-            return false;
+            return this.parent.hasRightShoulderEntity();
         }
     }
 }

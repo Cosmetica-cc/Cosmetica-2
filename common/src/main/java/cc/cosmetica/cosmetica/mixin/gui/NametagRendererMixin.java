@@ -42,7 +42,6 @@ public class NametagRendererMixin {
             PlayerModel model,
             Vec3 position,
             HumanoidAccessoriesLayer.ArmourEquipper equipper,
-            boolean elytra,
             CallbackInfoReturnable<Vec3> returnable) {
         if (state instanceof GuiPlayerAvatarRenderState) {
             Vec3 returnValue = returnable.getReturnValue();

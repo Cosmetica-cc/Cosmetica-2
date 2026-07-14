@@ -10,6 +10,7 @@
     "attach.PlayerInfoMixin",
     "attach.RemotePlayerMixin",
     "button.OptionsScreenMixin",
+    "gui.HumanoidAccessoriesLayerMixin",
     "keybinds.KeyMappingAccessor",
     "keybinds.MinecraftMixin",
     "keybinds.OptionsMixin",
