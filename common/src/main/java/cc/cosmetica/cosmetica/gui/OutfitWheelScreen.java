@@ -358,6 +358,7 @@ public class OutfitWheelScreen extends Screen {
         InputConstants.Key k = InputConstants.getKey(event);
         KeyMapping.set(k, true);
         KeyMapping.click(k);
+        Keybinds.processKeybinds();
         return true;
     }
 
