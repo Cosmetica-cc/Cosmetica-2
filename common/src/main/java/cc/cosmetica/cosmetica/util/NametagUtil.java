@@ -73,7 +73,7 @@ public class NametagUtil {
         @Override
         public Map<EquipmentClientInfo.LayerType, List<EquipmentClientInfo.Layer>> getLayers(EquipmentSlot equipmentSlot) {
             var map = this.parent.getLayers(equipmentSlot);
-            if (equipmentSlot == EquipmentSlot.CHEST) {
+            if (equipmentSlot == EquipmentSlot.CHEST && elytra) {
                 map = new HashMap<>(map);
                 map.computeIfAbsent(EquipmentClientInfo.LayerType.WINGS, _ -> new ArrayList<>())
                         .add(null); // make size > 0 to trick it
