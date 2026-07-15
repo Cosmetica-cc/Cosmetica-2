@@ -44,7 +44,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.TOOLTIP;
 
@@ -386,12 +385,6 @@ public final class CosmeticaSettings {
 
             DISPLAY_SETTINGS.set(loggedInSettings);
 
-            System.out.println("ExtCape " + settings.getExternalCapes().stream().map(ExternalCapeSetting::getName).collect(Collectors.joining(" ")));
-            System.out.print("Received at ");
-            for (var e : Thread.currentThread().getStackTrace()) {
-                System.out.print(e);
-                System.out.println();
-            }
             externalCapeSettings.apiUpdate(settings.getExternalCapes(), settings.getType());
         }
     }
