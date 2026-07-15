@@ -183,12 +183,14 @@ public class Cosmetica {
 			}
 
 			Logging.getInstance().debug(CosmeticaLogCategory.EVENTS, "Received own cosmetics");
+			System.out.println("Lore (outfit) " + cosmetics.getLore());
 
 			// pretty sure we should definitely be a user. is it possible for this code to run on cracked?
 			List<UserConnection> connections;
 			Lore userLore;
 
 			if (data.isIsUser()) {
+				System.out.println("Lore (user): " + data.getUser().getLore());
 				// save data
 				cacheCosmeticManager.save(data.getUser());
 
