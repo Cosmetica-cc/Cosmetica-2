@@ -18,11 +18,15 @@ package cc.cosmetica.cosmetica.gui;
 
 import cc.cosmetica.core.api.CosmeticaAPI;
 import cc.cosmetica.core.api.Cosmetics;
+import cc.cosmetica.core.api.ImageCosmetic;
 import cc.cosmetica.core.api.OutfitCosmetics;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
+import cc.cosmetica.cosmetica.gui.player.AccessoriesAttachment;
 import cc.cosmetica.cosmetica.gui.widget.EntryList;
 import cc.cosmetica.cosmetica.gui.widget.OutfitCount;
+import cc.cosmetica.cosmetica.gui.widget.RotatableGUIPlayer;
+import cc.cosmetica.cosmetica.gui.widget.SlideToggle;
 import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.State;
@@ -40,10 +44,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static cc.cosmetica.cosmetica.Cosmetica.mainThreadExcept;
@@ -88,6 +89,7 @@ public class ReplaceOutfitSlotScreen extends Component implements AnimatedTextur
     private final State<Cosmetics> newOutfitCosmetics;
     private final State<Integer> outfitLimit;
     private final State<Boolean> setting = new State<>(false);
+    private final State<Boolean> showingElytra = new State<>(false);
     private final State<@Nullable ReplaceableOutfit> replacing = new State<>(null);
 
     @Override
@@ -111,6 +113,10 @@ public class ReplaceOutfitSlotScreen extends Component implements AnimatedTextur
             components.add(0, new ReplaceableOutfit());
 
         final UUID player = Minecraft.getInstance().getUser().getProfileId();
+        final GUIPlayer guiPlayer = new RotatableGUIPlayer(player, this.showingElytra);
+        guiPlayer.configureOverride(AccessoriesAttachment.INSTANCE, newOutfit.getAccessories());
+        guiPlayer.configureOverride(GUIPlayer.CAPE, newOutfit.getCloak().map(ImageCosmetic::getImage).map(ci -> ci.location).map(GUIPlayer.CapeProperties::new).orElse(new GUIPlayer.CapeProperties((ResourceKey) null)));
+        guiPlayer.configureOverride(GUIPlayer.ELYTRA, newOutfit.getElytra().map(ImageCosmetic::getImage).map(ci -> ci.location).map(location -> new GUIPlayer.ElytraProperties(new ResourceKey(location), false, true)).orElse(GUIPlayer.ElytraProperties.DEFAULT));
 
         return Arrays.asList(
                 new Div(
@@ -118,13 +124,19 @@ public class ReplaceOutfitSlotScreen extends Component implements AnimatedTextur
                         new OutfitCount(this.outfitLimit)
                 ).tag("title"),
                 new Div(
-                        new Div(new GUIPlayer(player, true)
+                        new Div(guiPlayer
                                 .withStyle(Style.create()
+                                        .set(MARGINS, fixed(new Margins(0,0,5,0)))
+                                        .set(Div.JUSTIFY_CONTENT, Justify.CENTRE)
                                         .set(MIN_WIDTH, screen(12, 0))
+                                        .set(HEIGHT, screen(20, 0))
                                 ),
-                                new Label(Text.literal(newOutfit.getOutfitName().orElse("(No name)")))
-                        ).tag("width-50%")
-                                .withStyle(Style.create().set(PADDING, screen(6, 0, (w,h)->new Margins(0,w,0,0)))),
+                                new Label(Text.literal(newOutfit.getOutfitName().orElse("(No name)"))),
+                                new SlideToggle(
+                                        this.showingElytra,
+                                        Text.translatable("button.cosmetica.toggleCloak"),
+                                        Text.translatable("button.cosmetica.toggleElytra"))
+                        ).tag("player-wrapper"),
                         new EntryList.Grid(components.toArray(new Component[0]), k->{
                             if (replacing != null) {
                                 for (Component o : components) {
@@ -138,10 +150,10 @@ public class ReplaceOutfitSlotScreen extends Component implements AnimatedTextur
                             }
 
                             return null;
-                        }).tag("width-50%").withStyle(Style.create().set(HEIGHT, screen(0, 75)))
+                        }).tag("width-50%").withStyle(Style.create().set(HEIGHT, screen(0, 65)))
                 ).tag("body"),
                 new Div(
-                        new Button(Text.translatable("button.cosmetica.confirm"), () -> {
+                        new Button(Text.translatable(replacing == null || replacing.option == null ? "button.cosmetica.confirm" : "button.cosmetica.replace"), () -> {
                             final ReplaceableOutfit oldOutfit = replacing;
                             if (oldOutfit != null && oldOutfit.usable) // sanity check
                             {
@@ -182,9 +194,16 @@ public class ReplaceOutfitSlotScreen extends Component implements AnimatedTextur
     public @NotNull Stylesheet getStylesheet() {
         return new Stylesheet()
                 .tag("body", BODY_DEFAULT_STYLE)
+                .tag("body", Style.create().set(PADDING, fixed(new Margins(0, 0, 10, 0))))
                 .tag("title", TITLE_DEFAULT_STYLE)
                 .tag("bottom-bar", Style.create()
                         .set(MARGINS, (vw, vh, pw, ph) -> new Margins(vh - 50, 0, 0, 0))
+                )
+                .tag("player-wrapper", Style.create()
+                        .set(Div.JUSTIFY_CONTENT, Justify.CENTRE)
+                        .set(HEIGHT, (vw,vh,pw,ph) -> OptionalInt.of(ph*50/100 + 100))
+                        .set(WIDTH, screen(50, 0))
+                        .set(MARGINS, fixed(new Margins(0, 0, 20, 0)))
                 )
                 .tag("width-50%", Style.create()
                         .set(WIDTH, screen(50, 0)))
@@ -228,6 +247,25 @@ public class ReplaceOutfitSlotScreen extends Component implements AnimatedTextur
         private final boolean usable;
 
         final OutfitWheelScreen.OutfitOption option;
+
+        @Override
+        public @Nullable Stylesheet getStylesheet() {
+            if (this.option == null) {
+                // Fix border not showing on new outfit option
+                return new Stylesheet()
+                        .self(Style.create()
+                                // -- should a new translatable text be used instead of reusing the button?
+                                .set(TOOLTIP, Optional.of(new Tooltip(Text.translatable("label.cosmetica.newOutfit"))))
+                                .set(PADDING, fixed(new Margins(1))));
+            } else {
+                // tooltip
+                return new Stylesheet()
+                        .self(Style.create()
+                                .set(TOOLTIP,
+                                        Optional.of(new Tooltip(Text.literal(this.option.name)))
+                                ));
+            }
+        }
 
         @Override
         public void mouseClicked(Element target, double x, double y, int button) {

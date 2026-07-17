@@ -21,6 +21,7 @@
   "button.cosmetica.equip.x": "X: %s",
   "button.cosmetica.equip.y": "Y: %s",
   "button.cosmetica.equip.z": "Z: %s",
+  "button.cosmetica.replace": "Replace",
   "button.cosmetica.styleNametag": "Stylize Name Tag",
   "button.cosmetica.stealHisLook": "Steal Their Look",
   "button.cosmetica.toggleCloak": "Cloak",
