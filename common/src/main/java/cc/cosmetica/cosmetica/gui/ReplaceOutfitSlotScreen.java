@@ -150,7 +150,7 @@ public class ReplaceOutfitSlotScreen extends Component implements AnimatedTextur
                             }
 
                             return null;
-                        }).tag("width-50%").withStyle(Style.create().set(HEIGHT, screen(0, 65)))
+                        }).tag("outfit-slot-grid")
                 ).tag("body"),
                 new Div(
                         new Button(Text.translatable(replacing == null || replacing.option == null ? "button.cosmetica.confirm" : "button.cosmetica.replace"), () -> {
@@ -205,8 +205,10 @@ public class ReplaceOutfitSlotScreen extends Component implements AnimatedTextur
                         .set(WIDTH, screen(50, 0))
                         .set(MARGINS, fixed(new Margins(0, 0, 20, 0)))
                 )
-                .tag("width-50%", Style.create()
-                        .set(WIDTH, screen(50, 0)))
+                .tag("outfit-slot-grid", Style.create()
+                        .set(WIDTH, (vw, vh, pw, ph) -> OptionalInt.of(vw*50/100 - 6))
+                        .set(HEIGHT, screen(0, 65))
+                        .set(MARGINS, fixed(new Margins(0, 6, 0, 0))))
                 .component(ReplaceableOutfit.class, Style.create()
                         .set(WIDTH, fixedSize(50))
                         .set(HEIGHT, fixedSize(50)));
