@@ -202,6 +202,8 @@ public class SnipeScreen extends Screen implements AnimatedTextureScreen {
             return false;
         }
 
+        Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Cape and Elytra match outfit. Checking Accessories");
+
         // check accessories are equivalent, regardless of order.
         // eliminate a to-wear accessory one at a time through outfit accessories
         List<Accessory> accessories = new LinkedList<>(toWear.getAccessories());//good remove operation but iterable
@@ -211,63 +213,39 @@ public class SnipeScreen extends Screen implements AnimatedTextureScreen {
         for (OutfitAccessory accessory : owned.accessories) {
             // if an accessory is not present in accessories, return false. Else delete it: it is found.
             // we can't use id as a primary search then check offset because you can equip the same outfit multiple times
-            Vec3 offset = attachmentTransform(
+            Vec3 offset = Accessory.attachmentTransform(
                     accessory.getAccessory().getAttachment(),
                     accessory.getOffset().get(0).doubleValue(),
                     accessory.getOffset().get(1).doubleValue(),
                     accessory.getOffset().get(2).doubleValue()
             );
+            Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Checking for accessory " + accessory.getAccessory().getId() + " (" + accessory.getAccessory().getName() + ")");
 
             Iterator<Accessory> accessoriesIterator = accessories.iterator();
             while (accessoriesIterator.hasNext()) {
                 Accessory accessory1 = accessoriesIterator.next();
 
                 if (accessory1.getId().equals(accessory.getAccessory().getId())) {
-                    Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Matching ID found. Checking offsets..");
+                    Logging.getInstance().debug(CosmeticaLogCategory.GUI, "> Matching ID " + accessory1.getId() + " found. Checking offsets..");
                     // compare offsets
                     Vec3 offset1 = accessory1.getOffset();
                     if (offset.equals(offset1)) {
+                        Logging.getInstance().debug(CosmeticaLogCategory.GUI, "> Offsets match");
+
                         accessoriesIterator.remove();
                         continue findOwnedAccessories;// found
+                    } else {
+                        Logging.getInstance().debug(CosmeticaLogCategory.GUI, "> Offsets do not match: toWear " + offset1 + ", and outfit " + offset);
                     }
                 }
             }
+
+            Logging.getInstance().debug(CosmeticaLogCategory.GUI, "> No match for accessory.");
 
             return false;// no match found. (EARLY CONTINUE for found)
         }
 
         return accessories.isEmpty(); // all accessories were identical (no non-matched accessories remain)
-    }
-
-    // Accessory#attachmentTransform
-    private static Vec3 attachmentTransform(gg.cloaks.javaclient.model.Accessory.AttachmentEnum attachment, double x, double y, double z) {
-        double dy;
-        double dx;
-
-        switch (attachment) {
-            case HEAD:
-                dy = 8.0;
-                dx = 8.0;
-                break;
-            case RIGHT_ARM:
-                dy = 0.0;
-                dx = 8.0;
-                break;
-            case LEFT_ARM:
-                dy = 0.0;
-                dx = 7.0;
-                break;
-            default:
-                dy = -2.0;
-                dx = 8.0;
-                break;
-        }
-
-        return new Vec3(
-                (x + dx) / 16.0,
-                (y + dy) / 16.0,
-                (z + 8.0) / 16.0
-        );
     }
 
     @Override
