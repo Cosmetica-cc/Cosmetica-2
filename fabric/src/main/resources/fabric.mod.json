@@ -31,6 +31,6 @@
     "fabric-resource-loader-v1": "*",
     "cosmetica-core": "*",
     "kupe": "*",
-    "minecraft": ">=26.1"
+    "minecraft": ">=26.1 <26.2"
   }
 }
