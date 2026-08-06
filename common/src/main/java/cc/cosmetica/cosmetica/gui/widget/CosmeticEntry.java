@@ -359,7 +359,9 @@ public class CosmeticEntry extends Component {
 
 		for (Accessory accessory : cosmetics.getAccessories()) {
 			// texture for thumbnail
-			CachedImage thumbnail = getOrCreateThumb(accessory.getThumbnail().orElseThrow(IllegalStateException::new), accessory.getJsonObject().getTicksPerFrame().intValue(), false);
+			CachedImage thumbnail = !accessory.getThumbnail().isPresent() ?
+					new CachedImage(Cosmetica.FALLBACK_TEXTURE, 0) :
+					getOrCreateThumb(accessory.getThumbnail().orElseThrow(IllegalStateException::new), accessory.getJsonObject().getTicksPerFrame().intValue(), false);
 
 			// n.b. reference to CachedImage needs to be stored on the entry so it doesn't get GC'd
 			CosmeticEntry entry;
