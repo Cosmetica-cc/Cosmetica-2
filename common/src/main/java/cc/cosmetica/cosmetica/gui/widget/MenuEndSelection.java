@@ -52,7 +52,7 @@ public class MenuEndSelection extends Div {
 
         return ImmutableList.of(
                 new Button(Text.GUI_DONE, Screens::closeCurrentScreen).setDisabled(this.disabled),
-                new IconButton(new ResourceKey("cosmetica", "textures/internet.png"), () -> {
+                new IconButton(new ResourceKey("cosmetica", "textures/button/internet.png"), () -> {
                     Cosmetica.openWebPanel("home");
                     this.clicked.set(true);
                 }, (region, x, y) -> {

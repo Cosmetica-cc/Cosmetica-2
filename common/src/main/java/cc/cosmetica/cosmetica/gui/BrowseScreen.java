@@ -232,8 +232,8 @@ public class BrowseScreen extends AbstractHomeScreen {
                                                         this.query,
                                                         true,
                                                         32).onEnter(BrowseScreen.this.query::setNow).tag("searchbar"),
-                                                new IconButton(new ResourceKey("cosmetica", "textures/filter.png"), ()-> this.open(Menu.FILTER)).tag("btn-search-adjust"),  // filter
-                                                new IconButton(new ResourceKey("cosmetica", "textures/sort.png"), ()-> this.open(Menu.SORT)).tag("btn-search-adjust") // sort
+                                                new IconButton(new ResourceKey("cosmetica", "textures/button/filter.png"), ()-> this.open(Menu.FILTER)).tag("btn-search-adjust"),  // filter
+                                                new IconButton(new ResourceKey("cosmetica", "textures/button/sort.png"), ()-> this.open(Menu.SORT)).tag("btn-search-adjust") // sort
                                         ).withStyle(Style.create()
                                                 .set(WIDTH, percent(100, 0))
                                                 .set(MIN_HEIGHT, fixedSize(20))
@@ -403,10 +403,10 @@ public class BrowseScreen extends AbstractHomeScreen {
                                             int page = BrowseScreen.this.page.acquireInstant(this);
                                             int pageCap = BrowseScreen.this.pageCap.acquire(this);
                                             return ImmutableList.of(
-                                                    new IconButton(new ResourceKey("cosmetica", page <= 1 ? "textures/page-left-disabled.png" : "textures/page-left.png"), () -> { int p = BrowseScreen.this.page.peek(); if (p > 1) BrowseScreen.this.page.set(BrowseScreen.this.page.peek() - 1); })
+                                                    new IconButton(new ResourceKey("cosmetica", page <= 1 ? "textures/button/page-left-disabled.png" : "textures/button/page-left.png"), () -> { int p = BrowseScreen.this.page.peek(); if (p > 1) BrowseScreen.this.page.set(BrowseScreen.this.page.peek() - 1); })
                                                             .setDisabled(page <= 1).tag("page-button"),
                                                     new Label(Text.literal(page + " / " + pageCap)),
-                                                    new IconButton(new ResourceKey("cosmetica", page >= pageCap ? "textures/page-right-disabled.png" : "textures/page-right.png"), () -> { int p = BrowseScreen.this.page.peek(); if (p < BrowseScreen.this.pageCap.peek()) BrowseScreen.this.page.set(p + 1); })
+                                                    new IconButton(new ResourceKey("cosmetica", page >= pageCap ? "textures/button/page-right-disabled.png" : "textures/button/page-right.png"), () -> { int p = BrowseScreen.this.page.peek(); if (p < BrowseScreen.this.pageCap.peek()) BrowseScreen.this.page.set(p + 1); })
                                                             .setDisabled(page >= pageCap).tag("page-button")
                                             );
                                         }

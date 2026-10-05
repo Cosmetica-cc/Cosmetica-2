@@ -170,7 +170,7 @@ public class OutfitSelectScreen extends Component implements AnimatedTextureScre
         @Override
         public List<Component> build() {
             final int deleteButtonSize = 15;
-            final ResourceKey deleteTexture = new ResourceKey("cosmetica", "textures/remove.png");
+            final ResourceKey deleteTexture = new ResourceKey("cosmetica", "textures/button/remove.png");
 
             return Arrays.asList(
                     new Image(new ResourceKey(option.thumbnail.location))

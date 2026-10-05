@@ -90,21 +90,21 @@ public abstract class AbstractHomeScreen extends Screen implements AnimatedTextu
                     ).tag("main-content"),
                     new Div(
                             new IconButton(
-                                    new ResourceKey("cosmetica", "textures/gear.png"),
+                                    new ResourceKey("cosmetica", "textures/button/gear.png"),
                                     () -> Screens.setScreen(new CosmeticaSettingsScreen(CosmeticaSettingsScreen.SETTINGS_SCREEN, CosmeticaSettings.DISPLAY_SETTINGS), CosmeticaSettingsScreen.SETTINGS_SCREEN)),
                             new IconButton(
-                                    new ResourceKey("cosmetica", "textures/cape.png"),
+                                    new ResourceKey("cosmetica", "textures/button/external_capes.png"),
                                     () -> Screens.setScreen(new ExternalCapesScreen(CosmeticaSettings.externalCapeSettings), ExternalCapesScreen.ID))
                                     .setDisabled(!authenticated)
                                     .withStyle(Cosmetica.authTooltipStyle(authenticated)),
                             new IconButton(
-                                    new ResourceKey("cosmetica", "textures/lore.png"),
+                                    new ResourceKey("cosmetica", "textures/button/lore.png"),
                                     () -> Screens.setScreen(StyleNametagScreen.ID))
                                     .setDisabled(!authenticated)
                                     .withStyle(Cosmetica.authTooltipStyle(authenticated)),
                             new Div().withStyle(Style.create().set(FLEX, 1)),
                             new IconButton(
-                                    new ResourceKey("cosmetica", "textures/reload.png"),
+                                    new ResourceKey("cosmetica", "textures/button/reload.png"),
                                     () -> {
                                         Logging.getInstance().info("Reloading all cosmetics");
                                         reloadDisabled.set(true);

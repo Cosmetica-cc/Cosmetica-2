@@ -212,12 +212,12 @@ public class LoreSelector extends LayeredSpace {
 
             // only show colouring button if you have multiple unlocked lore colours
             if (this.unlockedColours.size() > 1) {
-                result.add(new IconButton(new ResourceKey("cosmetica", "textures/colour.png"), () -> {
+                result.add(new IconButton(new ResourceKey("cosmetica", "textures/button/colour.png"), () -> {
                     boolean open = LoreSelector.this.colourSelectorOpen.peek();
                     LoreSelector.this.colourSelectorOpen.set(!open);
                 }));
             }
-            result.add(new IconButton(new ResourceKey("cosmetica", "textures/remove.png"), this::clearLore));
+            result.add(new IconButton(new ResourceKey("cosmetica", "textures/button/remove.png"), this::clearLore));
 
             return result;
         }
