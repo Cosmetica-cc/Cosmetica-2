@@ -23,6 +23,7 @@ import cc.cosmetica.core.api.texture.CosmeticaTexture;
 import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
 import cc.cosmetica.core.impl.BlockModelManager;
 import cc.cosmetica.core.impl.Logging;
+import cc.cosmetica.core.util.LifetimeResources;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import gg.cloaks.javaclient.model.Icon;
 import gg.cloaks.javaclient.model.*;
@@ -61,11 +62,11 @@ public class CacheCosmeticManager implements CosmeticManager {
 
     private final Path directory, outfitCache;
     private final UserIO userIO;
-    private final ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
+    private final ExecutorService executor = LifetimeResources.registerExecutor(Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(r);
         t.setName("Cache Cosmetic Manager");
         return t;
-    });
+    }));
     private Cosmetics cosmetics;
 
     @Override

@@ -23,6 +23,7 @@ import cc.cosmetica.core.impl.BlockModelManager;
 import cc.cosmetica.core.impl.CosmeticaSession;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.core.impl.LoggingCategory;
+import cc.cosmetica.core.util.LifetimeResources;
 import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.kupe.api.State;
@@ -59,7 +60,7 @@ import static cc.cosmetica.cosmetica.settings.CosmeticaSettings.willApplyLocalSe
  */
 public final class Authentication {
     private static final ResourceLocation SESSIONS = new ResourceLocation("cosmetica", ".sessions");
-    private static final ScheduledExecutorService LOGIN_SCHEDULER = Executors.newScheduledThreadPool(1, new ThreadFactory() {
+    private static final ScheduledExecutorService LOGIN_SCHEDULER = LifetimeResources.registerExecutor(Executors.newScheduledThreadPool(1, new ThreadFactory() {
         private int counter = 1;
 
         @Override
@@ -68,7 +69,7 @@ public final class Authentication {
             t.setName("Cosmetica Login Worker " + (counter++));
             return t;
         }
-    });
+    }));
     private static volatile boolean authenticating = false;
     private static final AtomicInteger RETRIES = new AtomicInteger(0);
     private static final Object lock = new Object();

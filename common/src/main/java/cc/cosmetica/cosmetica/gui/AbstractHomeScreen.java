@@ -24,6 +24,7 @@ import cc.cosmetica.core.builtin.OutfitCosmeticsHolder;
 import cc.cosmetica.core.builtin.manager.ApiCosmeticManager;
 import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
 import cc.cosmetica.core.impl.Logging;
+import cc.cosmetica.core.util.LifetimeResources;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.player.AccessoriesAttachment;
 import cc.cosmetica.cosmetica.gui.widget.ExternalURLButton;
@@ -230,5 +231,5 @@ public abstract class AbstractHomeScreen extends Screen implements AnimatedTextu
     }
 
     private static State<Boolean> reloadDisabled = new State<>(false);
-    private static final ScheduledExecutorService BUTTON_SCHEDULER = Executors.newScheduledThreadPool(1);
+    private static final ScheduledExecutorService BUTTON_SCHEDULER = LifetimeResources.registerExecutor(Executors.newScheduledThreadPool(1));
 }
