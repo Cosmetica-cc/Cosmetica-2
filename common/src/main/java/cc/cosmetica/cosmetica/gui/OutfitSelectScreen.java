@@ -170,7 +170,6 @@ public class OutfitSelectScreen extends Component implements AnimatedTextureScre
 
         @Override
         public List<Component> build() {
-            final int deleteButtonSize = 15;
             final ResourceKey deleteTexture = new ResourceKey("cosmetica", "textures/button/remove.png");
 
             return Arrays.asList(
@@ -194,7 +193,7 @@ public class OutfitSelectScreen extends Component implements AnimatedTextureScre
                             // don't draw icon on selected item
                             return !SelectableOutfit.this.option.id.equals(Cosmetica.SELECTED_OUTFIT_ID.peek().orElse(""));
                         }
-                    }).withStyle(Style.create().set(MARGINS, fixed(new Margins(0, 0, 69-deleteButtonSize, 69*2/3 - deleteButtonSize))))
+                    }).tag("delete-button")
             );
         }
 
@@ -248,11 +247,14 @@ public class OutfitSelectScreen extends Component implements AnimatedTextureScre
 
         @Override
         public Stylesheet getStylesheet() {
+            final int deleteButtonSize = 15;
+
             return new Stylesheet().self(
                     Style.create()
                             .set(TOOLTIP, Optional.of(new Tooltip(Text.literal(this.option.name))))
             ).tag("delete-button",
                     Style.create()
+                            .set(MARGINS, fixed(new Margins(0, 0, 69-deleteButtonSize, 69*2/3 - deleteButtonSize)))
                             .set(TOOLTIP, Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.deleteOutfit", this.option.name)))));
         }
 
@@ -261,7 +263,7 @@ public class OutfitSelectScreen extends Component implements AnimatedTextureScre
             Optional<Tooltip> tooltip = this.getStyle().get(CommonProperties.TOOLTIP);
 
             if (tooltip.isPresent() && region.intersect(scissorRegion).contains(mouseX, mouseY)) {
-                if (isSelected() || region.shrinkMargins(new Margins(0, 0, 69-15, 69*2/3-15)).contains(mouseX, mouseY)) {
+                if (isSelected() || !region.shrinkMargins(new Margins(0, 0, 69-15, 69*2/3-15)).contains(mouseX, mouseY)) {
                     tooltip.get().render(canvas, mouseX, mouseY);
                 }
             }
