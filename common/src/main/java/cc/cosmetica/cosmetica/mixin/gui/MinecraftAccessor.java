@@ -14,10 +14,15 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.cosmetica.fabric;
+package cc.cosmetica.cosmetica.mixin.gui;
 
-import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.authlib.minecraft.SocialInteractionsService;
+import net.minecraft.client.Minecraft;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.gen.Accessor;
 
-public interface CosmeticaFabricKeyDuck {
-    InputConstants.Key cosmetica$getKey();
+@Mixin(Minecraft.class)
+public interface MinecraftAccessor {
+    @Accessor
+    SocialInteractionsService getSocialInteractionsService();
 }

@@ -31,6 +31,7 @@ import cc.cosmetica.cosmetica.gui.widget.ExternalURLButton;
 import cc.cosmetica.cosmetica.gui.widget.IconButton;
 import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
 import cc.cosmetica.cosmetica.gui.widget.OutfitPlayer;
+import cc.cosmetica.cosmetica.mixin.gui.MinecraftAccessor;
 import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.cosmetica.util.NametagUtil;
@@ -41,6 +42,8 @@ import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import com.google.common.collect.ImmutableList;
 import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.minecraft.OfflineSocialInteractions;
+import com.mojang.authlib.minecraft.SocialInteractionsService;
 import gg.cloaks.javaclient.api.UsersApi;
 import gg.cloaks.javaclient.model.PlayerResponse;
 import net.minecraft.client.Minecraft;
@@ -118,7 +121,9 @@ public abstract class AbstractHomeScreen extends Screen implements AnimatedTextu
         ));
 
         // only show discord button when authenticated
-        if (authenticated) {
+
+//        System.out.println("asdfasdfasdfasdfasdf social interactions " + (String) (((MinecraftAccessor)Minecraft.getInstance()).getSocialInteractionsService().getClass().getSimpleName()));
+        if (authenticated || !(((MinecraftAccessor)Minecraft.getInstance()).getSocialInteractionsService() instanceof OfflineSocialInteractions)) {
             buttons.add(
                     new ExternalURLButton(
                             new ResourceKey("cosmetica", "textures/button/discord.png"),

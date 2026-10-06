@@ -18,8 +18,8 @@ package cc.cosmetica.cosmetica.fabric.mixin;
 
 import cc.cosmetica.cosmetica.Behaviour;
 import cc.cosmetica.cosmetica.Keybinds;
-import cc.cosmetica.cosmetica.fabric.CosmeticaFabricKeyDuck;
 import cc.cosmetica.cosmetica.fabric.FabricKeybinds;
+import cc.cosmetica.cosmetica.mixin.keybinds.KeyMappingAccessor;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import org.jetbrains.annotations.Nullable;
@@ -35,7 +35,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Mixin(KeyMapping.class)
-public class KeyMappingMixinFabric implements CosmeticaFabricKeyDuck {
+public class KeyMappingMixinFabric {
     @Shadow
     @Final
     private static Map<String, KeyMapping> ALL;
@@ -44,11 +44,6 @@ public class KeyMappingMixinFabric implements CosmeticaFabricKeyDuck {
 
     @Unique
     private static Map<String, KeyMapping> cosmetica$buffer = new HashMap<>();
-
-    @Override
-    public InputConstants.Key cosmetica$getKey() {
-        return this.key;
-    }
 
     @Inject(at = @At("RETURN"), method = "set")
     private static void onSet(InputConstants.Key key, boolean bl, CallbackInfo ci) {
@@ -86,7 +81,7 @@ public class KeyMappingMixinFabric implements CosmeticaFabricKeyDuck {
 
         // Do process
         for(KeyMapping keyMapping : cosmetica$buffer.values()) {
-            FabricKeybinds.SPECIAL_MAP.put(((CosmeticaFabricKeyDuck)keyMapping).cosmetica$getKey(), keyMapping);
+            FabricKeybinds.SPECIAL_MAP.put(((KeyMappingAccessor)keyMapping).cosmetica$getKey(), keyMapping);
         }
     }
 
