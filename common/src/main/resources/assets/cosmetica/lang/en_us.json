@@ -30,7 +30,7 @@
   "button.lore.pronouns": "Pronouns",
   "button.lore.titles": "Titles",
   "key.categories.cosmetica": "Cosmetica",
-  "key.cosmetica.customise": "Customise Outfit",
+  "key.cosmetica.customise": "Customize Outfit",
   "key.cosmetica.select_outfit": "Outfit Wheel",
   "key.cosmetica.snipe": "Outfit Sniper",
   "label.browse.search": "Search...",
@@ -138,7 +138,9 @@
   "tooltip.cosmetica.alreadyEquippedAccessoryMirrored": "You have already equipped this accessory mirrored!",
   "tooltip.cosmetica.copiedURL": "Copied URL!",
   "tooltip.cosmetica.defaultVisibilityOptions": "Default Visibility Options selected",
+  "tooltip.cosmetica.deleteOutfit": "Delete '%s'",
   "tooltip.cosmetica.deletingOutfit": "Deleting Outfit...",
+  "tooltip.cosmetica.discord": "Join our Discord!",
   "tooltip.cosmetica.equipping": "Equipping...",
   "tooltip.cosmetica.icon.disabled": "You currently have icons disabled",
   "tooltip.cosmetica.icon.managed": "Your icon is currently being managed by modpack settings",
@@ -167,6 +169,7 @@
   "tooltip.cosmetica.offline": "This feature is unavailable because you are offline",
   "tooltip.cosmetica.outdated": "Unknown Cosmetic Type. Please update your Cosmetica version!",
   "tooltip.cosmetica.reloadCosmetics": "Reload All Cosmetics",
+  "tooltip.cosmetica.remove_lore": "Remove Lore",
   "tooltip.cosmetica.updatingOutfit": "Updating Outfit...",
   "tooltip.cosmetica.updatingSettings": "Updating Settings..."
 }

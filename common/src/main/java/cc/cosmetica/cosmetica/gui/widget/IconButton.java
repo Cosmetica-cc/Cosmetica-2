@@ -25,29 +25,29 @@ import cc.cosmetica.kupe.api.gui.SizedElement;
 import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public class IconButton extends Button {
-    public IconButton(ResourceKey texture, Runnable onClicked) {
-        this(texture, onClicked, null);
-    }
-
     /**
-     * Create a new minecraft button with the given icon overlayed.
+     * Create a new minecraft button with the given icon overlaid.
      * @param texture the ResourceKey for the texture.
      * @param onClicked the function to run on click.
-     * @param onMouseMoved the function to run when the mouse moves on this screen.
      */
-    public IconButton(ResourceKey texture, Runnable onClicked, @Nullable MouseMotionListener onMouseMoved) {
+    public IconButton(@NotNull ResourceKey texture, Runnable onClicked) {
         super(Text.literal(""), onClicked);
         this.texture = texture;
-        this.onMouseMoved = onMouseMoved;
+        this.hoverTexture = texture;
     }
 
     private final ResourceKey texture;
-    private final MouseMotionListener onMouseMoved;
+    private ResourceKey hoverTexture;
+
+    public IconButton hoverTexture(@NotNull ResourceKey texture) {
+        this.hoverTexture = texture;
+        return this;
+    }
 
     @Override
     public Dimensions intrinsicSize(List<? extends SizedElement> children, Margins padding, Context context) {
@@ -55,28 +55,17 @@ public class IconButton extends Button {
     }
 
     @Override
-    public void mouseMoved(Region region, double x, double y) {
-        if (this.onMouseMoved != null) {
-            this.onMouseMoved.accept(region, x, y);
-        }
-    }
-
-    @Override
     public void paint(Canvas canvas, Region region, int mouseX, int mouseY) {
         // Button
         super.paint(canvas, region, mouseX, mouseY);
         // Image
+        boolean useHoverTexture = this.isOccluding(region, canvas.getScissor().orElse(region), mouseX, mouseY, false);
         canvas.setTransparency(this.disabled ? 0.8f : 1.0f);
         canvas.drawTexture(
                 region.getX(), region.getY(), region.getWidth(), region.getHeight(),
-                0, this.texture);
+                0, useHoverTexture ? this.hoverTexture : this.texture);
         canvas.disableTransparency();
     }
 
     private static final Dimensions DEFAULT_DIMENSIONS = new Dimensions(20, 20);
-
-    @FunctionalInterface
-    public interface MouseMotionListener {
-        void accept(Region region, double x, double y);
-    }
 }

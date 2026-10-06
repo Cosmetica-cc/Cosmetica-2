@@ -24,6 +24,7 @@ import cc.cosmetica.cosmetica.gui.widget.EntryList;
 import cc.cosmetica.cosmetica.gui.widget.OutfitCount;
 import cc.cosmetica.kupe.api.*;
 import cc.cosmetica.kupe.api.gui.*;
+import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Margins;
@@ -210,15 +211,19 @@ public class OutfitSelectScreen extends Component implements AnimatedTextureScre
             this.option.equipAsync();
         }
 
+        private boolean isSelected() {
+            return this.option.id.equals(Cosmetica.SELECTED_OUTFIT_ID.peek().orElse(""));
+        }
+
         @Override
         public void render(Canvas canvas, Region region, Margins padding, int mouseX, int mouseY) {
             // hover
             if (region.contains(mouseX, mouseY)) {
-                boolean selected = this.option.id.equals(Cosmetica.SELECTED_OUTFIT_ID.peek().orElse(""));
+                boolean selected = this.isSelected();
 
                 // not selected delete button
                 if (selected || !region.shrinkMargins(new Margins(0, 0, 69-15, 69*2/3-15)).contains(mouseX, mouseY)) {
-                    // selected icon
+                    // selected main body
                     canvas.setTransparency(0.5f);
                     canvas.drawRect(region, 0x77FFFFFF);
                     canvas.disableTransparency();
@@ -230,11 +235,9 @@ public class OutfitSelectScreen extends Component implements AnimatedTextureScre
                         this.icon.setTransparent(1.0f);
                     }
                 }
-                // commented to show complete logic. icon overrides rendering to tint in this case, so not necessary.
-//                else {
-//                    if (selected)  this.icon.setTransparent(0.0f);
-//                    if (!selected) this.icon.setTransparent(0.8f);
-//                }
+                else {
+                    this.icon.setTransparent(0.8f);
+                }
             } else {
                 // not selected; don't show icon
                 this.icon.setTransparent(0.0f);
@@ -248,7 +251,20 @@ public class OutfitSelectScreen extends Component implements AnimatedTextureScre
             return new Stylesheet().self(
                     Style.create()
                             .set(TOOLTIP, Optional.of(new Tooltip(Text.literal(this.option.name))))
-            );
+            ).tag("delete-button",
+                    Style.create()
+                            .set(TOOLTIP, Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.deleteOutfit", this.option.name)))));
+        }
+
+        public void paintDecorations(Canvas canvas, Region region, Region scissorRegion, int mouseX, int mouseY) {
+            // Draw tooltip
+            Optional<Tooltip> tooltip = this.getStyle().get(CommonProperties.TOOLTIP);
+
+            if (tooltip.isPresent() && region.intersect(scissorRegion).contains(mouseX, mouseY)) {
+                if (isSelected() || region.shrinkMargins(new Margins(0, 0, 69-15, 69*2/3-15)).contains(mouseX, mouseY)) {
+                    tooltip.get().render(canvas, mouseX, mouseY);
+                }
+            }
         }
     }
 }

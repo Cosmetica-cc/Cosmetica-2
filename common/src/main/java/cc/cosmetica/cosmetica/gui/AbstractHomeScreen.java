@@ -26,6 +26,7 @@ import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.player.AccessoriesAttachment;
+import cc.cosmetica.cosmetica.gui.widget.ExternalURLButton;
 import cc.cosmetica.cosmetica.gui.widget.IconButton;
 import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
 import cc.cosmetica.cosmetica.gui.widget.OutfitPlayer;
@@ -49,9 +50,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -89,80 +88,103 @@ public abstract class AbstractHomeScreen extends Screen implements AnimatedTextu
                             this.createRightMenu(cosmetics, authenticated).tag("main-section")
                     ).tag("main-content"),
                     new Div(
-                            new IconButton(
-                                    new ResourceKey("cosmetica", "textures/button/gear.png"),
-                                    () -> Screens.setScreen(new CosmeticaSettingsScreen(CosmeticaSettingsScreen.SETTINGS_SCREEN, CosmeticaSettings.DISPLAY_SETTINGS), CosmeticaSettingsScreen.SETTINGS_SCREEN)),
-                            new IconButton(
-                                    new ResourceKey("cosmetica", "textures/button/external_capes.png"),
-                                    () -> Screens.setScreen(new ExternalCapesScreen(CosmeticaSettings.externalCapeSettings), ExternalCapesScreen.ID))
-                                    .setDisabled(!authenticated)
-                                    .withStyle(Cosmetica.authTooltipStyle(authenticated)),
-                            new IconButton(
-                                    new ResourceKey("cosmetica", "textures/button/lore.png"),
-                                    () -> Screens.setScreen(StyleNametagScreen.ID))
-                                    .setDisabled(!authenticated)
-                                    .withStyle(Cosmetica.authTooltipStyle(authenticated)),
-                            new Div().withStyle(Style.create().set(FLEX, 1)),
-                            new IconButton(
-                                    new ResourceKey("cosmetica", "textures/button/reload.png"),
-                                    () -> {
-                                        Logging.getInstance().info("Reloading all cosmetics");
-                                        reloadDisabled.set(true);
-                                        // enable after 15 seconds
-                                        BUTTON_SCHEDULER.schedule(() -> {
-                                            Minecraft.getInstance().execute(() -> reloadDisabled.set(false));
-                                        }, 15, TimeUnit.SECONDS);
-
-                                        // Own cosmetics
-                                        if (CosmeticaAPI.isAuthenticated()) {
-                                            CosmeticaAPI.users().requestAsync(UsersApi::getSelf)
-                                                    .thenAcceptAsync(user -> SelfCosmeticManager.update(new PlayerResponse().isUser(true).user(user)),
-                                                            Minecraft.getInstance())
-                                                    .exceptionally(ex -> {
-                                                        Logging.getInstance().error("Failed to reload own cosmetics", ex);
-                                                        return null;
-                                                    });
-                                        } else {
-                                            SelfCosmeticManager.clear();
-                                        }
-
-                                        int players = 0;
-                                        int outfits = 0;
-
-                                        // Player cosmetics
-                                        ClientLevel level = Minecraft.getInstance().level;
-                                        if (level != null) {
-                                            for (Entity entity : level.entitiesForRendering()) {
-                                                if (entity instanceof RemotePlayer) {
-                                                    // only reload if cosmetics have already been loaded
-                                                    if (Cosmetics.getCosmetics((LivingEntity) entity).isPresent()) {
-                                                        GameProfile profile = ((AbstractClientPlayer) entity).getGameProfile();
-                                                        ApiCosmeticManager.lookUpGameProfile(profile);
-                                                        players++;
-                                                    }
-                                                } else if (entity instanceof OutfitCosmeticsHolder) {
-                                                    ((OutfitCosmeticsHolder) entity).cosmeticacore$reloadCosmetics();
-                                                    outfits++;
-                                                }
-                                            }
-                                        }
-
-                                        Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Started reload for {} remote players and {} outfit holders", players, outfits);
-                                    }) {
-                                @Override
-                                public List<Component> build() {
-                                    // only rebuild this component for disabled/not disabled
-                                    boolean disabled = reloadDisabled.acquire(this);
-                                    setDisabled(disabled);
-                                    return ImmutableList.of();
-                                }
-                            }.withStyle(Style.create().set(TOOLTIP, Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.reloadCosmetics")))))
+                            createTopButtons(authenticated)
                     ).withStyle(Style.create()
                             .set(Div.ALIGN_ITEMS, Align.START)
                             .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X))
                 ).tag("main-content-wrapper"),
                 createMenuEndSelection()
         };
+    }
+
+    private Component[] createTopButtons(boolean authenticated) {
+        // left side + separator
+        List<Component> buttons = new ArrayList<>(Arrays.asList(
+                new IconButton(
+                        new ResourceKey("cosmetica", "textures/button/gear.png"),
+                        () -> Screens.setScreen(new CosmeticaSettingsScreen(CosmeticaSettingsScreen.SETTINGS_SCREEN, CosmeticaSettings.DISPLAY_SETTINGS), CosmeticaSettingsScreen.SETTINGS_SCREEN)),
+                new IconButton(
+                        new ResourceKey("cosmetica", "textures/button/external_capes.png"),
+                        () -> Screens.setScreen(new ExternalCapesScreen(CosmeticaSettings.externalCapeSettings), ExternalCapesScreen.ID))
+                        .setDisabled(!authenticated)
+                        .withStyle(Cosmetica.authTooltipStyle(authenticated)),
+                new IconButton(
+                        new ResourceKey("cosmetica", "textures/button/lore.png"),
+                        () -> Screens.setScreen(StyleNametagScreen.ID))
+                        .setDisabled(!authenticated)
+                        .withStyle(Cosmetica.authTooltipStyle(authenticated)),
+                new Div().withStyle(Style.create().set(FLEX, 1))
+        ));
+
+        // only show discord button when authenticated
+        if (authenticated) {
+            buttons.add(
+                    new ExternalURLButton(
+                            new ResourceKey("cosmetica", "textures/button/discord.png"),
+                            "https://discord.com/invite/cosmetica-942587512008888420",
+                            new Tooltip(Text.translatable("tooltip.cosmetica.discord")))
+            );
+        }
+
+        // Reload button
+        buttons.add(
+                new IconButton(
+                    new ResourceKey("cosmetica", "textures/button/reload.png"),
+                    () -> {
+                        Logging.getInstance().info("Reloading all cosmetics");
+                        reloadDisabled.set(true);
+                        // enable after 15 seconds
+                        BUTTON_SCHEDULER.schedule(() -> {
+                            Minecraft.getInstance().execute(() -> reloadDisabled.set(false));
+                        }, 15, TimeUnit.SECONDS);
+
+                        // Own cosmetics
+                        if (CosmeticaAPI.isAuthenticated()) {
+                            CosmeticaAPI.users().requestAsync(UsersApi::getSelf)
+                                    .thenAcceptAsync(user -> SelfCosmeticManager.update(new PlayerResponse().isUser(true).user(user)),
+                                            Minecraft.getInstance())
+                                    .exceptionally(ex -> {
+                                        Logging.getInstance().error("Failed to reload own cosmetics", ex);
+                                        return null;
+                                    });
+                        } else {
+                            SelfCosmeticManager.clear();
+                        }
+
+                        int players = 0;
+                        int outfits = 0;
+
+                        // Player cosmetics
+                        ClientLevel level = Minecraft.getInstance().level;
+                        if (level != null) {
+                            for (Entity entity : level.entitiesForRendering()) {
+                                if (entity instanceof RemotePlayer) {
+                                    // only reload if cosmetics have already been loaded
+                                    if (Cosmetics.getCosmetics((LivingEntity) entity).isPresent()) {
+                                        GameProfile profile = ((AbstractClientPlayer) entity).getGameProfile();
+                                        ApiCosmeticManager.lookUpGameProfile(profile);
+                                        players++;
+                                    }
+                                } else if (entity instanceof OutfitCosmeticsHolder) {
+                                    ((OutfitCosmeticsHolder) entity).cosmeticacore$reloadCosmetics();
+                                    outfits++;
+                                }
+                            }
+                        }
+
+                        Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Started reload for {} remote players and {} outfit holders", players, outfits);
+                    }) {
+                @Override
+                public List<Component> build() {
+                    // only rebuild this component for disabled/not disabled
+                    boolean disabled = reloadDisabled.acquire(this);
+                    setDisabled(disabled);
+                    return ImmutableList.of();
+                }
+            }.withStyle(Style.create().set(TOOLTIP, Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.reloadCosmetics")))))
+        );
+
+        return buttons.toArray(new Component[0]);
     }
 
     protected Component createMenuEndSelection() {

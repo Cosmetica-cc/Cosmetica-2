@@ -217,7 +217,9 @@ public class LoreSelector extends LayeredSpace {
                     LoreSelector.this.colourSelectorOpen.set(!open);
                 }));
             }
-            result.add(new IconButton(new ResourceKey("cosmetica", "textures/button/remove.png"), this::clearLore));
+            result.add(new IconButton(new ResourceKey("cosmetica", "textures/button/no_lore.png"), this::clearLore)
+                    .hoverTexture(new ResourceKey("cosmetica", "textures/button/no_lore_hover.png"))
+                    .tag("lore-remove-button"));
 
             return result;
         }
@@ -281,7 +283,9 @@ public class LoreSelector extends LayeredSpace {
         @Override
         public Stylesheet getStylesheet() {
             return new Stylesheet().self(Style.create()
-                    .set(PADDING, fixed(new Margins(1))));
+                    .set(PADDING, fixed(new Margins(1))))
+                    .tag("lore-remove-button", Style.create()
+                            .set(TOOLTIP, Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.remove_lore")))));
         }
     }
 

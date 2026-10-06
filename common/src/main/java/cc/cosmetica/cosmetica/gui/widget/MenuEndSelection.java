@@ -40,36 +40,20 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
  * A div containing the done and web panel buttons for the menu.
  */
 public class MenuEndSelection extends Div {
-    private final State<Boolean> clicked = new State<>(false);
     protected boolean disabled = false;
 
     @Override
     public List<Component> build() {
-        boolean clicked = this.clicked.acquire(this);
         // refresh on cosmetics change (auth likely changed)
         Cosmetica.OWN_COSMETICS.acquire(this);
         boolean isLoggedIn = CosmeticaAPI.isAuthenticated();
 
         return ImmutableList.of(
                 new Button(Text.GUI_DONE, Screens::closeCurrentScreen).setDisabled(this.disabled),
-                new IconButton(new ResourceKey("cosmetica", "textures/button/internet.png"), () -> {
-                    Cosmetica.openWebPanel("home");
-                    this.clicked.set(true);
-                }, (region, x, y) -> {
-                    if (this.clicked.peek() && !region.contains((int)x, (int)y)) {
-                        this.clicked.set(false);
-                    }
-                }).setDisabled(!isLoggedIn)
-                .withStyle(Style.create()
-                        .set(TOOLTIP, Optional.of(
-                                Cosmetica.authTooltip(isLoggedIn)
-                                        .orElse(new Tooltip(clicked ?
-                                                Text.translatable("tooltip.cosmetica.copiedURL") :
-                                                Text.translatable("tooltip.cosmetica.openWebPanel"))
-                                        )
-                        ))
-                        .set(POINTER_EVENTS, PointerEvents.ALL)
-                )
+                new ExternalURLButton(new ResourceKey("cosmetica", "textures/button/internet.png"),
+                        "/home",
+                        Cosmetica.authTooltip(isLoggedIn).orElse(new Tooltip(Text.translatable("tooltip.cosmetica.openWebPanel")))
+                ).setDisabled(!isLoggedIn)
         );
     }
 
