@@ -217,8 +217,7 @@ public class LoreSelector extends LayeredSpace {
                     LoreSelector.this.colourSelectorOpen.set(!open);
                 }));
             }
-            result.add(new IconButton(new ResourceKey("cosmetica", "textures/button/no_lore.png"), this::clearLore)
-                    .hoverTexture(new ResourceKey("cosmetica", "textures/button/no_lore_hover.png"))
+            result.add(new IconButton(new ResourceKey("cosmetica", lore.isNoLore() ? "textures/button/no_lore.png" : "textures/button/no_lore_red.png"), this::clearLore)
                     .tag("lore-remove-button"));
 
             return result;
