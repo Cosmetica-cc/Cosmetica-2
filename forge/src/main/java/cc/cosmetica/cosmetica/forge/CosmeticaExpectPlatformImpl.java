@@ -16,6 +16,9 @@
 
 package cc.cosmetica.cosmetica.forge;
 
+import cc.cosmetica.cosmetica.Keybinds;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.KeyMapping;
 import net.minecraftforge.fml.ModList;
 
 /**
@@ -24,5 +27,17 @@ import net.minecraftforge.fml.ModList;
 public class CosmeticaExpectPlatformImpl {
     public static boolean isModLoaded(String mod) {
         return ModList.get().isLoaded(mod);
+    }
+
+    public static KeyMapping registerSpecial(InputConstants.Key defaultKey, String id) {
+        // forge already handles deconflicting for us
+        KeyMapping mapping = new KeyMapping(
+                "key.cosmetica." + id,
+                defaultKey.getType(),
+                defaultKey.getValue(),
+                Keybinds.COSMETICA_CATEGORY
+        );
+
+        return mapping;
     }
 }

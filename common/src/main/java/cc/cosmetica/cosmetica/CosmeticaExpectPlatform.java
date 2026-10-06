@@ -16,7 +16,9 @@
 
 package cc.cosmetica.cosmetica;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.architectury.injectables.annotations.ExpectPlatform;
+import net.minecraft.client.KeyMapping;
 
 /**
  * Adapter for methods for cosmetica.
@@ -24,6 +26,18 @@ import dev.architectury.injectables.annotations.ExpectPlatform;
 public class CosmeticaExpectPlatform {
     @ExpectPlatform
     public static boolean isModLoaded(String mod) {
+        throw new AssertionError();
+    }
+
+    /**
+     * Register a special key mapping that is placed on a different keybind map. This prevents it
+     * from conflicting with other keybinds on that key.
+     * @param defaultKey the key.
+     * @param id the key's id.
+     * @return the key mapping.
+     */
+    @ExpectPlatform
+    public static KeyMapping registerSpecial(InputConstants.Key defaultKey, String id) {
         throw new AssertionError();
     }
 }

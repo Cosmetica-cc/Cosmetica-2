@@ -16,7 +16,10 @@
 
 package cc.cosmetica.cosmetica.fabric;
 
+import cc.cosmetica.cosmetica.Keybinds;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.KeyMapping;
 
 /**
  * Fabric implementation of {@link cc.cosmetica.cosmetica.CosmeticaExpectPlatform}.
@@ -24,5 +27,19 @@ import net.fabricmc.loader.api.FabricLoader;
 public class CosmeticaExpectPlatformImpl {
     public static boolean isModLoaded(String mod) {
         return FabricLoader.getInstance().isModLoaded(mod);
+    }
+
+    public static KeyMapping registerSpecial(InputConstants.Key defaultKey, String id) {
+        KeyMapping mapping = new KeyMapping(
+                "key.cosmetica." + id,
+                // register it to unknown on the original map
+                InputConstants.Type.KEYSYM,
+                InputConstants.UNKNOWN.getValue(),
+                Keybinds.COSMETICA_CATEGORY
+        );
+
+        FabricKeybinds.SPECIAL_MAP.put(defaultKey, mapping);
+        mapping.setKey(defaultKey);
+        return mapping;
     }
 }

@@ -14,21 +14,18 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.cosmetica.fabric.mixin;
+package cc.cosmetica.cosmetica.fabric;
 
-import cc.cosmetica.cosmetica.Keybinds;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 
+import java.util.HashMap;
 import java.util.Map;
 
-@Mixin(KeyMapping.class)
-public class KeyMappingMixin {
-    @Redirect(at = @At(value = "INVOKE", target = "Ljava/util/Map;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"), method = "resetMapping")
-    private static Object set(Map map, Object key, Object keyMapping) {
-        return (key instanceof InputConstants.Key && keyMapping == Keybinds.SNIPE) ? Keybinds.SPECIAL_MAP.put((InputConstants.Key) key, (KeyMapping) keyMapping) : map.put(key, keyMapping);
-    }
+/**
+ * Contains the de-conflict keybind map for fabric.
+ * Forge already handles de-conflicting in its key mapping implementation.
+ */
+public class FabricKeybinds {
+    public static final Map<InputConstants.Key, KeyMapping> SPECIAL_MAP = new HashMap<>();
 }

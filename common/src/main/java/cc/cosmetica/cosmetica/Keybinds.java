@@ -38,7 +38,6 @@ import java.util.Map;
 
 public class Keybinds {
     public static final String COSMETICA_CATEGORY = "key.categories.cosmetica";
-    public static final Map<InputConstants.Key, KeyMapping> SPECIAL_MAP = new HashMap<>();
 
     public static KeyMapping CUSTOMISE = new KeyMapping(
                     "key.cosmetica.customise",
@@ -47,7 +46,7 @@ public class Keybinds {
                     COSMETICA_CATEGORY
     );
 
-    public static KeyMapping SNIPE = registerSpecial(
+    public static KeyMapping SNIPE = CosmeticaExpectPlatform.registerSpecial(
             InputConstants.Type.MOUSE.getOrCreate(GLFW.GLFW_MOUSE_BUTTON_MIDDLE),
             "snipe"
     );
@@ -58,27 +57,6 @@ public class Keybinds {
             GLFW.GLFW_KEY_GRAVE_ACCENT,
             COSMETICA_CATEGORY
     );
-
-    /**
-     * Register a special key mapping that is placed on a different keybind map. This prevents it
-     * from conflicting with other keybinds on that key.
-     * @param defaultKey the key.
-     * @param id the key's id.
-     * @return the key mapping.
-     */
-    private static KeyMapping registerSpecial(InputConstants.Key defaultKey, String id) {
-        KeyMapping mapping = new KeyMapping(
-                "key.cosmetica." + id,
-                // register it to unknown on the original map
-                InputConstants.Type.KEYSYM,
-                InputConstants.UNKNOWN.getValue(),
-                COSMETICA_CATEGORY
-        );
-
-        SPECIAL_MAP.put(defaultKey, mapping);
-        mapping.setKey(defaultKey);
-        return mapping;
-    }
 
     // marks whether the current menu was opened by customise key (default right shift)
     // persistent state by processKeybinds
