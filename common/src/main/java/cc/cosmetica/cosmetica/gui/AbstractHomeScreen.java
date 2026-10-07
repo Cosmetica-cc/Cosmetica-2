@@ -121,9 +121,7 @@ public abstract class AbstractHomeScreen extends Screen implements AnimatedTextu
         ));
 
         // only show discord button when authenticated
-
-//        System.out.println("asdfasdfasdfasdfasdf social interactions " + (String) (((MinecraftAccessor)Minecraft.getInstance()).getSocialInteractionsService().getClass().getSimpleName()));
-        if (authenticated || !(((MinecraftAccessor)Minecraft.getInstance()).getSocialInteractionsService() instanceof OfflineSocialInteractions)) {
+        if (authenticated || Cosmetica.isMojangAuthenticated()) {
             buttons.add(
                     new ExternalURLButton(
                             new ResourceKey("cosmetica", "textures/button/discord.png"),
