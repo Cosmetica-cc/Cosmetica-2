@@ -249,13 +249,26 @@ public class OutfitSelectScreen extends Component implements AnimatedTextureScre
         public Stylesheet getStylesheet() {
             final int deleteButtonSize = 15;
 
+            class HideableTooltip extends Tooltip {
+                public HideableTooltip(Text text) {
+                    super(text);
+                }
+
+                @Override
+                public void render(Canvas canvas, int x, int y) {
+                    if (!SelectableOutfit.this.isSelected()) {
+                        super.render(canvas, x, y);
+                    }
+                }
+            }
+
             return new Stylesheet().self(
                     Style.create()
                             .set(TOOLTIP, Optional.of(new Tooltip(Text.literal(this.option.name))))
             ).tag("delete-button",
                     Style.create()
                             .set(MARGINS, fixed(new Margins(0, 0, 69-deleteButtonSize, 69*2/3 - deleteButtonSize)))
-                            .set(TOOLTIP, Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.deleteOutfit", this.option.name)))));
+                            .set(TOOLTIP, Optional.of(new HideableTooltip(Text.translatable("tooltip.cosmetica.deleteOutfit", this.option.name)))));
         }
 
         public void paintDecorations(Canvas canvas, Region region, Region scissorRegion, int mouseX, int mouseY) {
