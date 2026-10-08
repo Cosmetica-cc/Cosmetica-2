@@ -18,6 +18,7 @@ package cc.cosmetica.cosmetica.mixin.button;
 
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.gui.OutfitSelectAnvilScreen;
+import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.kupe.api.Canvas;
 import cc.cosmetica.kupe.api.ResourceKey;
@@ -94,7 +95,7 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
             this.cosmetica$newName = null;
         }
 
-        if (i == 0) {
+        if (i == 0 && CosmeticaSettings.SHOW_ANVIL_BUTTON.peek()) {
             this.cosmetica$button.visible = itemStack.getItem() == Items.NAME_TAG;
         }
     }

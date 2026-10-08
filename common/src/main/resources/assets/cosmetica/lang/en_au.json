@@ -1,5 +1,6 @@
 {
   "key.cosmetica.customise": "Customise Outfit",
+  "screens.cosmetica.outfit_select_anvil.description": "§7Name an Armour Stand to equip a Cosmetica outfit",
   "screens.cosmetica.name_tag": "Stylise Name Tag",
   "tooltip.cosmetica.icon.disabled": "You currently have icons disabled, mate",
   "tooltip.cosmetica.icon.managed": "Your icon is currently being managed by modpack settings, mate",
