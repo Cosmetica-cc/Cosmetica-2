@@ -35,10 +35,10 @@
   },
   "breaks": {
     "capes": "*",
-    "immediatelyfast": "*",
     "cape-provider": "<5.4.1"
   },
   "conflicts": {
-    "cape-provider": ">=5.4.1"
+    "cape-provider": ">=5.4.1",
+    "immediatelyfast": "*"
   }
 }
