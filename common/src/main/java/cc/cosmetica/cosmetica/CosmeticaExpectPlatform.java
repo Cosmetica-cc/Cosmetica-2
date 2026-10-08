@@ -29,6 +29,11 @@ public class CosmeticaExpectPlatform {
         throw new AssertionError();
     }
 
+    @ExpectPlatform
+    public static String getVersion() {
+        throw new AssertionError();
+    }
+
     /**
      * Register a special key mapping that is placed on a different keybind map. This prevents it
      * from conflicting with other keybinds on that key.

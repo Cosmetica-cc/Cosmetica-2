@@ -151,7 +151,7 @@ public class Cosmetica {
 			}
 		});
 		if (CosmeticaSettings.VERSION_CHECKER.get()) {
-			CosmeticaAPI.downloads().requestAsync(api -> api.getVersionStatus("2.0.1"))
+			CosmeticaAPI.downloads().requestAsync(api -> api.getVersionStatus(CosmeticaExpectPlatform.getVersion()))
 					.thenAcceptAsync(e -> {
 						if (e.getMinecraftMessage() != null) {
 							VersionChecker.INSTANCE.setMessage(Text.literal(e.getMinecraftMessage()));
