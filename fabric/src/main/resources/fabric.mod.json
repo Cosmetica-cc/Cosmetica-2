@@ -35,6 +35,7 @@
   },
   "breaks": {
     "capes": "*",
+    "immediatelyfast": "*",
     "cape-provider": "<5.4.1"
   },
   "conflicts": {
