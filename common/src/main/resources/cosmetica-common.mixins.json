@@ -9,6 +9,7 @@
     "attach.LocalPlayerMixin",
     "attach.PlayerInfoMixin",
     "attach.RemotePlayerMixin",
+    "button.AnvilScreenMixin",
     "button.OptionsScreenMixin",
     "gui.MinecraftAccessor",
     "keybinds.KeyMappingAccessor",
