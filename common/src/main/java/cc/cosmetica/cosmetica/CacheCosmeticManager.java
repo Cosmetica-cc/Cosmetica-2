@@ -23,6 +23,7 @@ import cc.cosmetica.core.api.texture.CosmeticaTexture;
 import cc.cosmetica.core.builtin.manager.SelfCosmeticManager;
 import cc.cosmetica.core.impl.BlockModelManager;
 import cc.cosmetica.core.impl.Logging;
+import cc.cosmetica.core.impl.LoggingCategory;
 import cc.cosmetica.core.util.LifetimeResources;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import gg.cloaks.javaclient.model.Icon;
@@ -30,7 +31,6 @@ import gg.cloaks.javaclient.model.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
@@ -44,9 +44,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.OptionalInt;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -68,6 +66,7 @@ public class CacheCosmeticManager implements CosmeticManager {
         return t;
     }));
     private Cosmetics cosmetics;
+    private final Set<Path> loadingModelIds = new HashSet<>();
 
     @Override
     public boolean canManage(Either entity) {
@@ -82,7 +81,7 @@ public class CacheCosmeticManager implements CosmeticManager {
     private void load() {
         this.executor.submit(() -> {
             try (InputStream is = new BufferedInputStream(Files.newInputStream(this.outfitCache))) {
-                Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "Reading offline cache outfit json");
+                Logging.getInstance().info("Reading offline cache outfit json");
 
                 CosmeticaUser user = this.userIO.read(is);
                 this.loadUser(user);
@@ -95,104 +94,134 @@ public class CacheCosmeticManager implements CosmeticManager {
         });
     }
 
+    // runs on the executor thread
     private void loadUser(CosmeticaUser user) {
-                Minecraft.getInstance().execute(() -> {
-                    Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "Transforming offline outfit json to outfit");
-                    @Nullable Outfit outfit = user.getOutfit();
-                    @Nullable Icon icon = user.getIcon();
-                    @Nullable Lore lore = user.getLore();
+        // do not delete these while in the middle of loading (prevent race condition)
+        if (user.getOutfit() != null) {
+            List<OutfitAccessory> accessories = user.getOutfit().getAccessories();
+            for (OutfitAccessory accessory : accessories) {
+                this.loadingModelIds.add(this.modelPath(accessory));
+            }
+        }
 
-                    // nametag and lore
-                    ImageCosmetic iconImage = icon == null ? NO_ICON : ImageCosmetic.fromIcon(icon);
-                    NametagConfig nametag = new NametagConfig(
-                            user.getPrefix() == null ? "" : user.getPrefix(),
-                            user.getSuffix() == null ? "" : user.getSuffix(),
-                            iconImage,
-                            false);
-                    NametagConfig loreNametag = lore == null ? null : new NametagConfig(
-                                lore.getFormatted().replaceAll("&", "§"), "",
-                                lore.getIconUrl() == null ? NO_ICON : new ImageCosmetic(
-                                        CosmeticaModel.getOrCreateCosmeticaImage(new CosmeticaTexture.Builder(lore.getIconUrl(), BlockModelManager.FALLBACK_TEXTURE)),
-                                        lore.getService(),
-                                        lore.getService(), // use service as id as well
-                                        null,
-                                        lore.getIconUrl(),
-                                        0), false);
+        Minecraft.getInstance().execute(() -> {
+            Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "Transforming offline outfit json to outfit");
+            @Nullable Outfit outfit = user.getOutfit();
+            @Nullable Icon icon = user.getIcon();
+            @Nullable Lore lore = user.getLore();
 
-                    // outfit
-                    List<Accessory> accessories = new ArrayList<>();
-                    @Nullable String outfitName = null;
-                    @Nullable String outfitId = null;
-                    @Nullable ImageCosmetic cloak = null;
-                    @Nullable ImageCosmetic elytra = null;
+            // nametag and lore
+            ImageCosmetic iconImage = icon == null ? NO_ICON : ImageCosmetic.fromIcon(icon);
+            NametagConfig nametag = new NametagConfig(
+                    user.getPrefix() == null ? "" : user.getPrefix(),
+                    user.getSuffix() == null ? "" : user.getSuffix(),
+                    iconImage,
+                    false);
+            NametagConfig loreNametag = lore == null ? null : new NametagConfig(
+                        lore.getFormatted().replaceAll("&", "§"), "",
+                        lore.getIconUrl() == null ? NO_ICON : new ImageCosmetic(
+                                CosmeticaModel.getOrCreateCosmeticaImage(new CosmeticaTexture.Builder(lore.getIconUrl(), BlockModelManager.FALLBACK_TEXTURE)),
+                                lore.getService(),
+                                lore.getService(), // use service as id as well
+                                null,
+                                lore.getIconUrl(),
+                                0), false);
 
-                    if (outfit != null) {
-                        outfitName = outfit.getName();
-                        outfitId = outfit.getId();
+            // outfit
+            List<Accessory> accessories = new ArrayList<>();
+            @Nullable String outfitName = null;
+            @Nullable String outfitId = null;
+            @Nullable ImageCosmetic cloak = null;
+            @Nullable ImageCosmetic elytra = null;
 
-                        @Nullable AnimatedTextureCosmetic apiCloak = outfit.getCloak();
-                        @Nullable AnimatedTextureCosmetic apiElytra = outfit.getElytra();
-                        @Nullable ExternalCape externalCape = user.getExternalCape();
+            if (outfit != null) {
+                outfitName = outfit.getName();
+                outfitId = outfit.getId();
 
-                        if (apiCloak != null) {
-                            cloak = ImageCosmetic.fromAPI(apiCloak);
-                        } else if (externalCape != null) {
-                            cloak = ImageCosmetic.fromExternalCape(externalCape);
-                        }
-                        if (apiElytra != null) {
-                            elytra = ImageCosmetic.fromAPI(apiElytra);
-                        } else if (externalCape != null && externalCape.isHasElytra()) {
-                            elytra = ImageCosmetic.fromExternalCape(externalCape);
-                        }
+                @Nullable AnimatedTextureCosmetic apiCloak = outfit.getCloak();
+                @Nullable AnimatedTextureCosmetic apiElytra = outfit.getElytra();
+                @Nullable ExternalCape externalCape = user.getExternalCape();
 
-                        // equip acessories
-                        for (OutfitAccessory accessory : outfit.getAccessories()) {
-                            // See: Accessory.fromOutfitAccessory
-                            CosmeticaModel model = CosmeticaModel.getOrCreateModel(
-                                    accessory.getAccessory().getId(),
-                                    "textures",
-                                    CosmeticaModel.textureId(accessory.getAccessory().getTexture()),
-                                    () -> Files.newInputStream(this.directory.resolve(accessory.getAccessory().getId() + ".json")),
-                                    accessory.getAccessory().getTexture(),
-                                    accessory.getAccessory().getTicksPerFrame().intValue(),
-                                    accessory.getAccessory().getFrames().intValue()
-                            );
+                if (apiCloak != null) {
+                    cloak = ImageCosmetic.fromAPI(apiCloak);
+                } else if (externalCape != null) {
+                    cloak = ImageCosmetic.fromExternalCape(externalCape);
+                }
+                if (apiElytra != null) {
+                    elytra = ImageCosmetic.fromAPI(apiElytra);
+                } else if (externalCape != null && externalCape.isHasElytra()) {
+                    elytra = ImageCosmetic.fromExternalCape(externalCape);
+                }
 
-                            List<BigDecimal> offset = accessory.getOffset();
+                // equip acessories
+                for (OutfitAccessory accessory : outfit.getAccessories()) {
+                    // Ensure model file exists
+                    Path modelPath = this.modelPath(accessory);
+                    Optional<Accessory> loadedAccessory = this.loadAccessory(modelPath, accessory);
 
-                            accessories.add(new Accessory(
-                                    accessory.getAccessory(),
-                                    Cosmetic.gameProfileOf(accessory.getAccessory().getCreator()),
-                                    accessory.getFlags().intValue() == -1 ? OptionalInt.empty() : OptionalInt.of(accessory.getFlags().intValue()),
-                                    accessory.isMirrored(),
-                                    model,
-                                    Accessory.attachmentTransform(
-                                            accessory.getAccessory().getAttachment(),
-                                            offset.get(0).doubleValue(),
-                                            offset.get(1).doubleValue(),
-                                            offset.get(2).doubleValue()
-                                    )
-                            ));
-                        }
-                    } else {
-                        // this should probably never trigger
-                        @Nullable ExternalCape externalCape = user.getExternalCape();
-
-                        if (externalCape != null) {
-                            cloak = ImageCosmetic.fromExternalCape(externalCape);
-                        }
-                        if (externalCape != null && externalCape.isHasElytra()) {
-                            elytra = ImageCosmetic.fromExternalCape(externalCape);
-                        }
+                    if (loadedAccessory.isPresent()) {
+                        accessories.add(loadedAccessory.get());
                     }
+                }
+            } else {
+                // this should probably never trigger
+                @Nullable ExternalCape externalCape = user.getExternalCape();
 
-                    Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "Loaded offline cosmetics cache.");
-                    this.cosmetics = new PlayerCosmetics(
-                            cloak, elytra, accessories,
-                            outfitName, outfitId,
-                            nametag, loreNametag, user.isUpsideDown()
-                    );
-                });
+                if (externalCape != null) {
+                    cloak = ImageCosmetic.fromExternalCape(externalCape);
+                }
+                if (externalCape != null && externalCape.isHasElytra()) {
+                    elytra = ImageCosmetic.fromExternalCape(externalCape);
+                }
+            }
+
+            Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "Loaded offline cosmetics cache.");
+            this.cosmetics = new PlayerCosmetics(
+                    cloak, elytra, accessories,
+                    outfitName, outfitId,
+                    nametag, loreNametag, user.isUpsideDown()
+            );
+
+            this.executor.submit(this.loadingModelIds::clear);
+        });
+    }
+
+    private Path modelPath(OutfitAccessory accessory) {
+        return this.directory.resolve(accessory.getAccessory().getId() + ".json");
+    }
+
+    private Optional<Accessory> loadAccessory(Path modelPath, OutfitAccessory accessory) {
+        if (Files.isRegularFile(modelPath)) {
+            Logging.getInstance().warn("Accessory model missing from cache: {}. Will be missing from offline cosmetics!", accessory.getAccessory().getId());
+            return Optional.empty();
+        }
+
+        // See: Accessory.fromOutfitAccessory
+        CosmeticaModel model = CosmeticaModel.getOrCreateModel(
+                accessory.getAccessory().getId(),
+                "textures",
+                CosmeticaModel.textureId(accessory.getAccessory().getTexture()),
+                () -> Files.newInputStream(modelPath),
+                accessory.getAccessory().getTexture(),
+                accessory.getAccessory().getTicksPerFrame().intValue(),
+                accessory.getAccessory().getFrames().intValue()
+        );
+
+        List<BigDecimal> offset = accessory.getOffset();
+
+        return Optional.of(new Accessory(
+                accessory.getAccessory(),
+                Cosmetic.gameProfileOf(accessory.getAccessory().getCreator()),
+                accessory.getFlags().intValue() == -1 ? OptionalInt.empty() : OptionalInt.of(accessory.getFlags().intValue()),
+                accessory.isMirrored(),
+                model,
+                Accessory.attachmentTransform(
+                        accessory.getAccessory().getAttachment(),
+                        offset.get(0).doubleValue(),
+                        offset.get(1).doubleValue(),
+                        offset.get(2).doubleValue()
+                )
+        ));
     }
 
     public void save(CosmeticaUser response) {
@@ -284,7 +313,12 @@ public class CacheCosmeticManager implements CosmeticManager {
                 for (Path entry : stream) {
                     if (!Files.isRegularFile(entry)) continue;
                     // don't delete the outfit cache
-                    if (Files.isSameFile(entry, this.outfitCache)) continue;;
+                    if (Files.isSameFile(entry, this.outfitCache)) continue;
+
+                    if (this.loadingModelIds.contains(entry)) {
+                        Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "File {} is currently loading, will not delete.", entry);
+                        continue;
+                    }
 
                     BasicFileAttributes attributes = Files.readAttributes(entry, BasicFileAttributes.class);
 
@@ -294,7 +328,7 @@ public class CacheCosmeticManager implements CosmeticManager {
                     }
                 }
 
-                Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "Deleted " + count + " old cached models");
+                Logging.getInstance().info("Deleted " + count + " old cached models");
             } catch (IOException e) {
                 Logging.getInstance().error("Error clearing old cached models", e);
             }
