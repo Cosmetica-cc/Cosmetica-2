@@ -27,6 +27,7 @@ import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import cc.cosmetica.kupe.api.maths.Dimensions;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
@@ -37,10 +38,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.OptionalInt;
+import java.util.*;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
@@ -103,6 +101,33 @@ public class OutfitSelectScreen extends Component implements AnimatedTextureScre
                                 int count = options.size();
                                 setDisabled(count >= limit);
                                 return ImmutableList.of();
+                            }
+                        },
+                        // Don't rebuild whole screen to change the button
+                        new Div() {
+                            @Override
+                            public List<Component> build() {
+                                Optional<String> selected = Cosmetica.SELECTED_OUTFIT_ID.acquire(this);
+
+                                Text text;
+
+                                if (selected.isPresent()) {
+                                    String outfitName = selected.get();
+                                    for (OutfitWheelScreen.OutfitOption option : options) {
+                                        if (option.id.equals(outfitName)) {
+                                            outfitName = option.name;
+                                            break;
+                                        }
+                                    }
+                                    text = Text.translatable("button.cosmetica.renameOutfit", outfitName);
+                                } else {
+                                    text = Text.translatable("button.cosmetica.renameOutfit.disabled");
+                                }
+
+                                return Collections.singletonList(
+                                        new Button(text, ()->Screens.setScreen(CreateNewOutfitScreen.ID))
+                                                .setDisabled(!selected.isPresent())
+                                );
                             }
                         },
                         new Button(Text.translatable("label.cosmetica.clearOutfit"), OutfitWheelScreen::clearOutfit) {
