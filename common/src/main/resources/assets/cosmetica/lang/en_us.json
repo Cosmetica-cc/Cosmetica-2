@@ -16,6 +16,7 @@
   "button.cosmetica.dismiss": "Dismiss",
   "button.cosmetica.enabled": "Enabled",
   "button.cosmetica.equip": "Equip",
+  "button.cosmetica.equipOutfit": "Equip Outfit",
   "button.cosmetica.equip.isCloak": "Cloak: %s",
   "button.cosmetica.equip.isElytra": "Elytra: %s",
   "button.cosmetica.equip.mirrored": "Mirrored: %s",
