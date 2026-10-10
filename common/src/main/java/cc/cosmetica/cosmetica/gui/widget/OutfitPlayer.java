@@ -91,6 +91,16 @@ public class OutfitPlayer extends Component {
 		guiPlayer.icon(nametag.getIcon().getImage().isLoaded() ? nametag.getIcon().getImage() : null, nametag.isTransparentIcon())
 				.loreIcon(lore.getIcon().getImage().isLoaded() ? lore.getIcon().getImage() : null);
 
+		final Text skinCustomisationScreen = Text.translatable("options.skinCustomisation");
+		Text skinCustomisation;
+		if (skinCustomisationScreen.getDisplayString().endsWith("...")) {
+			skinCustomisation = Text.literal(
+					skinCustomisationScreen.getDisplayString().substring(0, skinCustomisationScreen.getDisplayString().length() - 3)
+			);
+		} else {
+			skinCustomisation = skinCustomisationScreen;
+		}
+
 		return Arrays.asList(
 				new Div(
 					// balance appearance on small resolutions by shifting everything down slightly
@@ -109,7 +119,7 @@ public class OutfitPlayer extends Component {
 							.setDisabled(!authenticated || disable)// hide tooltip if just disabled
 							.withStyle(Cosmetica.authTooltipStyle(disable||authenticated)),
 					// *.title ensures no "..." for consistency with Cosmetica's buttons
-					new Button(Text.translatable("options.skinCustomisation.title"), () -> {
+					new Button(skinCustomisation, () -> {
 						Minecraft.getInstance().setScreen(new SkinCustomizationScreen(Minecraft.getInstance().screen, Minecraft.getInstance().options));
 					}).setDisabled(disable)
 				).withStyle(Style.create()
