@@ -60,11 +60,7 @@ public class CacheCosmeticManager implements CosmeticManager {
 
     private final Path directory, outfitCache;
     private final UserIO userIO;
-    private final ExecutorService executor = LifetimeResources.registerExecutor(Executors.newSingleThreadExecutor(r -> {
-        Thread t = new Thread(r);
-        t.setName("Cache Cosmetic Manager");
-        return t;
-    }));
+    private final ExecutorService executor = LifetimeResources.newSingleThreadExecutor("Cache Cosmetic Manager");
     private Cosmetics cosmetics;
     private final Set<Path> loadingModelIds = new HashSet<>();
 

@@ -31,7 +31,6 @@ import cc.cosmetica.cosmetica.gui.widget.ExternalURLButton;
 import cc.cosmetica.cosmetica.gui.widget.IconButton;
 import cc.cosmetica.cosmetica.gui.widget.MenuEndSelection;
 import cc.cosmetica.cosmetica.gui.widget.OutfitPlayer;
-import cc.cosmetica.cosmetica.mixin.gui.MinecraftAccessor;
 import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.cosmetica.util.NametagUtil;
@@ -42,8 +41,6 @@ import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Axis2D;
 import com.google.common.collect.ImmutableList;
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.minecraft.OfflineSocialInteractions;
-import com.mojang.authlib.minecraft.SocialInteractionsService;
 import gg.cloaks.javaclient.api.UsersApi;
 import gg.cloaks.javaclient.model.PlayerResponse;
 import net.minecraft.client.Minecraft;
@@ -234,5 +231,5 @@ public abstract class AbstractHomeScreen extends Screen implements AnimatedTextu
     }
 
     private static State<Boolean> reloadDisabled = new State<>(false);
-    private static final ScheduledExecutorService BUTTON_SCHEDULER = LifetimeResources.registerExecutor(Executors.newScheduledThreadPool(1));
+    private static final ScheduledExecutorService BUTTON_SCHEDULER = LifetimeResources.newScheduler(1, Executors.defaultThreadFactory());
 }
