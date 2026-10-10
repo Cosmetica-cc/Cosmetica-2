@@ -364,7 +364,7 @@ public class Cosmetica {
 		Screens.registerScreen(BrowseScreen.ID, BrowseScreen::new);
 		Screens.registerScreen(StyleNametagScreen.ID, StyleNametagScreen::new);
 		Screens.registerScreen(OutfitSelectScreen.ID, OutfitSelectScreen::new);
-		Screens.registerScreen(CreateNewOutfitScreen.ID, CreateNewOutfitScreen::new);
+		Screens.registerScreen(CreateOutfitScreen.ID, CreateOutfitScreen::new);
 	}
 
 	public static <T> Function<T, Void> mainThreadExcept(Consumer<T> tConsumer) {

@@ -621,14 +621,17 @@ public class OutfitWheelScreen extends Screen {
                             false
                     );
             this.usable = outfit.isUsable();
+            this.publicOutfit = outfit.isPublic();
             this.accessories = outfit.getAccessories();
             this.capeId = outfit.getCloak() == null ? "" : outfit.getCloak().getId();
             this.elytraId = outfit.getElytra() == null ? "" : outfit.getElytra().getId();
         }
+
         final String id;
         final String name;
         final CachedImage thumbnail;
         final boolean usable;
+        final boolean publicOutfit;
         final List<OutfitAccessory> accessories;
         final String capeId;
         final String elytraId;

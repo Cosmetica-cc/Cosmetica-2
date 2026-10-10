@@ -257,8 +257,7 @@ public class ReplaceOutfitSlotScreen extends Component implements AnimatedTextur
                 // Fix border not showing on new outfit option
                 return new Stylesheet()
                         .self(Style.create()
-                                // -- should a new translatable text be used instead of reusing the button?
-                                .set(TOOLTIP, Optional.of(new Tooltip(Text.translatable("label.cosmetica.newOutfit"))))
+                                .set(TOOLTIP, Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.newOutfit"))))
                                 .set(PADDING, fixed(new Margins(1))));
             } else {
                 // tooltip
