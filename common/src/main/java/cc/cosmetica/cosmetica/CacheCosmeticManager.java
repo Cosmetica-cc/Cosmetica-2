@@ -227,6 +227,8 @@ public class CacheCosmeticManager implements CosmeticManager {
         this.executor.submit(() -> {
             Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "Caching player cosmetics for offline use");
 
+            CosmeticaUser toLoadOrNullIfError = null;
+
             try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(this.outfitCache))) {
                 CosmeticaUser user = new CosmeticaUser();
                 // only extract relevant settings
@@ -245,8 +247,7 @@ public class CacheCosmeticManager implements CosmeticManager {
                 this.userIO.write(user, os);
                 Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "Cached player cosmetics");
 
-                this.loadUser(user);
-                Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "Updated loaded cache cosmetics");
+                toLoadOrNullIfError = user;
             } catch (IOException e) {
                 Logging.getInstance().error("Failed to cache player cosmetics", e);
             }
@@ -327,6 +328,12 @@ public class CacheCosmeticManager implements CosmeticManager {
                 Logging.getInstance().info("Deleted " + count + " old cached models");
             } catch (IOException e) {
                 Logging.getInstance().error("Error clearing old cached models", e);
+            }
+
+            // reload AFTER doing cache clear
+            if (toLoadOrNullIfError != null) {
+                this.loadUser(toLoadOrNullIfError);
+                Logging.getInstance().debug(CosmeticaLogCategory.CACHE, "Updating loaded cache cosmetics");
             }
         });
     }
