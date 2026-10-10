@@ -242,7 +242,7 @@ public class ReplaceOutfitSlotScreen extends Component implements AnimatedTextur
         }
         // "New Outfit" option
         ReplaceableOutfit() {
-            super(OutfitSelectScreen.NEW_OUTFIT_ICON);
+            super(WardrobeScreen.NEW_OUTFIT_ICON);
             this.option = null;
             this.usable = true;
         }

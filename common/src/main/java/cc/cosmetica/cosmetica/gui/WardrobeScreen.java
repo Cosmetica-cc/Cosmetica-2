@@ -31,8 +31,6 @@ import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
 import gg.cloaks.javaclient.api.PremiumApi;
-import gg.cloaks.javaclient.model.Outfit;
-import gg.cloaks.javaclient.model.OutfitAccessory;
 import gg.cloaks.javaclient.model.PlanRestrictions;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
@@ -46,8 +44,8 @@ import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 /**
  * The menu outfit select screen. For the wheel, see {@link OutfitWheelScreen}.
  */
-public class OutfitSelectScreen extends Component implements AnimatedTextureScreen {
-    public OutfitSelectScreen() {
+public class WardrobeScreen extends Component implements AnimatedTextureScreen {
+    public WardrobeScreen() {
         this.title = ID.translationKey("screens");
 
         // Refresh Value on opening this screen

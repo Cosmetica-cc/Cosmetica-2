@@ -18,7 +18,7 @@ package cc.cosmetica.cosmetica.gui.widget;
 
 import cc.cosmetica.core.api.NametagConfig;
 import cc.cosmetica.cosmetica.Cosmetica;
-import cc.cosmetica.cosmetica.gui.OutfitSelectScreen;
+import cc.cosmetica.cosmetica.gui.WardrobeScreen;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
@@ -115,7 +115,7 @@ public class OutfitPlayer extends Component {
 							showingElytra,
 							Text.translatable("button.cosmetica.toggleCloak"),
 							Text.translatable("button.cosmetica.toggleElytra")),
-					new Button(Text.translatable("button.cosmetica.changeOutfit"), () -> Screens.setScreen(OutfitSelectScreen.ID))
+					new Button(Text.translatable("button.cosmetica.changeOutfit"), () -> Screens.setScreen(WardrobeScreen.ID))
 							.setDisabled(!authenticated || disable)// hide tooltip if just disabled
 							.withStyle(Cosmetica.authTooltipStyle(disable||authenticated)),
 					// *.title ensures no "..." for consistency with Cosmetica's buttons
