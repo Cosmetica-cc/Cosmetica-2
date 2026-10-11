@@ -54,8 +54,7 @@ public class RenameOutfitScreen extends AbstractOutfitEditScreen {
         // make request
         CreateOutfitDto dto = new CreateOutfitDto()
                 .name(outfitName)
-                ._public(outfitPublic)
-                .accessories(Collections.emptyList());
+                ._public(outfitPublic);
 
         return CosmeticaAPI.outfits().requestAsync(dapi -> dapi.modify(this.id, dto))
                 .thenAcceptAsync(outfit -> {
