@@ -57,8 +57,6 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
     }
 
     @Unique
-    private @Nullable String cosmetica$newName = null;
-    @Unique
     private Button cosmetica$button;
 
     @Inject(at = @At("RETURN"), method = "subInit")
@@ -91,12 +89,6 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
 
     @Inject(at = @At("RETURN"), method = "slotChanged")
     private void onSlotChanged(AbstractContainerMenu menu, int i, ItemStack itemStack, CallbackInfo ci) {
-        if (i == 0 && this.cosmetica$newName != null) {
-            Logging.getInstance().debug(CosmeticaLogCategory.GUI, "New name: {}", this.cosmetica$newName);
-            this.name.setValue(this.cosmetica$newName);
-            this.cosmetica$newName = null;
-        }
-
         if (i == 0 && CosmeticaSettings.SHOW_ANVIL_BUTTON.peek()) {
             this.cosmetica$button.visible = itemStack.getItem() == Items.NAME_TAG;
             this.cosmetica$button.active = !Cosmetica.OWN_OUTFITS.peek().isEmpty();
@@ -105,6 +97,11 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
 
     @Override
     public void cosmetica$setNewName(String name) {
-        this.cosmetica$newName = name;
+        if (name != null) {
+            Minecraft.getInstance().tell(() -> {
+                Logging.getInstance().debug(CosmeticaLogCategory.GUI, "New name: {}", name);
+                this.name.setValue(name);
+            });
+        }
     }
 }
