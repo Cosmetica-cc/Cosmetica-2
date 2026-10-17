@@ -80,7 +80,7 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
                 if (this.visible) {
                     super.renderButton(stack, mouseX, mouseY, partialTick);
                     Canvas canvas = new PoseCanvas(stack, Minecraft.getInstance(), null, partialTick);
-                    canvas.drawTexture(this.x, this.y, this.width, this.height, 0, new ResourceKey("cosmetica", "textures/button/lore.png"));
+                    canvas.drawTexture(this.x, this.y, this.width, this.height, 0, new ResourceKey("cosmetica", "textures/button/anvil_outfits.png"));
                 }
             }
         });
