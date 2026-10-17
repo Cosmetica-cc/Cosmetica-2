@@ -65,7 +65,7 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
         int originX = (this.width - this.imageWidth) / 2;
         int originY = (this.height - this.imageHeight) / 2;
 
-        this.cosmetica$button = this.addRenderableWidget(new Button(
+        this.cosmetica$button = this.addButton(new Button(
                 originX - 27,
                 originY + 46,
                 20,
