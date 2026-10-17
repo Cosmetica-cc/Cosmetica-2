@@ -6,10 +6,12 @@
   "client": [
     "KeyboardHandlerMixin",
     "MinecraftMixin",
-    "attach.PlayerInfoMixin",
     "attach.LocalPlayerMixin",
+    "attach.PlayerInfoMixin",
     "attach.RemotePlayerMixin",
+    "button.AnvilScreenMixin",
     "button.OptionsScreenMixin",
+    "gui.MinecraftAccessor",
     "keybinds.KeyMappingAccessor",
     "keybinds.KeyMappingMixin",
     "keybinds.LevelRendererTickMixin",
@@ -23,7 +25,6 @@
   },
   "mixins": [
     "AbstractScrollContainerAccessor",
-    "AsyncApiMixin",
     "attach.ArmourStandMixin",
     "gui.FakePlayerRendererMixin",
     "textures.AnimationFrameDevAccessor",
