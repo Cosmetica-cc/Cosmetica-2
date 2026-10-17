@@ -86,6 +86,7 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
         });
 
         this.cosmetica$button.visible = false;
+        this.cosmetica$button.active = !Cosmetica.OWN_OUTFITS.peek().isEmpty();
     }
 
     @Inject(at = @At("RETURN"), method = "slotChanged")
@@ -97,8 +98,8 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
         }
 
         if (i == 0 && CosmeticaSettings.SHOW_ANVIL_BUTTON.peek()) {
-            this.cosmetica$button.visible = itemStack.getItem() == Items.NAME_TAG
-                && !Cosmetica.OWN_OUTFITS.peek().isEmpty();
+            this.cosmetica$button.visible = itemStack.getItem() == Items.NAME_TAG;
+            this.cosmetica$button.active = !Cosmetica.OWN_OUTFITS.peek().isEmpty();
         }
     }
 
