@@ -17,6 +17,7 @@
 package cc.cosmetica.cosmetica.mixin.button;
 
 import cc.cosmetica.core.impl.Logging;
+import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.gui.OutfitSelectAnvilScreen;
 import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
@@ -79,12 +80,13 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
                 if (this.visible) {
                     super.renderButton(stack, mouseX, mouseY, partialTick);
                     Canvas canvas = new PoseCanvas(stack, Minecraft.getInstance(), null, partialTick);
-                    canvas.drawTexture(this.x, this.y, this.width, this.height, 0, new ResourceKey("cosmetica", "textures/button/lore.png"));
+                    canvas.drawTexture(this.x, this.y, this.width, this.height, 0, new ResourceKey("cosmetica", "textures/button/anvil_outfits.png"));
                 }
             }
         });
 
         this.cosmetica$button.visible = false;
+        this.cosmetica$button.active = !Cosmetica.OWN_OUTFITS.peek().isEmpty();
     }
 
     @Inject(at = @At("RETURN"), method = "slotChanged")
@@ -97,6 +99,7 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
 
         if (i == 0 && CosmeticaSettings.SHOW_ANVIL_BUTTON.peek()) {
             this.cosmetica$button.visible = itemStack.getItem() == Items.NAME_TAG;
+            this.cosmetica$button.active = !Cosmetica.OWN_OUTFITS.peek().isEmpty();
         }
     }
 
