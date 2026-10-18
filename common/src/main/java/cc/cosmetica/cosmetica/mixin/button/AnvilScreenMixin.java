@@ -84,7 +84,7 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
             }
         });
 
-        this.cosmetica$button.visible = false;
+        this.cosmetica$button.visible = this.menu.getSlot(0).getItem().getItem() == Items.NAME_TAG;
         this.cosmetica$button.active = !Cosmetica.OWN_OUTFITS.peek().isEmpty();
     }
 
