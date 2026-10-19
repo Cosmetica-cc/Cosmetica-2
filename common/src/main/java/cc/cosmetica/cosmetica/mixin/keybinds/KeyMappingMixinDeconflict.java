@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package cc.cosmetica.cosmetica.fabric.mixin;
+package cc.cosmetica.cosmetica.mixin.keybinds;
 
 import cc.cosmetica.cosmetica.Behaviour;
 import cc.cosmetica.cosmetica.Keybinds;
-import cc.cosmetica.cosmetica.fabric.FabricKeybinds;
-import cc.cosmetica.cosmetica.mixin.keybinds.KeyMappingAccessor;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import org.jetbrains.annotations.Nullable;
@@ -34,8 +32,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Ensure cosmetica keybinds don't conflict with other keybinds.
+ */
 @Mixin(KeyMapping.class)
-public class KeyMappingMixinFabric {
+public class KeyMappingMixinDeconflict {
     @Shadow
     @Final
     private static Map<String, KeyMapping> ALL;
@@ -47,7 +48,7 @@ public class KeyMappingMixinFabric {
 
     @Inject(at = @At("RETURN"), method = "set")
     private static void onSet(InputConstants.Key key, boolean bl, CallbackInfo ci) {
-        @Nullable KeyMapping k = FabricKeybinds.SPECIAL_MAP.get(key);
+        @Nullable KeyMapping k = Keybinds.SPECIAL_MAP.get(key);
         if (k != null) {
             k.setDown(bl);
         }
@@ -55,7 +56,7 @@ public class KeyMappingMixinFabric {
 
     @Inject(at = @At("RETURN"), method = "click")
     private static void onClick(InputConstants.Key key, CallbackInfo ci) {
-        @Nullable KeyMapping k = FabricKeybinds.SPECIAL_MAP.get(key);
+        @Nullable KeyMapping k = Keybinds.SPECIAL_MAP.get(key);
         if (k != null) {
             ((Behaviour)k).cosmetica$invoke();
         }
@@ -77,11 +78,11 @@ public class KeyMappingMixinFabric {
             ALL.remove(key);
         });
 
-        FabricKeybinds.SPECIAL_MAP.clear();
+        Keybinds.SPECIAL_MAP.clear();
 
         // Do process
         for(KeyMapping keyMapping : cosmetica$buffer.values()) {
-            FabricKeybinds.SPECIAL_MAP.put(((KeyMappingAccessor)keyMapping).cosmetica$getKey(), keyMapping);
+            Keybinds.SPECIAL_MAP.put(((KeyMappingAccessor)keyMapping).cosmetica$getKey(), keyMapping);
         }
     }
 

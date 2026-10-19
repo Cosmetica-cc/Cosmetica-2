@@ -31,7 +31,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.Map;
 
 /**
- * Ensure cosmetica keybinds don't conflict with other keybinds.
+ * General key mapping helpers and add cosmetica category.
  */
 @Mixin(KeyMapping.class)
 public class KeyMappingMixin implements Behaviour {

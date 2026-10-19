@@ -39,6 +39,32 @@ import java.util.Map;
 public class Keybinds {
     public static final String COSMETICA_CATEGORY = "key.categories.cosmetica";
 
+    /**
+     * Keymappings that shouldn't conflict (allow duplicates).
+     */
+    public static final Map<InputConstants.Key, KeyMapping> SPECIAL_MAP = new HashMap<>();
+
+    /**
+     * Register a special key mapping that is placed on a different keybind map. This prevents it
+     * from conflicting with other keybinds on that key.
+     * @param defaultKey the key.
+     * @param id the key's id.
+     * @return the key mapping.
+     */
+    private static KeyMapping registerSpecial(InputConstants.Key defaultKey, String id) {
+        KeyMapping mapping = new KeyMapping(
+                "key.cosmetica." + id,
+                // register it to unknown on the original map
+                InputConstants.Type.KEYSYM,
+                InputConstants.UNKNOWN.getValue(),
+                Keybinds.COSMETICA_CATEGORY
+        );
+
+        SPECIAL_MAP.put(defaultKey, mapping);
+        mapping.setKey(defaultKey);
+        return mapping;
+    }
+
     public static KeyMapping CUSTOMISE = new KeyMapping(
                     "key.cosmetica.customise",
                     InputConstants.Type.KEYSYM,
@@ -46,7 +72,7 @@ public class Keybinds {
                     COSMETICA_CATEGORY
     );
 
-    public static KeyMapping SNIPE = CosmeticaExpectPlatform.registerSpecial(
+    public static KeyMapping SNIPE = registerSpecial(
             InputConstants.Type.MOUSE.getOrCreate(GLFW.GLFW_MOUSE_BUTTON_MIDDLE),
             "snipe"
     );
