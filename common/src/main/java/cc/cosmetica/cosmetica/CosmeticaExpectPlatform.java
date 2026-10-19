@@ -33,16 +33,4 @@ public class CosmeticaExpectPlatform {
     public static String getVersion() {
         throw new AssertionError();
     }
-
-    /**
-     * Register a special key mapping that is placed on a different keybind map. This prevents it
-     * from conflicting with other keybinds on that key.
-     * @param defaultKey the key.
-     * @param id the key's id.
-     * @return the key mapping.
-     */
-    @ExpectPlatform
-    public static KeyMapping registerSpecial(InputConstants.Key defaultKey, String id) {
-        throw new AssertionError();
-    }
 }

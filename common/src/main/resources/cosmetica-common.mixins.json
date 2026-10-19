@@ -13,6 +13,7 @@
     "button.OptionsScreenMixin",
     "keybinds.KeyMappingAccessor",
     "keybinds.KeyMappingMixin",
+    "keybinds.KeyMappingMixinDeconflict",
     "keybinds.LevelRendererTickMixin",
     "keybinds.OptionsMixin",
     "snipe.GameRendererMixin",
