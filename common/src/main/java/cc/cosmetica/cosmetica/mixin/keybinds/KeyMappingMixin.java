@@ -41,33 +41,13 @@ public class KeyMappingMixin implements Behaviour {
     @Shadow
     private int clickCount;
 
-    @Inject(at = @At("RETURN"), method = "click")
-    private static void onClick(InputConstants.Key key, CallbackInfo ci) {
-        @Nullable KeyMapping k = Keybinds.SPECIAL_MAP.get(key);
-        if (k != null) {
-            ((Behaviour)k).cosmetica$invoke();
-        }
-    }
-
     @Override
     public void cosmetica$invoke() {
         this.clickCount++;
     }
 
-    @Inject(at = @At("RETURN"), method = "set")
-    private static void onSet(InputConstants.Key key, boolean bl, CallbackInfo ci) {
-        @Nullable KeyMapping k = Keybinds.SPECIAL_MAP.get(key);
-        if (k != null) {
-            k.setDown(bl);
-        }
-    }
-
-    @Inject(at = @At("HEAD"), method = "resetMapping")
-    private static void beforeReset(CallbackInfo ci) {
-        Keybinds.SPECIAL_MAP.clear();
-    }
-
     // !! Additional, platform-specific mixin on resetMapping.
+    // KeyMappingMixinFabric
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     @Inject(at = @At("RETURN"), method = "<clinit>")

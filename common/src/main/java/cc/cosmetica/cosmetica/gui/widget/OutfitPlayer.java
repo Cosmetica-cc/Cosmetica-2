@@ -18,7 +18,7 @@ package cc.cosmetica.cosmetica.gui.widget;
 
 import cc.cosmetica.core.api.NametagConfig;
 import cc.cosmetica.cosmetica.Cosmetica;
-import cc.cosmetica.cosmetica.gui.OutfitSelectScreen;
+import cc.cosmetica.cosmetica.gui.WardrobeScreen;
 import cc.cosmetica.kupe.api.Screens;
 import cc.cosmetica.kupe.api.State;
 import cc.cosmetica.kupe.api.Text;
@@ -29,18 +29,16 @@ import cc.cosmetica.kupe.api.maths.Dimensions;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.SkinCustomizationScreen;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.OptionalInt;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.UnaryOperator;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 public class OutfitPlayer extends Component {
-	public OutfitPlayer(UUID player, boolean authenticated, String outfitName, NametagConfig lore, NametagConfig nametag) {
+	public OutfitPlayer(UUID player, boolean authenticated, Optional<String> outfitName, NametagConfig lore, NametagConfig nametag) {
 		this.player = player;
-		this.outfitName = outfitName;
+		this.outfitName = outfitName.orElse("§7No Outfit");
+		this.hasOutfit = outfitName.isPresent();
 		this.lore = lore;
 		this.nametag = nametag;
 		this.authenticated = authenticated;
@@ -48,6 +46,7 @@ public class OutfitPlayer extends Component {
 
 	private final UUID player;
 	private final boolean authenticated;
+	private final boolean hasOutfit;
 	private final String outfitName;
 	private final NametagConfig lore;
 	private final NametagConfig nametag;
@@ -91,6 +90,16 @@ public class OutfitPlayer extends Component {
 		guiPlayer.icon(nametag.getIcon().getImage().isLoaded() ? nametag.getIcon().getImage() : null, nametag.isTransparentIcon())
 				.loreIcon(lore.getIcon().getImage().isLoaded() ? lore.getIcon().getImage() : null);
 
+		final Text skinCustomisationScreen = Text.translatable("options.skinCustomisation");
+		Text skinCustomisation;
+		if (skinCustomisationScreen.getDisplayString().endsWith("...")) {
+			skinCustomisation = Text.literal(
+					skinCustomisationScreen.getDisplayString().substring(0, skinCustomisationScreen.getDisplayString().length() - 3)
+			);
+		} else {
+			skinCustomisation = skinCustomisationScreen;
+		}
+
 		return Arrays.asList(
 				new Div(
 					// balance appearance on small resolutions by shifting everything down slightly
@@ -105,11 +114,11 @@ public class OutfitPlayer extends Component {
 							showingElytra,
 							Text.translatable("button.cosmetica.toggleCloak"),
 							Text.translatable("button.cosmetica.toggleElytra")),
-					new Button(Text.translatable("button.cosmetica.changeOutfit"), () -> Screens.setScreen(OutfitSelectScreen.ID))
+					new Button(Text.translatable(this.hasOutfit ? "button.cosmetica.changeOutfit" : "button.cosmetica.equipOutfit"), () -> Screens.setScreen(WardrobeScreen.ID))
 							.setDisabled(!authenticated || disable)// hide tooltip if just disabled
 							.withStyle(Cosmetica.authTooltipStyle(disable||authenticated)),
 					// *.title ensures no "..." for consistency with Cosmetica's buttons
-					new Button(Text.translatable("options.skinCustomisation.title"), () -> {
+					new Button(skinCustomisation, () -> {
 						Minecraft.getInstance().setScreen(new SkinCustomizationScreen(Minecraft.getInstance().screen, Minecraft.getInstance().options));
 					}).setDisabled(disable)
 				).withStyle(Style.create()
