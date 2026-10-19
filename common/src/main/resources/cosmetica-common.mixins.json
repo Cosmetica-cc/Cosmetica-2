@@ -11,7 +11,6 @@
     "attach.RemotePlayerMixin",
     "button.AnvilScreenMixin",
     "button.OptionsScreenMixin",
-    "gui.MinecraftAccessor",
     "keybinds.KeyMappingAccessor",
     "keybinds.KeyMappingMixin",
     "keybinds.LevelRendererTickMixin",
