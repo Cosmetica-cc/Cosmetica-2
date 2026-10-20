@@ -27,6 +27,7 @@ import cc.cosmetica.kupe.api.gui.*;
 import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
@@ -95,6 +96,52 @@ public class WardrobeScreen extends Component implements AnimatedTextureScreen {
                                 .set(EntryList.Grid.ROW_GAP, 2)
                                 .set(BACKGROUND_COLOUR, OptionalInt.empty())),
                         // Don't rebuild whole screen to enable/disable the buttons
+                        new Div(
+                                new Button(Text.translatable("button.cosmetica.renameOutfit"), () -> {
+                                    String selected = Cosmetica.SELECTED_OUTFIT_ID.peek().orElseThrow(() -> new IllegalStateException("No outfit selected"));
+                                    for (OutfitWheelScreen.OutfitOption option : options) {
+                                        if (option.id.equals(selected)) {
+                                            Screens.setScreen(new RenameOutfitScreen(selected, option.name, option.publicOutfit), RenameOutfitScreen.TITLE);
+                                            return;
+                                        }
+                                    }
+
+                                    Logging.getInstance().warn("Option with id {} not found in options. Can't rename!", selected);
+                                }) {
+                                    @Override
+                                    public List<Component> build() {
+                                        boolean equippedOutfit = Cosmetica.SELECTED_OUTFIT_ID.extract(this, Optional::isPresent);
+                                        setDisabled(!equippedOutfit);
+                                        return ImmutableList.of();
+                                    }
+
+                                    @Override
+                                    public @Nullable Stylesheet getStylesheet() {
+                                        // rebuilds anyway on equipped outfit
+                                        boolean isOutfitSelected = Cosmetica.SELECTED_OUTFIT_ID.peek().isPresent();
+
+                                        return new Stylesheet()
+                                                .self(Style.create()
+                                                        .set(TOOLTIP, isOutfitSelected ? Optional.empty() : Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.noOutfitDisabled")))));
+                                    }
+                                }.tag("button", "small-button"),
+                                new Button(Text.translatable("button.cosmetica.clearOutfit"), OutfitWheelScreen::clearOutfit) {
+                                    @Override
+                                    public List<Component> build() {
+                                        boolean equippedOutfit = Cosmetica.SELECTED_OUTFIT_ID.extract(this, Optional::isPresent);
+                                        setDisabled(!equippedOutfit);
+                                        return ImmutableList.of();
+                                    }
+
+                                    @Override
+                                    public void mouseClicked(Element target, double x, double y, int button) {
+                                        super.mouseClicked(target, x, y, button);
+                                        if (target.getComponent() == this) {
+                                            setDisabled(true);
+                                        }
+                                    }
+                                }.tag("button", "small-button")
+                        ).tag("button-wrapper"),
                         new Button(Text.translatable("button.cosmetica.newOutfit"), ()->Screens.setScreen(CreateOutfitScreen.ID)) {
                             @Override
                             public List<Component> build() {
@@ -102,50 +149,6 @@ public class WardrobeScreen extends Component implements AnimatedTextureScreen {
                                 int count = options.size();
                                 setDisabled(count >= limit);
                                 return ImmutableList.of();
-                            }
-                        }.tag("button"),
-                        new Button(Text.translatable("button.cosmetica.renameOutfit"), () -> {
-                            String selected = Cosmetica.SELECTED_OUTFIT_ID.peek().orElseThrow(() -> new IllegalStateException("No outfit selected"));
-                            for (OutfitWheelScreen.OutfitOption option : options) {
-                                if (option.id.equals(selected)) {
-                                    Screens.setScreen(new RenameOutfitScreen(selected, option.name, option.publicOutfit), RenameOutfitScreen.TITLE);
-                                    return;
-                                }
-                            }
-
-                            Logging.getInstance().warn("Option with id {} not found in options. Can't rename!", selected);
-                        }) {
-                            @Override
-                            public List<Component> build() {
-                                boolean equippedOutfit = Cosmetica.SELECTED_OUTFIT_ID.extract(this, Optional::isPresent);
-                                setDisabled(!equippedOutfit);
-                                return ImmutableList.of();
-                            }
-
-                            @Override
-                            public @Nullable Stylesheet getStylesheet() {
-                                // rebuilds anyway on equipped outfit
-                                boolean isOutfitSelected = Cosmetica.SELECTED_OUTFIT_ID.peek().isPresent();
-
-                                return new Stylesheet()
-                                        .self(Style.create()
-                                                .set(TOOLTIP, isOutfitSelected ? Optional.empty() : Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.noOutfitDisabled")))));
-                            }
-                        }.tag("button"),
-                        new Button(Text.translatable("button.cosmetica.clearOutfit"), OutfitWheelScreen::clearOutfit) {
-                            @Override
-                            public List<Component> build() {
-                                boolean equippedOutfit = Cosmetica.SELECTED_OUTFIT_ID.extract(this, Optional::isPresent);
-                                setDisabled(!equippedOutfit);
-                                return ImmutableList.of();
-                            }
-
-                            @Override
-                            public void mouseClicked(Element target, double x, double y, int button) {
-                                super.mouseClicked(target, x, y, button);
-                                if (target.getComponent() == this) {
-                                    setDisabled(true);
-                                }
                             }
                         }.tag("button"),
                         new Button(Text.GUI_DONE, Screens::closeCurrentScreen).tag("button")
@@ -164,6 +167,11 @@ public class WardrobeScreen extends Component implements AnimatedTextureScreen {
                 .component(SelectableOutfit.class, Style.create()
                         .set(WIDTH, fixed(OptionalInt.of(69 * 2/3)))
                         .set(HEIGHT, fixed(OptionalInt.of(69))))
+                .tag("button-wrapper", Style.create()
+                        .set(FLEX_SHRINK, 0)
+                        .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X))
+                .tag("small-button", Style.create()
+                        .set(WIDTH, fixedSize(100)))
                 .tag("button", Style.create()
                         .set(FLEX_SHRINK, 0));
     }
