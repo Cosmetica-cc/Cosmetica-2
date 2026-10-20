@@ -32,5 +32,13 @@
     "cosmetica-core": "*",
     "kupe": "*",
     "minecraft": ">=1.19 <1.19.4"
+  },
+  "breaks": {
+    "capes": "*",
+    "cape-provider": "<5.4.1"
+  },
+  "conflicts": {
+    "cape-provider": ">=5.4.1",
+    "immediatelyfast": "*"
   }
 }

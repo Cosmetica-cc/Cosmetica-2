@@ -16,7 +16,9 @@
 
 package cc.cosmetica.cosmetica;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.architectury.injectables.annotations.ExpectPlatform;
+import net.minecraft.client.KeyMapping;
 
 /**
  * Adapter for methods for cosmetica.
@@ -24,6 +26,11 @@ import dev.architectury.injectables.annotations.ExpectPlatform;
 public class CosmeticaExpectPlatform {
     @ExpectPlatform
     public static boolean isModLoaded(String mod) {
+        throw new AssertionError();
+    }
+
+    @ExpectPlatform
+    public static String getVersion() {
         throw new AssertionError();
     }
 }
