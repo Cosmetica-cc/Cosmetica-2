@@ -125,7 +125,7 @@ public class CosmeticEntry extends Component {
 		// add remove button if editable
 		if (this.type.hasRemoveButton()) {
 			content.add(
-					new ClickableImage(new ResourceKey("cosmetica", "textures/remove_cross.png"), () -> {
+					new ClickableImage(new ResourceKey("cosmetica", "textures/button/remove_cross.png"), () -> {
 						Screens.setScreen(new ConfirmRemoveCosmeticScreen(this.parentOutfit, this.id, this.name, this.mirrored), Text.translatable("screens.cosmetica.confirmDeletion"));
 					}).setDisabled(this.type == Type.REMOVABLE_OFFLINE)
 							.setTransparent(1.0f)
@@ -359,7 +359,9 @@ public class CosmeticEntry extends Component {
 
 		for (Accessory accessory : cosmetics.getAccessories()) {
 			// texture for thumbnail
-			CachedImage thumbnail = getOrCreateThumb(accessory.getThumbnail().orElseThrow(IllegalStateException::new), accessory.getJsonObject().getTicksPerFrame().intValue(), false);
+			CachedImage thumbnail = !accessory.getThumbnail().isPresent() ?
+					new CachedImage(Cosmetica.FALLBACK_TEXTURE, 0) :
+					getOrCreateThumb(accessory.getThumbnail().orElseThrow(IllegalStateException::new), accessory.getJsonObject().getTicksPerFrame().intValue(), false);
 
 			// n.b. reference to CachedImage needs to be stored on the entry so it doesn't get GC'd
 			CosmeticEntry entry;
