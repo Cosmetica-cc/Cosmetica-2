@@ -46,10 +46,6 @@ public class KeyMappingMixin implements Behaviour {
         this.clickCount++;
     }
 
-    // !! Additional, platform-specific mixin on resetMapping.
-    // KeyMappingMixinFabric
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
     @Inject(at = @At("RETURN"), method = "<clinit>")
     private static void onClInit(CallbackInfo ci) {
         // To put cosmetica below misc
