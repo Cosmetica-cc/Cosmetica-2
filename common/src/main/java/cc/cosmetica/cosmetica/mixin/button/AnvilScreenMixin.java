@@ -47,6 +47,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.function.Supplier;
+
 @Mixin(AnvilScreen.class)
 public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> implements OutfitSelectAnvilScreen.NametaggableAnvil {
     @Shadow
@@ -70,16 +72,17 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
                 20,
                 20,
                 Text.literal("").toMinecraftComponent(),
-                bn -> Screens.setScreen(new OutfitSelectAnvilScreen(this), OutfitSelectAnvilScreen.ID.translationKey("screens"))
+                bn -> Screens.setScreen(new OutfitSelectAnvilScreen(this), OutfitSelectAnvilScreen.ID.translationKey("screens")),
+                Supplier::get
         )
         {
             @Override
-            public void renderButton(PoseStack stack, int mouseX, int mouseY, float partialTick) {
+            public void renderWidget(PoseStack stack, int mouseX, int mouseY, float partialTick) {
                 if (this.visible) {
                     Canvas canvas = new PoseCanvas(stack, Minecraft.getInstance(), null, partialTick);
 
                     ResourceKey texture = new ResourceKey("cosmetica", this.isHovered ? "textures/button/anvil_outfits_highlighted.png" : "textures/button/anvil_outfits.png");
-                    canvas.drawTexture(this.x, this.y, this.width, this.height, 0, texture);
+                    canvas.drawTexture(this.getX(), this.getY(), this.width, this.height, 0, texture);
                 }
             }
         });
