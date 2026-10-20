@@ -40,8 +40,6 @@ public class KeyMappingMixinDeconflict {
     @Shadow
     @Final
     private static Map<String, KeyMapping> ALL;
-    @Shadow
-    private InputConstants.Key key;
 
     @Unique
     private static Map<String, KeyMapping> cosmetica$buffer = new HashMap<>();
