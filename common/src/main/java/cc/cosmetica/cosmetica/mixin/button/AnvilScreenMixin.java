@@ -37,6 +37,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.AnvilMenu;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
@@ -87,14 +88,15 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
             }
         });
 
-        this.cosmetica$button.visible = this.menu.getSlot(0).getItem().getItem() == Items.NAME_TAG;
+        Item item = this.menu.getSlot(0).getItem().getItem();
+        this.cosmetica$button.visible = item == Items.NAME_TAG || item == Items.ARMOR_STAND;
         this.cosmetica$button.active = !Cosmetica.OWN_OUTFITS.peek().isEmpty();
     }
 
     @Inject(at = @At("RETURN"), method = "slotChanged")
     private void onSlotChanged(AbstractContainerMenu menu, int i, ItemStack itemStack, CallbackInfo ci) {
         if (i == 0 && CosmeticaSettings.SHOW_ANVIL_BUTTON.peek()) {
-            this.cosmetica$button.visible = itemStack.getItem() == Items.NAME_TAG;
+            this.cosmetica$button.visible = itemStack.getItem() == Items.NAME_TAG || itemStack.getItem() == Items.ARMOR_STAND;
             this.cosmetica$button.active = !Cosmetica.OWN_OUTFITS.peek().isEmpty();
         }
     }
