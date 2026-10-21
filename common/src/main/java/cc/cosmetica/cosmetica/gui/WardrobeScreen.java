@@ -24,8 +24,10 @@ import cc.cosmetica.cosmetica.gui.widget.EntryList;
 import cc.cosmetica.cosmetica.gui.widget.OutfitCount;
 import cc.cosmetica.kupe.api.*;
 import cc.cosmetica.kupe.api.gui.*;
+import cc.cosmetica.kupe.api.gui.style.CommonProperties;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
+import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
@@ -36,18 +38,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.OptionalInt;
+import java.util.*;
 
 import static cc.cosmetica.kupe.api.gui.style.CommonProperties.*;
 
 /**
  * The menu outfit select screen. For the wheel, see {@link OutfitWheelScreen}.
  */
-public class OutfitSelectScreen extends Component implements AnimatedTextureScreen {
-    public OutfitSelectScreen() {
+public class WardrobeScreen extends Component implements AnimatedTextureScreen {
+    public WardrobeScreen() {
         this.title = ID.translationKey("screens");
 
         // Refresh Value on opening this screen
@@ -91,11 +90,59 @@ public class OutfitSelectScreen extends Component implements AnimatedTextureScre
                                 .set(MARGINS, fixed(new Margins(3, 0, 0, 0)))
                                 .set(WIDTH, screen(75, 0))
                                 .set(MIN_WIDTH, screen(75, 0))
-                                .set(MIN_HEIGHT, screen(0, 60))
+                                .set(MIN_HEIGHT, screen(0, 40))
+                                .set(HEIGHT, screen(0, 60))
                                 .set(EntryList.Grid.COLUMN_GAP, 2)
                                 .set(EntryList.Grid.ROW_GAP, 2)
                                 .set(BACKGROUND_COLOUR, OptionalInt.empty())),
-                        new Button(Text.translatable("label.cosmetica.newOutfit"), ()->Screens.setScreen(CreateNewOutfitScreen.ID)) {
+                        // Don't rebuild whole screen to enable/disable the buttons
+                        new Div(
+                                new Button(Text.translatable("button.cosmetica.renameOutfit"), () -> {
+                                    String selected = Cosmetica.SELECTED_OUTFIT_ID.peek().orElseThrow(() -> new IllegalStateException("No outfit selected"));
+                                    for (OutfitWheelScreen.OutfitOption option : options) {
+                                        if (option.id.equals(selected)) {
+                                            Screens.setScreen(new RenameOutfitScreen(selected, option.name, option.publicOutfit), RenameOutfitScreen.TITLE);
+                                            return;
+                                        }
+                                    }
+
+                                    Logging.getInstance().warn("Option with id {} not found in options. Can't rename!", selected);
+                                }) {
+                                    @Override
+                                    public List<Component> build() {
+                                        boolean equippedOutfit = Cosmetica.SELECTED_OUTFIT_ID.extract(this, Optional::isPresent);
+                                        setDisabled(!equippedOutfit);
+                                        return ImmutableList.of();
+                                    }
+
+                                    @Override
+                                    public @Nullable Stylesheet getStylesheet() {
+                                        // rebuilds anyway on equipped outfit
+                                        boolean isOutfitSelected = Cosmetica.SELECTED_OUTFIT_ID.peek().isPresent();
+
+                                        return new Stylesheet()
+                                                .self(Style.create()
+                                                        .set(TOOLTIP, isOutfitSelected ? Optional.empty() : Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.noOutfitDisabled")))));
+                                    }
+                                }.tag("button", "small-button"),
+                                new Button(Text.translatable("button.cosmetica.clearOutfit"), OutfitWheelScreen::clearOutfit) {
+                                    @Override
+                                    public List<Component> build() {
+                                        boolean equippedOutfit = Cosmetica.SELECTED_OUTFIT_ID.extract(this, Optional::isPresent);
+                                        setDisabled(!equippedOutfit);
+                                        return ImmutableList.of();
+                                    }
+
+                                    @Override
+                                    public void mouseClicked(Element target, double x, double y, int button) {
+                                        super.mouseClicked(target, x, y, button);
+                                        if (target.getComponent() == this) {
+                                            setDisabled(true);
+                                        }
+                                    }
+                                }.tag("button", "small-button")
+                        ).tag("button-wrapper"),
+                        new Button(Text.translatable("button.cosmetica.newOutfit"), ()->Screens.setScreen(CreateOutfitScreen.ID)) {
                             @Override
                             public List<Component> build() {
                                 int limit = outfitLimit.acquire(this);
@@ -103,24 +150,8 @@ public class OutfitSelectScreen extends Component implements AnimatedTextureScre
                                 setDisabled(count >= limit);
                                 return ImmutableList.of();
                             }
-                        },
-                        new Button(Text.translatable("label.cosmetica.clearOutfit"), OutfitWheelScreen::clearOutfit) {
-                            @Override
-                            public List<Component> build() {
-                                boolean equippedOutfit = Cosmetica.SELECTED_OUTFIT_ID.extract(this, id -> id.isPresent());
-                                setDisabled(!equippedOutfit);
-                                return ImmutableList.of();
-                            }
-
-                            @Override
-                            public void mouseClicked(Element target, double x, double y, int button) {
-                                super.mouseClicked(target, x, y, button);
-                                if (target.getComponent() == this) {
-                                    setDisabled(true);
-                                }
-                            }
-                        },
-                        new Button(Text.GUI_DONE, Screens::closeCurrentScreen)
+                        }.tag("button"),
+                        new Button(Text.GUI_DONE, Screens::closeCurrentScreen).tag("button")
                 ).tag("body")
         );
     }
@@ -131,11 +162,18 @@ public class OutfitSelectScreen extends Component implements AnimatedTextureScre
                 .tag("body", Screen.BODY_DEFAULT_STYLE)
                 .tag("title", Screen.TITLE_DEFAULT_STYLE)
                 .tag("body", Style.create()
-                        // 15(title margin) + 6(related to text height) + 2(extra gap)
-                        .set(MARGINS, fixed(new Margins(15 + 6 + 2, 0, 0, 0))))
+                        // 15(title margin) + 6(related to text height) + 6 (text height 2) + 3 (magic, see https://tinyurl.com/3uv5s8uy)
+                        .set(MARGINS, fixed(new Margins(15 + 6 + 3 + 6, 0, 0, 0))))
                 .component(SelectableOutfit.class, Style.create()
                         .set(WIDTH, fixed(OptionalInt.of(69 * 2/3)))
-                        .set(HEIGHT, fixed(OptionalInt.of(69))));
+                        .set(HEIGHT, fixed(OptionalInt.of(69))))
+                .tag("button-wrapper", Style.create()
+                        .set(FLEX_SHRINK, 0)
+                        .set(Div.FLOW_DIRECTION, Axis2D.POSITIVE_X))
+                .tag("small-button", Style.create()
+                        .set(WIDTH, fixedSize(100)))
+                .tag("button", Style.create()
+                        .set(FLEX_SHRINK, 0));
     }
 
     public static final ResourceKey ID = new ResourceKey("cosmetica", "outfit_select");
@@ -169,8 +207,7 @@ public class OutfitSelectScreen extends Component implements AnimatedTextureScre
 
         @Override
         public List<Component> build() {
-            final int deleteButtonSize = 15;
-            final ResourceKey deleteTexture = new ResourceKey("cosmetica", "textures/remove.png");
+            final ResourceKey deleteTexture = new ResourceKey("cosmetica", "textures/button/remove.png");
 
             return Arrays.asList(
                     new Image(new ResourceKey(option.thumbnail.location))
@@ -193,7 +230,7 @@ public class OutfitSelectScreen extends Component implements AnimatedTextureScre
                             // don't draw icon on selected item
                             return !SelectableOutfit.this.option.id.equals(Cosmetica.SELECTED_OUTFIT_ID.peek().orElse(""));
                         }
-                    }).withStyle(Style.create().set(MARGINS, fixed(new Margins(0, 0, 69-deleteButtonSize, 69*2/3 - deleteButtonSize))))
+                    }).tag("delete-button")
             );
         }
 
@@ -210,15 +247,22 @@ public class OutfitSelectScreen extends Component implements AnimatedTextureScre
             this.option.equipAsync();
         }
 
+        private boolean isSelected() {
+            return this.option.id.equals(Cosmetica.SELECTED_OUTFIT_ID.peek().orElse(""));
+        }
+
         @Override
         public void render(Canvas canvas, Region region, Margins padding, int mouseX, int mouseY) {
             // hover
-            if (region.contains(mouseX, mouseY)) {
-                boolean selected = this.option.id.equals(Cosmetica.SELECTED_OUTFIT_ID.peek().orElse(""));
+            Optional<Region> scissor = canvas.getScissor();
+            Region mouseRegion = scissor.isPresent() ? region.intersect(scissor.get()) : region;
+
+            if (mouseRegion.contains(mouseX, mouseY)) {
+                boolean selected = this.isSelected();
 
                 // not selected delete button
                 if (selected || !region.shrinkMargins(new Margins(0, 0, 69-15, 69*2/3-15)).contains(mouseX, mouseY)) {
-                    // selected icon
+                    // selected main body
                     canvas.setTransparency(0.5f);
                     canvas.drawRect(region, 0x77FFFFFF);
                     canvas.disableTransparency();
@@ -230,11 +274,9 @@ public class OutfitSelectScreen extends Component implements AnimatedTextureScre
                         this.icon.setTransparent(1.0f);
                     }
                 }
-                // commented to show complete logic. icon overrides rendering to tint in this case, so not necessary.
-//                else {
-//                    if (selected)  this.icon.setTransparent(0.0f);
-//                    if (!selected) this.icon.setTransparent(0.8f);
-//                }
+                else {
+                    this.icon.setTransparent(0.8f);
+                }
             } else {
                 // not selected; don't show icon
                 this.icon.setTransparent(0.0f);
@@ -245,10 +287,39 @@ public class OutfitSelectScreen extends Component implements AnimatedTextureScre
 
         @Override
         public Stylesheet getStylesheet() {
+            final int deleteButtonSize = 15;
+
+            class HideableTooltip extends Tooltip {
+                public HideableTooltip(Text text) {
+                    super(text);
+                }
+
+                @Override
+                public void render(Canvas canvas, int x, int y) {
+                    if (!SelectableOutfit.this.isSelected()) {
+                        super.render(canvas, x, y);
+                    }
+                }
+            }
+
             return new Stylesheet().self(
                     Style.create()
                             .set(TOOLTIP, Optional.of(new Tooltip(Text.literal(this.option.name))))
-            );
+            ).tag("delete-button",
+                    Style.create()
+                            .set(MARGINS, fixed(new Margins(0, 0, 69-deleteButtonSize, 69*2/3 - deleteButtonSize)))
+                            .set(TOOLTIP, Optional.of(new HideableTooltip(Text.translatable("tooltip.cosmetica.deleteOutfit", this.option.name)))));
+        }
+
+        public void paintDecorations(Canvas canvas, Region region, Region scissorRegion, int mouseX, int mouseY) {
+            // Draw tooltip
+            Optional<Tooltip> tooltip = this.getStyle().get(CommonProperties.TOOLTIP);
+
+            if (tooltip.isPresent() && region.intersect(scissorRegion).contains(mouseX, mouseY)) {
+                if (isSelected() || !region.shrinkMargins(new Margins(0, 0, 69-15, 69*2/3-15)).contains(mouseX, mouseY)) {
+                    tooltip.get().render(canvas, mouseX, mouseY);
+                }
+            }
         }
     }
 }
