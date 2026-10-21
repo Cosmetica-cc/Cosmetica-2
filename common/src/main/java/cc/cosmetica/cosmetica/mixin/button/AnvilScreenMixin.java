@@ -105,7 +105,7 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
     @Override
     public void cosmetica$setNewName(String name) {
         if (name != null) {
-            Minecraft.getInstance().tell(() -> {
+            Minecraft.getInstance().schedule(() -> {
                 Logging.getInstance().debug(CosmeticaLogCategory.GUI, "New name: {}", name);
                 this.name.setValue(name);
             });
