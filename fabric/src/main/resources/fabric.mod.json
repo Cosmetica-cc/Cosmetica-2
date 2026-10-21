@@ -39,6 +39,6 @@
   },
   "conflicts": {
     "cape-provider": ">=5.4.1",
-    "immediatelyfast": "<1.6.15"
+    "immediatelyfast": "*"
   }
 }
