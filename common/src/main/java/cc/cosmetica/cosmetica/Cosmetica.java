@@ -45,10 +45,13 @@ import gg.cloaks.javaclient.model.UpdateLoreDto;
 import gg.cloaks.javaclient.model.UserConnection;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,6 +60,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -77,6 +82,7 @@ public class Cosmetica {
 //
 //	public static final BufferedImage cosmetica$debugimage;
 
+	private static final AtomicBoolean VALID_AUTH = new AtomicBoolean();
 
 	/**
 	 * Cosmetic manager for when the user is offline.
@@ -141,11 +147,11 @@ public class Cosmetica {
 			if (reason == CosmeticaAPI.AuthChangeReason.AUTHENTICATED) {
 				Minecraft.getInstance().execute(Cosmetica::fetchOutfits);
 				// refresh outfit limit too!
-				Minecraft.getInstance().execute(OutfitSelectScreen::fetchOutfitLimit);
+				Minecraft.getInstance().execute(WardrobeScreen::fetchOutfitLimit);
 			}
 		});
 		if (CosmeticaSettings.VERSION_CHECKER.get()) {
-			CosmeticaAPI.downloads().requestAsync(api -> api.getVersionStatus("2.0.1"))
+			CosmeticaAPI.downloads().requestAsync(api -> api.getVersionStatus(CosmeticaExpectPlatform.getVersion()))
 					.thenAcceptAsync(e -> {
 						if (e.getMinecraftMessage() != null) {
 							VersionChecker.INSTANCE.setMessage(Text.literal(e.getMinecraftMessage()));
@@ -155,7 +161,7 @@ public class Cosmetica {
 		// in dev
 		if (System.getProperty("cosmetica.token") != null && CosmeticaAPI.isAuthenticated()) {
 			Minecraft.getInstance().execute(Cosmetica::fetchOutfits);
-			Minecraft.getInstance().execute(OutfitSelectScreen::fetchOutfitLimit);
+			Minecraft.getInstance().execute(WardrobeScreen::fetchOutfitLimit);
 		}
 		// updates to cosmetic stuff
 		Cosmetics.registerSelfDataFetchCallback((data, cosmetics) -> {
@@ -233,6 +239,42 @@ public class Cosmetica {
 		Authentication.authenticate();
 
 		registerScreens();
+
+		// check minecraft auth
+		CompletableFuture.supplyAsync(() -> fetchIsValidAuth(Minecraft.getInstance().getUser().getAccessToken()))
+				.thenAcceptAsync(VALID_AUTH::set, Minecraft.getInstance());
+	}
+
+	private static boolean fetchIsValidAuth(String token) {
+		RequestConfig requestConfig = RequestConfig.custom()
+				.setConnectionRequestTimeout(20000)
+				.setConnectTimeout(20000)
+				.setSocketTimeout(20000)
+				.build();
+
+		CloseableHttpClient client = HttpClients.custom()
+				.setDefaultRequestConfig(requestConfig)
+				.build();
+
+		final HttpGet get = new HttpGet("https://api.minecraftservices.com/privileges");
+		get.addHeader("Authorization", "Bearer " + token);
+
+		try {
+			CloseableHttpResponse response = client.execute(get);
+
+			boolean success = response.getStatusLine().getStatusCode() / 100 == 2;
+
+			client.close();
+			response.close();
+			return success;
+		} catch (IOException e) {
+			Logging.getInstance().warn("Error checking if valid authorization", e);
+			return false;
+		}
+	}
+
+	public static boolean isMojangAuthenticated() {
+		return VALID_AUTH.get();
 	}
 
 	public static void fetchOutfits() {
@@ -321,8 +363,8 @@ public class Cosmetica {
 		Screens.registerScreen(HomeScreen.ID, HomeScreen::new);
 		Screens.registerScreen(BrowseScreen.ID, BrowseScreen::new);
 		Screens.registerScreen(StyleNametagScreen.ID, StyleNametagScreen::new);
-		Screens.registerScreen(OutfitSelectScreen.ID, OutfitSelectScreen::new);
-		Screens.registerScreen(CreateNewOutfitScreen.ID, CreateNewOutfitScreen::new);
+		Screens.registerScreen(WardrobeScreen.ID, WardrobeScreen::new);
+		Screens.registerScreen(CreateOutfitScreen.ID, CreateOutfitScreen::new);
 	}
 
 	public static <T> Function<T, Void> mainThreadExcept(Consumer<T> tConsumer) {
