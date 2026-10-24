@@ -122,7 +122,8 @@ public class AccessoriesAttachment implements GUIPlayer.Attachment<Collection<Ac
                 accessory.getModel().renderOnPart(
                         part, canvas.getStack().getMinecraftStack(), bufferSource, packedLight,
                         (float) offset.x + additionalXOffset, (float) offset.y, (float) offset.z,
-                        accessory.isMirrored()
+                        accessory.isMirrored(),
+                        false
                 );
             }
         }
