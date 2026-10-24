@@ -153,6 +153,7 @@ public final class CosmeticaSettings {
 
     public static final AtomicReference<Runnable> saveLocalSettingsIfNotOnSettingsScreen = new AtomicReference<>(CosmeticaSettingsScreen::saveLocalSettings);
     private static boolean loadedLocal = false;
+    private static final String[] EXAMPLE_CONFIG_SERVICES = { "mantle", "minecraft-capes", "optifine", "official" };
 
     /**
      * Called on authentication and when cloud settings are re-applied.
@@ -319,13 +320,11 @@ public final class CosmeticaSettings {
 
             JsonArray arr = new JsonArray();
             // defaults from website
-            for (ExternalCapeSetting.ServiceEnum service : ExternalCapeSetting.ServiceEnum.values()) {
-                if (service != ExternalCapeSetting.ServiceEnum.UNKNOWN_DEFAULT_OPEN_API) {
-                    JsonObject serviceObject = new JsonObject();
-                    serviceObject.addProperty("service", service.getValue());
-                    serviceObject.addProperty("enabled", true);
-                    arr.add(serviceObject);
-                }
+            for (String service : EXAMPLE_CONFIG_SERVICES) {
+                JsonObject serviceObject = new JsonObject();
+                serviceObject.addProperty("service", service);
+                serviceObject.addProperty("enabled", true);
+                arr.add(serviceObject);
             }
             defaults.add("external_capes", arr);
 
