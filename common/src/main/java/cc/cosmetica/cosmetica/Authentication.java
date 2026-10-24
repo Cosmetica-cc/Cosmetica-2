@@ -46,10 +46,7 @@ import java.util.Base64;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -221,11 +218,15 @@ public final class Authentication {
             int retries = RETRIES.getAndIncrement();
             if (retries >= retryCounts.length) {
                 Logging.getInstance().info("Retrying cosmetica login in {} seconds", retryCounts[retryCounts.length - 1]);
-                LOGIN_SCHEDULER.schedule(
-                        () -> Authentication.repeatLogInFromApi(sessionsInfo, properties),
-                        retryCounts[retryCounts.length - 1],
-                        TimeUnit.SECONDS
-                );
+                try {
+                    LOGIN_SCHEDULER.schedule(
+                            () -> Authentication.repeatLogInFromApi(sessionsInfo, properties),
+                            retryCounts[retryCounts.length - 1],
+                            TimeUnit.SECONDS
+                    );
+                } catch (RejectedExecutionException e) {
+                    Logging.getInstance().info("Failed to re-schedule login (game is shutting down)");
+                }
             } else {
                 if (retries == 2) {
                     Logging.getInstance().debug(LoggingCategory.COSMETICS, "Clearing cosmetics due to 2 failed retries.");
@@ -233,11 +234,15 @@ public final class Authentication {
                 }
 
                 Logging.getInstance().info("Retrying cosmetica login in {} seconds", retryCounts[retries]);
-                LOGIN_SCHEDULER.schedule(
-                        () -> Authentication.repeatLogInFromApi(sessionsInfo, properties),
-                        retryCounts[retries],
-                        TimeUnit.SECONDS
-                );
+                try {
+                    LOGIN_SCHEDULER.schedule(
+                            () -> Authentication.repeatLogInFromApi(sessionsInfo, properties),
+                            retryCounts[retries],
+                            TimeUnit.SECONDS
+                    );
+                } catch (RejectedExecutionException e) {
+                    Logging.getInstance().info("Failed to re-schedule login (game is shutting down)");
+                }
             }
         }
     }
