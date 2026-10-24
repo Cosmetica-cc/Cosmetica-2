@@ -14,6 +14,8 @@ Cosmetica is Open Source under the Apache 2.0 license. If you want to help out w
 
 Make sure you've signed the CLA before opening a pull request. https://cla-assistant.io/Cosmetica-cc/Cosmetica-2
 
+Any use of Generative AI must be declared in the pull request.
+
 ## Acknowledgements
 
 Uses TwelveMonkeys ImageIO-Webp (BSD-3-Clause) for webp parsing.

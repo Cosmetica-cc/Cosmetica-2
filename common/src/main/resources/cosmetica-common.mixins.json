@@ -9,6 +9,7 @@
     "attach.LocalPlayerMixin",
     "attach.PlayerInfoMixin",
     "attach.RemotePlayerMixin",
+    "button.AnvilScreenMixin",
     "button.OptionsScreenMixin",
     "keybinds.KeyMappingAccessor",
     "keybinds.LevelRendererTickMixin",
@@ -20,7 +21,6 @@
   },
   "mixins": [
     "AbstractScrollContainerAccessor",
-    "AsyncApiMixin",
     "attach.ArmourStandMixin",
     "gui.FakePlayerRendererMixin",
     "textures.AnimationFrameDevAccessor",
