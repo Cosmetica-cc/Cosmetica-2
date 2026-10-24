@@ -299,7 +299,11 @@ public class CacheCosmeticManager implements CosmeticManager {
                         } catch (IOException e) {
                             Logging.getInstance().error("Failed to cache model from {}", e, modelURL);
                         }
-                    }, executor);
+                    }, executor)
+                    .exceptionally(error -> {
+                        Logging.getInstance().error("Error downloading model from {} to cache", error, modelURL);
+                        return null;
+                    });
                 }
             }
             // clear old cached models
