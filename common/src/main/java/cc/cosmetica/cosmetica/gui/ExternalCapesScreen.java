@@ -104,7 +104,7 @@ public class ExternalCapesScreen extends Screen {
                 UpdateExternalCapeSettingDto dto1 = new UpdateExternalCapeSettingDto();
                 dto1.setEnabled(capeSetting.enabled.peek());
                 dto1.setReplace(capeSetting.setting.isReplace());
-                dto1.setService(capeSetting.setting.getService().getValue());
+                dto1.setService(capeSetting.setting.getService());
                 newExternalCapes.add(dto1);
             }
 

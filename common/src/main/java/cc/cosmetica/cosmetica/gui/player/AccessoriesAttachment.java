@@ -123,7 +123,8 @@ public class AccessoriesAttachment implements GUIPlayer.Attachment<Collection<Ac
                 accessory.getModel().renderOnPart(
                         part, var4, bufferSource, packedLight,
                         (float) offset.x + additionalXOffset, (float) offset.y, (float) offset.z,
-                        accessory.isMirrored()
+                        accessory.isMirrored(),
+                        false
                 );
             }
         }
