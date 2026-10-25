@@ -28,7 +28,7 @@ import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.impl.PoseCanvas;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AnvilScreen;
@@ -79,7 +79,7 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
         )
         {
             @Override
-            public void renderContents(GuiGraphics stack, int mouseX, int mouseY, float partialTick) {
+            public void extractContents(GuiGraphicsExtractor stack, int mouseX, int mouseY, float partialTick) {
                 if (this.visible) {
                     Canvas canvas = new PoseCanvas(stack, Minecraft.getInstance(), null, partialTick);
 
