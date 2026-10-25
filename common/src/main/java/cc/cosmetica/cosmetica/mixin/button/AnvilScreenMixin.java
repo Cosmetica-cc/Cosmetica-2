@@ -34,7 +34,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AnvilScreen;
 import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.AnvilMenu;
@@ -56,7 +56,7 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
     @Shadow
     private EditBox name;
 
-    public AnvilScreenMixin(AnvilMenu menu, Inventory inventory, Component component, ResourceLocation resourceLocation) {
+    public AnvilScreenMixin(AnvilMenu menu, Inventory inventory, Component component, Identifier resourceLocation) {
         super(menu, inventory, component, resourceLocation);
     }
 
@@ -79,12 +79,16 @@ public abstract class AnvilScreenMixin extends ItemCombinerScreen<AnvilMenu> imp
         )
         {
             @Override
-            public void renderWidget(GuiGraphics stack, int mouseX, int mouseY, float partialTick) {
+            public void renderContents(GuiGraphics stack, int mouseX, int mouseY, float partialTick) {
                 if (this.visible) {
                     Canvas canvas = new PoseCanvas(stack, Minecraft.getInstance(), null, partialTick);
 
                     ResourceKey texture = new ResourceKey("cosmetica", this.isHovered ? "textures/button/anvil_outfits_highlighted.png" : "textures/button/anvil_outfits.png");
                     canvas.drawTexture(this.getX(), this.getY(), this.width, this.height, 0, texture);
+                }
+                else {
+                    // don't use pointer cursor
+                    this.isHovered = false;
                 }
             }
         });

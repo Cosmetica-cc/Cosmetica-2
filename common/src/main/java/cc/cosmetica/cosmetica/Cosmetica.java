@@ -46,11 +46,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Player;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.util.Timeout;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -245,10 +246,12 @@ public class Cosmetica {
 	}
 
 	private static boolean fetchIsValidAuth(String token) {
+		Timeout t = Timeout.ofMilliseconds(20000);
+
 		RequestConfig requestConfig = RequestConfig.custom()
-				.setConnectionRequestTimeout(20000)
-				.setConnectTimeout(20000)
-				.setSocketTimeout(20000)
+				.setConnectionRequestTimeout(t)
+				.setConnectTimeout(t)
+				.setResponseTimeout(t)
 				.build();
 
 		CloseableHttpClient client = HttpClients.custom()
@@ -261,7 +264,7 @@ public class Cosmetica {
 		try {
 			CloseableHttpResponse response = client.execute(get);
 
-			boolean success = response.getStatusLine().getStatusCode() / 100 == 2;
+			boolean success = response.getCode() / 100 == 2;
 
 			client.close();
 			response.close();
