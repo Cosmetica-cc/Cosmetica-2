@@ -25,6 +25,7 @@ import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.Keybinds;
 import cc.cosmetica.cosmetica.gui.widget.ThumbnailCache;
+import cc.cosmetica.cosmetica.mixin.keybinds.KeyMappingAccessor;
 import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.cosmetica.util.Division;
@@ -63,7 +64,7 @@ public class OutfitWheelScreen extends Screen {
         this.debounceHoldEndTime = System.currentTimeMillis() + 500L;
     }
 
-    private final long debounceHoldEndTime;
+    private long debounceHoldEndTime;
 
     // Important!
     // double for scroll wheel reasons. use getPage() to get the actual page.
@@ -365,6 +366,12 @@ public class OutfitWheelScreen extends Screen {
     public boolean keyReleased(KeyEvent event) {
         InputConstants.Key k = InputConstants.getKey(event);
         KeyMapping.set(k, false);
+
+        // 26.3+ part of hold mode fixes
+        InputConstants.Key selectOutfitKey = ((KeyMappingAccessor)Keybinds.SELECT_OUTFIT).cosmetica$getKey();
+        if (selectOutfitKey.getType() == InputConstants.Type.KEYBOARD && event.key() == selectOutfitKey.getValue()) {
+            debounceHoldEndTime = System.currentTimeMillis() - 1;
+        }
         return true;
     }
 
@@ -373,6 +380,7 @@ public class OutfitWheelScreen extends Screen {
         final int button = event.button();
         final double mouseY = event.y();
         final double mouseX = event.x();
+        System.out.println("position x y " + mouseX + " " + mouseY);
 
         if (button != 0) { // left click
             if (button == 1) {
