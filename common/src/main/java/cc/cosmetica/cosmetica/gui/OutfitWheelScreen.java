@@ -25,7 +25,6 @@ import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.cosmetica.Cosmetica;
 import cc.cosmetica.cosmetica.Keybinds;
 import cc.cosmetica.cosmetica.gui.widget.ThumbnailCache;
-import cc.cosmetica.cosmetica.mixin.keybinds.KeyMappingAccessor;
 import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.cosmetica.util.Division;
@@ -35,8 +34,6 @@ import cc.cosmetica.kupe.api.ResourceKey;
 import cc.cosmetica.kupe.api.Text;
 import cc.cosmetica.kupe.impl.PoseCanvas;
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import gg.cloaks.javaclient.api.OutfitsApi;
 import gg.cloaks.javaclient.api.UsersApi;
 import gg.cloaks.javaclient.model.Outfit;
@@ -50,7 +47,6 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.Arrays;
 import java.util.List;
@@ -64,7 +60,10 @@ public class OutfitWheelScreen extends Screen {
         super(Text.translatable("screens.cosmetica.wheel").toMinecraftComponent());
         // todo maybe implement this as kupe screen so we can update outfit list automatically on outfit change
         this.options = Arrays.asList();
+        this.debounceHoldEndTime = System.currentTimeMillis() + 500L;
     }
+
+    private final long debounceHoldEndTime;
 
     // Important!
     // double for scroll wheel reasons. use getPage() to get the actual page.
@@ -592,22 +591,27 @@ public class OutfitWheelScreen extends Screen {
      * @param mapping the mapping to check.
      * @return if the key mapping is down.
      */
-    private static boolean isDown(KeyMapping mapping) {
+    private boolean isDown(KeyMapping mapping) {
         if (mapping.isUnbound()) {
             return false;
         }
 
-        InputConstants.Key key = ((KeyMappingAccessor)mapping).cosmetica$getKey();
-        long window = Minecraft.getInstance().getWindow().handle();
-        int value = key.getValue();
+//        InputConstants.Key key = ((KeyMappingAccessor)mapping).cosmetica$getKey();
+//        long window = Minecraft.getInstance().getWindow().handle();
+//        int value = key.getValue();
+//
+//        if (key.getType() == InputConstants.Type.KEYSYM) {
+//            return GLFW.glfwGetKey(window, value) != GLFW.GLFW_RELEASE;
+//        } else if (key.getType() == InputConstants.Type.MOUSE) {
+//            return GLFW.glfwGetMouseButton(window, value) != GLFW.GLFW_RELEASE;
+//        }
 
-        if (key.getType() == InputConstants.Type.KEYSYM) {
-            return GLFW.glfwGetKey(window, value) != GLFW.GLFW_RELEASE;
-        } else if (key.getType() == InputConstants.Type.MOUSE) {
-            return GLFW.glfwGetMouseButton(window, value) != GLFW.GLFW_RELEASE;
+        // debounce outfit wheel hold mode to fix hold on 26.3
+        if ((System.currentTimeMillis() - debounceHoldEndTime) < 0) {
+            return true;
         }
 
-        return false;
+        return mapping.isDown();
     }
 
     /**

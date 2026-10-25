@@ -31,9 +31,9 @@ import cc.cosmetica.kupe.api.gui.style.Style;
 import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Margins;
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.platform.InputConstants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +67,7 @@ public class HomeScreen extends AbstractHomeScreen {
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
 		if (
 				Boolean.getBoolean("cosmetica.debug") &&
-				keyCode == GLFW.GLFW_KEY_RIGHT_CONTROL
+				scanCode == InputConstants.KEY_RCONTROL
 		) {
 			Cosmetica.showToast(
 					Text.literal("Debug Toast"),

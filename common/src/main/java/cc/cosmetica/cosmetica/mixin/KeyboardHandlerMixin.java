@@ -35,9 +35,11 @@ public abstract class KeyboardHandlerMixin {
 
     @Inject(at = @At("HEAD"), method = "keyPress", cancellable = true)
     private void onKeyPress(long window, int k, KeyEvent event, CallbackInfo ci) {
-        if (event.key() == -1 && event.scancode() == 310) {
-            this.keyPress(window, k, new KeyEvent(344, 54, event.modifiers()));
-            ci.cancel();
-        }
+//        if (event.key() == 0 && event.keycode() == 0 && event.modifiers() == 0) {
+//            // FIXME SDL library (26.3+) does not have an obvious viable way to distinguish this from other unknown keys.
+//            // The keycode is not given.
+//            this.keyPress(window, k, new KeyEvent(229, 1073742053, 0));
+//            ci.cancel();
+//        }
     }
 }

@@ -33,7 +33,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import org.intellij.lang.annotations.Identifier;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,15 +42,15 @@ public class Keybinds {
 
     public static KeyMapping CUSTOMISE = new KeyMapping(
             "key.cosmetica.customise",
-            InputConstants.Type.KEYSYM,
-            GLFW.GLFW_KEY_RIGHT_SHIFT,
+            InputConstants.Type.KEYBOARD,
+            InputConstants.KEY_RSHIFT,
             COSMETICA_CATEGORY
     );
 
     public static KeyMapping SNIPE = new KeyMapping(
             "key.cosmetica.snipe",
             InputConstants.Type.MOUSE,
-            GLFW.GLFW_MOUSE_BUTTON_MIDDLE,
+            InputConstants.MOUSE_BUTTON_MIDDLE,
             COSMETICA_CATEGORY
     );
             /*registerSpecial(
@@ -61,8 +60,8 @@ public class Keybinds {
 
     public static KeyMapping SELECT_OUTFIT = new KeyMapping(
             "key.cosmetica.select_outfit",
-            InputConstants.Type.KEYSYM,
-            GLFW.GLFW_KEY_GRAVE_ACCENT,
+            InputConstants.Type.KEYBOARD,
+            InputConstants.KEY_GRAVE,
             COSMETICA_CATEGORY
     );
 

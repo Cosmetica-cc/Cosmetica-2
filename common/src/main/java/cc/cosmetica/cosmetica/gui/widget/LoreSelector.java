@@ -31,10 +31,10 @@ import cc.cosmetica.kupe.api.maths.Axis2D;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.platform.InputConstants;
 import gg.cloaks.javaclient.model.LoreOptions;
 import gg.cloaks.javaclient.model.UpdateLoreDto;
 import gg.cloaks.javaclient.model.UserConnection;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -245,7 +245,7 @@ public class LoreSelector extends LayeredSpace {
 
         @Override
         public void mouseClicked(Element target, double x, double y, int button) {
-            if (button == GLFW.GLFW_MOUSE_BUTTON_1) {
+            if (button == InputConstants.MOUSE_BUTTON_LEFT) {
                 Lore current = Cosmetica.SELECTED_LORE.peek();
 
                 if (allowDuplication || !Objects.equals(this.value, current.value)) {

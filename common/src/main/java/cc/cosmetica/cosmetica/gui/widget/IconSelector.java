@@ -31,9 +31,9 @@ import cc.cosmetica.kupe.api.gui.style.Stylesheet;
 import cc.cosmetica.kupe.api.maths.Margins;
 import cc.cosmetica.kupe.api.maths.Region;
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -159,7 +159,7 @@ public class IconSelector extends Div {
 
         @Override
         public void mouseClicked(Element target, double x, double y, int button) {
-            if (button == GLFW.GLFW_MOUSE_BUTTON_1 && !this.disabled) {
+            if (button == InputConstants.MOUSE_BUTTON_LEFT && !this.disabled) {
                 if (this.cosmetic != Cosmetica.SELECTED_ICON.peek()) {
                     Logging.getInstance().debug(CosmeticaLogCategory.GUI, "Setting icon " + cosmetic);
 

@@ -36,6 +36,7 @@ import cc.cosmetica.kupe.api.gui.GUIPlayer;
 import cc.cosmetica.kupe.api.gui.Tooltip;
 import cc.cosmetica.kupe.api.gui.style.Style;
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.Blaze3D;
 import gg.cloaks.javaclient.api.AuthApi;
 import gg.cloaks.javaclient.api.OutfitsApi;
 import gg.cloaks.javaclient.api.UsersApi;
@@ -57,6 +58,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -305,7 +307,7 @@ public class Cosmetica {
 	public static void copyAndOpenURL(String url) {
 		try {
 			Minecraft.getInstance().keyboardHandler.setClipboard(url);
-			Util.getPlatform().openUri(url);
+			Blaze3D.openUri(URI.create(url));
 		} catch (Exception e) {
 			throw new RuntimeException("bruh", e);
 		}
