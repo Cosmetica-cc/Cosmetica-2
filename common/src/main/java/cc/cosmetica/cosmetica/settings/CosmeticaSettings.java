@@ -110,6 +110,7 @@ public final class CosmeticaSettings {
     public static final Setting<Boolean> DISABLE_RSE_PROMPT = new BooleanSetting("setting.cosmetica.disableRSEPrompt", false, true);
     // - from local settings
     public static final State<@org.jetbrains.annotations.Nullable String> MODPACK_ID = new State<>(null);
+    public static final State<Boolean> SHOW_ANVIL_BUTTON = new State<>(true);
 
     // API Settings
     public static final Setting<Boolean> USE_MODPACK_ICONS = new BooleanSetting("setting.cosmetica.useModpackIcons", true, true);
@@ -152,6 +153,7 @@ public final class CosmeticaSettings {
 
     public static final AtomicReference<Runnable> saveLocalSettingsIfNotOnSettingsScreen = new AtomicReference<>(CosmeticaSettingsScreen::saveLocalSettings);
     private static boolean loadedLocal = false;
+    private static final String[] EXAMPLE_CONFIG_SERVICES = { "mantle", "minecraft-capes", "optifine", "official" };
 
     /**
      * Called on authentication and when cloud settings are re-applied.
@@ -201,6 +203,7 @@ public final class CosmeticaSettings {
         properties.setProperty("enable_version_checker", String.valueOf(VERSION_CHECKER.get()));
         properties.setProperty("use_cloud_settings", String.valueOf(USE_CLOUD_SETTINGS.get()));
         properties.setProperty("show_own_nametag", String.valueOf(SHOW_OWN_NAMETAG.get()));
+        properties.setProperty("show_anvil_button", String.valueOf(SHOW_ANVIL_BUTTON.peek()));
 
         // Overwrite with file properties if loading local
         if (!loadedLocal) {
@@ -218,6 +221,7 @@ public final class CosmeticaSettings {
             VERSION_CHECKER.apiUpdate(Boolean.parseBoolean(properties.getProperty("enable_version_checker", "true")), Settings.TypeEnum.CLOUD);
             SHOW_OWN_NAMETAG.apiUpdate(Boolean.parseBoolean(properties.getProperty("show_own_nametag", "true")), Settings.TypeEnum.CLOUD);
             Cosmetics.configureOwnNametag(CosmeticaSettings.SHOW_OWN_NAMETAG.get(), false);
+            SHOW_ANVIL_BUTTON.set(Boolean.parseBoolean(properties.getProperty("show_anvil_button", "true")));
 
             loadedLocal = true;
         }
@@ -316,13 +320,11 @@ public final class CosmeticaSettings {
 
             JsonArray arr = new JsonArray();
             // defaults from website
-            for (ExternalCapeSetting.ServiceEnum service : ExternalCapeSetting.ServiceEnum.values()) {
-                if (service != ExternalCapeSetting.ServiceEnum.UNKNOWN_DEFAULT_OPEN_API) {
-                    JsonObject serviceObject = new JsonObject();
-                    serviceObject.addProperty("service", service.getValue());
-                    serviceObject.addProperty("enabled", true);
-                    arr.add(serviceObject);
-                }
+            for (String service : EXAMPLE_CONFIG_SERVICES) {
+                JsonObject serviceObject = new JsonObject();
+                serviceObject.addProperty("service", service);
+                serviceObject.addProperty("enabled", true);
+                arr.add(serviceObject);
             }
             defaults.add("external_capes", arr);
 

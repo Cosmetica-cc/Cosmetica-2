@@ -104,7 +104,7 @@ public class ExternalCapesScreen extends Screen {
                 UpdateExternalCapeSettingDto dto1 = new UpdateExternalCapeSettingDto();
                 dto1.setEnabled(capeSetting.enabled.peek());
                 dto1.setReplace(capeSetting.setting.isReplace());
-                dto1.setService(capeSetting.setting.getService().getValue());
+                dto1.setService(capeSetting.setting.getService());
                 newExternalCapes.add(dto1);
             }
 
@@ -411,9 +411,11 @@ public class ExternalCapesScreen extends Screen {
 
             if (this.dragging != null) {
                 // clear dragging. children have already been rearranged
-                this.dragging.withStyle(Style.create());
+                this.dragging.withStyle(null);
                 this.dragging = null;
-                StateManagerImpl.scheduleResize();
+//                StateManagerImpl.scheduleResize();
+                // Need to reload styles which requires rebuild for some reason
+                this.children.set(this.children.peek());
             }
         }
     }

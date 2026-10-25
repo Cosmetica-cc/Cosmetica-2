@@ -17,6 +17,10 @@
 package cc.cosmetica.cosmetica.forge;
 
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.loading.FMLLoader;
+import net.minecraftforge.fml.loading.moddiscovery.ModInfo;
+
+import java.util.List;
 
 /**
  * Forge implementation of {@link cc.cosmetica.cosmetica.CosmeticaExpectPlatform}.
@@ -24,5 +28,24 @@ import net.minecraftforge.fml.ModList;
 public class CosmeticaExpectPlatformImpl {
     public static boolean isModLoaded(String mod) {
         return ModList.get().isLoaded(mod);
+    }
+
+    public static String getVersion() {
+        List<ModInfo> mods = FMLLoader.getLoadingModList().getMods();
+
+        ModInfo theMod = null;
+        for (ModInfo mod : mods) {
+            if ("cosmetica".equals(mod.getModId())) {
+                theMod = mod;
+                break;
+            }
+        }
+
+        // this shouldn't happen. cosmetica will always be loaded.
+        if (theMod == null) {
+            return "0.0.0";
+        }
+
+        return theMod.getConfigElement("version").orElse("1") + "";
     }
 }
