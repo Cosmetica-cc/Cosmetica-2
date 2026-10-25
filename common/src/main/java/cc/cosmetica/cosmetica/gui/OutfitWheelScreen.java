@@ -61,7 +61,7 @@ public class OutfitWheelScreen extends Screen {
         super(Text.translatable("screens.cosmetica.wheel").toMinecraftComponent());
         // todo maybe implement this as kupe screen so we can update outfit list automatically on outfit change
         this.options = Arrays.asList();
-        this.debounceHoldEndTime = System.currentTimeMillis() + 500L;
+        this.debounceHoldEndTime = System.currentTimeMillis() + 550L;
     }
 
     private long debounceHoldEndTime;
@@ -382,8 +382,8 @@ public class OutfitWheelScreen extends Screen {
         final double mouseX = event.x();
         System.out.println("position x y " + mouseX + " " + mouseY);
 
-        if (button != 0) { // left click
-            if (button == 1) {
+        if (button != InputConstants.MOUSE_BUTTON_LEFT) { // left click
+            if (button == InputConstants.MOUSE_BUTTON_RIGHT) {
                 page = (int)page + 1;
                 if (page > this.getLastPage()) {
                     page = 0;
