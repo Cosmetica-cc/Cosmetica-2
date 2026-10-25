@@ -31,7 +31,7 @@ public class CosmeticaExpectPlatformImpl {
     }
 
     public static String getVersion() {
-        List<ModInfo> mods = FMLLoader.getLoadingModList().getMods();
+        List<ModInfo> mods = FMLLoader.getCurrent().getLoadingModList().getMods();
 
         ModInfo theMod = null;
         for (ModInfo mod : mods) {
