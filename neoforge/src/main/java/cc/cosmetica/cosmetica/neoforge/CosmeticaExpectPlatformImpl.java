@@ -17,6 +17,10 @@
 package cc.cosmetica.cosmetica.neoforge;
 
 import net.neoforged.fml.ModList;
+import net.neoforged.fml.loading.FMLLoader;
+import net.neoforged.fml.loading.moddiscovery.ModInfo;
+
+import java.util.List;
 
 /**
  * Neoforged implementation of {@link cc.cosmetica.cosmetica.CosmeticaExpectPlatform}.
@@ -24,5 +28,24 @@ import net.neoforged.fml.ModList;
 public class CosmeticaExpectPlatformImpl {
     public static boolean isModLoaded(String mod) {
         return ModList.get().isLoaded(mod);
+    }
+
+    public static String getVersion() {
+        List<ModInfo> mods = FMLLoader.getCurrent().getLoadingModList().getMods();
+
+        ModInfo theMod = null;
+        for (ModInfo mod : mods) {
+            if ("cosmetica".equals(mod.getModId())) {
+                theMod = mod;
+                break;
+            }
+        }
+
+        // this shouldn't happen. cosmetica will always be loaded.
+        if (theMod == null) {
+            return "0.0.0";
+        }
+
+        return theMod.getConfigElement("version").orElse("1") + "";
     }
 }

@@ -23,6 +23,7 @@ import cc.cosmetica.core.impl.BlockModelManager;
 import cc.cosmetica.core.impl.CosmeticaSession;
 import cc.cosmetica.core.impl.Logging;
 import cc.cosmetica.core.impl.LoggingCategory;
+import cc.cosmetica.core.util.LifetimeResources;
 import cc.cosmetica.cosmetica.settings.CosmeticaSettings;
 import cc.cosmetica.cosmetica.util.CosmeticaLogCategory;
 import cc.cosmetica.kupe.api.State;
@@ -45,10 +46,7 @@ import java.util.Base64;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -59,7 +57,7 @@ import static cc.cosmetica.cosmetica.settings.CosmeticaSettings.willApplyLocalSe
  */
 public final class Authentication {
     private static final Identifier SESSIONS = Identifier.fromNamespaceAndPath("cosmetica", ".sessions");
-    private static final ScheduledExecutorService LOGIN_SCHEDULER = Executors.newScheduledThreadPool(1, new ThreadFactory() {
+    private static final ScheduledExecutorService LOGIN_SCHEDULER = LifetimeResources.newScheduler(1, new ThreadFactory() {
         private int counter = 1;
 
         @Override
@@ -86,10 +84,11 @@ public final class Authentication {
                 Minecraft.getInstance().execute(CosmeticaSettings::clearSettings);
 
                 boolean invalidateTokens = reason == CosmeticaAPI.AuthChangeReason.ERROR_401;
+
+                // toast for offline
                 if (reason == CosmeticaAPI.AuthChangeReason.OFFLINE) {
                     if (Authentication.everAuthenticated.get()) {
                         invalidateTokens = true;
-
                         Cosmetica.showToast(
                                 Text.translatable("toast.cosmetica.disconnected"),
                                 Text.translatable("toast.cosmetica.disconnected.message")
@@ -222,11 +221,15 @@ public final class Authentication {
             int retries = RETRIES.getAndIncrement();
             if (retries >= retryCounts.length) {
                 Logging.getInstance().info("Retrying cosmetica login in {} seconds", retryCounts[retryCounts.length - 1]);
-                LOGIN_SCHEDULER.schedule(
-                        () -> Authentication.repeatLogInFromApi(sessionsInfo, properties),
-                        retryCounts[retryCounts.length - 1],
-                        TimeUnit.SECONDS
-                );
+                try {
+                    LOGIN_SCHEDULER.schedule(
+                            () -> Authentication.repeatLogInFromApi(sessionsInfo, properties),
+                            retryCounts[retryCounts.length - 1],
+                            TimeUnit.SECONDS
+                    );
+                } catch (RejectedExecutionException e) {
+                    Logging.getInstance().info("Failed to re-schedule login (game is shutting down)");
+                }
             } else {
                 if (retries == 2) {
                     Logging.getInstance().debug(LoggingCategory.COSMETICS, "Clearing cosmetics due to 2 failed retries.");
@@ -234,11 +237,15 @@ public final class Authentication {
                 }
 
                 Logging.getInstance().info("Retrying cosmetica login in {} seconds", retryCounts[retries]);
-                LOGIN_SCHEDULER.schedule(
-                        () -> Authentication.repeatLogInFromApi(sessionsInfo, properties),
-                        retryCounts[retries],
-                        TimeUnit.SECONDS
-                );
+                try {
+                    LOGIN_SCHEDULER.schedule(
+                            () -> Authentication.repeatLogInFromApi(sessionsInfo, properties),
+                            retryCounts[retries],
+                            TimeUnit.SECONDS
+                    );
+                } catch (RejectedExecutionException e) {
+                    Logging.getInstance().info("Failed to re-schedule login (game is shutting down)");
+                }
             }
         }
     }

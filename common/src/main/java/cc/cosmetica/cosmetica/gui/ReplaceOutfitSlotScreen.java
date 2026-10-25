@@ -118,6 +118,11 @@ public class ReplaceOutfitSlotScreen extends Component implements AnimatedTextur
         guiPlayer.configureOverride(GUIPlayer.CAPE, newOutfit.getCloak().map(ImageCosmetic::getImage).map(ci -> ci.location).map(GUIPlayer.CapeProperties::new).orElse(new GUIPlayer.CapeProperties((ResourceKey) null)));
         guiPlayer.configureOverride(GUIPlayer.ELYTRA, newOutfit.getElytra().map(ImageCosmetic::getImage).map(ci -> ci.location).map(location -> new GUIPlayer.ElytraProperties(new ResourceKey(location), false, true)).orElse(GUIPlayer.ElytraProperties.DEFAULT));
 
+        final GUIPlayer guiPlayer = new RotatableGUIPlayer(player, this.showingElytra);
+        guiPlayer.configureOverride(AccessoriesAttachment.INSTANCE, newOutfit.getAccessories());
+        guiPlayer.configureOverride(GUIPlayer.CAPE, newOutfit.getCloak().map(ImageCosmetic::getImage).map(ci -> ci.location).map(GUIPlayer.CapeProperties::new).orElse(new GUIPlayer.CapeProperties((ResourceKey) null)));
+        guiPlayer.configureOverride(GUIPlayer.ELYTRA, newOutfit.getElytra().map(ImageCosmetic::getImage).map(ci -> ci.location).map(location -> new GUIPlayer.ElytraProperties(new ResourceKey(location), false, true)).orElse(GUIPlayer.ElytraProperties.DEFAULT));
+
         return Arrays.asList(
                 new Div(
                         new Label(this.title),
@@ -241,7 +246,7 @@ public class ReplaceOutfitSlotScreen extends Component implements AnimatedTextur
         }
         // "New Outfit" option
         ReplaceableOutfit() {
-            super(OutfitSelectScreen.NEW_OUTFIT_ICON);
+            super(WardrobeScreen.NEW_OUTFIT_ICON);
             this.option = null;
             this.usable = true;
         }
@@ -256,8 +261,7 @@ public class ReplaceOutfitSlotScreen extends Component implements AnimatedTextur
                 // Fix border not showing on new outfit option
                 return new Stylesheet()
                         .self(Style.create()
-                                // -- should a new translatable text be used instead of reusing the button?
-                                .set(TOOLTIP, Optional.of(new Tooltip(Text.translatable("label.cosmetica.newOutfit"))))
+                                .set(TOOLTIP, Optional.of(new Tooltip(Text.translatable("tooltip.cosmetica.newOutfit"))))
                                 .set(PADDING, fixed(new Margins(1))));
             } else {
                 // tooltip

@@ -125,7 +125,7 @@ public class CosmeticEntry extends Component {
 		// add remove button if editable
 		if (this.type.hasRemoveButton()) {
 			content.add(
-					new ClickableImage(new ResourceKey("cosmetica", "textures/remove_cross.png"), () -> {
+					new ClickableImage(new ResourceKey("cosmetica", "textures/button/remove_cross.png"), () -> {
 						Screens.setScreen(new ConfirmRemoveCosmeticScreen(this.parentOutfit, this.id, this.name, this.mirrored), Text.translatable("screens.cosmetica.confirmDeletion"));
 					}).setDisabled(this.type == Type.REMOVABLE_OFFLINE)
 							.setTransparent(1.0f)
