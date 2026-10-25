@@ -113,10 +113,6 @@ public class ReplaceOutfitSlotScreen extends Component implements AnimatedTextur
             components.add(0, new ReplaceableOutfit());
 
         final UUID player = Minecraft.getInstance().getUser().getProfileId();
-        final GUIPlayer guiPlayer = new RotatableGUIPlayer(player, this.showingElytra);
-        guiPlayer.configureOverride(AccessoriesAttachment.INSTANCE, newOutfit.getAccessories());
-        guiPlayer.configureOverride(GUIPlayer.CAPE, newOutfit.getCloak().map(ImageCosmetic::getImage).map(ci -> ci.location).map(GUIPlayer.CapeProperties::new).orElse(new GUIPlayer.CapeProperties((ResourceKey) null)));
-        guiPlayer.configureOverride(GUIPlayer.ELYTRA, newOutfit.getElytra().map(ImageCosmetic::getImage).map(ci -> ci.location).map(location -> new GUIPlayer.ElytraProperties(new ResourceKey(location), false, true)).orElse(GUIPlayer.ElytraProperties.DEFAULT));
 
         final GUIPlayer guiPlayer = new RotatableGUIPlayer(player, this.showingElytra);
         guiPlayer.configureOverride(AccessoriesAttachment.INSTANCE, newOutfit.getAccessories());
