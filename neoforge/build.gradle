@@ -33,8 +33,10 @@ configurations {
 dependencies {
     neoForge "net.neoforged:neoforge:${rootProject.neoforge_version}"
 
+    def coreVersion = findProperty("core_version") ?: rootProject.findProperty("core_version")
+
     // Cosmetica Core
-    implementation "cc.cosmetica:cosmetica-core-neoforge:${rootProject.core_version}-${rootProject.minecraft_version}"
+    implementation "cc.cosmetica:cosmetica-core-neoforge:${coreVersion}-${rootProject.minecraft_version}"
     // Kupe Core
     implementation "cc.cosmetica:kupe-neoforge:${rootProject.kupe_version}-${rootProject.minecraft_version}"
     // Webp Support
@@ -44,7 +46,7 @@ dependencies {
     shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive = false }
 
     // jarJar core and kupe
-    include "cc.cosmetica:cosmetica-core-neoforge:${rootProject.core_version}-${rootProject.minecraft_version}"
+    include "cc.cosmetica:cosmetica-core-neoforge:${coreVersion}-${rootProject.minecraft_version}"
     include "cc.cosmetica:kupe-neoforge:${rootProject.kupe_version}-${rootProject.minecraft_version}"
     // Shadow twelvemonkeys
     shadow "com.twelvemonkeys.imageio:imageio-core:${rootProject.imaging_version}"
