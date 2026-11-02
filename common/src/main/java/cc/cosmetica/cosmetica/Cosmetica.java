@@ -254,14 +254,14 @@ public class Cosmetica {
 				.setResponseTimeout(t)
 				.build();
 
-		CloseableHttpClient client = HttpClients.custom()
-				.setDefaultRequestConfig(requestConfig)
-				.build();
-
 		final HttpGet get = new HttpGet("https://api.minecraftservices.com/privileges");
 		get.addHeader("Authorization", "Bearer " + token);
 
-		try {
+		try(
+				CloseableHttpClient client = HttpClients.custom()
+						.setDefaultRequestConfig(requestConfig)
+						.build()
+        ){
 			CloseableHttpResponse response = client.execute(get);
 
 			boolean success = response.getCode() / 100 == 2;
