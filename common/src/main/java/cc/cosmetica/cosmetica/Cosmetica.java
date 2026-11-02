@@ -252,20 +252,19 @@ public class Cosmetica {
 				.setSocketTimeout(20000)
 				.build();
 
-		CloseableHttpClient client = HttpClients.custom()
-				.setDefaultRequestConfig(requestConfig)
-				.build();
-
 		final HttpGet get = new HttpGet("https://api.minecraftservices.com/privileges");
 		get.addHeader("Authorization", "Bearer " + token);
 
-		try {
+		try(
+				CloseableHttpClient client = HttpClients.custom()
+						.setDefaultRequestConfig(requestConfig)
+						.build();
+		){
 			CloseableHttpResponse response = client.execute(get);
 
 			boolean success = response.getStatusLine().getStatusCode() / 100 == 2;
 
 			response.close();
-			client.close();
 			return success;
 		} catch (IOException e) {
 			Logging.getInstance().warn("Error checking if valid authorization", e);
