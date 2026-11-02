@@ -62,6 +62,8 @@ shadowJar {
 
     configurations = [project.configurations.shadowCommon]
     archiveClassifier = "dev-shadow"
+
+    relocate 'org.apache.hc', 'cc.cosmetica.org.apache.hc'
 }
 
 remapJar {
