@@ -264,8 +264,8 @@ public class Cosmetica {
 
 			boolean success = response.getStatusLine().getStatusCode() / 100 == 2;
 
-			client.close();
 			response.close();
+			client.close();
 			return success;
 		} catch (IOException e) {
 			Logging.getInstance().warn("Error checking if valid authorization", e);
