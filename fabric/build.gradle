@@ -70,6 +70,8 @@ shadowJar {
 
     configurations = [project.configurations.shadowCommon]
     archiveClassifier = null           // shadowJar becomes the main artifact
+
+    relocate 'org.apache.hc', 'cc.cosmetica.org.apache.hc'
 }
 
 //remapJar {
