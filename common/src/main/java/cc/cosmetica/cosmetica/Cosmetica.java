@@ -258,8 +258,8 @@ public class Cosmetica {
 		try(
 				CloseableHttpClient client = HttpClients.custom()
 						.setDefaultRequestConfig(requestConfig)
-						.build();
-		){
+						.build()
+        ){
 			CloseableHttpResponse response = client.execute(get);
 
 			boolean success = response.getStatusLine().getStatusCode() / 100 == 2;
